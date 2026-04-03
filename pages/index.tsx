@@ -56,7 +56,7 @@ export default function Dashboard() {
   const kakaoTargets = [
     ...nearDoneCustomers.map(c => ({ ...c, reason: '완납 임박', tag: 'warn' })),
     ...gapCustomers.filter(c => !nearDoneCustomers.find(n => n.id === c.id)).map(c => ({ ...c, reason: '보장 공백', tag: 'red' })),
-    ...birthdayCustomers.filter(c => !nearDoneCustomers.find(n => n.id === c.id) && !gapCustomers.find(g => g.id === c.id)).map(c => ({ ...c, reason: '생일 축하', tag: 'green' })),
+    ...birthdayCustomers.map(c => ({ ...c, reason: '생일 축하 🎂', tag: 'green' })),
   ]
 
   const getScript = (c: any) => {
