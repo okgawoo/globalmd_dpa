@@ -83,8 +83,16 @@ export default function Dashboard() {
   return (
     <div className={styles.wrap}>
       <div className={styles.topbar}>
-        <div className={styles.logo}>DPA <span>보험 분석 자동화</span></div>
-        <div className={styles.byline}>make by okga</div>
+        <div className={styles.logo}>DPA <span>보험 분석 자동화</span> <span className={styles.tagline}>승경아 타이핑 할 시간에 영업을 더 해~~</span></div>
+        <div className={styles.byline}>made by okga</div>
+      </div>
+
+      <div className={styles.featureBtns}>
+        {['📊 보장 공백 분석', '💬 카톡 스크립트 자동생성', '🔔 완납 임박 알림', '🎂 생일 알림', '📰 맞춤 뉴스레터', '⏰ 만기 임박 알림', '🤖 AI 보장 분석', '📱 캡처 자동 입력', '📈 영업 성과 리포트', '🎯 잠재 고객 관리'].map(f => (
+          <button key={f} className={styles.featBtn} onClick={() => alert('준비 중인 기능이에요! 곧 추가됩니다 😊')}>
+            {f}
+          </button>
+        ))}
       </div>
 
       <div className={styles.metrics}>
