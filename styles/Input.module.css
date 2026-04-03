@@ -50,3 +50,5 @@
 @media (max-width: 768px) {
   .formGrid { grid-template-columns: 1fr; }
 }
+.autoTag { font-size: 10px; background: var(--green-light); color: #0F6E56; padding: 1px 6px; border-radius: 999px; font-weight: 600; margin-left: 4px; }
+.readOnly { background: var(--bg) !important; color: var(--green) !important; font-weight: 600; cursor: default; }
