@@ -14,8 +14,10 @@
 
 .sidebarHeader { padding: 20px 16px 14px; border-bottom: 1px solid var(--border); }
 .sidebarLogo { display: flex; flex-direction: column; gap: 2px; text-decoration: none; }
+.logoRow { display: flex; align-items: center; justify-content: space-between; }
 .logoText { font-size: 22px; font-weight: 700; color: var(--green); letter-spacing: -0.5px; }
-.logoVersion { font-size: 11px; font-weight: 600; color: var(--green); margin-top: -4px; }
+.madeBy { font-size: 11px; color: var(--text-muted); }
+.logoVersion { font-size: 11px; font-weight: 600; color: var(--green); }
 .logoSub { font-size: 11px; color: var(--text-muted); }
 
 .nav { flex: 1; padding: 10px 8px; display: flex; flex-direction: column; gap: 2px; overflow-y: auto; }
@@ -29,10 +31,7 @@
 .navItem.active { background: var(--green-light); color: var(--green); font-weight: 600; }
 .navIcon { font-size: 16px; width: 20px; text-align: center; }
 
-.divider { height: 1px; background: var(--border); margin: 6px 8px; }
-
-.sidebarFooter { padding: 12px 16px 16px; border-top: 1px solid var(--border); }
-.madeBy { font-size: 11px; color: var(--text-muted); }
+.divider { height: 1px; background: var(--border); margin: 10px 8px; }
 
 .overlay { display: none; }
 
