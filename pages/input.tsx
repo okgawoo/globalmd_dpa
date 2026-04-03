@@ -4,6 +4,36 @@ import styles from '../styles/Input.module.css'
 
 type InputTab = 'manual' | 'paste' | 'capture'
 
+const JOBS = ['직장인 (회사원)', '자영업자', '공무원', '교사 / 교직원', '의료인', '전문직', '주부', '학생', '농업 / 어업', '프리랜서', '은퇴 / 무직', '기타']
+const COMPANIES = ['삼성생명', '한화생명', '교보생명', '신한라이프', 'DB생명', '흥국생명', '동양생명', '미래에셋생명', '푸본현대생명', '메트라이프', '삼성화재', '현대해상', 'DB손해보험', 'KB손해보험', '메리츠화재', '흥국화재', '롯데손해보험', 'MG손해보험', '기타']
+
+function formatRRN(value: string) {
+  const digits = value.replace(/\D/g, '').slice(0, 13)
+  if (digits.length <= 6) return digits
+  return digits.slice(0, 6) + '-' + digits.slice(6)
+}
+
+function getGenderFromRRN(rrn: string): string {
+  const digits = rrn.replace(/\D/g, '')
+  if (digits.length < 8) return '여'
+  const code = parseInt(digits[6])
+  if ([1, 3, 5, 7].includes(code)) return '남'
+  if ([2, 4, 6, 8].includes(code)) return '여'
+  return '여'
+}
+
+function getAgeFromRRN(rrn: string): string {
+  const digits = rrn.replace(/\D/g, '')
+  if (digits.length < 7) return ''
+  const code = parseInt(digits[6])
+  const yy = parseInt(digits.slice(0, 2))
+  let year: number
+  if ([1, 2, 5, 6].includes(code)) year = 1900 + yy
+  else if ([3, 4, 7, 8].includes(code)) year = 2000 + yy
+  else year = 1900 + yy
+  return String(new Date().getFullYear() - year)
+}
+
 export default function InputPage() {
   const [inputTab, setInputTab] = useState<InputTab>('manual')
   const [saving, setSaving] = useState(false)
@@ -11,28 +41,63 @@ export default function InputPage() {
   const [pasteText, setPasteText] = useState('')
   const [parsing, setParsing] = useState(false)
   const [parsed, setParsed] = useState<any>(null)
+  const [jobCustom, setJobCustom] = useState('')
+  const [companyCustom, setCompanyCustom] = useState('')
 
   const [form, setForm] = useState({
-    name: '', age: '', gender: '여', job: '', phone: '', grade: '일반',
-    company: '', product_name: '', monthly_fee: '', payment_status: '유지',
+    name: '', rrn: '', age: '', gender: '여', job: '직장인 (회사원)', phone: '', grade: '일반',
+    company: '삼성생명', product_name: '', monthly_fee: '', payment_status: '유지',
     payment_rate: '', payment_total: '', payment_done: '',
   })
 
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }))
 
+  function handleRRN(v: string) {
+    const formatted = formatRRN(v)
+    const gender = getGenderFromRRN(formatted)
+    const age = getAgeFromRRN(formatted)
+    setForm(f => ({ ...f, rrn: formatted, gender, age }))
+  }
+
+  function handlePaymentDone(v: string) {
+    const done = parseInt(v) || 0
+    const total = parseInt(form.payment_total) || 0
+    const rate = total > 0 ? Math.round((done / total) * 100) : 0
+    setForm(f => ({ ...f, payment_done: v, payment_rate: String(rate) }))
+  }
+
+  function handlePaymentTotal(v: string) {
+    const total = parseInt(v) || 0
+    const done = parseInt(form.payment_done) || 0
+    const rate = total > 0 ? Math.round((done / total) * 100) : 0
+    setForm(f => ({ ...f, payment_total: v, payment_rate: String(rate) }))
+  }
+
+  const finalJob = form.job === '기타' ? jobCustom : form.job
+  const finalCompany = form.company === '기타' ? companyCustom : form.company
+
   async function handleManualSave() {
-    if (!form.name || !form.company) return alert('고객명과 보험사는 필수예요!')
+    if (!form.name || !finalCompany) return alert('고객명과 보험사는 필수예요!')
     setSaving(true)
     try {
+      const birthYear = form.rrn.length >= 7 ? (parseInt(form.rrn[6]) <= 2 ? 1900 : 2000) + parseInt(form.rrn.slice(0, 2)) : null
+      const birthDate = birthYear ? `${birthYear}-${form.rrn.slice(2, 4)}-${form.rrn.slice(4, 6)}` : null
+
       const { data: cust } = await supabase.from('dpa_customers').insert({
-        name: form.name, age: parseInt(form.age) || null,
-        gender: form.gender, job: form.job, phone: form.phone, grade: form.grade,
+        name: form.name,
+        age: parseInt(form.age) || null,
+        birth_date: birthDate,
+        gender: form.gender,
+        job: finalJob,
+        phone: form.phone,
+        grade: form.grade,
       }).select().single()
 
       if (cust) {
         await supabase.from('dpa_contracts').insert({
           customer_id: cust.id,
-          company: form.company, product_name: form.product_name,
+          company: finalCompany,
+          product_name: form.product_name,
           monthly_fee: parseInt(form.monthly_fee) || 0,
           payment_status: form.payment_status,
           payment_rate: parseInt(form.payment_rate) || 0,
@@ -100,15 +165,22 @@ export default function InputPage() {
     setParsing(false)
   }
 
+  const resetForm = () => {
+    setDone(false)
+    setForm({ name:'', rrn:'', age:'', gender:'여', job:'직장인 (회사원)', phone:'', grade:'일반', company:'삼성생명', product_name:'', monthly_fee:'', payment_status:'유지', payment_rate:'', payment_total:'', payment_done:'' })
+    setParsed(null)
+    setPasteText('')
+    setJobCustom('')
+    setCompanyCustom('')
+  }
+
   if (done) return (
     <div className={styles.doneWrap}>
       <div className={styles.doneIcon}>✅</div>
       <div className={styles.doneText}>저장 완료!</div>
       <div className={styles.doneActions}>
         <a href="/customers" className={styles.btnPrimary}>고객 목록 보기</a>
-        <button className={styles.btnSecondary} onClick={() => { setDone(false); setForm({ name:'',age:'',gender:'여',job:'',phone:'',grade:'일반',company:'',product_name:'',monthly_fee:'',payment_status:'유지',payment_rate:'',payment_total:'',payment_done:'' }); setParsed(null); setPasteText('') }}>
-          추가 입력
-        </button>
+        <button className={styles.btnSecondary} onClick={resetForm}>추가 입력</button>
       </div>
     </div>
   )
@@ -116,11 +188,9 @@ export default function InputPage() {
   return (
     <div className={styles.wrap}>
       <div className={styles.tabBar}>
-        {(['manual', 'paste', 'capture'] as InputTab[]).map(t => (
-          <button key={t} className={[styles.tab, inputTab === t ? styles.activeTab : ''].join(' ')} onClick={() => setInputTab(t)}>
-            {t === 'manual' ? '✏️ 수동 입력' : t === 'paste' ? '📋 텍스트 붙여넣기' : '📱 캡처 (준비중)'}
-          </button>
-        ))}
+        <button className={[styles.tab, inputTab === 'manual' ? styles.activeTab : ''].join(' ')} onClick={() => setInputTab('manual')}>✏️ 수동 입력</button>
+        <button className={[styles.tab, inputTab === 'paste' ? styles.activeTab : ''].join(' ')} onClick={() => setInputTab('paste')}>📋 텍스트 붙여넣기</button>
+        <button className={[styles.tab, inputTab === 'capture' ? styles.activeTab : ''].join(' ')} onClick={() => setInputTab('capture')}>📱 캡처 (준비중)</button>
       </div>
 
       {inputTab === 'manual' && (
@@ -132,18 +202,23 @@ export default function InputPage() {
               <input value={form.name} onChange={e => set('name', e.target.value)} placeholder="홍길동" />
             </div>
             <div className={styles.field}>
-              <label>나이</label>
-              <input type="number" value={form.age} onChange={e => set('age', e.target.value)} placeholder="45" />
+              <label>주민등록번호</label>
+              <input
+                value={form.rrn}
+                onChange={e => handleRRN(e.target.value)}
+                placeholder="000000-0000000"
+                maxLength={14}
+              />
             </div>
             <div className={styles.field}>
-              <label>성별</label>
+              <label>성별 <span className={styles.autoTag}>자동</span></label>
               <select value={form.gender} onChange={e => set('gender', e.target.value)}>
                 <option>여</option><option>남</option>
               </select>
             </div>
             <div className={styles.field}>
-              <label>직업</label>
-              <input value={form.job} onChange={e => set('job', e.target.value)} placeholder="직장인" />
+              <label>나이 <span className={styles.autoTag}>자동</span></label>
+              <input value={form.age} onChange={e => set('age', e.target.value)} placeholder="45" />
             </div>
             <div className={styles.field}>
               <label>연락처</label>
@@ -155,14 +230,34 @@ export default function InputPage() {
                 <option>일반</option><option>VIP</option>
               </select>
             </div>
+            <div className={styles.field}>
+              <label>직업</label>
+              <select value={form.job} onChange={e => set('job', e.target.value)}>
+                {JOBS.map(j => <option key={j}>{j}</option>)}
+              </select>
+            </div>
+            {form.job === '기타' && (
+              <div className={styles.field}>
+                <label>직업 직접 입력</label>
+                <input value={jobCustom} onChange={e => setJobCustom(e.target.value)} placeholder="직업을 입력해주세요" />
+              </div>
+            )}
           </div>
 
           <div className={styles.formSection}>보험 계약 정보</div>
           <div className={styles.formGrid}>
             <div className={styles.field}>
               <label>보험사 *</label>
-              <input value={form.company} onChange={e => set('company', e.target.value)} placeholder="한화생명" />
+              <select value={form.company} onChange={e => set('company', e.target.value)}>
+                {COMPANIES.map(c => <option key={c}>{c}</option>)}
+              </select>
             </div>
+            {form.company === '기타' && (
+              <div className={styles.field}>
+                <label>보험사 직접 입력</label>
+                <input value={companyCustom} onChange={e => setCompanyCustom(e.target.value)} placeholder="보험사명을 입력해주세요" />
+              </div>
+            )}
             <div className={styles.field}>
               <label>상품명</label>
               <input value={form.product_name} onChange={e => set('product_name', e.target.value)} placeholder="무배당 건강보험" />
@@ -178,16 +273,16 @@ export default function InputPage() {
               </select>
             </div>
             <div className={styles.field}>
-              <label>납입률 (%)</label>
-              <input type="number" value={form.payment_rate} onChange={e => set('payment_rate', e.target.value)} placeholder="91" />
-            </div>
-            <div className={styles.field}>
               <label>총 납입 회차</label>
-              <input type="number" value={form.payment_total} onChange={e => set('payment_total', e.target.value)} placeholder="120" />
+              <input type="number" value={form.payment_total} onChange={e => handlePaymentTotal(e.target.value)} placeholder="120" />
             </div>
             <div className={styles.field}>
               <label>완료 회차</label>
-              <input type="number" value={form.payment_done} onChange={e => set('payment_done', e.target.value)} placeholder="109" />
+              <input type="number" value={form.payment_done} onChange={e => handlePaymentDone(e.target.value)} placeholder="109" />
+            </div>
+            <div className={styles.field}>
+              <label>납입률 (%) <span className={styles.autoTag}>자동</span></label>
+              <input value={form.payment_rate} readOnly placeholder="자동 계산" className={styles.readOnly} />
             </div>
           </div>
 
@@ -200,7 +295,7 @@ export default function InputPage() {
       {inputTab === 'paste' && (
         <div className={styles.formWrap}>
           <div className={styles.pasteGuide}>
-            보험사 앱에서 보장 내역 텍스트를 마우스로 긁어서 아래에 붙여넣으세요!
+            보험사 프로그램에서 보장 내역 텍스트를 마우스로 긁어서 아래에 붙여넣으세요!
           </div>
           <textarea
             className={styles.pasteArea}
@@ -234,7 +329,6 @@ export default function InputPage() {
         <div className={styles.captureWrap}>
           <div className={styles.captureIcon}>📱</div>
           <div className={styles.captureText}>캡처 런처 기능 준비 중이에요!</div>
-          <div className={styles.captureSub}>Alt+Q로 실행되는 스캔 런처가 곧 추가됩니다</div>
         </div>
       )}
     </div>
