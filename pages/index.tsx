@@ -15,7 +15,7 @@ export default function Dashboard() {
 
   async function fetchCustomers() {
     const { data } = await supabase
-      .from('customers')
+      .from('dpa_customers')
       .select('*')
       .order('created_at')
     if (data) {
@@ -28,7 +28,7 @@ export default function Dashboard() {
   async function selectCustomer(customer: any) {
     setSelected(customer)
     const { data: contractData } = await supabase
-      .from('contracts')
+      .from('dpa_contracts')
       .select('*')
       .eq('customer_id', customer.id)
 
@@ -37,7 +37,7 @@ export default function Dashboard() {
     if (contractData && contractData.length > 0) {
       const contractIds = contractData.map((c: any) => c.id)
       const { data: coverageData } = await supabase
-        .from('coverages')
+        .from('dpa_coverages')
         .select('*')
         .in('contract_id', contractIds)
       setCoverages(coverageData || [])
