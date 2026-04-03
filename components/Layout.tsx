@@ -24,7 +24,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <aside className={[styles.sidebar, sidebarOpen ? styles.open : ''].join(' ')}>
         <div className={styles.sidebarHeader}>
           <a href="/" className={styles.sidebarLogo}>
-            <span className={styles.logoText}>DPA</span>
+            <div className={styles.logoRow}>
+              <span className={styles.logoText}>DPA</span>
+              <span className={styles.madeBy}>made by okga</span>
+            </div>
             <span className={styles.logoVersion}>V1.0</span>
             <span className={styles.logoSub}>보험 분석 자동화</span>
           </a>
@@ -44,9 +47,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </div>
           ))}
         </nav>
-        <div className={styles.sidebarFooter}>
-          <div className={styles.madeBy}>made by okga</div>
-        </div>
       </aside>
 
       <div className={styles.main}>
