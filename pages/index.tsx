@@ -43,6 +43,12 @@ export default function Dashboard() {
     return hasBrain && hasCancer && hasCare
   })
 
+  const birthdayCustomers = customers.filter(c => {
+    if (!c.birth_date) return false
+    const birth = new Date(c.birth_date)
+    return birth.getMonth() === now.getMonth() && Math.abs(birth.getDate() - now.getDate()) <= 7
+  })
+
   const thisMonth = now.getMonth()
   const newThisMonth = customers.filter(c => new Date(c.created_at).getMonth() === thisMonth).length
   const totalMonthly = contracts.reduce((s, c) => s + (c.monthly_fee || 0), 0)
@@ -50,7 +56,14 @@ export default function Dashboard() {
   const kakaoTargets = [
     ...nearDoneCustomers.map(c => ({ ...c, reason: '완납 임박', tag: 'warn' })),
     ...gapCustomers.filter(c => !nearDoneCustomers.find(n => n.id === c.id)).map(c => ({ ...c, reason: '보장 공백', tag: 'red' })),
+    ...birthdayCustomers.filter(c => !nearDoneCustomers.find(n => n.id === c.id) && !gapCustomers.find(g => g.id === c.id)).map(c => ({ ...c, reason: '생일 축하', tag: 'green' })),
   ]
+
+  const getScript = (c: any) => {
+    if (c.tag === 'warn') return `안녕하세요 ${c.name} 님! 😊\n\n납입이 거의 완료되어 가고 있어요! 🎉\n완납 후 더 유리한 조건으로 재설계할 수 있는 기회가 생겨요.\n잠깐 시간 되실 때 말씀 나눠봐요! 😊`
+    if (c.tag === 'green') return `안녕하세요 ${c.name} 님! 😊\n\n생일 축하드려요! 🎂🎉\n항상 건강하고 행복한 날 되시길 바랍니다!\n무엇이든 필요하신 게 있으시면 언제든지 연락주세요 😊`
+    return `안녕하세요 ${c.name} 님! 😊\n\n최근 뇌혈관 질환 관련 뉴스가 많더라고요.\n${c.name} 님 보험을 확인해보니 뇌혈관 전체 보장이 빠져있어서 한번 말씀드리고 싶었어요.\n잠깐 시간 되실 때 통화 가능하실까요? 📞`
+  }
 
   const openPopup = (type: string) => {
     if (type === 'customers') setPopup({ type: '전체 고객', list: customers })
@@ -127,12 +140,9 @@ export default function Dashboard() {
           ) : kakaoTargets.map((c, i) => (
             <div key={i} className={styles.kakaoRow}>
               <div className={styles.kakaoName}>{c.name}</div>
-              <span className={[styles.badge, c.tag === 'warn' ? styles.badgeWarn : styles.badgeRed].join(' ')}>{c.reason}</span>
+              <span className={[styles.badge, c.tag === 'warn' ? styles.badgeWarn : c.tag === 'green' ? styles.badgeGreen : styles.badgeRed].join(' ')}>{c.reason}</span>
               <button className={styles.copyBtn} onClick={() => {
-                const script = c.tag === 'warn'
-                  ? `안녕하세요 ${c.name} 님! 😊\n\n납입이 거의 완료되어 가고 있어요! 🎉\n완납 후 더 유리한 조건으로 재설계할 수 있는 기회가 생겨요.\n잠깐 시간 되실 때 말씀 나눠봐요! 😊`
-                  : `안녕하세요 ${c.name} 님! 😊\n\n최근 뇌혈관 질환 관련 뉴스가 많더라고요.\n${c.name} 님 보험을 확인해보니 뇌혈관 전체 보장이 빠져있어서 한번 말씀드리고 싶었어요.\n잠깐 시간 되실 때 통화 가능하실까요? 📞`
-                navigator.clipboard.writeText(script)
+                navigator.clipboard.writeText(getScript(c))
                 alert('복사됐어요! 카톡에 붙여넣으세요 😊')
               }}>복사</button>
             </div>
