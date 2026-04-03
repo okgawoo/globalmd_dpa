@@ -1,3 +1,9 @@
+.tagline { font-size: 13px; font-weight: 400; color: #1D9E75; margin-left: 12px; }
+
+.featureBtns { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.featBtn { font-size: 12px; padding: 7px 14px; border-radius: 999px; border: 1px solid #e5e5e5; background: white; color: #444; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+.featBtn:hover { background: #1D9E75; color: white; border-color: #1D9E75; }
+
 .wrap { max-width: 1100px; margin: 0 auto; padding: 24px 20px; }
 
 .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
