@@ -1,10 +1,13 @@
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
+  --bg: #f7f7f5;
+  --bg-card: #ffffff;
+  --bg-sidebar: #ffffff;
+  --border: #efefef;
+  --text-primary: #1a1a1a;
+  --text-secondary: #666;
+  --text-muted: #999;
   --green: #1D9E75;
   --green-light: #E1F5EE;
   --amber: #EF9F27;
@@ -13,35 +16,33 @@
   --red-light: #FCEBEB;
   --blue: #378ADD;
   --blue-light: #E6F1FB;
-  --gray: #888780;
-  --gray-light: #F1EFE8;
-  --text-primary: #1a1a1a;
-  --text-secondary: #666;
-  --text-muted: #999;
-  --border: #e5e5e5;
-  --bg: #f8f8f6;
-  --bg-card: #ffffff;
+  --sidebar-width: 220px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111111;
+    --bg-card: #1c1c1c;
+    --bg-sidebar: #161616;
+    --border: #2a2a2a;
+    --text-primary: #f0f0f0;
+    --text-secondary: #aaa;
+    --text-muted: #666;
+    --green-light: #0d3d2e;
+    --amber-light: #3d2e0d;
+    --red-light: #3d1111;
+    --blue-light: #0d2a3d;
+  }
 }
 
 body {
-  font-family: -apple-system, 'Pretendard', sans-serif;
+  font-family: -apple-system, 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
   background: var(--bg);
   color: var(--text-primary);
   font-size: 14px;
   line-height: 1.5;
 }
 
-button {
-  cursor: pointer;
-  border: 1px solid var(--border);
-  background: white;
-  border-radius: 8px;
-  padding: 8px 14px;
-  font-size: 13px;
-  color: var(--text-primary);
-  transition: all 0.15s;
-}
-
-button:hover {
-  background: var(--gray-light);
-}
+button { cursor: pointer; font-family: inherit; }
+input, textarea, select { font-family: inherit; font-size: 14px; }
+a { text-decoration: none; color: inherit; }
