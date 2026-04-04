@@ -46,3 +46,41 @@ body {
 button { cursor: pointer; font-family: inherit; }
 input, textarea, select { font-family: inherit; font-size: 14px; }
 a { text-decoration: none; color: inherit; }
+
+/* 커스텀 확인 팝업 */
+.dpa-modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+}
+.dpa-modal {
+  background: #fff; border-radius: 16px; padding: 28px 24px;
+  width: 320px; box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  text-align: center;
+}
+.dpa-modal-title {
+  font-size: 16px; font-weight: 700; color: #111827; margin-bottom: 8px;
+}
+.dpa-modal-msg {
+  font-size: 14px; color: #6B7280; line-height: 1.6; margin-bottom: 24px;
+}
+.dpa-modal-btns {
+  display: flex; gap: 10px; justify-content: center;
+}
+.dpa-modal-btn-cancel {
+  flex: 1; padding: 10px; border-radius: 8px;
+  border: 1px solid #E5E7EB; background: #fff;
+  color: #6B7280; font-size: 14px; font-weight: 500; cursor: pointer;
+}
+.dpa-modal-btn-confirm {
+  flex: 1; padding: 10px; border-radius: 8px;
+  border: none; background: #1D9E75;
+  color: #fff; font-size: 14px; font-weight: 700; cursor: pointer;
+}
+.dpa-modal-btn-confirm:hover { opacity: 0.9; }
+.dpa-modal-btn-danger {
+  flex: 1; padding: 10px; border-radius: 8px;
+  border: none; background: #EF4444;
+  color: #fff; font-size: 14px; font-weight: 700; cursor: pointer;
+}
+.dpa-modal-btn-danger:hover { opacity: 0.9; }
