@@ -303,8 +303,8 @@ export default function InputPage() {
                 <div className={styles.field}><label>가입 연월</label><input value={ct.contract_start} onChange={e => updateContract(idx, 'contract_start', e.target.value)} placeholder="2022.12" /></div>
                 <div className={styles.field}><label>납입기간</label><input value={ct.payment_years} onChange={e => updateContract(idx, 'payment_years', e.target.value)} placeholder="20년납" /></div>
                 <div className={styles.field}><label>만기</label><input value={ct.expiry_age} onChange={e => updateContract(idx, 'expiry_age', e.target.value)} placeholder="90세" /></div>
-                <div className={styles.field}><label>총 납입 회차</label><input type="number" value={ct.payment_total} onChange={e => updateContract(idx, 'payment_total', e.target.value)} placeholder="120" /></div>
-                <div className={styles.field}><label>완료 회차</label><input type="number" value={ct.payment_done} onChange={e => updateContract(idx, 'payment_done', e.target.value)} placeholder="36" /></div>
+                <div className={styles.field}><label>총 납입 회차</label><input inputMode="numeric" value={ct.payment_total} onChange={e => updateContract(idx, 'payment_total', e.target.value.replace(/[^0-9]/g, ''))} placeholder="120" /></div>
+                <div className={styles.field}><label>완료 회차</label><input inputMode="numeric" value={ct.payment_done} onChange={e => updateContract(idx, 'payment_done', e.target.value.replace(/[^0-9]/g, ''))} placeholder="36" /></div>
                 <div className={styles.field}><label>납입률 (%) <span className={styles.autoTag}>자동</span></label><input value={ct.payment_rate} readOnly placeholder="자동 계산" className={styles.readOnly} /></div>
               </div>
 
@@ -320,7 +320,7 @@ export default function InputPage() {
                     <div className={styles.covModalGrid}>
                       <div className={styles.field}><label>카테고리</label><select value={newCov.category} onChange={e => setNewCov(n => ({ ...n, category: e.target.value }))}>{CATEGORIES.map(c => <option key={c}>{c}</option>)}</select></div>
                       <div className={styles.field}><label>보장명</label><input value={newCov.coverage_name} onChange={e => setNewCov(n => ({ ...n, coverage_name: e.target.value }))} placeholder="예: 급성심근경색진단비" /></div>
-                      <div className={styles.field}><label>금액 (원)</label><input value={newCov.amount} onChange={e => setNewCov(n => ({ ...n, amount: e.target.value }))} placeholder="예: 30000000" /></div>
+                      <div className={styles.field}><label>금액 (원)</label><input inputMode="numeric" value={newCov.amount ? formatMoney(String(newCov.amount)) : ''} onChange={e => setNewCov(n => ({ ...n, amount: parseMoney(e.target.value) }))} placeholder="예: 30,000,000" /></div>
                     </div>
                     <div className={styles.covModalActions}>
                       <button className={styles.saveBtn} onClick={() => addCoverage(idx)}>추가하기</button>
