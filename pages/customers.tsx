@@ -499,9 +499,9 @@ export default function Customers() {
                           <div className={styles.editField}><label>금액 (원)</label><input inputMode="numeric" value={addNewCov.amount} onChange={e=>setAddNewCov({...addNewCov,amount:e.target.value.replace(/[^0-9]/g,'')})} placeholder="예: 30000000" style={{background:'#F9FAFB'}} /></div>
                         </div>
                         <div style={{display:'flex',gap:6,marginTop:8}}>
-                          <button style={{flex:1,padding:'7px',fontSize:13,background:'#1D9E75',color:'#fff',border:'none',borderRadius:8,fontWeight:600,cursor:'pointer'}}
+                          <button style={{flex:1,padding:'12px',fontSize:14,background:'#1D9E75',color:'#fff',border:'none',borderRadius:10,fontWeight:600,cursor:'pointer',fontFamily:'inherit',lineHeight:1.5}}
                             onClick={()=>{if(addNewCov.coverage_name&&addNewCov.amount){setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,coverages:[...c.coverages,addNewCov],showCovForm:false}:c));setAddNewCov({category:'암진단',coverage_name:'',amount:''})}}}>추가하기</button>
-                          <button style={{padding:'7px 14px',fontSize:13,background:'#fff',color:'#6B7280',border:'1px solid #E5E7EB',borderRadius:8,cursor:'pointer'}}
+                          <button style={{padding:'12px 20px',fontSize:14,background:'#fff',color:'#6B7280',border:'1px solid #E5E7EB',borderRadius:10,cursor:'pointer',fontFamily:'inherit',lineHeight:1.5}}
                             onClick={()=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,showCovForm:false}:c))}>닫기</button>
                         </div>
                       </div>
