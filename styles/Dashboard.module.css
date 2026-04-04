@@ -89,3 +89,14 @@
 .calDay:hover { background: #F3F4F6; }
 .calToday { background: #1D9E75; color: #fff; font-weight: 700; border-radius: 6px; }
 .calToday:hover { background: #1D9E75; }
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+  .topRow { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .welcomeMsg { font-size: 13px; }
+  .dateRow { flex-direction: row; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .dateStr { font-size: 11px; white-space: nowrap; }
+  .calBtn { font-size: 11px; padding: 2px 8px; }
+  .calDayLabel { font-size: 10px; }
+  .calDay { font-size: 11px; padding: 4px 1px; }
+}
