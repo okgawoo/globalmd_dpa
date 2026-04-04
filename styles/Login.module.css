@@ -19,9 +19,9 @@
 /* 로고 */
 .logoArea {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 8px;
+  gap: 14px;
   margin-bottom: 28px;
   padding-bottom: 24px;
   border-bottom: 1px solid #F3F4F6;
@@ -33,11 +33,11 @@
 .logoTextWrap {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 4px;
 }
 .logoMain {
-  font-size: 32px;
+  font-size: 26px;
   font-weight: 900;
   color: #111827;
   letter-spacing: -1px;

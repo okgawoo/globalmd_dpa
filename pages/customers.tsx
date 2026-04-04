@@ -89,6 +89,17 @@ function IconSearch() {
   )
 }
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+  return isMobile
+}
+
 export default function Customers() {
   const [tab, setTab] = useState<Tab>('existing')
   const [customers, setCustomers] = useState<any[]>([])
@@ -108,6 +119,7 @@ export default function Customers() {
   const [addForm, setAddForm] = useState(emptyCustomerForm)
   const [addType, setAddType] = useState<'existing' | 'prospect'>('existing')
   const [slideOpen, setSlideOpen] = useState(false)
+  const isMobile = useIsMobile()
 
   useEffect(() => { fetchAll() }, [])
 
@@ -133,7 +145,7 @@ export default function Customers() {
     setSelectedContracts(cContracts)
     const ids = cContracts.map((ct: any) => ct.id)
     setSelectedCoverages(covs.filter((cv: any) => ids.includes(cv.contract_id)))
-    setSlideOpen(true)
+    if (window.innerWidth <= 768) setSlideOpen(true)
   }
 
   function closeSlide() {
@@ -285,7 +297,8 @@ export default function Customers() {
         </div>
       )}
 
-      {/* 고객 리스트 */}
+      {/* 데스크탑: 좌우 분할 / 모바일: 단일 컬럼 */}
+      <div className={isMobile ? '' : styles.desktopGrid}>
       <div className={styles.listPanel}>
         {loading ? <div className={styles.empty}>불러오는 중...</div> : filteredCustomers.length === 0 ? (
           <div className={styles.empty}>해당 고객이 없어요</div>
@@ -317,7 +330,89 @@ export default function Customers() {
         })}
       </div>
 
-      {/* 슬라이드업 팝업 */}
+      {/* 데스크탑 상세 패널 */}
+      {!isMobile && (
+        <div className={styles.detailPanel}>
+          {selected ? (
+            <div className={styles.slideContent}>
+              <div className={styles.slideHeader}>
+                <div className={[styles.avatar, styles.avLg, selected.grade === 'VIP' ? styles.avVip : styles.avNormal].join(' ')}>{selected.name.slice(0, 2)}</div>
+                <div style={{ flex: 1 }}>
+                  <div className={styles.detailName}>{selected.name}</div>
+                  <div className={styles.detailMeta}>{selected.age}세 · {selected.gender} · {selected.job} · {selected.phone}</div>
+                </div>
+                {!editMode && <button className={styles.editBtn} onClick={() => { setEditMode(true); setEditForm(selected) }}>수정</button>}
+              </div>
+              {editMode && (
+                <div className={styles.editBox}>
+                  <div className={styles.editSectionTitle}>개인정보 수정</div>
+                  <div className={styles.editGrid}>
+                    {[
+                      { key: 'name', label: '이름' }, { key: 'phone', label: '연락처' },
+                      { key: 'job', label: '직업' }, { key: 'address', label: '주소' },
+                      { key: 'workplace', label: '직장/소속' }, { key: 'bank_name', label: '은행명' },
+                      { key: 'bank_account', label: '계좌번호' }, { key: 'driver_license', label: '운전면허' },
+                    ].map(f => (
+                      <div key={f.key} className={styles.editField}>
+                        <label>{f.label}</label>
+                        <input value={editForm[f.key] || ''} onChange={e => setEditForm({ ...editForm, [f.key]: e.target.value })} />
+                      </div>
+                    ))}
+                  </div>
+                  <div className={styles.editActions}>
+                    <button className={styles.saveBtn} onClick={saveCustomerEdit}>저장</button>
+                    <button className={styles.cancelBtn} onClick={() => setEditMode(false)}>취소</button>
+                  </div>
+                </div>
+              )}
+              <div className={styles.infoTable}>
+                {selected.address && <div className={styles.infoRow}><span className={styles.infoLabel}>주소</span><span className={styles.infoValue}>{selected.address}</span></div>}
+                {selected.workplace && <div className={styles.infoRow}><span className={styles.infoLabel}>직장/소속</span><span className={styles.infoValue}>{selected.workplace}</span></div>}
+                <div className={styles.infoRowLast}>
+                  <div className={styles.infoRow} style={{ borderBottom: 'none', paddingBottom: 0 }}><span className={styles.infoLabel}>총 월납입</span><span className={[styles.infoValue, styles.infoGreen].join(' ')}>{selectedContracts.reduce((s,ct)=>s+(ct.monthly_fee||0),0).toLocaleString()}원</span></div>
+                  <div className={styles.infoRow} style={{ borderBottom: 'none', paddingBottom: 0 }}><span className={styles.infoLabel}>계약 수</span><span className={styles.infoValue}>{selectedContracts.length}건</span></div>
+                </div>
+              </div>
+              <div className={styles.section}>보험 계약 현황</div>
+              {selectedContracts.map((ct, idx) => {
+                const cvs = selectedCoverages.filter(cv => cv.contract_id === ct.id)
+                const groups = COVERAGE_GROUPS.map(g => ({ ...g, items: cvs.filter((cv:any) => cv.category === g.key) })).filter(g => g.items.length > 0)
+                return (
+                  <div key={ct.id} className={styles.insCard}>
+                    <div className={styles.insCardHeader}>
+                      <div className={styles.insCardLeft}>
+                        <div className={styles.insCardTitle}>{idx+1}. {ct.company}{ct.product_name ? ` · ${ct.product_name}` : ''}</div>
+                        <div className={styles.insCardMeta}>{ct.monthly_fee>0?`${ct.monthly_fee.toLocaleString()}원/월`:''}{ct.payment_years?` · ${ct.payment_years}`:''}{ct.expiry_age?` · ${ct.expiry_age}만기`:''}</div>
+                      </div>
+                      <div className={styles.insCardRight}>
+                        <span className={[styles.badge, ct.payment_status==='완납'?styles.badgeGreen:ct.payment_rate>=90?styles.badgeWarn:styles.badgeBlue].join(' ')}>{ct.payment_status==='완납'?'완납':`${ct.payment_rate}%`}</span>
+                        {ct.insurance_type && <span className={styles.insTypeBadge}>{ct.insurance_type}</span>}
+                      </div>
+                    </div>
+                    {groups.length > 0 && (
+                      <div className={styles.coverageList}>
+                        {groups.map(g => (
+                          <div key={g.key} className={styles.coverageRow}>
+                            <span className={styles.covIcon}>{g.icon}</span>
+                            <span className={styles.covLabel}>{g.label}</span>
+                            <span className={styles.covVal}>{g.items.map((cv:any) => `${cv.coverage_name} ${cv.amount>=10000?`${(cv.amount/10000).toFixed(0)}만원`:cv.amount+'원'}`).join(' / ')}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+              <a href={`/input?customer_id=${selected.id}`} className={styles.addInsBtn}>+ 보험 추가</a>
+            </div>
+          ) : (
+            <div className={styles.empty}>고객을 선택해주세요</div>
+          )}
+        </div>
+      )}
+      </div>
+
+      {/* 슬라이드업 팝업 (모바일 전용) */}
       <div className={[styles.slideOverlay, slideOpen ? styles.overlayVisible : ''].join(' ')} onClick={closeSlide}>
         <div className={[styles.slidePanel, slideOpen ? styles.slideIn : styles.slideOut].join(' ')} onClick={e => e.stopPropagation()}>
           <div className={styles.slideHandle} />

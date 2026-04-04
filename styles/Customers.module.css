@@ -226,5 +226,9 @@
 .slideCloseBtn { background: #F3F4F6; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 14px; color: #6B7280; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .slideCloseBtn:hover { background: #E5E7EB; }
 
-/* 리스트 패널 (슬라이드 전용 - 단일 컬럼) */
-.listPanel { background: #fff; border: 1px solid #E5E7EB; border-radius: 14px; padding: 8px; }
+/* 리스트 패널 */
+.listPanel { background: #fff; border: 1px solid #E5E7EB; border-radius: 14px; padding: 8px; max-height: calc(100vh - 200px); overflow-y: auto; }
+
+/* 데스크탑 좌우 분할 */
+.desktopGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.detailPanel { background: #fff; border: 1px solid #E5E7EB; border-radius: 14px; padding: 20px; max-height: calc(100vh - 200px); overflow-y: auto; }
