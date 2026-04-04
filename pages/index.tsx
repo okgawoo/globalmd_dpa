@@ -100,35 +100,37 @@ export default function Dashboard() {
         </div>
         <div className={styles.dateRow}>
           <span className={styles.dateStr}>{dateStr}</span>
-          <button className={styles.calBtn} onClick={() => setCalOpen(true)}>📅 달력</button>
-        </div>
-      </div>
-
-      {calOpen && (
-        <div className={styles.calOverlay} onClick={() => setCalOpen(false)}>
-          <div className={styles.calPopup} onClick={e => e.stopPropagation()}>
-            <div className={styles.calHeader}>
-              <button className={styles.calArrow} onClick={prevMonth}>‹</button>
-              <span className={styles.calMonthStr}>{calMonthStr}</span>
-              <button className={styles.calArrow} onClick={nextMonth}>›</button>
-              <button className={styles.calClose} onClick={() => setCalOpen(false)}>✕</button>
-            </div>
-            <div className={styles.calGrid}>
-              {['일','월','화','수','목','금','토'].map(d => (
-                <div key={d} className={styles.calDayLabel}>{d}</div>
-              ))}
-              {Array.from({ length: calFirst }).map((_, i) => <div key={`e${i}`} />)}
-              {Array.from({ length: calLast }).map((_, i) => {
-                const day = i + 1
-                const isToday = calYear === now.getFullYear() && calMonth === now.getMonth() && day === now.getDate()
-                return (
-                  <div key={day} className={[styles.calDay, isToday ? styles.calToday : ''].join(' ')}>{day}</div>
-                )
-              })}
-            </div>
+          <div style={{ position: 'relative' }}>
+            <button className={styles.calBtn} onClick={() => setCalOpen(v => !v)}>📅 달력</button>
+            {calOpen && (
+              <>
+                <div style={{ position: 'fixed', inset: 0, zIndex: 200 }} onClick={() => setCalOpen(false)} />
+                <div className={styles.calPopup} style={{ top: '100%', right: 0, marginTop: 6, position: 'absolute', zIndex: 201 }} onClick={e => e.stopPropagation()}>
+                  <div className={styles.calHeader}>
+                    <button className={styles.calArrow} onClick={prevMonth}>‹</button>
+                    <span className={styles.calMonthStr}>{calMonthStr}</span>
+                    <button className={styles.calArrow} onClick={nextMonth}>›</button>
+                    <button className={styles.calClose} onClick={() => setCalOpen(false)}>✕</button>
+                  </div>
+                  <div className={styles.calGrid}>
+                    {['일','월','화','수','목','금','토'].map(d => (
+                      <div key={d} className={styles.calDayLabel}>{d}</div>
+                    ))}
+                    {Array.from({ length: calFirst }).map((_, i) => <div key={`e${i}`} />)}
+                    {Array.from({ length: calLast }).map((_, i) => {
+                      const day = i + 1
+                      const isToday = calYear === now.getFullYear() && calMonth === now.getMonth() && day === now.getDate()
+                      return (
+                        <div key={day} className={[styles.calDay, isToday ? styles.calToday : ''].join(' ')}>{day}</div>
+                      )
+                    })}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
-      )}
+      </div>
 
       <div className={styles.alertsTitle}>오늘의 액션 알림</div>
       <div className={styles.alerts}>
