@@ -99,4 +99,5 @@
   .calBtn { font-size: 11px; padding: 2px 8px; }
   .calDayLabel { font-size: 10px; }
   .calDay { font-size: 11px; padding: 4px 1px; }
+  .calPopup { position: fixed !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; right: auto !important; margin: 0 !important; width: 280px !important; }
 }
