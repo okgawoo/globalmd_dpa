@@ -25,11 +25,11 @@ export default function App({ Component, pageProps }: AppProps) {
     return () => subscription.unsubscribe()
   }, [router])
 
-  if (checking) return null
-
   if (router.pathname === '/login') {
     return <Component {...pageProps} />
   }
+
+  if (checking) return null
 
   return (
     <Layout>
