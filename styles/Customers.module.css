@@ -111,3 +111,38 @@
 .insRight { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 .insTags { display: flex; gap: 4px; flex-wrap: wrap; }
 .insTag { font-size: 10px; background: var(--bg); border: 1px solid var(--border); color: var(--text-muted); padding: 1px 6px; border-radius: 4px; }
+
+.ageFilter { font-size: 12px; padding: 5px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-primary); cursor: pointer; margin-left: 4px; }
+.badgeRow { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.badgeWarn { font-size: 10px; background: #FFF3CD; color: #856404; padding: 2px 6px; border-radius: 999px; }
+.badgeRed { font-size: 10px; background: var(--red-light); color: #A32D2D; padding: 2px 6px; border-radius: 999px; }
+.badgeBirthday { font-size: 10px; background: #E1F5EE; color: #085041; padding: 2px 6px; border-radius: 999px; font-weight: 600; }
+.badgeBirthdayFar { font-size: 10px; background: #F1EFE8; color: #5F5E5A; padding: 2px 6px; border-radius: 999px; }
+.custActions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.editBtn { font-size: 11px; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text-secondary); cursor: pointer; white-space: nowrap; }
+.editBtn:hover { background: var(--green-light); color: var(--green); border-color: var(--green); }
+.deleteBtn { font-size: 11px; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text-secondary); cursor: pointer; white-space: nowrap; }
+.deleteBtn:hover { background: var(--red-light); color: #A32D2D; border-color: #A32D2D; }
+
+/* 개인정보 테이블 스타일 */
+.infoTable { margin-bottom: 14px; }
+.infoRow { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 0.5px solid var(--border); gap: 12px; }
+.infoRowLast { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; padding-top: 7px; }
+.infoLabel { font-size: 11px; color: var(--text-muted); flex-shrink: 0; }
+.infoValue { font-size: 13px; color: var(--text-primary); text-align: right; }
+.infoGreen { color: #1D9E75; font-weight: 600; }
+
+/* 편집 폼 */
+.editBox { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 14px; }
+.editGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.editField label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+.editField input { width: 100%; font-size: 13px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-primary); box-sizing: border-box; }
+.editActions { display: flex; gap: 8px; }
+.saveBtn { font-size: 13px; padding: 7px 20px; border-radius: 8px; border: none; background: var(--green); color: #fff; cursor: pointer; font-weight: 600; }
+.cancelBtn { font-size: 13px; padding: 7px 20px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text-secondary); cursor: pointer; }
+
+/* 가입 보험 */
+.insLeft { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.insRight { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.insTags { display: flex; gap: 4px; flex-wrap: wrap; }
+.insTag { font-size: 10px; background: var(--bg); border: 1px solid var(--border); color: var(--text-muted); padding: 1px 6px; border-radius: 4px; }
