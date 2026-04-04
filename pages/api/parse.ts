@@ -75,7 +75,7 @@ JSON 외 다른 텍스트는 절대 포함하지 마세요.
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
+        model: 'claude-sonnet-4-5-20250929',
         max_tokens: 4000,
         system: systemPrompt,
         messages: [{ role: 'user', content: text }],
