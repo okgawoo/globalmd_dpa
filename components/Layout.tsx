@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import styles from '../styles/Layout.module.css'
 import { supabase } from '../lib/supabase'
@@ -18,6 +18,22 @@ const menus = [
 export default function Layout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  useEffect(() => {
+    let startX = 0
+    const onStart = (e: TouchEvent) => { startX = e.touches[0].clientX }
+    const onEnd = (e: TouchEvent) => {
+      const dx = e.changedTouches[0].clientX - startX
+      if (dx > 60 && startX < 40) setSidebarOpen(true)   // 왼쪽 끝에서 오른쪽으로
+      if (dx < -60) setSidebarOpen(false)                 // 왼쪽으로 쓸면 닫기
+    }
+    document.addEventListener('touchstart', onStart)
+    document.addEventListener('touchend', onEnd)
+    return () => {
+      document.removeEventListener('touchstart', onStart)
+      document.removeEventListener('touchend', onEnd)
+    }
+  }, [])
   const { confirm, ConfirmDialog } = useConfirm()
 
   async function handleLogout() {
