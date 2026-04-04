@@ -163,8 +163,7 @@
 .deleteBtn:hover { background: #FCEBEB; color: #A32D2D; border-color: #A32D2D; }
 
 .infoTable { margin-bottom: 14px; }
-.infoRow { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 0.5px solid var(--border); gap: 12px; }
-.infoRowLast { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; padding-top: 7px; }
+
 .infoLabel { font-size: 11px; color: var(--text-muted); flex-shrink: 0; }
 .infoValue { font-size: 13px; color: var(--text-primary); text-align: right; }
 .infoGreen { color: #1D9E75; font-weight: 600; }
