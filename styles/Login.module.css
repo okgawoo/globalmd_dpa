@@ -1,0 +1,168 @@
+.wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F0F4F2;
+  padding: 20px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 36px 32px;
+  width: 100%;
+  max-width: 460px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+
+.logo {
+  text-align: center;
+  margin-bottom: 28px;
+}
+.logoText {
+  display: block;
+  font-size: 28px;
+  font-weight: 800;
+  color: #1D9E75;
+  letter-spacing: -0.5px;
+}
+.logoSub {
+  display: block;
+  font-size: 12px;
+  color: #9CA3AF;
+  margin-top: 4px;
+}
+
+.tabs {
+  display: flex;
+  background: #F3F4F6;
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 24px;
+}
+.modeTab {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6B7280;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.activeMode {
+  background: #fff;
+  color: #1D9E75;
+  font-weight: 700;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.form { display: flex; flex-direction: column; gap: 14px; }
+
+.sectionLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: #1D9E75;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding-top: 4px;
+  border-top: 1px solid #E5E7EB;
+  margin-top: 4px;
+}
+
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 12px; font-weight: 600; color: #374151; }
+.field input {
+  padding: 10px 12px;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #111827;
+  background: #FAFAFA;
+  outline: none;
+  transition: border 0.15s;
+}
+.field input:focus { border-color: #1D9E75; background: #fff; }
+.fieldHint { font-size: 11px; color: #9CA3AF; margin-top: 2px; }
+
+/* 사진 업로드 */
+.photoLabel {
+  display: block;
+  cursor: pointer;
+  border: 2px dashed #D1FAE5;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.photoLabel:hover { border-color: #1D9E75; }
+.photoPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  gap: 6px;
+}
+.photoIcon { font-size: 32px; }
+.photoText { font-size: 13px; color: #374151; font-weight: 500; text-align: center; }
+.photoSub { font-size: 11px; color: #9CA3AF; text-align: center; }
+.photoPreview { width: 100%; max-height: 200px; object-fit: contain; display: block; }
+.photoInput { display: none; }
+
+.agreeText {
+  font-size: 11px;
+  color: #9CA3AF;
+  line-height: 1.6;
+  padding: 8px 12px;
+  background: #F9FAFB;
+  border-radius: 8px;
+}
+
+.submitBtn {
+  padding: 13px;
+  background: #1D9E75;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: opacity 0.15s;
+}
+.submitBtn:hover { opacity: 0.9; }
+.submitBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.errorMsg {
+  background: #FEF2F2;
+  color: #B91C1C;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+.successMsg {
+  background: #ECFDF5;
+  color: #065F46;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.footer {
+  text-align: center;
+  font-size: 11px;
+  color: #D1D5DB;
+  margin-top: 24px;
+}
+
+@media (max-width: 480px) {
+  .card { padding: 28px 20px; }
+  .grid2 { grid-template-columns: 1fr; }
+}
