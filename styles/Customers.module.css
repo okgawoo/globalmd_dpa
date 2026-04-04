@@ -250,5 +250,7 @@
 
 /* 2열 나란히 (나이/성별, 연락처/직업) */
 .infoRowDouble { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 0.5px solid #EDEBE4; }
-.infoHalf { display: flex; justify-content: space-between; align-items: center; padding: 7px 12px; }
+.infoHalf { display: flex; justify-content: space-between; align-items: center; padding: 7px 12px; gap: 6px; }
+.infoHalf .infoLabel { font-size: 11px; color: #9CA3AF; flex-shrink: 0; }
+.infoHalf .infoValue { font-size: 13px; color: #111827; text-align: right; }
 .infoHalf:first-child { border-right: 0.5px solid #EDEBE4; }
