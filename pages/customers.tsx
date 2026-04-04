@@ -261,7 +261,7 @@ export default function Customers() {
                       </div>
                     ))}
 
-                    <div className={styles.section}>가입 보험</div>
+                    <div className={styles.section}>보험 계약 현황</div>
                     {selectedContracts.map(ct => (
                       <div key={ct.id} className={styles.insItem}>
                         <div className={styles.insLeft}>
