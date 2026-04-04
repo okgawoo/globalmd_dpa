@@ -11,6 +11,13 @@ const emptyRegForm = {
   agent_number: '', license_photo: null as File | null,
 }
 
+function formatPhone(val: string): string {
+  const num = val.replace(/\D/g, '').slice(0, 11)
+  if (num.length <= 3) return num
+  if (num.length <= 7) return `${num.slice(0,3)}-${num.slice(3)}`
+  return `${num.slice(0,3)}-${num.slice(3,7)}-${num.slice(7)}`
+}
+
 export default function Login() {
   const router = useRouter()
   const [mode, setMode] = useState<Mode>('login')
@@ -125,7 +132,7 @@ export default function Login() {
             <div className={styles.sectionLabel}>계정 정보</div>
             <div className={styles.field}>
               <label>아이디 *</label>
-              <input placeholder="사용할 아이디 입력" value={form.username} onChange={e => setForm({ ...form, username: e.target.value })} autoCapitalize="none" />
+              <input placeholder="사용할 아이디 입력 (영문/숫자)" value={form.username} onChange={e => setForm({ ...form, username: e.target.value.replace(/[^a-zA-Z0-9]/g, "") })} autoCapitalize="none" />
             </div>
             <div className={styles.field}>
               <label>비밀번호 *</label>
@@ -143,11 +150,11 @@ export default function Login() {
             </div>
             <div className={styles.field}>
               <label>휴대폰 *</label>
-              <input placeholder="010-0000-0000" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} />
+              <input placeholder="010-0000-0000" value={form.phone} onChange={e => setForm({ ...form, phone: formatPhone(e.target.value) })} inputMode="numeric" />
             </div>
             <div className={styles.field}>
               <label>주소</label>
-              <input placeholder="부산시 해운대구..." value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} />
+              <input placeholder="서울시 강남구..." value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} />
             </div>
             <div className={styles.field}>
               <label>카카오톡 아이디 (선택)</label>
