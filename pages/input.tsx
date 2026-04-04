@@ -1,13 +1,25 @@
 import { useState, useRef } from 'react'
+import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
 import styles from '../styles/Input.module.css'
 
 type InputTab = 'manual' | 'paste' | 'capture'
 
+
 const JOBS = ['직장인 (회사원)', '자영업자', '공무원', '교사 / 교직원', '의료인', '전문직', '주부', '학생', '농업 / 어업', '프리랜서', '은퇴 / 무직', '기타']
 const COMPANIES = ['삼성생명', '한화생명', '교보생명', '신한라이프', 'DB생명', '흥국생명', '동양생명', '미래에셋생명', '푸본현대생명', '메트라이프', '삼성화재', '현대해상', 'DB손해보험', 'KB손해보험', '메리츠화재', '흥국화재', '롯데손해보험', 'MG손해보험', '기타']
 const INS_TYPES = ['건강', '실손', '운전자', '자동차', '암', '치아', '간병', 'CI', '종신', '기타']
 const CATEGORIES = ['암진단', '뇌혈관', '심장', '간병', '수술비', '실손', '비급여', '상해', '사고처리', '벌금', '특이사항']
+const BANKS = ['국민은행', '신한은행', '우리은행', '하나은행', 'IBK기업은행', 'NH농협은행', '카카오뱅크', '토스뱅크', '케이뱅크', 'SC제일은행', '씨티은행', '대구은행', '부산은행', '경남은행', '광주은행', '전북은행', '제주은행', '수협은행', '신협', '우체국', '기타']
+
+function formatMoney(value: string): string {
+  const num = value.replace(/[^0-9]/g, '')
+  return num.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}
+
+function parseMoney(value: string): string {
+  return value.replace(/,/g, '')
+}
 
 function formatRRN(value: string) {
   const digits = value.replace(/\D/g, '').slice(0, 13)
@@ -70,6 +82,7 @@ function emptyContract(): Contract {
 export default function InputPage() {
   const [inputTab, setInputTab] = useState<InputTab>('manual')
   const [saving, setSaving] = useState(false)
+  const router = useRouter()
   const [done, setDone] = useState(false)
   const [pasteText, setPasteText] = useState('')
   const [parsing, setParsing] = useState(false)
@@ -158,6 +171,7 @@ export default function InputPage() {
         }
       }
       setDone(true)
+      setTimeout(() => router.push('/customers'), 1500)
     } catch (e) { alert('저장 중 오류가 발생했어요!') }
     setSaving(false)
   }
@@ -257,7 +271,7 @@ export default function InputPage() {
         <div className={styles.formWrap}>
           <div className={styles.formSection}>고객 기본 정보</div>
           <div className={styles.formGrid}>
-            <div className={styles.field}><label>고객명 *</label><input value={form.name} onChange={e => setF('name', e.target.value)} placeholder="홍길동" /></div>
+            <div className={styles.field}><label>고객명 *</label><input value={form.name} onChange={e => setF('name', e.target.value.replace(/[0-9]/g, ''))} placeholder="홍길동" /></div>
             <div className={styles.field}><label>주민등록번호</label><input value={form.rrn} onChange={e => handleRRN(e.target.value)} placeholder="000000-0000000" maxLength={14} /></div>
             <div className={styles.field}><label>성별 <span className={styles.autoTag}>자동</span></label><select value={form.gender} onChange={e => setF('gender', e.target.value)}><option>여</option><option>남</option></select></div>
             <div className={styles.field}><label>나이 <span className={styles.autoTag}>자동</span></label><input value={form.age} onChange={e => setF('age', e.target.value)} placeholder="45" /></div>
@@ -265,9 +279,9 @@ export default function InputPage() {
             <div className={styles.field}><label>등급</label><select value={form.grade} onChange={e => setF('grade', e.target.value)}><option>일반</option><option>VIP</option></select></div>
             <div className={styles.field}><label>직업</label><select value={form.job} onChange={e => setF('job', e.target.value)}>{JOBS.map(j => <option key={j}>{j}</option>)}</select></div>
             {form.job === '기타' && <div className={styles.field}><label>직업 직접 입력</label><input value={jobCustom} onChange={e => setJobCustom(e.target.value)} placeholder="직업을 입력해주세요" /></div>}
-            <div className={styles.field}><label>주소</label><input value={form.address} onChange={e => setF('address', e.target.value)} placeholder="울산 동구..." /></div>
-            <div className={styles.field}><label>직장/소속</label><input value={form.workplace} onChange={e => setF('workplace', e.target.value)} placeholder="울산광역시청" /></div>
-            <div className={styles.field}><label>은행명</label><input value={form.bank_name} onChange={e => setF('bank_name', e.target.value)} placeholder="우리은행" /></div>
+            <div className={styles.field}><label>주소</label><input value={form.address} onChange={e => setF('address', e.target.value)} placeholder="서울시 강남구..." /></div>
+            <div className={styles.field}><label>직장/소속</label><input value={form.workplace} onChange={e => setF('workplace', e.target.value)} placeholder="서울시청" /></div>
+            <div className={styles.field}><label>은행명</label><select value={form.bank_name} onChange={e => setF('bank_name', e.target.value)}><option value="">선택</option>{BANKS.map(b => <option key={b}>{b}</option>)}</select></div>
             <div className={styles.field}><label>계좌번호</label><input value={form.bank_account} onChange={e => setF('bank_account', e.target.value)} placeholder="1002-3628-09746" /></div>
             <div className={styles.field}><label>운전면허</label><input value={form.driver_license} onChange={e => setF('driver_license', e.target.value)} placeholder="26-06-009864-70" /></div>
           </div>
@@ -284,7 +298,7 @@ export default function InputPage() {
                 {ct.company === '기타' && <div className={styles.field}><label>보험사 직접 입력</label><input value={ct.companyCustom} onChange={e => updateContract(idx, 'companyCustom', e.target.value)} placeholder="보험사명" /></div>}
                 <div className={styles.field}><label>상품명</label><input value={ct.product_name} onChange={e => updateContract(idx, 'product_name', e.target.value)} placeholder="무배당 건강보험" /></div>
                 <div className={styles.field}><label>보험 종류</label><select value={ct.insurance_type} onChange={e => updateContract(idx, 'insurance_type', e.target.value)}>{INS_TYPES.map(t => <option key={t}>{t}</option>)}</select></div>
-                <div className={styles.field}><label>월보험료 (원)</label><input type="number" value={ct.monthly_fee} onChange={e => updateContract(idx, 'monthly_fee', e.target.value)} placeholder="50000" /></div>
+                <div className={styles.field}><label>월보험료 (원)</label><input inputMode="numeric" value={ct.monthly_fee ? formatMoney(String(ct.monthly_fee)) : ''} onChange={e => updateContract(idx, 'monthly_fee', parseMoney(e.target.value))} placeholder="50,000" /></div>
                 <div className={styles.field}><label>납입 상태</label><select value={ct.payment_status} onChange={e => updateContract(idx, 'payment_status', e.target.value)}><option>유지</option><option>완납</option><option>실효</option></select></div>
                 <div className={styles.field}><label>가입 연월</label><input value={ct.contract_start} onChange={e => updateContract(idx, 'contract_start', e.target.value)} placeholder="2022.12" /></div>
                 <div className={styles.field}><label>납입기간</label><input value={ct.payment_years} onChange={e => updateContract(idx, 'payment_years', e.target.value)} placeholder="20년납" /></div>
