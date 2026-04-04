@@ -29,7 +29,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <span className={styles.madeBy}>made by okga</span>
             </div>
             <span className={styles.logoVersion}>V1.0</span>
-            <span className={styles.logoSub}>보험 분석 자동화</span>
+            <span className={styles.logoSub}>AI 보험 관리 자동화 플랫폼</span>
           </a>
         </div>
         <nav className={styles.nav}>
