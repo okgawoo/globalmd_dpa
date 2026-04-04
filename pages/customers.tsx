@@ -125,9 +125,13 @@ export default function Customers() {
 
   async function fetchAll() {
     setLoading(true)
-    const { data: custs } = await supabase.from('dpa_customers').select('*').order('created_at')
-    const { data: conts } = await supabase.from('dpa_contracts').select('*')
-    const { data: covs } = await supabase.from('dpa_coverages').select('*')
+    const { data: custs, error: e1 } = await supabase.from('dpa_customers').select('*').order('created_at')
+    const { data: conts, error: e2 } = await supabase.from('dpa_contracts').select('*')
+    const { data: covs, error: e3 } = await supabase.from('dpa_coverages').select('*')
+    if (e1) console.error('customers error:', e1)
+    if (e2) console.error('contracts error:', e2)
+    if (e3) console.error('coverages error:', e3)
+    console.log('custs:', custs?.length, 'conts:', conts?.length)
     setCustomers(custs || [])
     setContracts(conts || [])
     setCoverages(covs || [])
