@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/router'
 import styles from '../styles/Layout.module.css'
+import { supabase } from '../lib/supabase'
 
 const menus = [
   { icon: '🏠', label: '대시보드', path: '/' },
@@ -17,6 +18,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
+  async function handleLogout() {
+    if (!confirm('로그아웃 할까요?')) return
+    await supabase.auth.signOut()
+    router.push('/login')
+  }
+
   return (
     <div className={styles.root}>
       {sidebarOpen && <div className={styles.overlay} onClick={() => setSidebarOpen(false)} />}
@@ -25,11 +32,23 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className={styles.sidebarHeader}>
           <a href="/" className={styles.sidebarLogo}>
             <div className={styles.logoRow}>
-              <span className={styles.logoText}>DPA</span>
-              <span className={styles.madeBy}>made by okga</span>
+              <div className={styles.logoIcon}>
+                <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
+                  <rect width="40" height="40" rx="12" fill="#1D9E75"/>
+                  <path d="M10 20C10 14.477 14.477 10 20 10C25.523 10 30 14.477 30 20C30 25.523 25.523 30 20 30" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+                  <path d="M20 30C17.5 30 15 28 15 25C15 22 17 20 20 20C23 20 25 22 25 25" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+                  <circle cx="20" cy="20" r="2" fill="white"/>
+                </svg>
+              </div>
+              <div className={styles.logoTextWrap}>
+                <div className={styles.logoMainRow}>
+                  <span className={styles.logoText}>DPA</span>
+                  <span className={styles.logoVersion}>v1.0</span>
+                </div>
+                <span className={styles.logoSub}>AI 보험 관리 자동화 플랫폼</span>
+                <span className={styles.madeBy}>made by okga</span>
+              </div>
             </div>
-            <span className={styles.logoVersion}>V1.0</span>
-            <span className={styles.logoSub}>AI 보험 관리 자동화 플랫폼</span>
           </a>
         </div>
         <nav className={styles.nav}>
@@ -57,6 +76,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <div className={styles.headerTitle}>
             {menus.find(m => m.path === router.pathname)?.label || 'DPA'}
           </div>
+          <button className={styles.logoutBtn} onClick={handleLogout} title="로그아웃">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+            <span>로그아웃</span>
+          </button>
         </header>
 
         <div className={styles.content}>
