@@ -46,7 +46,7 @@ function fmtAmount(n: number): string {
 }
 
 const emptyCustomerForm = {
-  name: '', age: '', gender: '남', job: '직장인', phone: '', grade: '일반',
+  name: '', resident_number: '', age: '', gender: '남', job: '직장인', phone: '', grade: '일반',
   address: '', workplace: '', bank_name: '', bank_account: '', driver_license: ''
 }
 
@@ -89,6 +89,28 @@ function IconSearch() {
   )
 }
 
+function formatResident(val: string): string {
+  const num = val.replace(/\D/g, '').slice(0, 13)
+  if (num.length <= 6) return num
+  return `${num.slice(0,6)}-${num.slice(6)}`
+}
+
+function parseResident(rn: string): { gender: string; age: number; birthDate: string } {
+  const num = rn.replace(/-/g, '')
+  if (num.length < 7) return { gender: '남', age: 0, birthDate: '' }
+  const firstDigit = parseInt(num[6])
+  const gender = [2,4,6,8].includes(firstDigit) ? '여' : '남'
+  const year = [1,2].includes(firstDigit) ? 1900 : 2000
+  const fullYear = year + parseInt(num.slice(0,2))
+  const month = parseInt(num.slice(2,4))
+  const day = parseInt(num.slice(4,6))
+  const today = new Date()
+  let age = today.getFullYear() - fullYear
+  if (today.getMonth()+1 < month || (today.getMonth()+1 === month && today.getDate() < day)) age--
+  const birthDate = `${fullYear}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`
+  return { gender, age, birthDate }
+}
+
 function formatPhone(val: string): string {
   const num = val.replace(/\D/g, '').slice(0, 11)
   if (num.length <= 3) return num
@@ -127,6 +149,10 @@ export default function Customers() {
   const [addType, setAddType] = useState<'existing' | 'prospect'>('existing')
   const [slideOpen, setSlideOpen] = useState(false)
   const isMobile = useIsMobile()
+  const [addInsMode, setAddInsMode] = useState(false)
+  const [insForm, setInsForm] = useState({ company: '삼성생명', product_name: '', insurance_type: '건강', monthly_fee: '', payment_status: '유지', payment_years: '', expiry_age: '', contract_start: '' })
+  const [insCoverages, setInsCoverages] = useState<any[]>([])
+  const [newCov, setNewCov] = useState({ category: '암진단', coverage_name: '', amount: '' })
 
   useEffect(() => { fetchAll() }, [])
 
@@ -200,8 +226,14 @@ export default function Customers() {
 
   async function saveAddCustomer() {
     if (!addForm.name) return alert('고객명은 필수예요!')
+    const { gender, age, birthDate } = parseResident(addForm.resident_number)
     const { data: cust } = await supabase.from('dpa_customers').insert({
-      ...addForm, age: parseInt(addForm.age) || null, customer_type: addType
+      ...addForm,
+      age: age || parseInt(addForm.age) || null,
+      gender: addForm.resident_number.length >= 8 ? gender : addForm.gender,
+      birth_date: birthDate || null,
+      resident_number: addForm.resident_number,
+      customer_type: addType
     }).select().single()
     if (cust) {
       setAddMode(false)
@@ -209,6 +241,32 @@ export default function Customers() {
       await fetchAll()
       selectCustomer(cust)
     }
+  }
+
+  async function saveInsurance() {
+    if (!selected) return
+    if (!insForm.company || !insForm.monthly_fee) return alert('보험사와 월보험료는 필수예요!')
+    const { data: ct } = await supabase.from('dpa_contracts').insert({
+      customer_id: selected.id,
+      company: insForm.company, product_name: insForm.product_name,
+      insurance_type: insForm.insurance_type,
+      monthly_fee: parseInt(insForm.monthly_fee) || 0,
+      payment_status: insForm.payment_status,
+      payment_years: insForm.payment_years,
+      expiry_age: insForm.expiry_age,
+      contract_start: insForm.contract_start,
+      payment_rate: 0
+    }).select().single()
+    if (ct && insCoverages.length > 0) {
+      await supabase.from('dpa_coverages').insert(
+        insCoverages.map(cv => ({ contract_id: ct.id, category: cv.category, coverage_name: cv.coverage_name, amount: parseInt(cv.amount) || 0 }))
+      )
+    }
+    setAddInsMode(false)
+    setInsForm({ company: '삼성생명', product_name: '', insurance_type: '건강', monthly_fee: '', payment_status: '유지', payment_years: '', expiry_age: '', contract_start: '' })
+    setInsCoverages([])
+    setNewCov({ category: '암진단', coverage_name: '', amount: '' })
+    fetchAll()
   }
 
   const getBadges = (c: any) => {
@@ -329,13 +387,16 @@ export default function Customers() {
             <div className={styles.editBox}>
               <div className={styles.editSectionTitle}>{addType === 'existing' ? '기존 고객' : '잠재 고객'} 추가</div>
               <div className={styles.editGrid}>
-                <div className={styles.editField}><label>이름 *</label><input placeholder="홍길동" value={addForm.name} onChange={e => setAddForm({ ...addForm, name: e.target.value })} /></div>
+                <div className={styles.editField}><label>이름 *</label><input placeholder="홍길동" value={addForm.name} onChange={e => setAddForm({ ...addForm, name: e.target.value.replace(/[0-9]/g, '') })} /></div>
                 <div className={styles.editField}><label>연락처</label><input placeholder="010-0000-0000" inputMode="numeric" value={addForm.phone} onChange={e => setAddForm({ ...addForm, phone: formatPhone(e.target.value) })} /></div>
-                <div className={styles.editField}><label>나이</label><input placeholder="나이" inputMode="numeric" value={addForm.age} onChange={e => setAddForm({ ...addForm, age: e.target.value.replace(/[^0-9]/g, '') })} /></div>
-                <div className={styles.editField}><label>성별</label>
-                  <select value={addForm.gender} onChange={e => setAddForm({ ...addForm, gender: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
-                    <option>남</option><option>여</option><option>기타</option>
-                  </select>
+                <div className={styles.editField} style={{gridColumn:'span 2'}}><label>주민등록번호 *</label>
+                  <input placeholder="000000-0000000" inputMode="numeric" value={addForm.resident_number}
+                    onChange={e => {
+                      const rn = formatResident(e.target.value)
+                      const parsed = parseResident(rn)
+                      setAddForm({ ...addForm, resident_number: rn, gender: parsed.gender, age: String(parsed.age) })
+                    }} />
+                  {addForm.resident_number.length >= 8 && <span style={{fontSize:11,color:'#1D9E75',marginTop:3}}>✓ {addForm.gender} · 만 {addForm.age}세</span>}
                 </div>
                 <div className={styles.editField}><label>직업</label>
                   <select value={addForm.job} onChange={e => setAddForm({ ...addForm, job: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
@@ -450,7 +511,60 @@ export default function Customers() {
                   </div>
                 )
               })}
-              <a href={`/input?customer_id=${selected.id}`} className={styles.addInsBtn}>+ 보험 추가</a>
+              {!addInsMode ? (
+                <button className={styles.addInsBtn} onClick={() => setAddInsMode(true)} style={{display:'block',width:'100%',textAlign:'center',cursor:'pointer',background:'none',border:'1px dashed #D1D5DB',borderRadius:8,padding:'8px',color:'#6B7280',fontSize:13}}>+ 보험 추가</button>
+              ) : (
+                <div className={styles.editBox}>
+                  <div className={styles.editSectionTitle}>보험 추가</div>
+                  <div className={styles.editGrid}>
+                    <div className={styles.editField}><label>보험사</label>
+                      <select value={insForm.company} onChange={e=>setInsForm({...insForm,company:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                        {['삼성생명','한화생명','교보생명','신한라이프','DB생명','흥국생명','동양생명','미래에셋생명','삼성화재','현대해상','DB손해보험','KB손해보험','메리츠화재','롯데손해보험','기타'].map(c=><option key={c}>{c}</option>)}
+                      </select>
+                    </div>
+                    <div className={styles.editField}><label>상품명</label><input value={insForm.product_name} onChange={e=>setInsForm({...insForm,product_name:e.target.value})} placeholder="무배당 건강보험" /></div>
+                    <div className={styles.editField}><label>보험 종류</label>
+                      <select value={insForm.insurance_type} onChange={e=>setInsForm({...insForm,insurance_type:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                        {['건강','실손','운전자','자동차','암','치아','간병','CI','종신','기타'].map(t=><option key={t}>{t}</option>)}
+                      </select>
+                    </div>
+                    <div className={styles.editField}><label>월보험료(원) *</label><input inputMode="numeric" value={insForm.monthly_fee} onChange={e=>setInsForm({...insForm,monthly_fee:e.target.value.replace(/[^0-9]/g,'')})} placeholder="50000" /></div>
+                    <div className={styles.editField}><label>납입상태</label>
+                      <select value={insForm.payment_status} onChange={e=>setInsForm({...insForm,payment_status:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                        <option>유지</option><option>완납</option><option>실효</option>
+                      </select>
+                    </div>
+                    <div className={styles.editField}><label>가입연월</label><input value={insForm.contract_start} onChange={e=>setInsForm({...insForm,contract_start:e.target.value})} placeholder="2020.01" /></div>
+                    <div className={styles.editField}><label>납입기간</label><input value={insForm.payment_years} onChange={e=>setInsForm({...insForm,payment_years:e.target.value})} placeholder="20년납" /></div>
+                    <div className={styles.editField}><label>만기</label><input value={insForm.expiry_age} onChange={e=>setInsForm({...insForm,expiry_age:e.target.value})} placeholder="90세" /></div>
+                  </div>
+                  <div className={styles.editSectionTitle} style={{marginTop:12}}>보장 항목</div>
+                  {insCoverages.map((cv,i) => (
+                    <div key={i} style={{display:'flex',alignItems:'center',gap:6,fontSize:12,padding:'4px 0',borderBottom:'0.5px solid #E5E7EB'}}>
+                      <span style={{color:'#6B7280',minWidth:60}}>{cv.category}</span>
+                      <span style={{flex:1}}>{cv.coverage_name}</span>
+                      <span style={{color:'#1D9E75',fontWeight:600}}>{parseInt(cv.amount).toLocaleString()}원</span>
+                      <button onClick={()=>setInsCoverages(v=>v.filter((_,j)=>j!==i))} style={{background:'none',border:'none',color:'#9CA3AF',cursor:'pointer',fontSize:13}}>✕</button>
+                    </div>
+                  ))}
+                  <div className={styles.editGrid} style={{marginTop:8}}>
+                    <div className={styles.editField}><label>카테고리</label>
+                      <select value={newCov.category} onChange={e=>setNewCov({...newCov,category:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                        {['암진단','뇌혈관','심장','간병','수술비','실손','비급여','상해','사고처리','벌금','특이사항'].map(c=><option key={c}>{c}</option>)}
+                      </select>
+                    </div>
+                    <div className={styles.editField}><label>보장명</label><input value={newCov.coverage_name} onChange={e=>setNewCov({...newCov,coverage_name:e.target.value})} placeholder="뇌출혈진단비" /></div>
+                    <div className={styles.editField}><label>금액(원)</label><input inputMode="numeric" value={newCov.amount} onChange={e=>setNewCov({...newCov,amount:e.target.value.replace(/[^0-9]/g,'')})} placeholder="30000000" /></div>
+                    <div className={styles.editField} style={{display:'flex',alignItems:'flex-end'}}>
+                      <button className={styles.saveBtn} style={{width:'100%'}} onClick={()=>{ if(newCov.coverage_name&&newCov.amount){setInsCoverages(v=>[...v,newCov]);setNewCov({category:'암진단',coverage_name:'',amount:''})}}}>+ 추가</button>
+                    </div>
+                  </div>
+                  <div className={styles.editActions} style={{marginTop:12}}>
+                    <button className={styles.saveBtn} onClick={saveInsurance}>저장</button>
+                    <button className={styles.cancelBtn} onClick={()=>{setAddInsMode(false);setInsCoverages([])}}>취소</button>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className={styles.empty}>고객을 선택해주세요</div>
