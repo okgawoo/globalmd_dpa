@@ -533,7 +533,7 @@ export default function Customers() {
 
               {/* 저장/취소 - 우측 정렬 */}
               <div style={{marginTop:20,paddingTop:16,borderTop:'1px solid #E5E7EB'}}>
-                <button onClick={saveAddCustomer} style={{width:'100%',padding:'12px',background:'#1D9E75',color:'#fff',border:'none',borderRadius:10,fontSize:14,fontWeight:600,cursor:'pointer',marginBottom:8}}>저장하기</button>
+                <button onClick={saveAddCustomer} style={{width:"100%",marginTop:20,padding:12,background:"#1D9E75",color:"#fff",border:"none",borderRadius:10,fontSize:14,fontWeight:600,cursor:"pointer",transition:"opacity 0.15s",marginBottom:8,fontFamily:"inherit",lineHeight:1.5}}>저장하기</button>
                 <div style={{display:'flex',justifyContent:'flex-end'}}>
                   <button className={styles.cancelBtn} style={{borderColor:'#9CA3AF'}} onClick={() => { setAddMode(false); setAddContracts([{company:'삼성생명',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}]) }}>취소</button>
                 </div>
