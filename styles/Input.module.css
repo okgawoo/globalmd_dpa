@@ -84,3 +84,27 @@
 .dropIcon { font-size: 28px; margin-bottom: 8px; }
 .dropText { font-size: 13px; color: var(--text-primary); margin-bottom: 4px; }
 .dropSub { font-size: 11px; color: var(--text-muted); }
+
+/* 안내 문구 */
+.pasteGuide { background: #fff; border-left: 4px solid #1D9E75; border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; padding: 14px 16px; margin-bottom: 14px; }
+.pasteGuideTitle { font-size: 13px; font-weight: 600; color: #085041; margin-bottom: 8px; }
+.pasteGuideStep { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; line-height: 1.6; }
+
+/* 보장 추가 팝업 */
+.covModal { background: var(--bg-card); border: 1px solid #1D9E75; border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+.covModalGrid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.covModalActions { display: flex; gap: 8px; align-items: center; }
+.covCloseBtn { font-size: 13px; padding: 7px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text-secondary); cursor: pointer; white-space: nowrap; }
+.covCloseBtn:hover { background: var(--bg-card); }
+
+/* 파싱 결과 */
+.parsedResult { background: var(--bg-card); border: 1px solid #1D9E75; border-radius: 12px; padding: 16px; margin-top: 14px; }
+.parsedResultTitle { font-size: 14px; font-weight: 600; color: #085041; margin-bottom: 14px; }
+.parsedSection { font-size: 12px; font-weight: 600; color: var(--text-muted); margin: 12px 0 8px; }
+.parsedEditGrid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.parsedContractBlock { background: var(--bg); border: 0.5px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+.parsedCovList { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+.covNameInput { flex: 1; font-size: 12px; padding: 4px 8px; border-radius: 5px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-primary); }
+.covAmtInput { width: 100px; font-size: 12px; padding: 4px 8px; border-radius: 5px; border: 1px solid var(--border); background: var(--bg-card); color: #1D9E75; text-align: right; flex-shrink: 0; }
+.saveParsedBtn { display: block; width: 100%; margin-top: 14px; padding: 12px; border-radius: 10px; border: none; background: #1D9E75; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; }
+.saveParsedBtn:hover { background: #0F6E56; }
