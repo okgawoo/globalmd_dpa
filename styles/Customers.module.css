@@ -102,10 +102,10 @@
 .extraInfoValue { font-size: 12px; color: #085041; }
 .extraInfoValueGreen { font-size: 12px; color: #1D9E75; font-weight: 600; }
 
-.editBox { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 14px; }
+.editBox { background: transparent; border: none; border-radius: 0; padding: 0; margin-bottom: 14px; }
 .editGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
 .editField label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
-.editField input { width: 100%; font-size: 13px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-primary); box-sizing: border-box; }
+.editField input { width: 100%; font-size: 13px; padding: 9px 12px; border-radius: 6px; border: 1px solid var(--border); background: #F9FAFB; color: var(--text-primary); box-sizing: border-box; }
 .editActions { display: flex; gap: 8px; }
 .saveBtn { font-size: 13px; padding: 7px 20px; border-radius: 8px; border: none; background: var(--green); color: #fff; cursor: pointer; font-weight: 600; }
 .cancelBtn { font-size: 13px; padding: 7px 20px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text-secondary); cursor: pointer; }
@@ -136,10 +136,10 @@
 .infoGreen { color: #1D9E75; font-weight: 600; }
 
 /* 편집 폼 */
-.editBox { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 14px; }
+.editBox { background: transparent; border: none; border-radius: 0; padding: 0; margin-bottom: 14px; }
 .editGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
 .editField label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
-.editField input { width: 100%; font-size: 13px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-primary); box-sizing: border-box; }
+.editField input { width: 100%; font-size: 13px; padding: 9px 12px; border-radius: 6px; border: 1px solid var(--border); background: #F9FAFB; color: var(--text-primary); box-sizing: border-box; }
 .editActions { display: flex; gap: 8px; }
 .saveBtn { font-size: 13px; padding: 7px 20px; border-radius: 8px; border: none; background: var(--green); color: #fff; cursor: pointer; font-weight: 600; }
 .cancelBtn { font-size: 13px; padding: 7px 20px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text-secondary); cursor: pointer; }
@@ -168,11 +168,11 @@
 .infoValue { font-size: 13px; color: var(--text-primary); text-align: right; }
 .infoGreen { color: #1D9E75; font-weight: 600; }
 
-.editBox { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 14px; }
+.editBox { background: transparent; border: none; border-radius: 0; padding: 0; margin-bottom: 14px; }
 .editSectionTitle { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 10px; }
 .editGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
 .editField label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
-.editField input { width: 100%; font-size: 13px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-primary); box-sizing: border-box; }
+.editField input { width: 100%; font-size: 13px; padding: 9px 12px; border-radius: 6px; border: 1px solid var(--border); background: #F9FAFB; color: var(--text-primary); box-sizing: border-box; }
 .editActions { display: flex; gap: 8px; }
 .saveBtn { font-size: 13px; padding: 7px 20px; border-radius: 8px; border: none; background: #1D9E75; color: #fff; cursor: pointer; font-weight: 600; }
 .cancelBtn { font-size: 13px; padding: 7px 20px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text-secondary); cursor: pointer; }
