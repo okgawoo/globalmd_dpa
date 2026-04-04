@@ -156,7 +156,7 @@ export default function Customers() {
   const [insCoverages, setInsCoverages] = useState<any[]>([])
   const [newCov, setNewCov] = useState({ category: '암진단', coverage_name: '', amount: '' })
   // 고객 추가 시 보험 목록 (미리 쌓아두다가 한번에 저장)
-  const [addContracts, setAddContracts] = useState<any[]>([])
+  const [addContracts, setAddContracts] = useState<any[]>([{company:'삼성생명',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}])
   const [addInsForm, setAddInsForm] = useState({ company: '삼성생명', product_name: '', insurance_type: '건강', monthly_fee: '', payment_status: '유지', payment_years: '', expiry_age: '', contract_start: '' })
   const [addInsCoverages, setAddInsCoverages] = useState<any[]>([])
   const [addNewCov, setAddNewCov] = useState({ category: '암진단', coverage_name: '', amount: '' })
@@ -270,7 +270,7 @@ export default function Customers() {
       }
       setAddMode(false)
       setAddForm(emptyCustomerForm)
-      setAddContracts([])
+      setAddContracts([{company:'삼성생명',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}])
       setShowAddInsForm(false)
       await fetchAll()
       selectCustomer(cust)
@@ -535,7 +535,7 @@ export default function Customers() {
               <div style={{marginTop:20,paddingTop:16,borderTop:'1px solid #E5E7EB'}}>
                 <button onClick={saveAddCustomer} style={{width:'100%',padding:'12px',background:'#1D9E75',color:'#fff',border:'none',borderRadius:10,fontSize:14,fontWeight:600,cursor:'pointer',marginBottom:8}}>저장하기</button>
                 <div style={{display:'flex',justifyContent:'flex-end'}}>
-                  <button className={styles.cancelBtn} style={{borderColor:'#9CA3AF'}} onClick={() => { setAddMode(false); setAddContracts([]) }}>취소</button>
+                  <button className={styles.cancelBtn} style={{borderColor:'#9CA3AF'}} onClick={() => { setAddMode(false); setAddContracts([{company:'삼성생명',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}]) }}>취소</button>
                 </div>
               </div>
             </div>
