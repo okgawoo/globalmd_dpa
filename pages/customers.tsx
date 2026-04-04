@@ -15,6 +15,15 @@ function getAgeGroup(age: number): string {
   return '60대+'
 }
 
+function getBirthdayDays(birthDate: string): number | null {
+  if (!birthDate) return null
+  const today = new Date()
+  const birth = new Date(birthDate)
+  const thisYear = new Date(today.getFullYear(), birth.getMonth(), birth.getDate())
+  if (thisYear < today) thisYear.setFullYear(today.getFullYear() + 1)
+  return Math.ceil((thisYear.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+}
+
 export default function Customers() {
   const [tab, setTab] = useState<Tab>('existing')
   const [customers, setCustomers] = useState<any[]>([])
@@ -94,6 +103,26 @@ export default function Customers() {
     ]
   }
 
+  const getBadges = (c: any) => {
+    const badges = []
+    const cContracts = contracts.filter((ct: any) => ct.customer_id === c.id)
+    // 완납임박
+    if (cContracts.some((ct: any) => ct.payment_rate >= 90 && ct.payment_status !== '완납'))
+      badges.push({ label: '🔥 완납임박', cls: styles.badgeWarn })
+    // 보장공백
+    const cCoverages = coverages.filter((cv: any) => cContracts.some((ct: any) => ct.id === cv.contract_id))
+    const brainTypes = cCoverages.filter((cv: any) => cv.category === '뇌혈관').map((cv: any) => cv.brain_coverage_type)
+    if (brainTypes.length === 0 || brainTypes.every((t: string) => t === '뇌출혈'))
+      badges.push({ label: '⚠ 보장공백', cls: styles.badgeRed })
+    // 생일
+    const days = getBirthdayDays(c.birth_date)
+    if (days !== null) {
+      const cls = days <= 10 ? styles.badgeBirthday : styles.badgeBirthdayFar
+      badges.push({ label: `🎂 D-${days}`, cls })
+    }
+    return badges
+  }
+
   const totalMonthly = selectedContracts.reduce((s, ct) => s + (ct.monthly_fee || 0), 0)
 
   const filteredCustomers = customers.filter(c => {
@@ -118,20 +147,23 @@ export default function Customers() {
             {loading ? <div className={styles.empty}>불러오는 중...</div> : filteredCustomers.length === 0 ? (
               <div className={styles.empty}>해당 고객이 없어요</div>
             ) : filteredCustomers.map(c => {
-              const cContracts = contracts.filter((ct: any) => ct.customer_id === c.id)
-              const hasAlert = cContracts.some((ct: any) => ct.payment_rate >= 90 && ct.payment_status !== '완납')
+              const badges = getBadges(c)
               return (
                 <div key={c.id} className={[styles.custRow, selected?.id === c.id ? styles.active : ''].join(' ')} onClick={() => selectCustomer(c)}>
                   <div className={[styles.avatar, c.grade === 'VIP' ? styles.avVip : styles.avNormal].join(' ')}>{c.name.slice(0, 2)}</div>
                   <div className={styles.custInfo}>
                     <div className={styles.custName}>
                       {c.name}
-                      {hasAlert && <span className={styles.badgeWarn}>🔥 완납임박</span>}
+                      <span className={[styles.badge, c.grade === 'VIP' ? styles.badgeAmber : styles.badgeBlue].join(' ')}>{c.grade}</span>
                     </div>
                     <div className={styles.custMeta}>{c.age}세 · {c.gender} · {c.job}</div>
+                    {badges.length > 0 && (
+                      <div className={styles.badgeRow}>
+                        {badges.map((b, i) => <span key={i} className={b.cls}>{b.label}</span>)}
+                      </div>
+                    )}
                   </div>
                   <div className={styles.custActions}>
-                    <span className={[styles.badge, c.grade === 'VIP' ? styles.badgeAmber : styles.badgeBlue].join(' ')}>{c.grade}</span>
                     <button className={styles.editBtn} onClick={e => { e.stopPropagation(); selectCustomer(c); setEditMode(true); setEditForm(c) }}>수정</button>
                     <button className={styles.deleteBtn} onClick={e => deleteCustomer(c, e)}>삭제</button>
                   </div>
@@ -149,9 +181,7 @@ export default function Customers() {
                     <div className={styles.detailName}>{selected.name}</div>
                     <div className={styles.detailMeta}>{selected.age}세 · {selected.gender} · {selected.job} · {selected.phone}</div>
                   </div>
-                  {!editMode && (
-                    <button className={styles.editBtn} onClick={() => { setEditMode(true); setEditForm(selected) }}>수정</button>
-                  )}
+                  {!editMode && <button className={styles.editBtn} onClick={() => { setEditMode(true); setEditForm(selected) }}>수정</button>}
                 </div>
 
                 {editMode ? (
@@ -180,14 +210,41 @@ export default function Customers() {
                   </div>
                 ) : (
                   <>
-                    <div className={styles.extraInfoBox}>
-                      <div className={styles.extraInfoGrid}>
-                        {selected.address && <div className={styles.extraInfoItem}><div className={styles.extraInfoLabel}>주소</div><div className={styles.extraInfoValue}>{selected.address}</div></div>}
-                        {selected.workplace && <div className={styles.extraInfoItem}><div className={styles.extraInfoLabel}>직장/소속</div><div className={styles.extraInfoValue}>{selected.workplace}</div></div>}
-                        {(selected.bank_name || selected.bank_account) && <div className={styles.extraInfoItem}><div className={styles.extraInfoLabel}>계좌번호</div><div className={styles.extraInfoValue}>{selected.bank_name} {selected.bank_account}</div></div>}
-                        {selected.driver_license && <div className={styles.extraInfoItem}><div className={styles.extraInfoLabel}>운전면허</div><div className={styles.extraInfoValue}>{selected.driver_license}</div></div>}
-                        <div className={styles.extraInfoItem}><div className={styles.extraInfoLabel}>총 월납입</div><div className={styles.extraInfoValueGreen}>{totalMonthly.toLocaleString()}원</div></div>
-                        <div className={styles.extraInfoItem}><div className={styles.extraInfoLabel}>계약 수</div><div className={styles.extraInfoValue}>{selectedContracts.length}건</div></div>
+                    {/* 추가 고객 정보 - 아래 줄만 있는 표 스타일 */}
+                    <div className={styles.infoTable}>
+                      {selected.address && (
+                        <div className={styles.infoRow}>
+                          <span className={styles.infoLabel}>주소</span>
+                          <span className={styles.infoValue}>{selected.address}</span>
+                        </div>
+                      )}
+                      {selected.workplace && (
+                        <div className={styles.infoRow}>
+                          <span className={styles.infoLabel}>직장/소속</span>
+                          <span className={styles.infoValue}>{selected.workplace}</span>
+                        </div>
+                      )}
+                      {(selected.bank_name || selected.bank_account) && (
+                        <div className={styles.infoRow}>
+                          <span className={styles.infoLabel}>계좌번호</span>
+                          <span className={styles.infoValue}>{selected.bank_name} {selected.bank_account}</span>
+                        </div>
+                      )}
+                      {selected.driver_license && (
+                        <div className={styles.infoRow}>
+                          <span className={styles.infoLabel}>운전면허</span>
+                          <span className={styles.infoValue}>{selected.driver_license}</span>
+                        </div>
+                      )}
+                      <div className={styles.infoRowLast}>
+                        <div className={styles.infoRow} style={{ borderBottom: 'none', paddingBottom: 0 }}>
+                          <span className={styles.infoLabel}>총 월납입</span>
+                          <span className={[styles.infoValue, styles.infoGreen].join(' ')}>{totalMonthly.toLocaleString()}원</span>
+                        </div>
+                        <div className={styles.infoRow} style={{ borderBottom: 'none', paddingBottom: 0 }}>
+                          <span className={styles.infoLabel}>계약 수</span>
+                          <span className={styles.infoValue}>{selectedContracts.length}건</span>
+                        </div>
                       </div>
                     </div>
 
@@ -208,7 +265,7 @@ export default function Customers() {
                     {selectedContracts.map(ct => (
                       <div key={ct.id} className={styles.insItem}>
                         <div className={styles.insLeft}>
-                          <span className={styles.insName}>{ct.company} {ct.product_name && `· ${ct.product_name}`}</span>
+                          <span className={styles.insName}>{ct.company}{ct.product_name ? ` · ${ct.product_name}` : ''}</span>
                           <div className={styles.insTags}>
                             {ct.insurance_type && <span className={styles.insTag}>{ct.insurance_type}</span>}
                             {ct.contract_start && <span className={styles.insTag}>{ct.contract_start}</span>}
