@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/router'
 import styles from '../styles/Layout.module.css'
 import { supabase } from '../lib/supabase'
+import { useConfirm } from '../lib/useConfirm'
 
 const menus = [
   { icon: '🏠', label: '대시보드', path: '/' },
@@ -17,15 +18,18 @@ const menus = [
 export default function Layout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { confirm, ConfirmDialog } = useConfirm()
 
   async function handleLogout() {
-    if (!confirm('로그아웃 할까요?')) return
+    const ok = await confirm({ title: '로그아웃', message: '로그아웃 할까요?', confirmText: '로그아웃' })
+    if (!ok) return
     await supabase.auth.signOut()
     router.push('/login')
   }
 
   return (
     <div className={styles.root}>
+      {ConfirmDialog}
       {sidebarOpen && <div className={styles.overlay} onClick={() => setSidebarOpen(false)} />}
 
       <aside className={[styles.sidebar, sidebarOpen ? styles.open : ''].join(' ')}>
