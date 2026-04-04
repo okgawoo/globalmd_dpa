@@ -322,8 +322,8 @@ export default function InputPage() {
                       <div className={styles.field}><label>보장명</label><input value={newCov.coverage_name} onChange={e => setNewCov(n => ({ ...n, coverage_name: e.target.value }))} placeholder="예: 급성심근경색진단비" /></div>
                       <div className={styles.field}><label>금액 (원)</label><input inputMode="numeric" value={newCov.amount ? formatMoney(String(newCov.amount)) : ''} onChange={e => setNewCov(n => ({ ...n, amount: parseMoney(e.target.value) }))} placeholder="예: 30,000,000" /></div>
                     </div>
-                    <div className={styles.covModalActions}>
-                      <button className={styles.saveBtn} style={{flex:1}} onClick={() => addCoverage(idx)}>추가하기</button>
+                    <div style={{display:'flex',gap:8,marginTop:8,alignItems:'center'}}>
+                      <button style={{flex:1,padding:'7px',fontSize:13,background:'#1D9E75',color:'#fff',border:'none',borderRadius:8,fontWeight:600,cursor:'pointer'}} onClick={() => addCoverage(idx)}>추가하기</button>
                       <button className={styles.covCloseBtn} onClick={() => setActiveCovModal(null)}>닫기</button>
                     </div>
                   </div>
