@@ -342,7 +342,7 @@ export default function Customers() {
       <div className={styles.tabBar}>
         <button
           className={[styles.iconTab, tab === 'existing' ? styles.activeIconTab : ''].join(' ')}
-          onClick={() => { setTab('existing'); setAddMode(false); closeSlide() }}
+          onClick={() => { setTab('existing'); setAddMode(false); setAddForm(emptyCustomerForm); setAddContracts([{company:'삼성생명',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}]); closeSlide() }}
           title="기존 고객"
         >
           <span className={styles.tabIcon}><IconUsers active={tab === 'existing'} /></span>
@@ -350,7 +350,7 @@ export default function Customers() {
         </button>
         <button
           className={[styles.iconTab, tab === 'prospect' ? styles.activeIconTab : ''].join(' ')}
-          onClick={() => { setTab('prospect'); setAddMode(false); closeSlide() }}
+          onClick={() => { setTab('prospect'); setAddMode(false); setAddForm(emptyCustomerForm); setAddContracts([{company:'삼성생명',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}]); closeSlide() }}
           title="잠재 고객"
         >
           <span className={styles.tabIcon}><IconUser active={tab === 'prospect'} /></span>
