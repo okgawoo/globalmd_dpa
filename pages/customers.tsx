@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase'
 import styles from '../styles/Customers.module.css'
 
 type Tab = 'existing' | 'prospect'
-const AGE_FILTERS = ['전체', '유아(0-7)', '10대', '20대', '30대', '40대', '50대', '60대+']
+const AGE_FILTERS = ['연령대전체', '유아(0-7)', '10대', '20대', '30대', '40대', '50대', '60대+']
 
 const COVERAGE_GROUPS = [
   { key: '암진단', icon: '💊', label: '암 보장' },
@@ -136,7 +136,7 @@ export default function Customers() {
   }
 
   const totalMonthly = selectedContracts.reduce((s, ct) => s + (ct.monthly_fee || 0), 0)
-  const filteredCustomers = customers.filter(c => ageFilter === '전체' || getAgeGroup(c.age) === ageFilter)
+  const filteredCustomers = customers.filter(c => ageFilter === '연령대전체' || getAgeGroup(c.age) === ageFilter)
 
   const getCoveragesByContract = (ctId: string) => {
     const cvs = selectedCoverages.filter(cv => cv.contract_id === ctId)
@@ -171,7 +171,7 @@ export default function Customers() {
                       {c.name}
                       <span className={[styles.badge, c.grade === 'VIP' ? styles.badgeAmber : styles.badgeBlue].join(' ')}>{c.grade}</span>
                     </div>
-                    <div className={styles.custMeta}>{c.age}세 · {c.gender} · {c.job}</div>
+                    <div className={styles.custMeta}>{c.age}세 · {c.gender} · {c.job} · {contracts.filter((ct: any) => ct.customer_id === c.id).reduce((s: number, ct: any) => s + (ct.monthly_fee || 0), 0).toLocaleString()}원 · {contracts.filter((ct: any) => ct.customer_id === c.id).length}건</div>
                     {badges.length > 0 && (
                       <div className={styles.badgeRow}>
                         {badges.map((b, i) => <span key={i} className={b.cls}>{b.label}</span>)}
