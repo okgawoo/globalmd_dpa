@@ -83,13 +83,16 @@ JSON 외 다른 텍스트는 절대 포함하지 마세요.
     })
 
     const data = await response.json()
+    console.log('Claude API response:', JSON.stringify(data).slice(0, 500))
+    if (data.error) {
+      return res.status(500).json({ error: data.error.message || 'Claude API 오류' })
+    }
     const raw = data.content?.[0]?.text || '{}'
     const clean = raw.replace(/```json|```/g, '').trim()
     const parsed = JSON.parse(clean)
     res.status(200).json(parsed)
-  } catch (e) {
-    res.status(500).json({ error: '파싱 중 오류가 발생했어요!' })
+  } catch (e: any) {
+    console.error('Parse error:', e.message)
+    res.status(500).json({ error: e.message || '파싱 중 오류가 발생했어요!' })
   }
 }
-
-
