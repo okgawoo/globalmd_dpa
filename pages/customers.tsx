@@ -307,8 +307,8 @@ export default function Customers() {
   return (
     <div className={styles.wrap}>
       <div className={styles.tabBar}>
-        <button className={[styles.tab, tab === 'existing' ? styles.activeTab : ''].join(' ')} onClick={() => { setTab('existing'); setAddMode(false) }}>기존 고객</button>
-        <button className={[styles.tab, tab === 'prospect' ? styles.activeTab : ''].join(' ')} onClick={() => { setTab('prospect'); setAddMode(false) }}>잠재 고객</button>
+        <button className={[styles.tab, tab === 'existing' ? styles.activeTab : ''].join(' ')} onClick={() => { setTab('existing'); setAddMode(false); setSelected(null) }}>기존 고객</button>
+        <button className={[styles.tab, tab === 'prospect' ? styles.activeTab : ''].join(' ')} onClick={() => { setTab('prospect'); setAddMode(false); setSelected(null) }}>잠재 고객</button>
         <select className={styles.ageFilter} value={ageFilter} onChange={e => setAgeFilter(e.target.value)}>
           {AGE_FILTERS.map(f => <option key={f}>{f}</option>)}
         </select>
