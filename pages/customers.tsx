@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { useConfirm } from '../lib/useConfirm'
 import styles from '../styles/Customers.module.css'
@@ -694,7 +694,25 @@ export default function Customers() {
       {/* 슬라이드업 팝업 (모바일 전용) */}
       <div className={[styles.slideOverlay, slideOpen ? styles.overlayVisible : ''].join(' ')} onClick={closeSlide}>
         <div className={[styles.slidePanel, slideOpen ? styles.slideIn : styles.slideOut].join(' ')} onClick={e => e.stopPropagation()}>
-          <div className={styles.slideHandle} />
+          <div className={styles.slideHandle}
+            onTouchStart={e => {
+              const startY = e.touches[0].clientY
+              const panel = e.currentTarget.parentElement!
+              const onMove = (ev: TouchEvent) => {
+                const dy = ev.touches[0].clientY - startY
+                if (dy > 0) panel.style.transform = `translateY(${dy}px)`
+              }
+              const onEnd = (ev: TouchEvent) => {
+                const dy = ev.changedTouches[0].clientY - startY
+                panel.style.transform = ''
+                if (dy > 80) closeSlide()
+                document.removeEventListener('touchmove', onMove)
+                document.removeEventListener('touchend', onEnd)
+              }
+              document.addEventListener('touchmove', onMove)
+              document.addEventListener('touchend', onEnd)
+            }}
+          />
           <div className={styles.slideContent}>
             {selected && (
               <>
