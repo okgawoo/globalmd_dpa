@@ -90,6 +90,14 @@ function IconSearch() {
   )
 }
 
+function formatMoney(val: string): string {
+  const num = val.replace(/[^0-9]/g, '')
+  return num.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}
+function parseMoney(val: string): string {
+  return val.replace(/,/g, '')
+}
+
 function formatResident(val: string): string {
   const num = val.replace(/\D/g, '').slice(0, 13)
   if (num.length <= 6) return num
@@ -464,7 +472,7 @@ export default function Customers() {
                         {['건강','실손','운전자','자동차','암','치아','간병','CI','종신','기타'].map(t=><option key={t}>{t}</option>)}
                       </select>
                     </div>
-                    <div className={styles.editField}><label>월보험료(원) *</label><input inputMode="numeric" value={ct.monthly_fee} onChange={e=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,monthly_fee:e.target.value.replace(/[^0-9]/g,'')}:c))} placeholder="50000" /></div>
+                    <div className={styles.editField}><label>월보험료(원) *</label><input inputMode="numeric" value={ct.monthly_fee?formatMoney(String(ct.monthly_fee)):''} onChange={e=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,monthly_fee:parseMoney(e.target.value)}:c))} placeholder="50,000" /></div>
                     <div className={styles.editField}><label>납입상태</label>
                       <select value={ct.payment_status} onChange={e=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,payment_status:e.target.value}:c))} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
                         <option>유지</option><option>완납</option><option>실효</option>
