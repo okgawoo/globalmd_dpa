@@ -78,7 +78,7 @@ export default function Dashboard() {
     <div className={styles.wrap}>
       <div className={styles.topRow}>
         <div className={styles.dateStr}>{dateStr}</div>
-        <div className={styles.tagline}>승경아 타이핑 할 시간에 영업을 더 해~~ ㅎㅎㅎ</div>
+
       </div>
 
       <div className={styles.alertsTitle}>오늘의 액션 알림</div>
