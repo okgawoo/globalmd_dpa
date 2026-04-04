@@ -482,7 +482,9 @@ export default function Customers() {
                   </div>
                   {/* 보장 항목 */}
                   <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:10,marginBottom:4}}>
-                    <span style={{fontSize:11,fontWeight:700,color:'#1D9E75'}}>보장 항목</span>
+                    <span style={{fontSize:11,fontWeight:700,color:'#6B7280',textTransform:'uppercase',letterSpacing:'0.5px'}}>보장 항목</span>
+                    <button style={{fontSize:11,padding:'3px 10px',borderRadius:6,border:'1px solid #1D9E75',background:'#E1F5EE',color:'#085041',cursor:'pointer'}}
+                      onClick={()=>setAddNewCov({...addNewCov})}>+ 보장 추가</button>
                   </div>
                   {ct.coverages.map((cv:any,ci:number)=>(
                     <div key={ci} style={{display:'flex',alignItems:'center',gap:6,fontSize:12,padding:'3px 0',borderBottom:'0.5px solid #F3F4F6'}}>
@@ -502,14 +504,16 @@ export default function Customers() {
                     <div className={styles.editField}><input inputMode="numeric" value={addNewCov.amount} onChange={e=>setAddNewCov({...addNewCov,amount:e.target.value.replace(/[^0-9]/g,'')})} placeholder="금액(원)" style={{fontSize:12,padding:'5px 8px'}} /></div>
                   </div>
                   <div style={{display:'flex',justifyContent:'flex-end',marginTop:6}}>
-                    <button style={{padding:'6px 14px',fontSize:12,background:'#E6F7F1',border:'1px solid #1D9E75',borderRadius:6,color:'#1D9E75',fontWeight:600,cursor:'pointer'}}
+                    <button style={{fontSize:11,padding:'3px 10px',borderRadius:6,border:'1px solid #1D9E75',background:'#E1F5EE',color:'#085041',cursor:'pointer'}}
                       onClick={()=>{if(addNewCov.coverage_name&&addNewCov.amount){setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,coverages:[...c.coverages,addNewCov]}:c));setAddNewCov({category:'암진단',coverage_name:'',amount:''})}}}>+ 보장 추가</button>
                   </div>
                 </div>
               ))}
 
               {/* + 보험 추가 버튼 */}
-              <button style={{width:'100%',marginTop:12,padding:'12px',background:'#F0FDF4',border:'1.5px dashed #1D9E75',borderRadius:8,color:'#1D9E75',fontSize:13,fontWeight:600,cursor:'pointer'}}
+              <button style={{display:'block',width:'100%',padding:'10px',marginBottom:12,border:'1.5px dashed #E5E7EB',borderRadius:10,background:'#F9FAFB',color:'#9CA3AF',fontSize:13,cursor:'pointer',textAlign:'center',marginTop:12}}
+                onMouseOver={e=>{(e.target as HTMLButtonElement).style.borderColor='#1D9E75';(e.target as HTMLButtonElement).style.color='#1D9E75';(e.target as HTMLButtonElement).style.background='#E1F5EE'}}
+                onMouseOut={e=>{(e.target as HTMLButtonElement).style.borderColor='#E5E7EB';(e.target as HTMLButtonElement).style.color='#9CA3AF';(e.target as HTMLButtonElement).style.background='#F9FAFB'}}
                 onClick={()=>{
                   if(!addForm.name) return alert('이름을 먼저 입력해주세요!')
                   setAddContracts((v:any)=>[...v,{company:'삼성생명',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[]}])
