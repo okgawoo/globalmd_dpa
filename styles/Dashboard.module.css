@@ -67,3 +67,25 @@
   .grid2 { grid-template-columns: 1fr; }
   .tagline { font-size: 11px; }
 }
+
+/* 환영문구 + 날짜 */
+.welcomeMsg { font-size: 15px; color: #111827; margin-bottom: 6px; }
+.welcomeMsg strong { font-weight: 700; color: #1D9E75; }
+.dateRow { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.calBtn { font-size: 12px; padding: 3px 10px; border-radius: 6px; border: 1px solid #E5E7EB; background: #fff; color: #6B7280; cursor: pointer; transition: all 0.15s; }
+.calBtn:hover { border-color: #1D9E75; color: #1D9E75; background: #E6F7F1; }
+
+/* 달력 팝업 */
+.calOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 200; display: flex; align-items: center; justify-content: center; }
+.calPopup { background: #fff; border-radius: 16px; padding: 20px; width: 300px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); }
+.calHeader { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+.calMonthStr { flex: 1; text-align: center; font-size: 15px; font-weight: 700; color: #111827; }
+.calArrow { background: none; border: 1px solid #E5E7EB; border-radius: 6px; width: 28px; height: 28px; font-size: 16px; cursor: pointer; color: #6B7280; display: flex; align-items: center; justify-content: center; }
+.calArrow:hover { border-color: #1D9E75; color: #1D9E75; }
+.calClose { margin-left: auto; background: none; border: none; font-size: 14px; color: #9CA3AF; cursor: pointer; }
+.calGrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.calDayLabel { text-align: center; font-size: 11px; font-weight: 600; color: #9CA3AF; padding: 4px 0; }
+.calDay { text-align: center; font-size: 13px; color: #374151; padding: 6px 2px; border-radius: 6px; cursor: default; }
+.calDay:hover { background: #F3F4F6; }
+.calToday { background: #1D9E75; color: #fff; font-weight: 700; border-radius: 6px; }
+.calToday:hover { background: #1D9E75; }
