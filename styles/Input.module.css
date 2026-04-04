@@ -52,3 +52,35 @@
 }
 .autoTag { font-size: 10px; background: var(--green-light); color: #0F6E56; padding: 1px 6px; border-radius: 999px; font-weight: 600; margin-left: 4px; }
 .readOnly { background: var(--bg) !important; color: var(--green) !important; font-weight: 600; cursor: default; }
+
+.contractBlock { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 16px; }
+.contractBlockHeader { display: flex; justify-content: space-between; align-items: center; }
+.removeBtn { font-size: 11px; padding: 3px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text-muted); cursor: pointer; }
+.removeBtn:hover { background: #FCEBEB; color: #A32D2D; border-color: #A32D2D; }
+.addContractBtn { display: block; width: 100%; padding: 10px; margin-bottom: 12px; border: 1.5px dashed var(--border); border-radius: 10px; background: var(--bg); color: var(--text-muted); font-size: 13px; cursor: pointer; text-align: center; }
+.addContractBtn:hover { border-color: #1D9E75; color: #1D9E75; background: #E1F5EE; }
+
+.coverageSection { margin-top: 12px; border-top: 0.5px solid var(--border); padding-top: 10px; }
+.coverageSectionHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.coverageSectionTitle { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+.addCovBtn { font-size: 11px; padding: 3px 10px; border-radius: 6px; border: 1px solid #1D9E75; background: #E1F5EE; color: #085041; cursor: pointer; }
+.covModal { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+.coverageList { display: flex; flex-direction: column; gap: 4px; }
+.covItem { display: flex; align-items: center; gap: 8px; font-size: 12px; padding: 4px 8px; background: var(--bg); border-radius: 6px; border: 0.5px solid var(--border); }
+.covCat { font-size: 10px; background: #E1F5EE; color: #085041; padding: 1px 6px; border-radius: 999px; flex-shrink: 0; }
+.covName { flex: 1; color: var(--text-primary); }
+.covAmt { color: #1D9E75; font-weight: 500; flex-shrink: 0; }
+.covDel { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 11px; flex-shrink: 0; }
+.covDel:hover { color: #A32D2D; }
+.editActions { display: flex; gap: 8px; margin-top: 8px; }
+.saveBtn { font-size: 13px; padding: 7px 20px; border-radius: 8px; border: none; background: #1D9E75; color: #fff; cursor: pointer; font-weight: 600; }
+.cancelBtn { font-size: 13px; padding: 7px 20px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text-secondary); cursor: pointer; }
+
+.excelSection { margin: 14px 0; }
+.excelLabel { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+.dropZone { border: 2px dashed var(--border); border-radius: 12px; padding: 28px; text-align: center; cursor: pointer; transition: all 0.2s; }
+.dropZone:hover { border-color: #1D9E75; background: #E1F5EE; }
+.dropZoneActive { border-color: #1D9E75; background: #E1F5EE; }
+.dropIcon { font-size: 28px; margin-bottom: 8px; }
+.dropText { font-size: 13px; color: var(--text-primary); margin-bottom: 4px; }
+.dropSub { font-size: 11px; color: var(--text-muted); }
