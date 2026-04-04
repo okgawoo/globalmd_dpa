@@ -504,7 +504,7 @@ export default function Customers() {
                             </select>
                           </div>
                           <div className={styles.editField}><label>보장명</label><input value={addNewCov.coverage_name} onChange={e=>setAddNewCov({...addNewCov,coverage_name:e.target.value})} placeholder="예: 급성심근경색진단비" style={{background:'#F9FAFB'}} /></div>
-                          <div className={styles.editField}><label>금액 (원)</label><input inputMode="numeric" value={addNewCov.amount} onChange={e=>setAddNewCov({...addNewCov,amount:e.target.value.replace(/[^0-9]/g,'')})} placeholder="예: 30000000" style={{background:'#F9FAFB'}} /></div>
+                          <div className={styles.editField}><label>금액 (원)</label><input inputMode="numeric" value={addNewCov.amount?formatMoney(String(addNewCov.amount)):''} onChange={e=>setAddNewCov({...addNewCov,amount:parseMoney(e.target.value)})} placeholder="예: 30,000,000" style={{background:'#F9FAFB'}} /></div>
                         </div>
                         <div style={{display:'flex',gap:6,marginTop:8}}>
                           <button style={{flex:1,padding:'7px',fontSize:13,background:'#1D9E75',color:'#fff',border:'none',borderRadius:8,fontWeight:600,cursor:'pointer'}}
@@ -671,7 +671,7 @@ export default function Customers() {
                       </select>
                     </div>
                     <div className={styles.editField}><label>보장명</label><input value={newCov.coverage_name} onChange={e=>setNewCov({...newCov,coverage_name:e.target.value})} placeholder="뇌출혈진단비" /></div>
-                    <div className={styles.editField}><label>금액(원)</label><input inputMode="numeric" value={newCov.amount} onChange={e=>setNewCov({...newCov,amount:e.target.value.replace(/[^0-9]/g,'')})} placeholder="30000000" /></div>
+                    <div className={styles.editField}><label>금액(원)</label><input inputMode="numeric" value={newCov.amount?formatMoney(String(newCov.amount)):''} onChange={e=>setNewCov({...newCov,amount:parseMoney(e.target.value)})} placeholder="30,000,000" /></div>
                     <div className={styles.editField} style={{display:'flex',alignItems:'flex-end'}}>
                       <button className={styles.saveBtn} style={{width:'100%'}} onClick={()=>{ if(newCov.coverage_name&&newCov.amount){setInsCoverages(v=>[...v,newCov]);setNewCov({category:'암진단',coverage_name:'',amount:''})}}}>+ 추가</button>
                     </div>
