@@ -239,18 +239,17 @@
 
 @media (max-width: 768px) {
   .tabIcon { display: inline-flex !important; }
-  /* 기존고객/잠재고객 탭 - 아이콘만 보이고 텍스트 숨김 */
-  .iconTab { flex-direction: row !important; padding: 8px 8px !important; font-size: 13px !important; gap: 0 !important; white-space: nowrap !important; }
+  /* 탭바 2줄 레이아웃 */
+  .tabBar { flex-wrap: wrap !important; gap: 0 !important; }
+  /* 1줄: 기존고객 + 잠재고객 + 고객추가 */
+  .iconTab { flex-direction: row !important; padding: 8px 12px !important; font-size: 13px !important; gap: 4px !important; white-space: nowrap !important; }
   .iconTab span + span { display: none !important; }
-  /* + 고객 추가 버튼 */
-  .addBtn { padding: 6px 8px !important; font-size: 11px !important; white-space: nowrap !important; }
-  /* 검색박스 */
-  .searchBox { max-width: 110px !important; padding: 4px 8px !important; }
-  .searchInput { font-size: 11px !important; }
-  /* 연령대 필터 */
-  .ageFilter { font-size: 11px !important; padding: 4px 6px !important; }
-  /* tabRight 간격 */
-  .tabRight { gap: 4px !important; }
+  .addBtn { white-space: nowrap !important; font-size: 12px !important; padding: 6px 10px !important; }
+  /* 2줄: tabRight (연령대 + 검색) 전체 너비로 */
+  .tabRight { width: 100% !important; border-top: 1px solid #E5E7EB !important; padding: 8px 0 !important; gap: 8px !important; margin-left: 0 !important; }
+  .searchBox { flex: 1 !important; max-width: 100% !important; }
+  .searchInput { font-size: 13px !important; }
+  .ageFilter { font-size: 12px !important; padding: 5px 8px !important; }
 }
 
 /* 신상정보 2열 그리드 */
