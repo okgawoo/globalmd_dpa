@@ -73,8 +73,8 @@ export default function Login() {
     <div className={styles.wrap}>
       <div className={styles.card}>
         <div className={styles.logo}>
-          <span className={styles.logoText}>다빨아</span>
-          <span className={styles.logoSub}>DB-A-RA · 보험 분석 자동화</span>
+          <span className={styles.logoText}>DPA</span>
+          <span className={styles.logoSub}>보험 분석 자동화 시스템</span>
         </div>
 
         <div className={styles.tabs}>
