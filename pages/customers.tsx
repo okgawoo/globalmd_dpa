@@ -237,16 +237,16 @@ export default function Customers() {
           onClick={() => { setTab('existing'); setAddMode(false); closeSlide() }}
           title="기존 고객"
         >
-          <IconUsers active={tab === 'existing'} />
-          <span>기존</span>
+          <span className={styles.tabIcon}><IconUsers active={tab === 'existing'} /></span>
+          <span>기존 고객</span>
         </button>
         <button
           className={[styles.iconTab, tab === 'prospect' ? styles.activeIconTab : ''].join(' ')}
           onClick={() => { setTab('prospect'); setAddMode(false); closeSlide() }}
           title="잠재 고객"
         >
-          <IconUser active={tab === 'prospect'} />
-          <span>잠재</span>
+          <span className={styles.tabIcon}><IconUser active={tab === 'prospect'} /></span>
+          <span>잠재 고객</span>
         </button>
 
         <select className={styles.ageFilter} value={ageFilter} onChange={e => setAgeFilter(e.target.value)}>
@@ -268,8 +268,8 @@ export default function Customers() {
           onClick={() => { setAddMode(true); closeSlide(); setAddType(tab === 'existing' ? 'existing' : 'prospect') }}
           title="고객 추가"
         >
-          <IconUserPlus />
-          <span>추가</span>
+          <span className={styles.tabIcon}><IconUserPlus /></span>
+          <span>+ 고객 추가</span>
         </button>
       </div>
 
@@ -366,8 +366,14 @@ export default function Customers() {
                 </div>
               )}
               <div className={styles.infoTable}>
+                {selected.age && <div className={styles.infoRow}><span className={styles.infoLabel}>나이</span><span className={styles.infoValue}>{selected.age}세</span></div>}
+                {selected.gender && <div className={styles.infoRow}><span className={styles.infoLabel}>성별</span><span className={styles.infoValue}>{selected.gender}</span></div>}
+                {selected.phone && <div className={styles.infoRow}><span className={styles.infoLabel}>연락처</span><span className={styles.infoValue}>{selected.phone}</span></div>}
+                {selected.job && <div className={styles.infoRow}><span className={styles.infoLabel}>직업</span><span className={styles.infoValue}>{selected.job}</span></div>}
                 {selected.address && <div className={styles.infoRow}><span className={styles.infoLabel}>주소</span><span className={styles.infoValue}>{selected.address}</span></div>}
                 {selected.workplace && <div className={styles.infoRow}><span className={styles.infoLabel}>직장/소속</span><span className={styles.infoValue}>{selected.workplace}</span></div>}
+                {(selected.bank_name || selected.bank_account) && <div className={styles.infoRow}><span className={styles.infoLabel}>계좌번호</span><span className={styles.infoValue}>{selected.bank_name} {selected.bank_account}</span></div>}
+                {selected.driver_license && <div className={styles.infoRow}><span className={styles.infoLabel}>운전면허</span><span className={styles.infoValue}>{selected.driver_license}</span></div>}
                 <div className={styles.infoRowLast}>
                   <div className={styles.infoRow} style={{ borderBottom: 'none', paddingBottom: 0 }}><span className={styles.infoLabel}>총 월납입</span><span className={[styles.infoValue, styles.infoGreen].join(' ')}>{selectedContracts.reduce((s,ct)=>s+(ct.monthly_fee||0),0).toLocaleString()}원</span></div>
                   <div className={styles.infoRow} style={{ borderBottom: 'none', paddingBottom: 0 }}><span className={styles.infoLabel}>계약 수</span><span className={styles.infoValue}>{selectedContracts.length}건</span></div>
@@ -455,6 +461,10 @@ export default function Customers() {
                 )}
 
                 <div className={styles.infoTable}>
+                  {selected.age && <div className={styles.infoRow}><span className={styles.infoLabel}>나이</span><span className={styles.infoValue}>{selected.age}세</span></div>}
+                  {selected.gender && <div className={styles.infoRow}><span className={styles.infoLabel}>성별</span><span className={styles.infoValue}>{selected.gender}</span></div>}
+                  {selected.phone && <div className={styles.infoRow}><span className={styles.infoLabel}>연락처</span><span className={styles.infoValue}>{selected.phone}</span></div>}
+                  {selected.job && <div className={styles.infoRow}><span className={styles.infoLabel}>직업</span><span className={styles.infoValue}>{selected.job}</span></div>}
                   {selected.address && <div className={styles.infoRow}><span className={styles.infoLabel}>주소</span><span className={styles.infoValue}>{selected.address}</span></div>}
                   {selected.workplace && <div className={styles.infoRow}><span className={styles.infoLabel}>직장/소속</span><span className={styles.infoValue}>{selected.workplace}</span></div>}
                   {(selected.bank_name || selected.bank_account) && <div className={styles.infoRow}><span className={styles.infoLabel}>계좌번호</span><span className={styles.infoValue}>{selected.bank_name} {selected.bank_account}</span></div>}
