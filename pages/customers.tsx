@@ -89,6 +89,13 @@ function IconSearch() {
   )
 }
 
+function formatPhone(val: string): string {
+  const num = val.replace(/\D/g, '').slice(0, 11)
+  if (num.length <= 3) return num
+  if (num.length <= 7) return `${num.slice(0,3)}-${num.slice(3)}`
+  return `${num.slice(0,3)}-${num.slice(3,7)}-${num.slice(7)}`
+}
+
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false)
   useEffect(() => {
@@ -322,17 +329,26 @@ export default function Customers() {
             <div className={styles.editBox}>
               <div className={styles.editSectionTitle}>{addType === 'existing' ? '기존 고객' : '잠재 고객'} 추가</div>
               <div className={styles.editGrid}>
-                {[
-                  { key: 'name', label: '이름 *' }, { key: 'phone', label: '연락처' },
-                  { key: 'age', label: '나이' }, { key: 'gender', label: '성별' },
-                  { key: 'job', label: '직업' }, { key: 'grade', label: '등급' },
-                  { key: 'address', label: '주소' }, { key: 'workplace', label: '직장/소속' },
-                ].map(f => (
-                  <div key={f.key} className={styles.editField}>
-                    <label>{f.label}</label>
-                    <input value={(addForm as any)[f.key] || ''} onChange={e => setAddForm({ ...addForm, [f.key]: e.target.value })} />
-                  </div>
-                ))}
+                <div className={styles.editField}><label>이름 *</label><input placeholder="홍길동" value={addForm.name} onChange={e => setAddForm({ ...addForm, name: e.target.value })} /></div>
+                <div className={styles.editField}><label>연락처</label><input placeholder="010-0000-0000" inputMode="numeric" value={addForm.phone} onChange={e => setAddForm({ ...addForm, phone: formatPhone(e.target.value) })} /></div>
+                <div className={styles.editField}><label>나이</label><input placeholder="나이" inputMode="numeric" value={addForm.age} onChange={e => setAddForm({ ...addForm, age: e.target.value.replace(/[^0-9]/g, '') })} /></div>
+                <div className={styles.editField}><label>성별</label>
+                  <select value={addForm.gender} onChange={e => setAddForm({ ...addForm, gender: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                    <option>남</option><option>여</option><option>기타</option>
+                  </select>
+                </div>
+                <div className={styles.editField}><label>직업</label>
+                  <select value={addForm.job} onChange={e => setAddForm({ ...addForm, job: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                    {['직장인','자영업자','공무원','교사/교직원','의료인','전문직','주부','학생','농업/어업','프리랜서','은퇴/무직','기타'].map(j => <option key={j}>{j}</option>)}
+                  </select>
+                </div>
+                <div className={styles.editField}><label>등급</label>
+                  <select value={addForm.grade} onChange={e => setAddForm({ ...addForm, grade: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                    <option>일반</option><option>VIP</option>
+                  </select>
+                </div>
+                <div className={styles.editField}><label>주소</label><input placeholder="서울시 강남구..." value={addForm.address} onChange={e => setAddForm({ ...addForm, address: e.target.value })} /></div>
+                <div className={styles.editField}><label>직장/소속</label><input placeholder="직장명" value={addForm.workplace} onChange={e => setAddForm({ ...addForm, workplace: e.target.value })} /></div>
               </div>
               <div className={styles.editActions}>
                 <button className={styles.saveBtn} onClick={saveAddCustomer}>저장</button>
@@ -353,17 +369,22 @@ export default function Customers() {
                 <div className={styles.editBox}>
                   <div className={styles.editSectionTitle}>개인정보 수정</div>
                   <div className={styles.editGrid}>
-                    {[
-                      { key: 'name', label: '이름' }, { key: 'phone', label: '연락처' },
-                      { key: 'job', label: '직업' }, { key: 'address', label: '주소' },
-                      { key: 'workplace', label: '직장/소속' }, { key: 'bank_name', label: '은행명' },
-                      { key: 'bank_account', label: '계좌번호' }, { key: 'driver_license', label: '운전면허' },
-                    ].map(f => (
-                      <div key={f.key} className={styles.editField}>
-                        <label>{f.label}</label>
-                        <input value={editForm[f.key] || ''} onChange={e => setEditForm({ ...editForm, [f.key]: e.target.value })} />
-                      </div>
-                    ))}
+                    <div className={styles.editField}><label>이름</label><input value={editForm.name||''} onChange={e=>setEditForm({...editForm,name:e.target.value})} /></div>
+                    <div className={styles.editField}><label>연락처</label><input inputMode="numeric" value={editForm.phone||''} onChange={e=>setEditForm({...editForm,phone:formatPhone(e.target.value)})} /></div>
+                    <div className={styles.editField}><label>성별</label>
+                      <select value={editForm.gender||'남'} onChange={e=>setEditForm({...editForm,gender:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                        <option>남</option><option>여</option><option>기타</option>
+                      </select>
+                    </div>
+                    <div className={styles.editField}><label>직업</label>
+                      <select value={editForm.job||'직장인'} onChange={e=>setEditForm({...editForm,job:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                        {['직장인','자영업자','공무원','교사/교직원','의료인','전문직','주부','학생','농업/어업','프리랜서','은퇴/무직','기타'].map(j=><option key={j}>{j}</option>)}
+                      </select>
+                    </div>
+                    <div className={styles.editField}><label>주소</label><input value={editForm.address||''} onChange={e=>setEditForm({...editForm,address:e.target.value})} /></div>
+                    <div className={styles.editField}><label>직장/소속</label><input value={editForm.workplace||''} onChange={e=>setEditForm({...editForm,workplace:e.target.value})} /></div>
+                    <div className={styles.editField}><label>은행명</label><input value={editForm.bank_name||''} onChange={e=>setEditForm({...editForm,bank_name:e.target.value})} /></div>
+                    <div className={styles.editField}><label>계좌번호</label><input value={editForm.bank_account||''} onChange={e=>setEditForm({...editForm,bank_account:e.target.value.replace(/[^0-9-]/g,'')})} inputMode="numeric" /></div>
                   </div>
                   <div className={styles.editActions}>
                     <button className={styles.saveBtn} onClick={saveCustomerEdit}>저장</button>
@@ -447,17 +468,22 @@ export default function Customers() {
                   <div className={styles.editBox}>
                     <div className={styles.editSectionTitle}>개인정보 수정</div>
                     <div className={styles.editGrid}>
-                      {[
-                        { key: 'name', label: '이름' }, { key: 'phone', label: '연락처' },
-                        { key: 'job', label: '직업' }, { key: 'address', label: '주소' },
-                        { key: 'workplace', label: '직장/소속' }, { key: 'bank_name', label: '은행명' },
-                        { key: 'bank_account', label: '계좌번호' }, { key: 'driver_license', label: '운전면허' },
-                      ].map(f => (
-                        <div key={f.key} className={styles.editField}>
-                          <label>{f.label}</label>
-                          <input value={editForm[f.key] || ''} onChange={e => setEditForm({ ...editForm, [f.key]: e.target.value })} />
-                        </div>
-                      ))}
+                      <div className={styles.editField}><label>이름</label><input value={editForm.name||''} onChange={e=>setEditForm({...editForm,name:e.target.value})} /></div>
+                      <div className={styles.editField}><label>연락처</label><input inputMode="numeric" value={editForm.phone||''} onChange={e=>setEditForm({...editForm,phone:formatPhone(e.target.value)})} /></div>
+                      <div className={styles.editField}><label>성별</label>
+                        <select value={editForm.gender||'남'} onChange={e=>setEditForm({...editForm,gender:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                          <option>남</option><option>여</option><option>기타</option>
+                        </select>
+                      </div>
+                      <div className={styles.editField}><label>직업</label>
+                        <select value={editForm.job||'직장인'} onChange={e=>setEditForm({...editForm,job:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                          {['직장인','자영업자','공무원','교사/교직원','의료인','전문직','주부','학생','농업/어업','프리랜서','은퇴/무직','기타'].map(j=><option key={j}>{j}</option>)}
+                        </select>
+                      </div>
+                      <div className={styles.editField}><label>주소</label><input value={editForm.address||''} onChange={e=>setEditForm({...editForm,address:e.target.value})} /></div>
+                      <div className={styles.editField}><label>직장/소속</label><input value={editForm.workplace||''} onChange={e=>setEditForm({...editForm,workplace:e.target.value})} /></div>
+                      <div className={styles.editField}><label>은행명</label><input value={editForm.bank_name||''} onChange={e=>setEditForm({...editForm,bank_name:e.target.value})} /></div>
+                      <div className={styles.editField}><label>계좌번호</label><input inputMode="numeric" value={editForm.bank_account||''} onChange={e=>setEditForm({...editForm,bank_account:e.target.value.replace(/[^0-9-]/g,'')})} /></div>
                     </div>
                     <div className={styles.editActions}>
                       <button className={styles.saveBtn} onClick={saveCustomerEdit}>저장</button>
