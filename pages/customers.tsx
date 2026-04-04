@@ -196,7 +196,12 @@ export default function Customers() {
     const { data: cust } = await supabase.from('dpa_customers').insert({
       ...addForm, age: parseInt(addForm.age) || null, customer_type: addType
     }).select().single()
-    if (cust) { setAddMode(false); setAddForm(emptyCustomerForm); fetchAll() }
+    if (cust) {
+      setAddMode(false)
+      setAddForm(emptyCustomerForm)
+      await fetchAll()
+      selectCustomer(cust)
+    }
   }
 
   const getBadges = (c: any) => {
