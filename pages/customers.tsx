@@ -180,7 +180,7 @@ export default function Customers() {
         {!editMode && <button className={styles.editBtn} onClick={() => { setEditMode(true); setEditForm(selected) }}>수정</button>}
       </div>
 
-      {editMode ? (
+      {editMode && (
         <div className={styles.editBox}>
           <div className={styles.editSectionTitle}>개인정보 수정</div>
           <div className={styles.editGrid}>
@@ -201,8 +201,8 @@ export default function Customers() {
             <button className={styles.cancelBtn} onClick={() => setEditMode(false)}>취소</button>
           </div>
         </div>
-      ) : (
-        <>
+      )}
+      <>
           <div className={styles.infoTable}>
             {selected.address && <div className={styles.infoRow}><span className={styles.infoLabel}>주소</span><span className={styles.infoValue}>{selected.address}</span></div>}
             {selected.workplace && <div className={styles.infoRow}><span className={styles.infoLabel}>직장/소속</span><span className={styles.infoValue}>{selected.workplace}</span></div>}
@@ -276,7 +276,6 @@ export default function Customers() {
           })}
           <a href={`/input?customer_id=${selected.id}`} className={styles.addInsBtn}>+ 보험 추가</a>
         </>
-      )}
     </>
   )
 
