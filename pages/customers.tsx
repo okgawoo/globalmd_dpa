@@ -109,7 +109,7 @@ export default function Customers() {
   const [selectedContracts, setSelectedContracts] = useState<any[]>([])
   const [selectedCoverages, setSelectedCoverages] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [ageFilter, setAgeFilter] = useState('전체')
+  const [ageFilter, setAgeFilter] = useState('연령대전체')
   const [searchQuery, setSearchQuery] = useState('')
   const [editMode, setEditMode] = useState(false)
   const [editForm, setEditForm] = useState<any>({})
