@@ -203,7 +203,7 @@
 .activeIconTab { color: #1D9E75; border-bottom-color: #1D9E75; font-weight: 700; }
 
 /* 검색 박스 */
-.searchBox { display: flex; align-items: center; gap: 6px; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 5px 10px; flex: 1; max-width: 200px; }
+.searchBox { display: flex; align-items: center; gap: 6px; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 5px 10px; flex: 1; max-width: 200px; margin-left: 8px; }
 .searchInput { border: none; background: none; outline: none; font-size: 13px; color: #111827; width: 100%; }
 .searchInput::placeholder { color: #9CA3AF; }
 
@@ -238,3 +238,12 @@
 
 .tabIcon { display: none; }
 @media (max-width: 768px) { .tabIcon { display: block; } }
+
+/* 신상정보 2열 그리드 */
+.infoGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin-bottom: 14px; border: 0.5px solid #E5E7EB; border-radius: 10px; overflow: hidden; }
+.infoItem { display: flex; flex-direction: column; padding: 8px 12px; border-bottom: 0.5px solid #E5E7EB; border-right: 0.5px solid #E5E7EB; }
+.infoItemFull { display: flex; flex-direction: column; padding: 8px 12px; border-bottom: 0.5px solid #E5E7EB; grid-column: span 2; }
+.infoItem:nth-child(even) { border-right: none; }
+.infoGrid .infoLabel { font-size: 10px; color: #9CA3AF; margin-bottom: 2px; }
+.infoGrid .infoValue { font-size: 13px; color: #111827; font-weight: 500; }
+.infoGreen { color: #1D9E75 !important; font-weight: 700 !important; }

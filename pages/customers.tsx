@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase'
 import styles from '../styles/Customers.module.css'
 
 type Tab = 'existing' | 'prospect'
-const AGE_FILTERS = ['전체', '유아(0-7)', '10대', '20대', '30대', '40대', '50대', '60대+']
+const AGE_FILTERS = ['연령대전체', '유아(0-7)', '10대', '20대', '30대', '40대', '50대', '60대+']
 
 const COVERAGE_GROUPS = [
   { key: '암진단', icon: '💊', label: '암 보장' },
@@ -214,7 +214,7 @@ export default function Customers() {
 
   const filteredCustomers = customers
     .filter(c => c.customer_type === (tab === 'existing' ? 'existing' : 'prospect'))
-    .filter(c => ageFilter === '전체' || getAgeGroup(c.age) === ageFilter)
+    .filter(c => ageFilter === '연령대전체' || getAgeGroup(c.age) === ageFilter)
     .filter(c => {
       if (!searchQuery) return true
       const q = searchQuery.toLowerCase()
@@ -365,19 +365,17 @@ export default function Customers() {
                   </div>
                 </div>
               )}
-              <div className={styles.infoTable}>
-                {selected.age && <div className={styles.infoRow}><span className={styles.infoLabel}>나이</span><span className={styles.infoValue}>{selected.age}세</span></div>}
-                {selected.gender && <div className={styles.infoRow}><span className={styles.infoLabel}>성별</span><span className={styles.infoValue}>{selected.gender}</span></div>}
-                {selected.phone && <div className={styles.infoRow}><span className={styles.infoLabel}>연락처</span><span className={styles.infoValue}>{selected.phone}</span></div>}
-                {selected.job && <div className={styles.infoRow}><span className={styles.infoLabel}>직업</span><span className={styles.infoValue}>{selected.job}</span></div>}
-                {selected.address && <div className={styles.infoRow}><span className={styles.infoLabel}>주소</span><span className={styles.infoValue}>{selected.address}</span></div>}
-                {selected.workplace && <div className={styles.infoRow}><span className={styles.infoLabel}>직장/소속</span><span className={styles.infoValue}>{selected.workplace}</span></div>}
-                {(selected.bank_name || selected.bank_account) && <div className={styles.infoRow}><span className={styles.infoLabel}>계좌번호</span><span className={styles.infoValue}>{selected.bank_name} {selected.bank_account}</span></div>}
-                {selected.driver_license && <div className={styles.infoRow}><span className={styles.infoLabel}>운전면허</span><span className={styles.infoValue}>{selected.driver_license}</span></div>}
-                <div className={styles.infoRowLast}>
-                  <div className={styles.infoRow} style={{ borderBottom: 'none', paddingBottom: 0 }}><span className={styles.infoLabel}>총 월납입</span><span className={[styles.infoValue, styles.infoGreen].join(' ')}>{selectedContracts.reduce((s,ct)=>s+(ct.monthly_fee||0),0).toLocaleString()}원</span></div>
-                  <div className={styles.infoRow} style={{ borderBottom: 'none', paddingBottom: 0 }}><span className={styles.infoLabel}>계약 수</span><span className={styles.infoValue}>{selectedContracts.length}건</span></div>
-                </div>
+              <div className={styles.infoGrid}>
+                <div className={styles.infoItem}><span className={styles.infoLabel}>나이</span><span className={styles.infoValue}>{selected.age}세</span></div>
+                <div className={styles.infoItem}><span className={styles.infoLabel}>성별</span><span className={styles.infoValue}>{selected.gender}</span></div>
+                <div className={styles.infoItem}><span className={styles.infoLabel}>연락처</span><span className={styles.infoValue}>{selected.phone}</span></div>
+                <div className={styles.infoItem}><span className={styles.infoLabel}>직업</span><span className={styles.infoValue}>{selected.job}</span></div>
+                {selected.address && <div className={styles.infoItemFull}><span className={styles.infoLabel}>주소</span><span className={styles.infoValue}>{selected.address}</span></div>}
+                {selected.workplace && <div className={styles.infoItemFull}><span className={styles.infoLabel}>직장/소속</span><span className={styles.infoValue}>{selected.workplace}</span></div>}
+                {(selected.bank_name || selected.bank_account) && <div className={styles.infoItemFull}><span className={styles.infoLabel}>계좌번호</span><span className={styles.infoValue}>{selected.bank_name} {selected.bank_account}</span></div>}
+                {selected.driver_license && <div className={styles.infoItem}><span className={styles.infoLabel}>운전면허</span><span className={styles.infoValue}>{selected.driver_license}</span></div>}
+                <div className={styles.infoItem}><span className={styles.infoLabel}>총 월납입</span><span className={[styles.infoValue, styles.infoGreen].join(' ')}>{selectedContracts.reduce((s,ct)=>s+(ct.monthly_fee||0),0).toLocaleString()}원</span></div>
+                <div className={styles.infoItem}><span className={styles.infoLabel}>계약 수</span><span className={styles.infoValue}>{selectedContracts.length}건</span></div>
               </div>
               <div className={styles.section}>보험 계약 현황</div>
               {selectedContracts.map((ct, idx) => {
@@ -460,19 +458,17 @@ export default function Customers() {
                   </div>
                 )}
 
-                <div className={styles.infoTable}>
-                  {selected.age && <div className={styles.infoRow}><span className={styles.infoLabel}>나이</span><span className={styles.infoValue}>{selected.age}세</span></div>}
-                  {selected.gender && <div className={styles.infoRow}><span className={styles.infoLabel}>성별</span><span className={styles.infoValue}>{selected.gender}</span></div>}
-                  {selected.phone && <div className={styles.infoRow}><span className={styles.infoLabel}>연락처</span><span className={styles.infoValue}>{selected.phone}</span></div>}
-                  {selected.job && <div className={styles.infoRow}><span className={styles.infoLabel}>직업</span><span className={styles.infoValue}>{selected.job}</span></div>}
-                  {selected.address && <div className={styles.infoRow}><span className={styles.infoLabel}>주소</span><span className={styles.infoValue}>{selected.address}</span></div>}
-                  {selected.workplace && <div className={styles.infoRow}><span className={styles.infoLabel}>직장/소속</span><span className={styles.infoValue}>{selected.workplace}</span></div>}
-                  {(selected.bank_name || selected.bank_account) && <div className={styles.infoRow}><span className={styles.infoLabel}>계좌번호</span><span className={styles.infoValue}>{selected.bank_name} {selected.bank_account}</span></div>}
-                  {selected.driver_license && <div className={styles.infoRow}><span className={styles.infoLabel}>운전면허</span><span className={styles.infoValue}>{selected.driver_license}</span></div>}
-                  <div className={styles.infoRowLast}>
-                    <div className={styles.infoRow} style={{ borderBottom: 'none', paddingBottom: 0 }}><span className={styles.infoLabel}>총 월납입</span><span className={[styles.infoValue, styles.infoGreen].join(' ')}>{totalMonthly.toLocaleString()}원</span></div>
-                    <div className={styles.infoRow} style={{ borderBottom: 'none', paddingBottom: 0 }}><span className={styles.infoLabel}>계약 수</span><span className={styles.infoValue}>{selectedContracts.length}건</span></div>
-                  </div>
+                <div className={styles.infoGrid}>
+                  <div className={styles.infoItem}><span className={styles.infoLabel}>나이</span><span className={styles.infoValue}>{selected.age}세</span></div>
+                  <div className={styles.infoItem}><span className={styles.infoLabel}>성별</span><span className={styles.infoValue}>{selected.gender}</span></div>
+                  <div className={styles.infoItem}><span className={styles.infoLabel}>연락처</span><span className={styles.infoValue}>{selected.phone}</span></div>
+                  <div className={styles.infoItem}><span className={styles.infoLabel}>직업</span><span className={styles.infoValue}>{selected.job}</span></div>
+                  {selected.address && <div className={styles.infoItemFull}><span className={styles.infoLabel}>주소</span><span className={styles.infoValue}>{selected.address}</span></div>}
+                  {selected.workplace && <div className={styles.infoItemFull}><span className={styles.infoLabel}>직장/소속</span><span className={styles.infoValue}>{selected.workplace}</span></div>}
+                  {(selected.bank_name || selected.bank_account) && <div className={styles.infoItemFull}><span className={styles.infoLabel}>계좌번호</span><span className={styles.infoValue}>{selected.bank_name} {selected.bank_account}</span></div>}
+                  {selected.driver_license && <div className={styles.infoItem}><span className={styles.infoLabel}>운전면허</span><span className={styles.infoValue}>{selected.driver_license}</span></div>}
+                  <div className={styles.infoItem}><span className={styles.infoLabel}>총 월납입</span><span className={[styles.infoValue, styles.infoGreen].join(' ')}>{totalMonthly.toLocaleString()}원</span></div>
+                  <div className={styles.infoItem}><span className={styles.infoLabel}>계약 수</span><span className={styles.infoValue}>{selectedContracts.length}건</span></div>
                 </div>
 
                 <div className={styles.section}>보험 계약 현황</div>
