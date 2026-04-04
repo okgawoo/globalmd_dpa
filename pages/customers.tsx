@@ -350,9 +350,23 @@ export default function Customers() {
                 <div className={styles.editField}><label>주소</label><input placeholder="서울시 강남구..." value={addForm.address} onChange={e => setAddForm({ ...addForm, address: e.target.value })} /></div>
                 <div className={styles.editField}><label>직장/소속</label><input placeholder="직장명" value={addForm.workplace} onChange={e => setAddForm({ ...addForm, workplace: e.target.value })} /></div>
               </div>
-              <div className={styles.editActions}>
-                <button className={styles.saveBtn} onClick={saveAddCustomer}>저장</button>
-                <button className={styles.cancelBtn} onClick={() => setAddMode(false)}>취소</button>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button className={styles.saveBtn} onClick={saveAddCustomer}>저장</button>
+                  <button className={styles.cancelBtn} onClick={() => setAddMode(false)}>취소</button>
+                </div>
+                <button className={styles.saveBtn} style={{ background: '#fff', color: '#1D9E75', border: '1px solid #1D9E75' }}
+                  onClick={async () => {
+                    if (!addForm.name) return alert('고객명은 필수예요!')
+                    const { data: cust } = await (await import('../lib/supabase')).supabase.from('dpa_customers').insert({
+                      ...addForm, age: parseInt(addForm.age) || null, customer_type: addType
+                    }).select().single()
+                    if (cust) {
+                      setAddMode(false); setAddForm(emptyCustomerForm)
+                      await fetchAll()
+                      window.location.href = `/input?customer_id=${cust.id}`
+                    }
+                  }}>+ 보험 추가</button>
               </div>
             </div>
           ) : selected ? (
