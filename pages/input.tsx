@@ -80,7 +80,7 @@ function emptyContract(): Contract {
 }
 
 export default function InputPage() {
-  const [inputTab, setInputTab] = useState<InputTab>('manual')
+  const [inputTab, setInputTab] = useState<InputTab>('paste')
   const [saving, setSaving] = useState(false)
   const router = useRouter()
   const [done, setDone] = useState(false)
@@ -262,8 +262,8 @@ export default function InputPage() {
   return (
     <div className={styles.wrap}>
       <div className={styles.tabBar}>
-        <button className={[styles.tab, inputTab === 'manual' ? styles.activeTab : ''].join(' ')} onClick={() => setInputTab('manual')}>✏️ 수동 입력</button>
         <button className={[styles.tab, inputTab === 'paste' ? styles.activeTab : ''].join(' ')} onClick={() => setInputTab('paste')}>📋 텍스트 붙여넣기</button>
+        <button className={[styles.tab, inputTab === 'manual' ? styles.activeTab : ''].join(' ')} onClick={() => setInputTab('manual')}>✏️ 수동 입력</button>
         <button className={[styles.tab, inputTab === 'capture' ? styles.activeTab : ''].join(' ')} onClick={() => setInputTab('capture')}>📱 캡처 (준비중)</button>
       </div>
 
@@ -323,7 +323,7 @@ export default function InputPage() {
                       <div className={styles.field}><label>금액 (원)</label><input inputMode="numeric" value={newCov.amount ? formatMoney(String(newCov.amount)) : ''} onChange={e => setNewCov(n => ({ ...n, amount: parseMoney(e.target.value) }))} placeholder="예: 30,000,000" /></div>
                     </div>
                     <div className={styles.covModalActions}>
-                      <button className={styles.saveBtn} onClick={() => addCoverage(idx)}>추가하기</button>
+                      <button className={styles.saveBtn} style={{flex:1}} onClick={() => addCoverage(idx)}>추가하기</button>
                       <button className={styles.covCloseBtn} onClick={() => setActiveCovModal(null)}>닫기</button>
                     </div>
                   </div>
