@@ -247,3 +247,8 @@
 .infoGrid .infoLabel { font-size: 10px; color: #9CA3AF; margin-bottom: 2px; }
 .infoGrid .infoValue { font-size: 13px; color: #111827; font-weight: 500; }
 .infoGreen { color: #1D9E75 !important; font-weight: 700 !important; }
+
+/* 2열 나란히 (나이/성별, 연락처/직업) */
+.infoRowDouble { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 0.5px solid var(--border); }
+.infoHalf { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; gap: 8px; }
+.infoHalf:first-child { padding-right: 12px; border-right: 0.5px solid var(--border); }
