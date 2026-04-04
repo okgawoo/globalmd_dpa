@@ -411,9 +411,29 @@ export default function Customers() {
                 <div className={styles.editField}><label>주소</label><input placeholder="서울시 강남구..." value={addForm.address} onChange={e => setAddForm({ ...addForm, address: e.target.value })} /></div>
                 <div className={styles.editField}><label>직장/소속</label><input placeholder="직장명" value={addForm.workplace} onChange={e => setAddForm({ ...addForm, workplace: e.target.value })} /></div>
               </div>
-              <div className={styles.editActions} style={{marginTop:12}}>
-                <button className={styles.saveBtn} onClick={saveAddCustomer}>저장</button>
-                <button className={styles.cancelBtn} onClick={() => setAddMode(false)}>취소</button>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:12}}>
+                <div style={{display:'flex',gap:8}}>
+                  <button className={styles.saveBtn} onClick={saveAddCustomer}>저장</button>
+                  <button className={styles.cancelBtn} onClick={() => setAddMode(false)}>취소</button>
+                </div>
+                <button className={styles.editBtn} style={{borderColor:'#1D9E75',color:'#1D9E75'}}
+                  onClick={async () => {
+                    if (!addForm.name) return alert('고객명은 필수예요!')
+                    const { gender, age, birthDate } = parseResident(addForm.resident_number)
+                    const { data: cust } = await supabase.from('dpa_customers').insert({
+                      ...addForm,
+                      age: age || parseInt(addForm.age) || null,
+                      gender: addForm.resident_number.length >= 8 ? gender : addForm.gender,
+                      birth_date: birthDate || null,
+                      customer_type: addType
+                    }).select().single()
+                    if (cust) {
+                      setAddMode(false); setAddForm(emptyCustomerForm)
+                      await fetchAll()
+                      selectCustomer(cust)
+                      setAddInsMode(true)
+                    }
+                  }}>+ 보험 추가</button>
               </div>
             </div>
           ) : selected ? (
