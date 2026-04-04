@@ -178,7 +178,7 @@
 .saveBtn { font-size: 13px; padding: 7px 20px; border-radius: 8px; border: none; background: #1D9E75; color: #fff; cursor: pointer; font-weight: 600; }
 .cancelBtn { font-size: 13px; padding: 7px 20px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text-secondary); cursor: pointer; }
 
-.insCard { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
+.insCard { background: #FAF7F2; border: 1px solid #EDE8DF; border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
 .insCardHeader { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
 .insCardLeft { flex: 1; }
 .insCardTitle { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
@@ -249,8 +249,6 @@
 .infoGreen { color: #1D9E75 !important; font-weight: 700 !important; }
 
 /* 2열 나란히 (나이/성별, 연락처/직업) */
-.infoRowDouble { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 0.5px solid var(--border); }
-.infoHalf { display: flex; flex-direction: column; padding: 7px 0; gap: 3px; }
-.infoHalf:first-child { padding-right: 12px; border-right: 0.5px solid var(--border); }
-.infoHalf .infoLabel { font-size: 10px; color: #9CA3AF; }
-.infoHalf .infoValue { font-size: 13px; color: #111827; font-weight: 500; text-align: left; }
+.infoRowDouble { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 0.5px solid #E5E7EB; }
+.infoHalf { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; }
+.infoHalf:first-child { padding-right: 10px; border-right: 0.5px solid #E5E7EB; margin-right: 10px; }
