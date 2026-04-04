@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { useConfirm } from '../lib/useConfirm'
 import styles from '../styles/Customers.module.css'
 
 type Tab = 'existing' | 'prospect'
@@ -149,6 +150,7 @@ export default function Customers() {
   const [addType, setAddType] = useState<'existing' | 'prospect'>('existing')
   const [slideOpen, setSlideOpen] = useState(false)
   const isMobile = useIsMobile()
+  const { confirm, ConfirmDialog } = useConfirm()
   const [addInsMode, setAddInsMode] = useState(false)
   const [insForm, setInsForm] = useState({ company: '삼성생명', product_name: '', insurance_type: '건강', monthly_fee: '', payment_status: '유지', payment_years: '', expiry_age: '', contract_start: '' })
   const [insCoverages, setInsCoverages] = useState<any[]>([])
@@ -192,7 +194,8 @@ export default function Customers() {
 
   async function deleteCustomer(c: any, e: React.MouseEvent) {
     e.stopPropagation()
-    if (!confirm(`${c.name} 님을 삭제할까요?\n관련 계약과 보장 내역도 모두 삭제됩니다.`)) return
+    const ok = await confirm({ title: '고객 삭제', message: `${c.name} 님을 삭제할까요?\n관련 계약과 보장 내역도 모두 삭제됩니다.`, confirmText: '삭제', danger: true })
+    if (!ok) return
     const cContracts = contracts.filter((ct: any) => ct.customer_id === c.id)
     if (cContracts.length > 0) {
       const ids = cContracts.map((ct: any) => ct.id)
@@ -218,7 +221,8 @@ export default function Customers() {
 
   async function deleteContract(ctId: string, e: React.MouseEvent) {
     e.stopPropagation()
-    if (!confirm('이 보험 계약을 삭제할까요?\n보장 내역도 모두 삭제됩니다.')) return
+    const ok = await confirm({ title: '계약 삭제', message: '이 보험 계약을 삭제할까요?\n보장 내역도 모두 삭제됩니다.', confirmText: '삭제', danger: true })
+    if (!ok) return
     await supabase.from('dpa_coverages').delete().eq('contract_id', ctId)
     await supabase.from('dpa_contracts').delete().eq('id', ctId)
     fetchAll()
@@ -579,6 +583,7 @@ export default function Customers() {
       )}
       </div>
 
+      {ConfirmDialog}
       {/* 슬라이드업 팝업 (모바일 전용) */}
       <div className={[styles.slideOverlay, slideOpen ? styles.overlayVisible : ''].join(' ')} onClick={closeSlide}>
         <div className={[styles.slidePanel, slideOpen ? styles.slideIn : styles.slideOut].join(' ')} onClick={e => e.stopPropagation()}>
