@@ -121,11 +121,7 @@ export default function Customers() {
   const [slideOpen, setSlideOpen] = useState(false)
   const isMobile = useIsMobile()
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) fetchAll()
-    })
-  }, [])
+  useEffect(() => { fetchAll() }, [])
 
   async function fetchAll() {
     setLoading(true)
