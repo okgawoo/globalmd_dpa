@@ -482,9 +482,9 @@ export default function Customers() {
                   </div>
                   {/* 보장 항목 */}
                   <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:10,marginBottom:4}}>
-                    <span style={{fontSize:11,fontWeight:700,color:'#6B7280',textTransform:'uppercase',letterSpacing:'0.5px'}}>보장 항목</span>
+                    <span style={{fontSize:11,fontWeight:700,color:'#6B7280'}}>보장 항목</span>
                     <button style={{fontSize:11,padding:'3px 10px',borderRadius:6,border:'1px solid #1D9E75',background:'#E1F5EE',color:'#085041',cursor:'pointer'}}
-                      onClick={()=>setAddNewCov({...addNewCov})}>+ 보장 추가</button>
+                      onClick={()=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,showCovForm:!c.showCovForm}:c))}>+ 보장 추가</button>
                   </div>
                   {ct.coverages.map((cv:any,ci:number)=>(
                     <div key={ci} style={{display:'flex',alignItems:'center',gap:6,fontSize:12,padding:'3px 0',borderBottom:'0.5px solid #F3F4F6'}}>
@@ -494,19 +494,23 @@ export default function Customers() {
                       <button onClick={()=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,coverages:c.coverages.filter((_:any,k:number)=>k!==ci)}:c))} style={{background:'none',border:'none',color:'#D1D5DB',cursor:'pointer'}}>✕</button>
                     </div>
                   ))}
-                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:6,marginTop:6}}>
-                    <div className={styles.editField}>
-                      <select value={addNewCov.category} onChange={e=>setAddNewCov({...addNewCov,category:e.target.value})} style={{width:'100%',fontSize:12,padding:'5px 8px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
-                        {['암진단','뇌혈관','심장','간병','수술비','실손','비급여','상해','사고처리','벌금','특이사항'].map(c=><option key={c}>{c}</option>)}
-                      </select>
+                  {ct.showCovForm && (
+                    <div style={{marginTop:6}}>
+                      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:6}}>
+                        <div className={styles.editField}>
+                          <select value={addNewCov.category} onChange={e=>setAddNewCov({...addNewCov,category:e.target.value})} style={{width:'100%',fontSize:12,padding:'5px 8px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                            {['암진단','뇌혈관','심장','간병','수술비','실손','비급여','상해','사고처리','벌금','특이사항'].map(c=><option key={c}>{c}</option>)}
+                          </select>
+                        </div>
+                        <div className={styles.editField}><input value={addNewCov.coverage_name} onChange={e=>setAddNewCov({...addNewCov,coverage_name:e.target.value})} placeholder="보장명" style={{fontSize:12,padding:'5px 8px'}} /></div>
+                        <div className={styles.editField}><input inputMode="numeric" value={addNewCov.amount} onChange={e=>setAddNewCov({...addNewCov,amount:e.target.value.replace(/[^0-9]/g,'')})} placeholder="금액(원)" style={{fontSize:12,padding:'5px 8px'}} /></div>
+                      </div>
+                      <div style={{display:'flex',justifyContent:'flex-end',marginTop:4}}>
+                        <button style={{fontSize:11,padding:'3px 10px',borderRadius:6,border:'1px solid #1D9E75',background:'#E1F5EE',color:'#085041',cursor:'pointer'}}
+                          onClick={()=>{if(addNewCov.coverage_name&&addNewCov.amount){setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,coverages:[...c.coverages,addNewCov],showCovForm:false}:c));setAddNewCov({category:'암진단',coverage_name:'',amount:''})}}}>추가</button>
+                      </div>
                     </div>
-                    <div className={styles.editField}><input value={addNewCov.coverage_name} onChange={e=>setAddNewCov({...addNewCov,coverage_name:e.target.value})} placeholder="보장명" style={{fontSize:12,padding:'5px 8px'}} /></div>
-                    <div className={styles.editField}><input inputMode="numeric" value={addNewCov.amount} onChange={e=>setAddNewCov({...addNewCov,amount:e.target.value.replace(/[^0-9]/g,'')})} placeholder="금액(원)" style={{fontSize:12,padding:'5px 8px'}} /></div>
-                  </div>
-                  <div style={{display:'flex',justifyContent:'flex-end',marginTop:6}}>
-                    <button style={{fontSize:11,padding:'3px 10px',borderRadius:6,border:'1px solid #1D9E75',background:'#E1F5EE',color:'#085041',cursor:'pointer'}}
-                      onClick={()=>{if(addNewCov.coverage_name&&addNewCov.amount){setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,coverages:[...c.coverages,addNewCov]}:c));setAddNewCov({category:'암진단',coverage_name:'',amount:''})}}}>+ 보장 추가</button>
-                  </div>
+                  )}
                 </div>
               ))}
 
