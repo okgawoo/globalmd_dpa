@@ -8,11 +8,29 @@ export default function Dashboard() {
   const [coverages, setCoverages] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [popup, setPopup] = useState<{ type: string; list: any[] } | null>(null)
+  const [calOpen, setCalOpen] = useState(false)
+  const [calYear, setCalYear] = useState(new Date().getFullYear())
+  const [calMonth, setCalMonth] = useState(new Date().getMonth())
+  const [agentName, setAgentName] = useState('')
 
   const now = new Date()
   const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })
 
-  useEffect(() => { fetchAll() }, [])
+  useEffect(() => {
+    fetchAll()
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) {
+        supabase.from('dpa_agents').select('name').eq('user_id', data.user.id).single()
+          .then(({ data: agent }) => { if (agent) setAgentName(agent.name) })
+      }
+    })
+  }, [])
+
+  const prevMonth = () => { if (calMonth === 0) { setCalYear(y => y - 1); setCalMonth(11) } else setCalMonth(m => m - 1) }
+  const nextMonth = () => { if (calMonth === 11) { setCalYear(y => y + 1); setCalMonth(0) } else setCalMonth(m => m + 1) }
+  const calFirst = new Date(calYear, calMonth, 1).getDay()
+  const calLast = new Date(calYear, calMonth + 1, 0).getDate()
+  const calMonthStr = new Date(calYear, calMonth).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long' })
 
   async function fetchAll() {
     const { data: custs } = await supabase.from('dpa_customers').select('*')
@@ -77,9 +95,40 @@ export default function Dashboard() {
   return (
     <div className={styles.wrap}>
       <div className={styles.topRow}>
-        <div className={styles.dateStr}>{dateStr}</div>
-
+        <div className={styles.welcomeMsg}>
+          안녕하세요, <strong>{agentName || 'admin'} 설계사님</strong> 👋 오늘도 좋은 하루 되세요!
+        </div>
+        <div className={styles.dateRow}>
+          <span className={styles.dateStr}>{dateStr}</span>
+          <button className={styles.calBtn} onClick={() => setCalOpen(true)}>📅 달력</button>
+        </div>
       </div>
+
+      {calOpen && (
+        <div className={styles.calOverlay} onClick={() => setCalOpen(false)}>
+          <div className={styles.calPopup} onClick={e => e.stopPropagation()}>
+            <div className={styles.calHeader}>
+              <button className={styles.calArrow} onClick={prevMonth}>‹</button>
+              <span className={styles.calMonthStr}>{calMonthStr}</span>
+              <button className={styles.calArrow} onClick={nextMonth}>›</button>
+              <button className={styles.calClose} onClick={() => setCalOpen(false)}>✕</button>
+            </div>
+            <div className={styles.calGrid}>
+              {['일','월','화','수','목','금','토'].map(d => (
+                <div key={d} className={styles.calDayLabel}>{d}</div>
+              ))}
+              {Array.from({ length: calFirst }).map((_, i) => <div key={`e${i}`} />)}
+              {Array.from({ length: calLast }).map((_, i) => {
+                const day = i + 1
+                const isToday = calYear === now.getFullYear() && calMonth === now.getMonth() && day === now.getDate()
+                return (
+                  <div key={day} className={[styles.calDay, isToday ? styles.calToday : ''].join(' ')}>{day}</div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className={styles.alertsTitle}>오늘의 액션 알림</div>
       <div className={styles.alerts}>
