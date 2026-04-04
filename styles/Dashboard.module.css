@@ -1,7 +1,7 @@
 .wrap { max-width: 1000px; }
 .loading { padding: 40px; text-align: center; color: var(--text-muted); }
 
-.topRow { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.topRow { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }
 .dateStr { font-size: 13px; color: var(--text-muted); }
 .tagline { font-size: 13px; color: var(--green); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%; }
 
@@ -71,13 +71,13 @@
 /* 환영문구 + 날짜 */
 .welcomeMsg { font-size: 15px; color: #111827; margin-bottom: 6px; }
 .welcomeMsg strong { font-weight: 700; color: #1D9E75; }
-.dateRow { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.dateRow { display: flex; align-items: baseline; gap: 10px; margin-bottom: 20px; position: relative; }
 .calBtn { font-size: 12px; padding: 3px 10px; border-radius: 6px; border: 1px solid #E5E7EB; background: #fff; color: #6B7280; cursor: pointer; transition: all 0.15s; }
 .calBtn:hover { border-color: #1D9E75; color: #1D9E75; background: #E6F7F1; }
 
 /* 달력 팝업 */
-.calOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 200; display: flex; align-items: center; justify-content: center; }
-.calPopup { background: #fff; border-radius: 16px; padding: 20px; width: 300px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); }
+.calOverlay { position: fixed; inset: 0; background: transparent; z-index: 200; }
+.calPopup { position: fixed; background: #fff; border-radius: 16px; padding: 20px; width: 300px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); z-index: 201; }
 .calHeader { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
 .calMonthStr { flex: 1; text-align: center; font-size: 15px; font-weight: 700; color: #111827; }
 .calArrow { background: none; border: 1px solid #E5E7EB; border-radius: 6px; width: 28px; height: 28px; font-size: 16px; cursor: pointer; color: #6B7280; display: flex; align-items: center; justify-content: center; }
