@@ -303,14 +303,14 @@ export default function InputPage() {
 
                 {activeCovModal === idx && (
                   <div className={styles.covModal}>
-                    <div className={styles.formGrid}>
+                    <div className={styles.covModalGrid}>
                       <div className={styles.field}><label>카테고리</label><select value={newCov.category} onChange={e => setNewCov(n => ({ ...n, category: e.target.value }))}>{CATEGORIES.map(c => <option key={c}>{c}</option>)}</select></div>
-                      <div className={styles.field}><label>보장명</label><input value={newCov.coverage_name} onChange={e => setNewCov(n => ({ ...n, coverage_name: e.target.value }))} placeholder="급성심근경색진단비" /></div>
-                      <div className={styles.field}><label>금액 (원)</label><input value={newCov.amount} onChange={e => setNewCov(n => ({ ...n, amount: e.target.value }))} placeholder="30000000" /></div>
+                      <div className={styles.field}><label>보장명</label><input value={newCov.coverage_name} onChange={e => setNewCov(n => ({ ...n, coverage_name: e.target.value }))} placeholder="예: 급성심근경색진단비" /></div>
+                      <div className={styles.field}><label>금액 (원)</label><input value={newCov.amount} onChange={e => setNewCov(n => ({ ...n, amount: e.target.value }))} placeholder="예: 30000000" /></div>
                     </div>
-                    <div className={styles.editActions}>
-                      <button className={styles.saveBtn} onClick={() => addCoverage(idx)}>추가</button>
-                      <button className={styles.cancelBtn} onClick={() => setActiveCovModal(null)}>닫기</button>
+                    <div className={styles.covModalActions}>
+                      <button className={styles.saveBtn} onClick={() => addCoverage(idx)}>추가하기</button>
+                      <button className={styles.covCloseBtn} onClick={() => setActiveCovModal(null)}>닫기</button>
                     </div>
                   </div>
                 )}
@@ -340,7 +340,13 @@ export default function InputPage() {
 
       {inputTab === 'paste' && (
         <div className={styles.formWrap}>
-          <div className={styles.pasteGuide}>보험사 프로그램에서 보장 내역 텍스트를 마우스로 긁어서 아래에 붙여넣으세요!</div>
+          <div className={styles.pasteGuide}>
+            <div className={styles.pasteGuideTitle}>📋 보장 내역 붙여넣기 방법</div>
+            <div className={styles.pasteGuideStep}>① 보험사 프로그램에서 보장 내역 화면을 여세요</div>
+            <div className={styles.pasteGuideStep}>② 마우스로 내용을 드래그하여 선택하세요</div>
+            <div className={styles.pasteGuideStep}>③ 키보드에서 <b>Ctrl + C</b> 를 눌러 복사하세요</div>
+            <div className={styles.pasteGuideStep}>④ 아래 빈 칸을 클릭한 뒤 <b>Ctrl + V</b> 를 눌러 붙여넣기 하세요!</div>
+          </div>
           <textarea className={styles.pasteArea} value={pasteText} onChange={e => setPasteText(e.target.value)}
             placeholder={`예시:\n뇌혈관질환진단 뇌혈관질환진단비(건강고지형) 3,000만원 정상\n암진단 암진단비(유사암제외)(건강고지형) 5,000만원 정상\n...`} rows={10} />
 
@@ -361,21 +367,45 @@ export default function InputPage() {
             </div>
           </div>
 
-          <button className={styles.parseBtn} onClick={handleParse} disabled={parsing}>
-            {parsing ? 'AI 분석 중...' : '🤖 AI로 분석하기'}
+          <button className={styles.parseBtn} onClick={handleParse} disabled={parsing || !pasteText.trim()}>
+            {parsing ? 'AI 분석 중...' : '🤖 1단계: AI로 분석하기'}
           </button>
 
           {parsed && (
             <div className={styles.parsedResult}>
-              <div className={styles.formSection}>분석 결과 확인</div>
-              <div className={styles.parsedInfo}>
-                <span>고객명: <b>{parsed.name || '미확인'}</b></span>
-                <span>나이: <b>{parsed.age || '미확인'}</b></span>
-                <span>보험사: <b>{parsed.contracts?.[0]?.company || '미확인'}</b></span>
-                <span>보장 항목: <b>{parsed.contracts?.[0]?.coverages?.length || 0}개</b></span>
+              <div className={styles.parsedResultTitle}>✅ 분석 완료! 내용을 확인하고 수정해주세요</div>
+
+              <div className={styles.parsedSection}>고객 정보</div>
+              <div className={styles.parsedEditGrid}>
+                <div className={styles.field}><label>고객명</label><input value={parsed.name || ''} onChange={e => setParsed({...parsed, name: e.target.value})} placeholder="고객명" /></div>
+                <div className={styles.field}><label>나이</label><input value={parsed.age || ''} onChange={e => setParsed({...parsed, age: e.target.value})} placeholder="나이" /></div>
+                <div className={styles.field}><label>성별</label><input value={parsed.gender || ''} onChange={e => setParsed({...parsed, gender: e.target.value})} placeholder="남/여" /></div>
               </div>
-              <button className={styles.saveBtn} onClick={handleParseSave} disabled={saving}>
-                {saving ? '저장 중...' : '이대로 저장하기'}
+
+              {parsed.contracts?.map((ct: any, ctIdx: number) => (
+                <div key={ctIdx} className={styles.parsedContractBlock}>
+                  <div className={styles.parsedSection}>{ctIdx + 1}. {ct.company} · {ct.product_name}</div>
+                  <div className={styles.parsedEditGrid}>
+                    <div className={styles.field}><label>보험사</label><input value={ct.company || ''} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].company = e.target.value; setParsed({...parsed, contracts: c}) }} /></div>
+                    <div className={styles.field}><label>상품명</label><input value={ct.product_name || ''} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].product_name = e.target.value; setParsed({...parsed, contracts: c}) }} /></div>
+                    <div className={styles.field}><label>월보험료</label><input value={ct.monthly_fee || ''} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].monthly_fee = e.target.value; setParsed({...parsed, contracts: c}) }} /></div>
+                    <div className={styles.field}><label>납입상태</label><input value={ct.payment_status || ''} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].payment_status = e.target.value; setParsed({...parsed, contracts: c}) }} /></div>
+                  </div>
+                  <div className={styles.parsedCovList}>
+                    {ct.coverages?.map((cv: any, cvIdx: number) => (
+                      <div key={cvIdx} className={styles.covItem}>
+                        <span className={styles.covCat}>{cv.category}</span>
+                        <input className={styles.covNameInput} value={cv.name || ''} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].coverages[cvIdx].name = e.target.value; setParsed({...parsed, contracts: c}) }} />
+                        <input className={styles.covAmtInput} value={cv.amount || ''} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].coverages[cvIdx].amount = e.target.value; setParsed({...parsed, contracts: c}) }} />
+                        <button className={styles.covDel} onClick={() => { const c = [...parsed.contracts]; c[ctIdx].coverages.splice(cvIdx, 1); setParsed({...parsed, contracts: c}) }}>✕</button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+              <button className={styles.saveParsedBtn} onClick={handleParseSave} disabled={saving}>
+                {saving ? '저장 중...' : '✅ 2단계: 확인 후 저장하기'}
               </button>
             </div>
           )}
