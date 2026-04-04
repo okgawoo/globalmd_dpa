@@ -28,9 +28,13 @@ JSON 외 다른 텍스트는 절대 포함하지 마세요.
 
 반환 형식:
 {
-  "name": "고객명 (없으면 null)",
-  "age": 나이숫자 (없으면 null),
-  "gender": "남 또는 여 (없으면 null)",
+  "name": "고객명 - 텍스트에서 OOO님 또는 이름 형식으로 찾으세요 (없으면 null)",
+  "rrn": "주민등록번호 - XXXXXX-XXXXXXX 형식 (없으면 null)",
+  "age": 주민등록번호에서 계산한 만나이숫자 (없으면 null),
+  "gender": "주민등록번호 7번째 자리: 1,3→남 / 2,4→여 (없으면 null)",
+  "phone": "연락처 010-XXXX-XXXX 형식 (없으면 null)",
+  "address": "주소 (없으면 null)",
+  "bank_account": "계좌번호 (없으면 null)",
   "contracts": [
     {
       "company": "보험사명",
