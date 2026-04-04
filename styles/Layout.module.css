@@ -62,3 +62,8 @@
   .main { margin-left: 0; }
   .hamburger { display: flex; }
 }
+
+/* 사이드바 하단 로그아웃 */
+.sidebarFooter { padding: 12px 16px; border-top: 1px solid var(--border); margin-top: auto; }
+.logoutBtn { display: flex; align-items: center; gap: 8px; width: 100%; padding: 9px 12px; border: 1px solid #E5E7EB; border-radius: 8px; background: #fff; color: #6B7280; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+.logoutBtn:hover { background: #FEF2F2; color: #B91C1C; border-color: #FECACA; }
