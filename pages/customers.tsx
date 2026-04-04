@@ -269,37 +269,13 @@ export default function Customers() {
 
         <button
           className={styles.addIconBtn}
-          onClick={() => { setAddMode(true); closeSlide(); setAddType(tab === 'existing' ? 'existing' : 'prospect') }}
+          onClick={() => { setAddMode(true); setSelected(null); setSlideOpen(false); setAddType(tab === 'existing' ? 'existing' : 'prospect') }}
           title="고객 추가"
         >
           <span className={styles.tabIcon}><IconUserPlus /></span>
           <span>+ 고객 추가</span>
         </button>
       </div>
-
-      {/* 고객 추가 폼 */}
-      {addMode && (
-        <div className={styles.editBox} style={{ marginBottom: 12 }}>
-          <div className={styles.editSectionTitle}>{addType === 'existing' ? '기존 고객' : '잠재 고객'} 추가</div>
-          <div className={styles.editGrid}>
-            {[
-              { key: 'name', label: '이름 *' }, { key: 'phone', label: '연락처' },
-              { key: 'age', label: '나이' }, { key: 'gender', label: '성별' },
-              { key: 'job', label: '직업' }, { key: 'grade', label: '등급' },
-              { key: 'address', label: '주소' }, { key: 'workplace', label: '직장/소속' },
-            ].map(f => (
-              <div key={f.key} className={styles.editField}>
-                <label>{f.label}</label>
-                <input value={(addForm as any)[f.key] || ''} onChange={e => setAddForm({ ...addForm, [f.key]: e.target.value })} />
-              </div>
-            ))}
-          </div>
-          <div className={styles.editActions}>
-            <button className={styles.saveBtn} onClick={saveAddCustomer}>저장</button>
-            <button className={styles.cancelBtn} onClick={() => setAddMode(false)}>취소</button>
-          </div>
-        </div>
-      )}
 
       {/* 데스크탑: 좌우 분할 / 모바일: 단일 컬럼 */}
       <div className={isMobile ? '' : styles.desktopGrid}>
@@ -326,7 +302,7 @@ export default function Customers() {
                 )}
               </div>
               <div className={styles.custActions}>
-                <button className={styles.editBtn} onClick={e => { e.stopPropagation(); selectCustomer(c); setEditMode(true); setEditForm(c) }}>수정</button>
+                <button className={styles.editBtn} onClick={e => { e.stopPropagation(); selectCustomer(c); setEditMode(true); setEditForm(c); setAddMode(false) }}>수정</button>
                 <button className={styles.deleteBtn} onClick={e => deleteCustomer(c, e)}>삭제</button>
               </div>
             </div>
@@ -337,7 +313,28 @@ export default function Customers() {
       {/* 데스크탑 상세 패널 */}
       {!isMobile && (
         <div className={styles.detailPanel}>
-          {selected ? (
+          {addMode ? (
+            <div className={styles.editBox}>
+              <div className={styles.editSectionTitle}>{addType === 'existing' ? '기존 고객' : '잠재 고객'} 추가</div>
+              <div className={styles.editGrid}>
+                {[
+                  { key: 'name', label: '이름 *' }, { key: 'phone', label: '연락처' },
+                  { key: 'age', label: '나이' }, { key: 'gender', label: '성별' },
+                  { key: 'job', label: '직업' }, { key: 'grade', label: '등급' },
+                  { key: 'address', label: '주소' }, { key: 'workplace', label: '직장/소속' },
+                ].map(f => (
+                  <div key={f.key} className={styles.editField}>
+                    <label>{f.label}</label>
+                    <input value={(addForm as any)[f.key] || ''} onChange={e => setAddForm({ ...addForm, [f.key]: e.target.value })} />
+                  </div>
+                ))}
+              </div>
+              <div className={styles.editActions}>
+                <button className={styles.saveBtn} onClick={saveAddCustomer}>저장</button>
+                <button className={styles.cancelBtn} onClick={() => setAddMode(false)}>취소</button>
+              </div>
+            </div>
+          ) : selected ? (
             <div className={styles.slideContent}>
               <div className={styles.slideHeader}>
                 <div className={[styles.avatar, styles.avLg, selected.grade === 'VIP' ? styles.avVip : styles.avNormal].join(' ')}>{selected.name.slice(0, 2)}</div>
