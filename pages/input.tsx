@@ -422,7 +422,7 @@ export default function InputPage() {
                   <div className={styles.parsedEditGrid}>
                     <div className={styles.field}><label>보험사</label><input value={ct.company || ''} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].company = e.target.value; setParsed({...parsed, contracts: c}) }} /></div>
                     <div className={styles.field}><label>상품명</label><input value={ct.product_name || ''} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].product_name = e.target.value; setParsed({...parsed, contracts: c}) }} /></div>
-                    <div className={styles.field}><label>월보험료</label><input value={ct.monthly_fee || ''} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].monthly_fee = e.target.value; setParsed({...parsed, contracts: c}) }} /></div>
+                    <div className={styles.field}><label>월보험료</label><input value={ct.monthly_fee ? Number(ct.monthly_fee).toLocaleString() : ''} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].monthly_fee = e.target.value.replace(/,/g, ''); setParsed({...parsed, contracts: c}) }} /></div>
                     <div className={styles.field}><label>납입상태</label><input value={ct.payment_status || ''} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].payment_status = e.target.value; setParsed({...parsed, contracts: c}) }} /></div>
                   </div>
                   <div className={styles.parsedCovList}>
