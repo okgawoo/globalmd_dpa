@@ -744,7 +744,7 @@ export default function Customers() {
                   <div className={styles.editField} style={{gridColumn:'span 2'}}><label>직장/소속</label><input value={addForm.workplace||''} onChange={e => setAddForm({ ...addForm, workplace: e.target.value })} /></div>
                 </div>
                 <div className={styles.editActions}>
-                  <button className={styles.saveBtn} onClick={saveNewCustomer}>저장</button>
+                  <button className={styles.saveBtn} onClick={saveAddCustomer}>저장</button>
                   <button className={styles.cancelBtn} onClick={() => { setAddMode(false); closeSlide() }}>취소</button>
                 </div>
               </div>
