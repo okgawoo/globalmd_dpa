@@ -381,7 +381,7 @@ export default function Customers() {
 
         <button
           className={styles.addIconBtn}
-          onClick={() => { setAddMode(true); setSelected(null); setSlideOpen(false); setAddType(tab === 'existing' ? 'existing' : 'prospect') }}
+          onClick={() => { setAddMode(true); setSelected(null); setSlideOpen(true); setAddType(tab === 'existing' ? 'existing' : 'prospect') }}
           title="고객 추가"
         >
           <span className={styles.tabIcon}><IconUserPlus /></span>
@@ -714,6 +714,41 @@ export default function Customers() {
             }}
           />
           <div className={styles.slideContent}>
+            {addMode && !selected && (
+              <div className={styles.editBox} style={{padding:'20px 0'}}>
+                <div className={styles.slideHeader} style={{marginBottom:12}}>
+                  <div style={{flex:1,fontWeight:700,fontSize:15}}>{addType === 'existing' ? '기존 고객' : '잠재 고객'} 추가</div>
+                  <button className={styles.slideCloseBtn} onClick={closeSlide}>✕</button>
+                </div>
+                <div className={styles.editSectionTitle}>개인정보</div>
+                <div className={styles.editGrid}>
+                  <div className={styles.editField}><label>이름 *</label><input placeholder="홍길동" value={addForm.name} onChange={e => setAddForm({ ...addForm, name: e.target.value.replace(/[0-9]/g, '') })} /></div>
+                  <div className={styles.editField}><label>연락처</label><input placeholder="010-0000-0000" inputMode="numeric" value={addForm.phone} onChange={e => setAddForm({ ...addForm, phone: formatPhone(e.target.value) })} /></div>
+                  <div className={styles.editField} style={{gridColumn:'span 2'}}><label>주민등록번호 *</label>
+                    <input placeholder="000000-0000000" inputMode="numeric" value={addForm.resident_number}
+                      onChange={e => { const v = formatResident(e.target.value); setAddForm({ ...addForm, resident_number: v, gender: calcGender(v), age: calcAge(v) }) }} />
+                  </div>
+                  <div className={styles.editField}><label>성별</label><input value={addForm.gender} readOnly style={{background:'#f9f9f9'}} /></div>
+                  <div className={styles.editField}><label>나이</label><input value={addForm.age ? addForm.age + '세' : ''} readOnly style={{background:'#f9f9f9'}} /></div>
+                  <div className={styles.editField}><label>직업</label>
+                    <select value={addForm.job} onChange={e => setAddForm({ ...addForm, job: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                      {['직장인','자영업자','공무원','교사/교직원','의료인','전문직','주부','학생','농업/어업','프리랜서','은퇴/무직','기타'].map(j=><option key={j}>{j}</option>)}
+                    </select>
+                  </div>
+                  <div className={styles.editField}><label>등급</label>
+                    <select value={addForm.grade} onChange={e => setAddForm({ ...addForm, grade: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                      {['일반','우수','VIP'].map(g=><option key={g}>{g}</option>)}
+                    </select>
+                  </div>
+                  <div className={styles.editField} style={{gridColumn:'span 2'}}><label>주소</label><input value={addForm.address||''} onChange={e => setAddForm({ ...addForm, address: e.target.value })} /></div>
+                  <div className={styles.editField} style={{gridColumn:'span 2'}}><label>직장/소속</label><input value={addForm.workplace||''} onChange={e => setAddForm({ ...addForm, workplace: e.target.value })} /></div>
+                </div>
+                <div className={styles.editActions}>
+                  <button className={styles.saveBtn} onClick={saveNewCustomer}>저장</button>
+                  <button className={styles.cancelBtn} onClick={() => { setAddMode(false); closeSlide() }}>취소</button>
+                </div>
+              </div>
+            )}
             {selected && (
               <>
                 <div className={styles.slideHeader}>
