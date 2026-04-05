@@ -110,8 +110,8 @@
 .saveParsedBtn:hover { background: #0F6E56; }
 
 @media (max-width: 768px) {
-  .tabBar { gap: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; }
-  .tab { font-size: 12px; padding: 8px 12px; white-space: nowrap; flex-shrink: 0; }
+  .tabBar { gap: 0; flex-wrap: nowrap; overflow-x: hidden; scrollbar-width: none; -ms-overflow-style: none; }
+  .tab { font-size: 11px; padding: 8px 4px; white-space: nowrap; flex: 1 !important; text-align: center; }
 }
 /* 가이드 팝업 */
 .guideRow { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
