@@ -363,7 +363,8 @@ export default function InputPage() {
 
           {/* 가이드 팝업 */}
           {guideOpen && (
-            <div className={styles.guidePopupOverlay} onClick={() => setGuideOpen(false)}>
+            <>
+              <div style={{position:'fixed',inset:0,zIndex:499}} onClick={() => setGuideOpen(false)} />
               <div className={styles.guidePopup} onClick={e => e.stopPropagation()}>
                 <div className={styles.guidePopupHeader}>
                   <span>📋 보장 내역 붙여넣기 방법</span>
@@ -374,7 +375,7 @@ export default function InputPage() {
                 <div className={styles.pasteGuideStep}>③ 키보드에서 <b>Ctrl + C</b> 를 눌러 복사하세요</div>
                 <div className={styles.pasteGuideStep}>④ 아래 빈 칸을 클릭한 뒤 <b>Ctrl + V</b> 를 눌러 붙여넣기 하세요!</div>
               </div>
-            </div>
+            </>
           )}
           <textarea className={styles.pasteArea} value={pasteText} onChange={e => setPasteText(e.target.value)}
             placeholder={`예시:\n뇌혈관질환진단 뇌혈관질환진단비(건강고지형) 3,000만원 정상\n암진단 암진단비(유사암제외)(건강고지형) 5,000만원 정상\n...`} rows={10} />
