@@ -94,7 +94,7 @@
 @media (max-width: 768px) {
   .topRow { flex-direction: column; align-items: flex-start; gap: 4px; }
   .welcomeMsg { font-size: 13px; }
-  .dateRow { flex-direction: row; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .dateRow { flex-direction: row; flex-wrap: nowrap; gap: 6px; margin-bottom: 14px; justify-content: flex-end; align-items: center; }
   .dateStr { font-size: 11px; white-space: nowrap; }
   .calBtn { font-size: 11px; padding: 2px 8px; }
   .calDayLabel { font-size: 10px; }
