@@ -243,15 +243,14 @@
   /* 슬라이드 패널 높이 제한 */
   .slidePanel { max-height: 60vh !important; border-radius: 16px 16px 0 0 !important; }
   /* 탭바 2줄 레이아웃 */
-  .tabBar { flex-wrap: wrap !important; gap: 0 !important; border-bottom: none !important; }
-  /* 1줄: 기존고객 + 잠재고객 + 고객추가 */
-  .iconTab { flex-direction: row !important; padding: 8px 12px !important; font-size: 13px !important; gap: 0 !important; white-space: nowrap !important; border-bottom: 2px solid transparent !important; }
-  .addBtn { white-space: nowrap !important; font-size: 12px !important; padding: 6px 10px !important; }
-  /* 2줄: tabRight (연령대 + 검색) 전체 너비로 */
-  .tabRight { width: 100% !important; border-top: 2px solid #E5E7EB !important; border-bottom: none !important; padding: 8px 0 4px !important; gap: 8px !important; margin-left: 0 !important; }
-  .searchBox { flex: 1 !important; max-width: 100% !important; }
-  .searchInput { font-size: 13px !important; }
-  .ageFilter { font-size: 12px !important; padding: 5px 8px !important; }
+  .tabBar { flex-wrap: wrap !important; gap: 0 !important; border-bottom: none !important; align-items: center !important; width: 100% !important; }
+  /* 1행: 기존고객 / 잠재고객 / 공간 / +고객추가(우측) */
+  .iconTab { order: 1 !important; flex-direction: row !important; padding: 8px 12px !important; font-size: 13px !important; gap: 0 !important; white-space: nowrap !important; border-bottom: 2px solid transparent !important; }
+  .addIconBtn { order: 2 !important; margin-left: auto !important; font-size: 12px !important; padding: 6px 10px !important; }
+  /* 2행: 연령대 + 검색(우측) */
+  .ageFilter { order: 10 !important; font-size: 12px !important; padding: 5px 8px !important; width: 100% !important; margin-top: 2px !important; border-top: 2px solid #E5E7EB !important; padding-top: 6px !important; box-sizing: border-box !important; }
+  .searchBox { order: 11 !important; width: 100% !important; margin-top: 4px !important; justify-content: flex-end !important; }
+  .searchInput { font-size: 13px !important; flex: 1 !important; }
 }
 
 /* 신상정보 2열 그리드 */
