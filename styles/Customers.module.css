@@ -1,6 +1,6 @@
 .wrap { max-width: 1000px; }
 
-.tabBar { display: flex; align-items: center; gap: 0; margin-bottom: 20px; border-bottom: 2px solid #E5E7EB; padding-bottom: 0; }
+.tabBar { display: flex; align-items: center; gap: 0; margin-bottom: 0; border-bottom: 2px solid #E5E7EB; padding-bottom: 0; }
 .tab { background: none; border: none; padding: 10px 16px; font-size: 14px; color: var(--text-muted); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; }
 .tab:hover { color: var(--text-primary); }
 .activeTab { color: var(--green); border-bottom-color: var(--green); font-weight: 600; }
@@ -269,19 +269,23 @@
 .infoHalf .infoValue { font-size: 13px; color: #111827; text-align: right; }
 .infoHalf:first-child { padding-right: 12px; border-right: 0.5px solid #E5E7EB; }
 
-/* 소팅필터 + 탭 2행 */
-.tabRow2 { display: flex; align-items: center; gap: 8px; width: 100%; margin-top: 8px; padding-top: 8px; border-top: 2px solid #E5E7EB; }
+/* 소팅필터 + 필터 행 */
+.tabRow2 { display: flex; align-items: center; gap: 8px; width: 100%; margin-bottom: 12px; }
 .sortFilter { font-size: 12px; padding: 5px 8px; border: 1px solid #E5E7EB; border-radius: 8px; background: #fff; color: #374151; cursor: pointer; }
 .searchBoxDesktop { display: flex; align-items: center; gap: 6px; flex: 1; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 5px 10px; }
 .searchBoxMobile { display: none; }
-.searchToggleBtn { display: none; background: none; border: none; cursor: pointer; color: #6B7280; padding: 8px; }
+.searchToggleBtn { display: none; background: none; border: none; cursor: pointer; color: #6B7280; padding: 8px; border-radius: 8px; }
 
 @media (max-width: 768px) {
   /* 모바일: 돋보기 버튼 보이기, 웹 검색창 숨기기 */
-  .searchToggleBtn { display: flex !important; align-items: center; order: 2 !important; }
+  /* 모바일: 돋보기 버튼 보이기 */
+  .searchToggleBtn { display: flex !important; align-items: center; }
+  /* 모바일: 웹 검색창 숨기기 */
   .searchBoxDesktop { display: none !important; }
-  /* 모바일 검색창 토글 - 3행 */
-  .searchBoxMobile { display: flex !important; align-items: center; gap: 6px; width: 100%; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 7px 10px; margin-top: 6px; order: 20 !important; }
-  /* 소팅필터 */
+  /* 모바일: 검색창 토글 펼쳐짐 */
+  .searchBoxMobile { display: flex !important; align-items: center; gap: 6px; width: 100%; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 7px 10px; margin-bottom: 8px; }
+  /* 모바일: 소팅필터 flex */
   .sortFilter { font-size: 12px !important; flex: 1 !important; }
+  /* 모바일: tabRow2 border-top 구분선 */
+  .tabRow2 { border-top: 2px solid #E5E7EB !important; padding-top: 8px !important; margin-top: 0 !important; }
 }
