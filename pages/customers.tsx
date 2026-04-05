@@ -415,29 +415,30 @@ export default function Customers() {
           <span>+ 고객 추가</span>
         </button>
 
-        {/* 2행: 연령대 + 소팅 (웹/모바일 공통) */}
-        <div className={styles.tabRow2}>
-          <select className={styles.ageFilter} value={ageFilter} onChange={e => setAgeFilter(e.target.value)}>
-            {AGE_FILTERS.map(f => <option key={f}>{f}</option>)}
-          </select>
-          <select className={styles.sortFilter} value={sortFilter} onChange={e => setSortFilter(e.target.value)}>
-            {['최신 등록순','오래된순','이름순','나이순','월보험료 높은순','🎂 생일 임박순','🔥 완납 임박순'].map(f => <option key={f}>{f}</option>)}
-          </select>
-          {/* 웹에서만 보이는 검색창 */}
-          <div className={styles.searchBoxDesktop}>
-            <IconSearch />
-            <input className={styles.searchInput} placeholder="검색" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
-          </div>
-        </div>
-
-        {/* 모바일 검색창 토글 */}
-        {searchOpen && (
-          <div className={styles.searchBoxMobile}>
-            <IconSearch />
-            <input className={styles.searchInput} placeholder="검색" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} autoFocus />
-          </div>
-        )}
       </div>
+
+      {/* 필터 행: 연령대 + 소팅 + 웹검색 */}
+      <div className={styles.tabRow2}>
+        <select className={styles.ageFilter} value={ageFilter} onChange={e => setAgeFilter(e.target.value)}>
+          {AGE_FILTERS.map(f => <option key={f}>{f}</option>)}
+        </select>
+        <select className={styles.sortFilter} value={sortFilter} onChange={e => setSortFilter(e.target.value)}>
+          {['최신 등록순','오래된순','이름순','나이순','월보험료 높은순','🎂 생일 임박순','🔥 완납 임박순'].map(f => <option key={f}>{f}</option>)}
+        </select>
+        {/* 웹에서만 보이는 검색창 */}
+        <div className={styles.searchBoxDesktop}>
+          <IconSearch />
+          <input className={styles.searchInput} placeholder="검색" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+        </div>
+      </div>
+
+      {/* 모바일 검색창 토글 */}
+      {searchOpen && (
+        <div className={styles.searchBoxMobile}>
+          <IconSearch />
+          <input className={styles.searchInput} placeholder="검색" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} autoFocus />
+        </div>
+      )}
 
       {/* 데스크탑: 좌우 분할 / 모바일: 단일 컬럼 */}
       <div className={isMobile ? '' : styles.desktopGrid}>
