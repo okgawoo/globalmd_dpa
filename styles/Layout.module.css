@@ -49,7 +49,7 @@
 }
 .hamburger { display: none; flex-direction: column; gap: 4px; background: none; border: none; padding: 4px; cursor: pointer; }
 .hamburger span { display: block; width: 18px; height: 1.5px; background: var(--text-primary); border-radius: 2px; }
-.headerTitle { font-size: 15px; font-weight: 600; color: var(--text-primary); flex: 1; }
+.headerTitle { font-size: 15px; font-weight: 600; color: var(--text-primary); flex: 1; text-decoration: none; }
 .logoutBtn { display: flex; align-items: center; gap: 5px; padding: 6px 12px; border: 1px solid #E5E7EB; border-radius: 8px; background: #fff; color: #6B7280; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
 .logoutBtn:hover { background: #FEF2F2; color: #B91C1C; border-color: #FECACA; }
 
