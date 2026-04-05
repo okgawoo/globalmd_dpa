@@ -1,6 +1,6 @@
 .wrap { max-width: 1000px; }
 
-.tabBar { display: flex; align-items: center; gap: 0; margin-bottom: 0; border-bottom: 2px solid #E5E7EB; padding-bottom: 0; }
+.tabBar { display: flex; align-items: center; gap: 0; margin-bottom: 12px; border-bottom: 2px solid #EDEBE4; padding-bottom: 0; }
 .tab { background: none; border: none; padding: 10px 16px; font-size: 14px; color: var(--text-muted); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; }
 .tab:hover { color: var(--text-primary); }
 .activeTab { color: var(--green); border-bottom-color: var(--green); font-weight: 600; }
@@ -243,9 +243,9 @@
   /* 슬라이드 패널 높이 제한 */
   .slidePanel { max-height: 60vh !important; border-radius: 16px 16px 0 0 !important; }
   /* 탭바 2줄 레이아웃 */
-  .tabBar { flex-wrap: wrap !important; gap: 0 !important; border-bottom: none !important; align-items: center !important; width: 100% !important; }
+  .tabBar { flex-wrap: nowrap !important; gap: 0 !important; border-bottom: none !important; align-items: center !important; width: 100% !important; margin-bottom: 6px !important; }
   /* 1행: 기존고객 / 잠재고객 / 공간 / +고객추가(우측) */
-  .iconTab { order: 1 !important; flex-direction: row !important; padding: 8px 12px !important; font-size: 13px !important; gap: 0 !important; white-space: nowrap !important; border-bottom: 2px solid transparent !important; }
+  .iconTab { flex-direction: row !important; padding: 8px 10px !important; font-size: 13px !important; gap: 0 !important; white-space: nowrap !important; border-bottom: none !important; }
   .addIconBtn { order: 2 !important; margin-left: auto !important; font-size: 12px !important; padding: 6px 10px !important; }
   /* 2행: 연령대 + 검색(우측) */
   .ageFilter { order: 10 !important; font-size: 12px !important; padding: 5px 8px !important; width: 100% !important; margin-top: 2px !important; border-top: 2px solid #E5E7EB !important; padding-top: 6px !important; box-sizing: border-box !important; }
@@ -270,22 +270,22 @@
 .infoHalf:first-child { padding-right: 12px; border-right: 0.5px solid #E5E7EB; }
 
 /* 소팅필터 + 필터 행 */
-.tabRow2 { display: flex; align-items: center; gap: 8px; width: 100%; margin-bottom: 12px; }
+.tabRow2 { display: flex; align-items: center; gap: 8px; width: 100%; margin-bottom: 16px; }
 .sortFilter { font-size: 12px; padding: 5px 8px; border: 1px solid #E5E7EB; border-radius: 8px; background: #fff; color: #374151; cursor: pointer; }
-.searchBoxDesktop { display: flex; align-items: center; gap: 6px; flex: 1; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 5px 10px; }
+.searchBoxDesktop { display: flex; align-items: center; gap: 6px; max-width: 220px; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 5px 10px; }
 .searchBoxMobile { display: none; }
 .searchToggleBtn { display: none; background: none; border: none; cursor: pointer; color: #6B7280; padding: 8px; border-radius: 8px; }
 
 @media (max-width: 768px) {
   /* 모바일: 돋보기 버튼 보이기, 웹 검색창 숨기기 */
   /* 모바일: 돋보기 버튼 보이기 */
-  .searchToggleBtn { display: flex !important; align-items: center; }
+  .searchToggleBtn { display: flex !important; align-items: center; margin-left: auto !important; padding: 8px !important; }
   /* 모바일: 웹 검색창 숨기기 */
   .searchBoxDesktop { display: none !important; }
   /* 모바일: 검색창 토글 펼쳐짐 */
   .searchBoxMobile { display: flex !important; align-items: center; gap: 6px; width: 100%; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 7px 10px; margin-bottom: 8px; }
   /* 모바일: 소팅필터 flex */
   .sortFilter { font-size: 12px !important; flex: 1 !important; }
-  /* 모바일: tabRow2 border-top 구분선 */
-  .tabRow2 { border-top: 2px solid #E5E7EB !important; padding-top: 8px !important; margin-top: 0 !important; }
+  /* 모바일: tabRow2 */
+  .tabRow2 { border-top: none !important; padding-top: 0 !important; margin-top: 0 !important; margin-bottom: 8px !important; }
 }
