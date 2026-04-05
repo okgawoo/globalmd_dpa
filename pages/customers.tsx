@@ -148,6 +148,8 @@ export default function Customers() {
   const [selectedCoverages, setSelectedCoverages] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [ageFilter, setAgeFilter] = useState('연령대전체')
+  const [sortFilter, setSortFilter] = useState('최신 등록순')
+  const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [editMode, setEditMode] = useState(false)
   const [editForm, setEditForm] = useState<any>({})
@@ -328,14 +330,48 @@ export default function Customers() {
 
   const totalMonthly = selectedContracts.reduce((s, ct) => s + (ct.monthly_fee || 0), 0)
 
-  const filteredCustomers = customers
-    .filter(c => c.customer_type === (tab === 'existing' ? 'existing' : 'prospect'))
-    .filter(c => ageFilter === '연령대전체' || getAgeGroup(c.age) === ageFilter)
-    .filter(c => {
-      if (!searchQuery) return true
-      const q = searchQuery.toLowerCase()
-      return c.name?.toLowerCase().includes(q) || c.phone?.includes(q)
-    })
+  const getSortedCustomers = (list: any[]) => {
+    const sorted = [...list]
+    if (sortFilter === '최신 등록순') return sorted
+    if (sortFilter === '오래된순') return sorted.reverse()
+    if (sortFilter === '이름순') return sorted.sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+    if (sortFilter === '나이순') return sorted.sort((a, b) => (b.age || 0) - (a.age || 0))
+    if (sortFilter === '월보험료 높은순') {
+      return sorted.sort((a, b) => {
+        const aFee = contracts.filter((ct: any) => ct.customer_id === a.id).reduce((s: number, ct: any) => s + (ct.monthly_fee || 0), 0)
+        const bFee = contracts.filter((ct: any) => ct.customer_id === b.id).reduce((s: number, ct: any) => s + (ct.monthly_fee || 0), 0)
+        return bFee - aFee
+      })
+    }
+    if (sortFilter === '🎂 생일 임박순') {
+      return sorted.sort((a, b) => {
+        const getDays = (bd: string) => { if (!bd) return 999; const d = getBirthdayDays(bd); return d === null ? 999 : d }
+        return getDays(a.birth_date) - getDays(b.birth_date)
+      })
+    }
+    if (sortFilter === '🔥 완납 임박순') {
+      return sorted.sort((a, b) => {
+        const getRate = (c: any) => {
+          const cts = contracts.filter((ct: any) => ct.customer_id === c.id)
+          if (!cts.length) return 0
+          return Math.max(...cts.map((ct: any) => ct.payment_rate || 0))
+        }
+        return getRate(b) - getRate(a)
+      })
+    }
+    return sorted
+  }
+
+  const filteredCustomers = getSortedCustomers(
+    customers
+      .filter(c => c.customer_type === (tab === 'existing' ? 'existing' : 'prospect'))
+      .filter(c => ageFilter === '연령대전체' || getAgeGroup(c.age) === ageFilter)
+      .filter(c => {
+        if (!searchQuery) return true
+        const q = searchQuery.toLowerCase()
+        return c.name?.toLowerCase().includes(q) || c.phone?.includes(q)
+      })
+  )
 
   const getCoveragesByContract = (ctId: string) => {
     const cvs = selectedCoverages.filter(cv => cv.contract_id === ctId)
@@ -365,19 +401,10 @@ export default function Customers() {
           <span>잠재 고객</span>
         </button>
 
-        <select className={styles.ageFilter} value={ageFilter} onChange={e => setAgeFilter(e.target.value)}>
-          {AGE_FILTERS.map(f => <option key={f}>{f}</option>)}
-        </select>
-
-        <div className={styles.searchBox}>
+        {/* 모바일: 돋보기 토글 버튼 */}
+        <button className={styles.searchToggleBtn} onClick={() => setSearchOpen(v => !v)} title="검색">
           <IconSearch />
-          <input
-            className={styles.searchInput}
-            placeholder="검색"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-          />
-        </div>
+        </button>
 
         <button
           className={styles.addIconBtn}
@@ -387,6 +414,29 @@ export default function Customers() {
           <span className={styles.tabIcon}><IconUserPlus /></span>
           <span>+ 고객 추가</span>
         </button>
+
+        {/* 2행: 연령대 + 소팅 (웹/모바일 공통) */}
+        <div className={styles.tabRow2}>
+          <select className={styles.ageFilter} value={ageFilter} onChange={e => setAgeFilter(e.target.value)}>
+            {AGE_FILTERS.map(f => <option key={f}>{f}</option>)}
+          </select>
+          <select className={styles.sortFilter} value={sortFilter} onChange={e => setSortFilter(e.target.value)}>
+            {['최신 등록순','오래된순','이름순','나이순','월보험료 높은순','🎂 생일 임박순','🔥 완납 임박순'].map(f => <option key={f}>{f}</option>)}
+          </select>
+          {/* 웹에서만 보이는 검색창 */}
+          <div className={styles.searchBoxDesktop}>
+            <IconSearch />
+            <input className={styles.searchInput} placeholder="검색" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+          </div>
+        </div>
+
+        {/* 모바일 검색창 토글 */}
+        {searchOpen && (
+          <div className={styles.searchBoxMobile}>
+            <IconSearch />
+            <input className={styles.searchInput} placeholder="검색" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} autoFocus />
+          </div>
+        )}
       </div>
 
       {/* 데스크탑: 좌우 분할 / 모바일: 단일 컬럼 */}
