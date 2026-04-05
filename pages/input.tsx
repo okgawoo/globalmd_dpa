@@ -355,28 +355,26 @@ export default function InputPage() {
 
       {inputTab === 'paste' && (
         <div className={styles.formWrap}>
-          {/* 가이드 아이콘 버튼 */}
+          {/* 가이드 아이콘 버튼 + 팝업 */}
           <div className={styles.guideRow}>
             <span className={styles.guideLabel}>보장 내역 붙여넣기</span>
             <button className={styles.guideBtn} onClick={() => setGuideOpen(v => !v)} title="도움말">❓</button>
-          </div>
-
-          {/* 가이드 팝업 */}
-          {guideOpen && (
-            <>
-              <div style={{position:'fixed',inset:0,zIndex:499}} onClick={() => setGuideOpen(false)} />
-              <div className={styles.guidePopup} onClick={e => e.stopPropagation()}>
-                <div className={styles.guidePopupHeader}>
-                  <span>📋 보장 내역 붙여넣기 방법</span>
-                  <button onClick={() => setGuideOpen(false)} className={styles.guideCloseBtn}>✕</button>
+            {guideOpen && (
+              <>
+                <div style={{position:'fixed',inset:0,zIndex:499}} onClick={() => setGuideOpen(false)} />
+                <div className={styles.guidePopup} onClick={e => e.stopPropagation()}>
+                  <div className={styles.guidePopupHeader}>
+                    <span>📋 보장 내역 붙여넣기 방법</span>
+                    <button onClick={() => setGuideOpen(false)} className={styles.guideCloseBtn}>✕</button>
+                  </div>
+                  <div className={styles.pasteGuideStep}>① 보험사 프로그램에서 보장 내역 화면을 여세요</div>
+                  <div className={styles.pasteGuideStep}>② 마우스로 내용을 드래그하여 선택하세요</div>
+                  <div className={styles.pasteGuideStep}>③ 키보드에서 <b>Ctrl + C</b> 를 눌러 복사하세요</div>
+                  <div className={styles.pasteGuideStep}>④ 아래 빈 칸을 클릭한 뒤 <b>Ctrl + V</b> 를 눌러 붙여넣기 하세요!</div>
                 </div>
-                <div className={styles.pasteGuideStep}>① 보험사 프로그램에서 보장 내역 화면을 여세요</div>
-                <div className={styles.pasteGuideStep}>② 마우스로 내용을 드래그하여 선택하세요</div>
-                <div className={styles.pasteGuideStep}>③ 키보드에서 <b>Ctrl + C</b> 를 눌러 복사하세요</div>
-                <div className={styles.pasteGuideStep}>④ 아래 빈 칸을 클릭한 뒤 <b>Ctrl + V</b> 를 눌러 붙여넣기 하세요!</div>
-              </div>
-            </>
-          )}
+              </>
+            )}
+          </div>
           <textarea className={styles.pasteArea} value={pasteText} onChange={e => setPasteText(e.target.value)}
             placeholder={`예시:\n뇌혈관질환진단 뇌혈관질환진단비(건강고지형) 3,000만원 정상\n암진단 암진단비(유사암제외)(건강고지형) 5,000만원 정상\n...`} rows={10} />
 
