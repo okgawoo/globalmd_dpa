@@ -27,12 +27,12 @@
 .navItem {
   display: flex; align-items: center; gap: 10px;
   padding: 9px 12px; border-radius: 10px;
-  font-size: 13px; color: var(--text-secondary);
+  font-size: 14px; color: var(--text-secondary);
   transition: all 0.15s; text-decoration: none;
 }
 .navItem:hover { background: var(--bg); color: var(--text-primary); }
 .navItem.active { background: var(--green-light); color: var(--green); font-weight: 600; }
-.navIcon { font-size: 16px; width: 20px; text-align: center; display: flex; align-items: center; justify-content: center; line-height: 1; }
+.navIcon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 
 .divider { height: 1px; background: var(--border); margin: 10px 8px; }
 
