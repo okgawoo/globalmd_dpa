@@ -243,7 +243,8 @@
   /* 슬라이드 패널 높이 제한 */
   .slidePanel { max-height: 60vh !important; border-radius: 16px 16px 0 0 !important; }
   /* 탭바 2줄 레이아웃 */
-  .tabBar { flex-wrap: nowrap !important; gap: 0 !important; border-bottom: none !important; align-items: center !important; width: 100% !important; margin-bottom: 6px !important; }
+  .tabBar { flex-wrap: nowrap !important; gap: 0 !important; border-bottom: none !important; align-items: center !important; width: 100% !important; margin-bottom: 0 !important; padding-bottom: 6px !important; position: relative !important; }
+  .tabBar::after { content: '' !important; position: absolute !important; bottom: 0 !important; left: 12px !important; right: 12px !important; height: 1px !important; background: #EDEBE4 !important; }
   /* 1행: 기존고객 / 잠재고객 / 공간 / +고객추가(우측) */
   .iconTab { flex-direction: row !important; padding: 8px 10px !important; font-size: 13px !important; gap: 0 !important; white-space: nowrap !important; border-bottom: none !important; }
   .addIconBtn { order: 2 !important; margin-left: auto !important; font-size: 12px !important; padding: 6px 10px !important; }
@@ -271,7 +272,7 @@
 
 /* 소팅필터 + 필터 행 */
 .tabRow2 { display: flex; align-items: center; gap: 8px; width: 100%; margin-bottom: 16px; }
-.sortFilter { font-size: 12px; padding: 5px 8px; border: 1px solid #E5E7EB; border-radius: 8px; background: #fff; color: #374151; cursor: pointer; }
+.sortFilter { font-size: 12px; padding: 5px 8px; border: 1px solid #E5E7EB; border-radius: 8px; background: #fff; color: #374151; cursor: pointer; width: 130px; }
 .searchBoxDesktop { display: flex; align-items: center; gap: 6px; max-width: 220px; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 5px 10px; }
 .searchBoxMobile { display: none; }
 .searchToggleBtn { display: none; background: none; border: none; cursor: pointer; color: #6B7280; padding: 8px; border-radius: 8px; }
@@ -279,13 +280,21 @@
 @media (max-width: 768px) {
   /* 모바일: 돋보기 버튼 보이기, 웹 검색창 숨기기 */
   /* 모바일: 돋보기 버튼 보이기 */
-  .searchToggleBtn { display: flex !important; align-items: center; margin-left: auto !important; padding: 8px !important; }
+  .searchToggleBtn { display: none !important; }
   /* 모바일: 웹 검색창 숨기기 */
   .searchBoxDesktop { display: none !important; }
   /* 모바일: 검색창 토글 펼쳐짐 */
   .searchBoxMobile { display: flex !important; align-items: center; gap: 6px; width: 100%; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 7px 10px; margin-bottom: 8px; }
-  /* 모바일: 소팅필터 flex */
-  .sortFilter { font-size: 12px !important; flex: 1 !important; }
+  /* 모바일: 연령대/소팅필터 동일 사이즈로 꽉 차게 */
+  .sortFilter { font-size: 12px !important; flex: 1 !important; width: auto !important; }
+  .ageFilter { font-size: 12px !important; flex: 1 !important; width: auto !important; padding: 5px 8px !important; }
   /* 모바일: tabRow2 */
   .tabRow2 { border-top: none !important; padding-top: 0 !important; margin-top: 0 !important; margin-bottom: 8px !important; }
+}
+
+/* 모바일 인라인 검색박스 */
+.searchBoxInline { display: none; }
+.searchInputInline { border: none; background: none; outline: none; font-size: 12px; color: #374151; width: 100%; }
+@media (max-width: 768px) {
+  .searchBoxInline { display: flex !important; align-items: center; gap: 4px; flex: 1 !important; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 5px 8px; margin: 0 6px; min-width: 0; }
 }

@@ -401,10 +401,11 @@ export default function Customers() {
           <span>잠재 고객</span>
         </button>
 
-        {/* 모바일 전용: 돋보기 + 고객추가 */}
-        <button className={styles.searchToggleBtn} onClick={() => setSearchOpen(v => !v)} title="검색">
+        {/* 모바일 전용: 인라인 검색 + 고객추가 */}
+        <div className={styles.searchBoxInline}>
           <IconSearch />
-        </button>
+          <input className={styles.searchInputInline} placeholder="검색" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+        </div>
         <button
           className={styles.addIconBtn}
           onClick={() => { setAddMode(true); setSelected(null); setSlideOpen(isMobile); setAddType(tab === 'existing' ? 'existing' : 'prospect') }}
