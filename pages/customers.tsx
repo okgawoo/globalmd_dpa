@@ -401,20 +401,18 @@ export default function Customers() {
           <span>잠재 고객</span>
         </button>
 
-        {/* 모바일: 돋보기 토글 버튼 */}
+        {/* 모바일 전용: 돋보기 + 고객추가 */}
         <button className={styles.searchToggleBtn} onClick={() => setSearchOpen(v => !v)} title="검색">
           <IconSearch />
         </button>
-
         <button
           className={styles.addIconBtn}
-          onClick={() => { setAddMode(true); setSelected(null); setSlideOpen(true); setAddType(tab === 'existing' ? 'existing' : 'prospect') }}
+          onClick={() => { setAddMode(true); setSelected(null); setSlideOpen(isMobile); setAddType(tab === 'existing' ? 'existing' : 'prospect') }}
           title="고객 추가"
         >
           <span className={styles.tabIcon}><IconUserPlus /></span>
           <span>+ 고객 추가</span>
         </button>
-
       </div>
 
       {/* 필터 행: 연령대 + 소팅 + 웹검색 */}
