@@ -105,3 +105,4 @@ JSON 외 다른 텍스트는 절대 포함하지 마세요.
     res.status(500).json({ error: e.message || '파싱 중 오류가 발생했어요!' })
   }
 }
+
