@@ -22,6 +22,7 @@
 .custInfo { flex: 1; min-width: 0; }
 .custName { font-size: 14px; font-weight: 500; color: var(--text-primary); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .custMeta { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+.custFee { display: inline; }
 
 .badge { font-size: 10px; padding: 2px 8px; border-radius: 999px; font-weight: 600; white-space: nowrap; }
 .badgeWarn { background: #FAECE7; color: #993C1D; }
@@ -299,4 +300,8 @@
 .searchInputInline { border: none; background: none; outline: none; font-size: 12px; color: #374151; width: 100%; }
 @media (max-width: 768px) {
   .searchBoxInline { display: flex !important; align-items: center; gap: 4px; flex: 1 !important; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 5px 8px; margin: 0 6px; min-width: 0; }
+}
+
+@media (max-width: 768px) {
+  .custFee { display: block !important; margin-top: 1px; }
 }
