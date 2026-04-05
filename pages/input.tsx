@@ -199,6 +199,12 @@ export default function InputPage() {
       const { data: cust } = await supabase.from('dpa_customers').insert({
         name: parsed.name || '이름미상', age: parsed.age || null,
         gender: parsed.gender || '미상', grade: '일반',
+        phone: parsed.phone || null, address: parsed.address || null,
+        job: parsed.job || null, workplace: parsed.workplace || null,
+        bank_name: parsed.bank_name || null, bank_account: parsed.bank_account || null,
+        driver_license: parsed.driver_license || null,
+        resident_number: parsed.rrn || null,
+        customer_type: 'existing',
       }).select().single()
 
       if (cust && parsed.contracts) {
@@ -424,7 +430,7 @@ export default function InputPage() {
                       <div key={cvIdx} className={styles.covItem}>
                         <span className={styles.covCat}>{cv.category}</span>
                         <input className={styles.covNameInput} value={cv.name || ''} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].coverages[cvIdx].name = e.target.value; setParsed({...parsed, contracts: c}) }} />
-                        <input className={styles.covAmtInput} value={cv.amount || ''} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].coverages[cvIdx].amount = e.target.value; setParsed({...parsed, contracts: c}) }} />
+                        <input className={styles.covAmtInput} value={cv.amount ? Number(cv.amount).toLocaleString() : ''} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].coverages[cvIdx].amount = e.target.value.replace(/,/g, ''); setParsed({...parsed, contracts: c}) }} />
                         <button className={styles.covDel} onClick={() => { const c = [...parsed.contracts]; c[ctIdx].coverages.splice(cvIdx, 1); setParsed({...parsed, contracts: c}) }}>✕</button>
                       </div>
                     ))}
