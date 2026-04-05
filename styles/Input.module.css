@@ -26,7 +26,7 @@
 .saveBtn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .pasteGuide { font-size: 13px; color: var(--text-secondary); margin-bottom: 14px; padding: 12px 14px; background: var(--blue-light); border-radius: 8px; }
-.pasteArea { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); color: var(--text-primary); font-size: 13px; line-height: 1.7; resize: vertical; }
+.pasteArea { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); color: var(--text-primary); font-size: 13px; line-height: 1.7; resize: none; }
 .pasteArea:focus { outline: none; border-color: var(--green); }
 .parseBtn { width: 100%; margin-top: 12px; padding: 11px; background: var(--blue); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; }
 .parseBtn:disabled { opacity: 0.6; cursor: not-allowed; }
@@ -110,6 +110,16 @@
 .saveParsedBtn:hover { background: #0F6E56; }
 
 @media (max-width: 768px) {
-  .tabBar { gap: 0; flex-wrap: nowrap; overflow-x: auto; }
+  .tabBar { gap: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; }
   .tab { font-size: 12px; padding: 8px 12px; white-space: nowrap; flex-shrink: 0; }
 }
+/* 가이드 팝업 */
+.guideRow { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.guideLabel { font-size: 13px; font-weight: 600; color: #374151; }
+.guideBtn { background: none; border: none; font-size: 18px; cursor: pointer; padding: 2px 6px; border-radius: 6px; transition: background 0.15s; }
+.guideBtn:hover { background: #F3F4F6; }
+.guidePopupOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 500; display: flex; align-items: center; justify-content: center; }
+.guidePopup { background: #fff; border-radius: 16px; padding: 20px; width: 90%; max-width: 400px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); }
+.guidePopupHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-size: 14px; font-weight: 700; color: #111827; }
+.guideCloseBtn { background: none; border: none; font-size: 16px; color: #9CA3AF; cursor: pointer; padding: 2px 6px; border-radius: 6px; }
+.guideCloseBtn:hover { background: #F3F4F6; color: #374151; }
