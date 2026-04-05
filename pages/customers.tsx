@@ -726,7 +726,7 @@ export default function Customers() {
                   <div className={styles.editField}><label>연락처</label><input placeholder="010-0000-0000" inputMode="numeric" value={addForm.phone} onChange={e => setAddForm({ ...addForm, phone: formatPhone(e.target.value) })} /></div>
                   <div className={styles.editField} style={{gridColumn:'span 2'}}><label>주민등록번호 *</label>
                     <input placeholder="000000-0000000" inputMode="numeric" value={addForm.resident_number}
-                      onChange={e => { const v = formatResident(e.target.value); setAddForm({ ...addForm, resident_number: v, gender: calcGender(v), age: calcAge(v) }) }} />
+                      onChange={e => { const v = formatResident(e.target.value); const parsed = parseResident(v); setAddForm({ ...addForm, resident_number: v, gender: parsed.gender || addForm.gender, age: parsed.age || addForm.age }) }} />
                   </div>
                   <div className={styles.editField}><label>성별</label><input value={addForm.gender} readOnly style={{background:'#f9f9f9'}} /></div>
                   <div className={styles.editField}><label>나이</label><input value={addForm.age ? addForm.age + '세' : ''} readOnly style={{background:'#f9f9f9'}} /></div>
