@@ -749,6 +749,7 @@ export default function Customers() {
               const startY = e.touches[0].clientY
               const panel = e.currentTarget.parentElement!
               const onMove = (ev: TouchEvent) => {
+                ev.preventDefault()
                 const dy = ev.touches[0].clientY - startY
                 if (dy > 0) panel.style.transform = `translateY(${dy}px)`
               }
@@ -759,7 +760,7 @@ export default function Customers() {
                 document.removeEventListener('touchmove', onMove)
                 document.removeEventListener('touchend', onEnd)
               }
-              document.addEventListener('touchmove', onMove)
+              document.addEventListener('touchmove', onMove, { passive: false })
               document.addEventListener('touchend', onEnd)
             }}
           />
