@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
+import Link from 'next/link'
 import styles from '../styles/Layout.module.css'
 import { supabase } from '../lib/supabase'
 import { useConfirm } from '../lib/useConfirm'
@@ -103,9 +104,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <button className={styles.hamburger} onClick={() => setSidebarOpen(!sidebarOpen)}>
             <span /><span /><span />
           </button>
-          <div className={styles.headerTitle}>
+          <Link href={menus.find(m => m.path === router.pathname)?.path || '/'} className={styles.headerTitle}>
             {menus.find(m => m.path === router.pathname)?.label || 'DPA'}
-          </div>
+          </Link>
         </header>
 
         <div className={styles.content}>
