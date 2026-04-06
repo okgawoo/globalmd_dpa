@@ -234,7 +234,7 @@
 
 /* 데스크탑 좌우 분할 */
 .desktopGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.detailPanel { background: #fff; border: 1px solid #E5E7EB; border-radius: 14px; padding: 20px; max-height: calc(100vh - 200px); overflow-y: scroll; }
+.detailPanel { background: #fff; border: 1px solid #E5E7EB; border-radius: 14px; padding: 20px; max-height: calc(100vh - 200px); overflow-y: auto; overscroll-behavior: contain; }
 
 .tabIcon { display: none; }
 
