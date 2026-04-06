@@ -10,7 +10,7 @@
 .tabBadge { background: #E24B4A; color: white; font-size: 10px; font-weight: 500; border-radius: 999px; padding: 1px 5px; margin-left: 4px; }
 
 /* 2컬럼 - 왼쪽 넓게 */
-.grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; align-items: start; }
+.grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; align-items: stretch; }
 
 /* 왼쪽: 알림 리스트 */
 .listCol { background: white; border: 0.5px solid #EDEBE4; border-radius: 14px; padding: 16px; min-height: 400px; max-height: calc(100vh - 200px); overflow-y: auto; }
@@ -57,19 +57,19 @@
 .inlineHistoryScript { font-size: 11px; color: #6B7280; line-height: 1.55; white-space: pre-wrap; background: white; border-radius: 6px; padding: 6px 8px; }
 
 /* 오른쪽: 스마트폰 목업 고정 */
-.phoneCol { position: sticky; top: 16px; display: flex; flex-direction: column; align-items: center; background: white; border: 0.5px solid #EDEBE4; border-radius: 14px; padding: 16px; min-height: 400px; }
+.phoneCol { position: sticky; top: 16px; display: flex; flex-direction: column; align-items: center; background: white; border: 0.5px solid #EDEBE4; border-radius: 14px; padding: 16px; max-height: calc(100vh - 200px); overflow-y: auto; }
 
-/* 스마트폰 래퍼 - 너비 고정으로 세로 비율 유지 */
-.phoneWrapper { width: 240px; }
+/* 스마트폰 래퍼 - 전체 너비 활용 */
+.phoneWrapper { width: 100%; }
 
 /* 수신자 */
-.recipientRow { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; width: 240px; }
+.recipientRow { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; width: 100%; }
 .avatar { width: 36px; height: 36px; border-radius: 50%; background: #E1F5EE; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; color: #0F6E56; flex-shrink: 0; }
 .recipientName  { font-size: 16px; font-weight: 600; color: #111827; line-height: 1.4; }
 .recipientPhone { font-size: 12px; color: #9CA3AF; margin-top: 1px; }
 
 /* AI 배지 */
-.aiRow { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; width: 240px; }
+.aiRow { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; width: 100%; }
 .aiBadge { display: flex; align-items: center; gap: 5px; background: #EEEDFE; color: #3C3489; font-size: 11px; font-weight: 500; border-radius: 999px; padding: 4px 10px; animation: badgePulse 1.4s ease-in-out infinite; }
 .aiDot { width: 5px; height: 5px; border-radius: 50%; background: #7F77DD; animation: dotBlink 1.4s ease-in-out infinite; }
 .aiDotPulse { animation: dotBlink 1.4s ease-in-out infinite; }
@@ -77,10 +77,10 @@
 @keyframes dotBlink { 0%,100%{opacity:1; transform:scale(1)} 50%{opacity:0.2; transform:scale(0.6)} }
 @keyframes badgePulse { 0%,100%{opacity:1} 50%{opacity:0.55} }
 .aiLoading { font-size: 10px; color: #7F77DD; }
-.aiDesc { font-size: 11px; color: #9CA3AF; margin-bottom: 10px; line-height: 1.5; width: 240px; }
+.aiDesc { font-size: 11px; color: #9CA3AF; margin-bottom: 10px; line-height: 1.5; width: 100%; }
 
 /* 톤 버튼 */
-.toneRow { display: flex; gap: 5px; margin-bottom: 10px; width: 240px; }
+.toneRow { display: flex; gap: 5px; margin-bottom: 10px; width: 100%; }
 .toneBtn { font-size: 12px; padding: 5px 0; border-radius: 999px; cursor: pointer; border: 0.5px solid #D1D5DB; background: white; color: #6B7280; flex: 1; text-align: center; font-family: inherit; }
 .toneBtn:hover { border-color: #1D9E75; color: #1D9E75; }
 .toneBtnActive { background: #1D9E75; color: white; border-color: #1D9E75; }
