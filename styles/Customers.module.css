@@ -304,4 +304,5 @@
 
 @media (max-width: 768px) {
   .custFee { display: block !important; margin-top: 1px; }
+  .feeDot { display: none; }
 }
