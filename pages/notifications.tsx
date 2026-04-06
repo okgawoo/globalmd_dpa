@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import styles from '../styles/Notifications.module.css'
 
@@ -90,13 +90,8 @@ export default function NotificationsPage() {
   const [scriptText, setScriptText] = useState('')
   const [aiLoading, setAiLoading] = useState(false)
   const [sending, setSending] = useState(false)
-  const [panelOpen, setPanelOpen] = useState(false)
-  const [popupTop, setPopupTop] = useState(0)
-  const [popupRight, setPopupRight] = useState(0)
-  const [popupHeight, setPopupHeight] = useState(0)
+  const [expandedId, setExpandedId] = useState<string | null>(null) // 이력 펼침
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const listColRef = useRef<HTMLDivElement>(null)
-  const historyColRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => { fetchAll() }, [])
 
@@ -106,7 +101,7 @@ export default function NotificationsPage() {
     const { data: custs } = await supabase.from('dpa_customers').select('*').eq('agent_id', agentId)
     const { data: conts } = await supabase.from('dpa_contracts').select('*').eq('agent_id', agentId)
     const { data: covs } = await supabase.from('dpa_coverages').select('*').in('contract_id', (conts || []).map((c: any) => c.id))
-    const { data: msgs } = await supabase.from('dpa_messages').select('*, dpa_customers(name)').eq('agent_id', agentId).order('created_at', { ascending: false }).limit(50)
+    const { data: msgs } = await supabase.from('dpa_messages').select('*, dpa_customers(name)').eq('agent_id', agentId).order('created_at', { ascending: false }).limit(100)
     setCustomers(custs || [])
     setContracts(conts || [])
     setCoverages(covs || [])
@@ -114,8 +109,6 @@ export default function NotificationsPage() {
     setLoading(false)
   }
 
-  // 알림 목록 생성
-  const now = new Date()
   const notifications: any[] = []
 
   customers.forEach(c => {
@@ -165,17 +158,8 @@ export default function NotificationsPage() {
     return false
   }).sort((a, b) => a.priority - b.priority)
 
-  const todayNotifs = filtered.filter(n => {
-    if (n.type === 'birthday') return n.days === 0
-    if (n.type === 'birthday_d1') return n.days === 1
-    if (n.type === 'nearDone' || n.type === 'gap') return true
-    return false
-  })
-  const weekNotifs = filtered.filter(n => {
-    if (n.type === 'birthday_week') return true
-    if (n.type === 'expiry') return true
-    return false
-  })
+  const todayNotifs = filtered.filter(n => ['birthday','birthday_d1','nearDone','gap'].includes(n.type))
+  const weekNotifs = filtered.filter(n => ['birthday_week','expiry'].includes(n.type))
 
   function getNotifStyle(type: string) {
     if (type === 'birthday') return { icon: '🎂', badge: '생일 당일', badgeCls: styles.badgeRed, iconCls: styles.iconRed }
@@ -221,7 +205,6 @@ export default function NotificationsPage() {
   function selectNotif(n: any) {
     setSelected(n)
     applyScript(n, tone)
-    // 팝업은 SMS 보내기 버튼으로만 열림
   }
 
   function changeTone(t: ToneType) {
@@ -259,7 +242,6 @@ export default function NotificationsPage() {
       })
       await fetchAll()
       alert(`${selected.customer.name} 님께 발송됐어요! 😊`)
-      setPanelOpen(false)
     } catch(e) { alert('발송 중 오류가 발생했어요!') }
     setSending(false)
   }
@@ -294,31 +276,55 @@ export default function NotificationsPage() {
     const s = getNotifStyle(n.type)
     const isSel = selected?.id === n.id
     const isToday = ['birthday','birthday_d1','nearDone','gap'].includes(n.type)
+    const isExpanded = expandedId === n.id
+    const custMsgs = messages.filter((m: any) => m.customer_id === n.customer.id)
+
     return (
-      <div key={n.id}
-        className={[styles.notifCard, isSel ? styles.selected : '', isToday ? styles.unread : ''].join(' ')}
-        onClick={() => selectNotif(n)}
-      >
-        <div className={styles.cardRow}>
-          <div className={[styles.iconWrap, s.iconCls].join(' ')}>{s.icon}</div>
-          <div className={styles.cardBody}>
-            <div className={styles.cardTitle}>{getTitle(n)}</div>
-            <div className={styles.cardDesc}>{getDesc(n)}</div>
-            <div className={styles.cardMeta}>
-              <span className={[styles.badge, s.badgeCls].join(' ')}>{s.badge}</span>
+      <div key={n.id}>
+        <div
+          className={[styles.notifCard, isSel ? styles.selected : '', isToday ? styles.unread : ''].join(' ')}
+          onClick={() => selectNotif(n)}
+        >
+          <div className={styles.cardRow}>
+            <div className={[styles.iconWrap, s.iconCls].join(' ')}>{s.icon}</div>
+            <div className={styles.cardBody}>
+              <div className={styles.cardTitle}>{getTitle(n)}</div>
+              <div className={styles.cardDesc}>{getDesc(n)}</div>
+              <div className={styles.cardMeta}>
+                <span className={[styles.badge, s.badgeCls].join(' ')}>{s.badge}</span>
+              </div>
             </div>
+            <button
+              className={styles.historyBtn}
+              onClick={e => { e.stopPropagation(); setExpandedId(isExpanded ? null : n.id) }}
+            >
+              {isExpanded ? '닫기' : '이력보기'}
+            </button>
           </div>
         </div>
+        {isExpanded && (
+          <div className={styles.inlineHistory}>
+            {custMsgs.length === 0 ? (
+              <div className={styles.inlineHistoryEmpty}>발송 이력이 없어요</div>
+            ) : custMsgs.map((m: any) => (
+              <div key={m.id} className={styles.inlineHistoryItem}>
+                <div className={styles.inlineHistoryRow}>
+                  <span className={[styles.badge, m.is_sent ? styles.badgeTeal : styles.badgeGray].join(' ')}>{m.is_sent ? '발송' : '복사'}</span>
+                  <span className={styles.inlineHistoryType}>
+                    {m.message_type === 'birthday' ? '생일' : m.message_type === 'nearDone' ? '완납임박' : m.message_type === 'gap' ? '보장공백' : m.message_type === 'expiry' ? '만기임박' : m.message_type}
+                  </span>
+                  <span className={styles.inlineHistoryDate}>{new Date(m.created_at).toLocaleDateString('ko-KR', {month:'numeric', day:'numeric'})}</span>
+                </div>
+                <div className={styles.inlineHistoryScript}>{m.sent_script}</div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     )
   }
 
   if (loading) return <div className={styles.loading}>불러오는 중...</div>
-
-  // 발송 이력 필터링
-  const filteredMsgs = selected
-    ? messages.filter((m: any) => m.customer_id === selected.customer.id)
-    : messages.slice(0, 20)
 
   return (
     <div className={styles.wrap}>
@@ -365,11 +371,9 @@ export default function NotificationsPage() {
           </div>
         </div>
       ) : (
-        /* 2컬럼: 알림리스트 + 발송이력 */
         <div className={styles.grid}>
-
           {/* 왼쪽: 알림 리스트 */}
-          <div className={styles.listCol} ref={listColRef}>
+          <div className={styles.listCol}>
             {todayNotifs.length > 0 && (
               <>
                 <div className={styles.sectionLabel}>오늘</div>
@@ -386,84 +390,33 @@ export default function NotificationsPage() {
             {filtered.length === 0 && <div className={styles.empty}>해당 알림이 없어요</div>}
           </div>
 
-          {/* 오른쪽: 발송 이력 */}
-          <div className={styles.historyCol} ref={historyColRef}>
-            <div className={styles.historyColHeader}>
-              <div className={styles.historyColTitle}>
-                {selected ? `${selected.customer.name} 님 발송 이력` : '발송 이력'}
-              </div>
-              <button
-                className={styles.smsBtn}
-                onClick={() => {
-                  if (historyColRef.current) {
-                    const rect = historyColRef.current.getBoundingClientRect()
-                    setPopupTop(rect.top + 58)
-                    setPopupRight(window.innerWidth - rect.right)
-                    setPopupHeight(rect.height - 58)
-                  }
-                  setPanelOpen(true)
-                }}
-                disabled={!selected}
-                style={!selected ? {opacity: 0.4, cursor: 'not-allowed'} : {}}
-              >
-                📱 SMS 보내기
-              </button>
-            </div>
-            {filteredMsgs.length === 0 ? (
-              <div className={styles.historyEmpty}>
-                <div style={{fontSize:24, marginBottom:6}}>📭</div>
-                <div>{selected ? '발송 이력이 없어요' : '알림을 선택하면\n해당 고객의 발송 이력을 볼 수 있어요'}</div>
-              </div>
-            ) : filteredMsgs.map((m: any) => (
-              <div key={m.id} className={styles.historyItem}>
-                <div className={styles.historyItemRow}>
-                  <span className={[styles.badge, m.is_sent ? styles.badgeTeal : styles.badgeGray].join(' ')}>{m.is_sent ? '발송' : '복사'}</span>
-                  <span className={styles.historyItemType}>
-                    {m.message_type === 'birthday' ? '생일' : m.message_type === 'nearDone' ? '완납임박' : m.message_type === 'gap' ? '보장공백' : m.message_type === 'expiry' ? '만기임박' : m.message_type}
-                  </span>
-                  <span className={styles.historyItemDate}>{new Date(m.created_at).toLocaleDateString('ko-KR', {month:'numeric', day:'numeric'})}</span>
-                </div>
-                <div className={styles.historyItemScript}>{m.sent_script}</div>
-              </div>
-              ))}
-
-            {/* 폰 블록 팝업 - historyCol 기준 우측 상단 */}
-            {panelOpen && selected && (
+          {/* 오른쪽: 스마트폰 목업 고정 */}
+          <div className={styles.phoneCol}>
+            {/* AI 추천 배지 */}
+            {selected && (
               <>
-                <div className={styles.phoneOverlay} onClick={() => setPanelOpen(false)} />
-          <div className={styles.phoneSlideUp} style={{ top: popupTop, right: popupRight, height: popupHeight }}>
-            <div className={styles.phonePanel}>
-            {/* 닫기 */}
-            <div className={styles.popupHeader}>
-              <span className={styles.popupTitle}>문자 미리보기</span>
-              <button className={styles.popupClose} onClick={() => setPanelOpen(false)}>✕</button>
-            </div>
-
-            {/* 수신자 */}
-            <div className={styles.recipientRow}>
-              <div className={styles.avatar}>{selected.customer.name.slice(0,2)}</div>
-              <div>
-                <div className={styles.recipientName}>{selected.customer.name}</div>
-                <div className={styles.recipientPhone}>{selected.customer.phone || '연락처 없음'}</div>
-              </div>
-            </div>
-
-            {/* AI 배지 */}
-            <div className={styles.aiRow}>
-              <div className={styles.aiBadge}>
-                <div className={[styles.aiDot, aiLoading ? styles.aiDotPulse : ''].join(' ')}></div>
-                AI 추천 스크립트
-              </div>
-              {aiLoading && <span className={styles.aiLoading}>생성 중...</span>}
-            </div>
-            <div className={styles.aiDesc}>상황에 맞는 문자를 추천해 드려요. 자유롭게 수정 후 발송하세요 😊</div>
-
-            {/* 톤 버튼 */}
-            <div className={styles.toneRow}>
-              {TONES.map(t => (
-                <button key={t} className={[styles.toneBtn, tone === t ? styles.toneBtnActive : ''].join(' ')} onClick={() => changeTone(t)}>{t}</button>
-              ))}
-            </div>
+                <div className={styles.recipientRow}>
+                  <div className={styles.avatar}>{selected.customer.name.slice(0,2)}</div>
+                  <div>
+                    <div className={styles.recipientName}>{selected.customer.name}</div>
+                    <div className={styles.recipientPhone}>{selected.customer.phone || '연락처 없음'}</div>
+                  </div>
+                </div>
+                <div className={styles.aiRow}>
+                  <div className={styles.aiBadge}>
+                    <div className={[styles.aiDot, aiLoading ? styles.aiDotPulse : ''].join(' ')}></div>
+                    AI 추천 스크립트
+                  </div>
+                  {aiLoading && <span className={styles.aiLoading}>생성 중...</span>}
+                </div>
+                <div className={styles.aiDesc}>상황에 맞는 문자를 추천해 드려요. 자유롭게 수정 후 발송하세요 😊</div>
+                <div className={styles.toneRow}>
+                  {TONES.map(t => (
+                    <button key={t} className={[styles.toneBtn, tone === t ? styles.toneBtnActive : ''].join(' ')} onClick={() => changeTone(t)}>{t}</button>
+                  ))}
+                </div>
+              </>
+            )}
 
             {/* 스마트폰 목업 */}
             <div className={styles.phoneFrame}>
@@ -474,42 +427,46 @@ export default function NotificationsPage() {
                   <span className={styles.statusIcons}>●●● 🔋</span>
                 </div>
                 <div className={styles.smsHeader}>
-                  <div className={styles.smsName}>{selected.customer.name}</div>
+                  <div className={styles.smsName} style={{color: selected ? '#1C1C1E' : '#C7C7CC'}}>
+                    {selected ? selected.customer.name : '-'}
+                  </div>
                   <div className={styles.smsType}>문자 메시지</div>
                 </div>
                 <div className={styles.smsBody}>
-                  <div className={styles.bubbleWrap}>
-                    <div className={styles.bubble}>
-                      <textarea
-                        ref={textareaRef}
-                        className={styles.bubbleEdit}
-                        value={scriptText}
-                        onChange={e => setScriptText(e.target.value)}
-                        rows={8}
-                      />
-                      <div className={styles.bubbleTime}>오전 9:41</div>
+                  {selected ? (
+                    <div className={styles.bubbleWrap}>
+                      <div className={styles.bubble}>
+                        <textarea
+                          ref={textareaRef}
+                          className={styles.bubbleEdit}
+                          value={scriptText}
+                          onChange={e => setScriptText(e.target.value)}
+                          rows={8}
+                        />
+                        <div className={styles.bubbleTime}>오전 9:41</div>
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className={styles.phoneEmpty}>
+                      <div style={{fontSize:24, marginBottom:6}}>💬</div>
+                      <div>왼쪽에서 알림을<br/>선택해 주세요</div>
+                    </div>
+                  )}
                 </div>
                 <div className={styles.emojiRow}>
                   {EMOJIS.map(e => (
-                    <button key={e} className={styles.emojiBtn} onClick={() => insertEmoji(e)}>{e}</button>
+                    <button key={e} className={styles.emojiBtn} onClick={() => insertEmoji(e)} disabled={!selected}>{e}</button>
                   ))}
                 </div>
               </div>
               <div className={styles.phoneHome}></div>
             </div>
 
-            <div className={styles.charCount}>{scriptText.length}자</div>
-
+            {/* 발송 버튼 */}
             <div className={styles.actionBtns}>
-              <button className={styles.btnSend} onClick={handleSend} disabled={sending}>{sending ? '발송 중...' : '발송하기'}</button>
-              <button className={styles.btnCopy} onClick={handleCopy}>복사</button>
+              <button className={styles.btnSend} onClick={handleSend} disabled={sending || !selected}>{sending ? '발송 중...' : '발송하기'}</button>
+              <button className={styles.btnCopy} onClick={handleCopy} disabled={!selected}>복사</button>
             </div>
-          </div>
-          </div>
-              </>
-            )}
           </div>
         </div>
       )}
