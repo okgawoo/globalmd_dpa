@@ -95,10 +95,10 @@
 .smsHeader { background: #F2F2F7; padding: 4px 12px 8px; text-align: center; border-bottom: 0.5px solid #E5E5EA; }
 .smsName { font-size: 14px; font-weight: 500; }
 .smsType { font-size: 10px; color: #8E8E93; }
-.smsBody { background: white; padding: 12px 10px 8px; min-height: 240px; }
+.smsBody { background: white; padding: 12px 10px 8px; min-height: 300px; }
 .bubbleWrap { display: flex; justify-content: flex-end; }
 .bubble { background: #34C759; border-radius: 14px 14px 4px 14px; padding: 9px 11px; max-width: 92%; width: 92%; }
-.bubbleEdit { width: 100%; border: none; background: transparent; outline: none; font-size: 13px; color: white; line-height: 1.65; resize: none; font-family: inherit; min-height: 180px; overflow: hidden; -webkit-appearance: none; appearance: none; }
+.bubbleEdit { width: 100%; border: none; background: transparent; outline: none; font-size: 13px; color: white; line-height: 1.65; resize: none; font-family: inherit; min-height: 230px; overflow: hidden; -webkit-appearance: none; appearance: none; }
 .bubbleEdit::-webkit-scrollbar { display: none; }
 .bubbleEdit::placeholder { color: rgba(255,255,255,0.6); }
 .bubbleTime { font-size: 9px; color: rgba(255,255,255,0.7); text-align: right; margin-top: 4px; }
