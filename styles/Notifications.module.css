@@ -67,12 +67,12 @@
 .smsBtn { font-size: 12px; font-weight: 500; padding: 5px 12px; background: #1D9E75; color: white; border: none; border-radius: 8px; cursor: pointer; white-space: nowrap; font-family: inherit; }
 .smsBtn:hover { background: #0F6E56; }
 
-/* 폰 블록 팝업: 하단 슬라이드 업 - 우정렬 */
+/* 폰 블록 팝업: 하단 슬라이드 업 - SMS 버튼 아래 우정렬 */
 .phoneOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 300; }
 .phoneSlideUp {
   position: fixed;
   bottom: 0;
-  right: 20px;
+  right: max(20px, calc(50% - 500px));
   width: 300px;
   max-height: 95vh;
   background: #FAF9F5;
