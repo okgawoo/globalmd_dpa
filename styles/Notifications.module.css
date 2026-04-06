@@ -43,7 +43,7 @@
 .badgeGray  { background: #F1EFE8; color: #5F5E5A; }
 
 /* 오른쪽: 발송 이력 */
-.historyCol { background: white; border: 0.5px solid #EDEBE4; border-radius: 14px; padding: 16px; min-height: 400px; max-height: calc(100vh - 200px); overflow-y: auto; display: flex; flex-direction: column; }
+.historyCol { background: white; border: 0.5px solid #EDEBE4; border-radius: 14px; padding: 16px; min-height: 400px; max-height: calc(100vh - 200px); overflow-y: auto; display: flex; flex-direction: column; position: relative; }
 .historyColHeader { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 0.5px solid #EDEBE4; flex-shrink: 0; }
 .historyColTitle { font-size: 13px; font-weight: 500; color: #374151; }
 .smsBtn { font-size: 12px; font-weight: 500; padding: 5px 12px; background: #1D9E75; color: white; border: none; border-radius: 8px; cursor: pointer; white-space: nowrap; font-family: inherit; }
@@ -65,7 +65,7 @@
 .historyTime { font-size: 11px; color: #9CA3AF; }
 .historyScript { font-size: 12px; color: #6B7280; line-height: 1.6; white-space: pre-wrap; background: #F9F9F7; border-radius: 6px; padding: 8px 10px; }
 
-/* 폰 블록 팝업 - absolute로 SMS 버튼 바로 아래 우정렬 */
+/* 폰 블록 팝업 - historyCol 기준 우측 상단 */
 .phoneOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 300; }
 .phoneSlideUp {
   position: absolute;
