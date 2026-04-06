@@ -57,10 +57,10 @@
 .inlineHistoryScript { font-size: 11px; color: #6B7280; line-height: 1.55; white-space: pre-wrap; background: white; border-radius: 6px; padding: 6px 8px; }
 
 /* 오른쪽: 스마트폰 목업 고정 */
-.phoneCol { position: sticky; top: 16px; display: flex; flex-direction: column; align-items: center; background: white; border: 0.5px solid #EDEBE4; border-radius: 14px; padding: 16px; min-height: calc(100vh - 200px); }
+.phoneCol { position: sticky; top: 16px; display: flex; flex-direction: column; align-items: stretch; background: white; border: 0.5px solid #EDEBE4; border-radius: 14px; padding: 16px; min-height: calc(100vh - 200px); }
 
-/* 스마트폰 래퍼 - 너비 고정으로 중앙 배치 */
-.phoneWrapper { width: 260px; flex-shrink: 0; }
+/* 스마트폰 래퍼 - 중앙 정렬 */
+.phoneWrapper { width: 260px; flex-shrink: 0; align-self: center; }
 
 /* 수신자 */
 .recipientRow { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; width: 100%; }
