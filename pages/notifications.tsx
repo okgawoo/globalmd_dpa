@@ -366,7 +366,7 @@ export default function NotificationsPage() {
         </div>
       ) : (
         <>
-          {/* 2컬럼: 알림리스트 + 발송이력 */}
+          {/* 3컬럼: 알림리스트 + 발송이력 + 폰블록 */}
           <div className={styles.layout}>
 
             {/* 왼쪽: 알림 리스트 */}
@@ -416,90 +416,115 @@ export default function NotificationsPage() {
                 ))
               })()}
             </div>
-          </div>
 
-          {/* 오른쪽: 폰 슬라이드 팝업 (fixed, 우→좌 애니메이션) */}
-          {panelOpen && selected && (
-            <div className={styles.phoneOverlay} onClick={() => setPanelOpen(false)}>
-              <div className={styles.phoneSlide} onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-                <div className={styles.phonePanel}>
-                  {/* 닫기 */}
-                  <div className={styles.panelCloseRow}>
+            {/* 오른쪽: 폰 블록 (항상 고정) */}
+            <div className={styles.phoneCol}>
+              <div className={styles.phonePanel}>
+                {!selected ? (
+                  /* 선택 전: 빈 폰 목업 */
+                  <>
                     <div className={styles.panelLabel}>문자 미리보기</div>
-                    <button className={styles.panelClose} onClick={() => setPanelOpen(false)}>✕</button>
-                  </div>
-
-                  {/* 수신자 */}
-                  <div className={styles.recipientRow}>
-                    <div className={styles.avatar}>{selected.customer.name.slice(0,2)}</div>
-                    <div>
-                      <div className={styles.recipientName}>{selected.customer.name}</div>
-                      <div className={styles.recipientPhone}>{selected.customer.phone || '연락처 없음'}</div>
-                    </div>
-                  </div>
-
-                  {/* AI 추천 배지 */}
-                  <div className={styles.aiRow}>
-                    <div className={styles.aiBadge}>
-                      <div className={[styles.aiDot, aiLoading ? styles.aiDotPulse : ''].join(' ')}></div>
-                      AI 추천 스크립트
-                    </div>
-                    {aiLoading && <span className={styles.aiLoading}>생성 중...</span>}
-                  </div>
-                  <div className={styles.aiDesc}>상황에 맞는 문자를 추천해 드려요. 자유롭게 수정 후 발송하세요 😊</div>
-
-                  {/* 톤 버튼 */}
-                  <div className={styles.toneRow}>
-                    {TONES.map(t => (
-                      <button key={t} className={[styles.toneBtn, tone === t ? styles.toneBtnActive : ''].join(' ')} onClick={() => changeTone(t)}>{t}</button>
-                    ))}
-                  </div>
-
-                  {/* 스마트폰 목업 */}
-                  <div className={styles.phoneFrame}>
-                    <div className={styles.phoneNotch}></div>
-                    <div className={styles.phoneScreen}>
-                      <div className={styles.statusBar}>
-                        <span className={styles.statusTime}>9:41</span>
-                        <span className={styles.statusIcons}>●●● 🔋</span>
-                      </div>
-                      <div className={styles.smsHeader}>
-                        <div className={styles.smsName}>{selected.customer.name}</div>
-                        <div className={styles.smsType}>문자 메시지</div>
-                      </div>
-                      <div className={styles.smsBody}>
-                        <div className={styles.bubbleWrap}>
-                          <div className={styles.bubble}>
-                            <textarea
-                              ref={textareaRef}
-                              className={styles.bubbleEdit}
-                              value={scriptText}
-                              onChange={e => setScriptText(e.target.value)}
-                              rows={10}
-                            />
-                            <div className={styles.bubbleTime}>오전 9:41</div>
-                          </div>
+                    <div className={styles.phoneFrame}>
+                      <div className={styles.phoneNotch}></div>
+                      <div className={styles.phoneScreen}>
+                        <div className={styles.statusBar}>
+                          <span className={styles.statusTime}>9:41</span>
+                          <span className={styles.statusIcons}>●●● 🔋</span>
+                        </div>
+                        <div className={styles.smsHeader}>
+                          <div className={styles.smsName} style={{color:'#C7C7CC'}}>-</div>
+                          <div className={styles.smsType}>문자 메시지</div>
+                        </div>
+                        <div className={styles.smsBody} style={{minHeight:180, display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:8}}>
+                          <div style={{fontSize:28}}>💬</div>
+                          <div style={{fontSize:11, color:'#C7C7CC', textAlign:'center', lineHeight:1.6}}>왼쪽에서 알림을<br/>선택해 주세요</div>
+                        </div>
+                        <div className={styles.emojiRow} style={{opacity:0.3}}>
+                          {EMOJIS.slice(0,10).map(e => <button key={e} className={styles.emojiBtn} disabled>{e}</button>)}
                         </div>
                       </div>
-                      <div className={styles.emojiRow}>
-                        {EMOJIS.map(e => (
-                          <button key={e} className={styles.emojiBtn} onClick={() => insertEmoji(e)}>{e}</button>
-                        ))}
+                      <div className={styles.phoneHome}></div>
+                    </div>
+                    <div className={styles.actionBtns}>
+                      <button className={styles.btnSend} disabled style={{opacity:0.4}}>발송하기</button>
+                      <button className={styles.btnCopy} disabled style={{opacity:0.4}}>복사</button>
+                    </div>
+                  </>
+                ) : (
+                  /* 선택 후: 문자 편집 */
+                  <>
+                    {/* 수신자 */}
+                    <div className={styles.recipientRow}>
+                      <div className={styles.avatar}>{selected.customer.name.slice(0,2)}</div>
+                      <div>
+                        <div className={styles.recipientName}>{selected.customer.name}</div>
+                        <div className={styles.recipientPhone}>{selected.customer.phone || '연락처 없음'}</div>
                       </div>
                     </div>
-                    <div className={styles.phoneHome}></div>
-                  </div>
 
-                  <div className={styles.charCount}>{scriptText.length}자</div>
+                    {/* AI 추천 배지 */}
+                    <div className={styles.aiRow}>
+                      <div className={styles.aiBadge}>
+                        <div className={[styles.aiDot, aiLoading ? styles.aiDotPulse : ''].join(' ')}></div>
+                        AI 추천 스크립트
+                      </div>
+                      {aiLoading && <span className={styles.aiLoading}>생성 중...</span>}
+                    </div>
+                    <div className={styles.aiDesc}>상황에 맞는 문자를 추천해 드려요. 자유롭게 수정 후 발송하세요 😊</div>
 
-                  <div className={styles.actionBtns}>
-                    <button className={styles.btnSend} onClick={handleSend} disabled={sending}>{sending ? '발송 중...' : '발송하기'}</button>
-                    <button className={styles.btnCopy} onClick={handleCopy}>복사</button>
-                  </div>
-                </div>
+                    {/* 톤 버튼 */}
+                    <div className={styles.toneRow}>
+                      {TONES.map(t => (
+                        <button key={t} className={[styles.toneBtn, tone === t ? styles.toneBtnActive : ''].join(' ')} onClick={() => changeTone(t)}>{t}</button>
+                      ))}
+                    </div>
+
+                    {/* 스마트폰 목업 */}
+                    <div className={styles.phoneFrame}>
+                      <div className={styles.phoneNotch}></div>
+                      <div className={styles.phoneScreen}>
+                        <div className={styles.statusBar}>
+                          <span className={styles.statusTime}>9:41</span>
+                          <span className={styles.statusIcons}>●●● 🔋</span>
+                        </div>
+                        <div className={styles.smsHeader}>
+                          <div className={styles.smsName}>{selected.customer.name}</div>
+                          <div className={styles.smsType}>문자 메시지</div>
+                        </div>
+                        <div className={styles.smsBody}>
+                          <div className={styles.bubbleWrap}>
+                            <div className={styles.bubble}>
+                              <textarea
+                                ref={textareaRef}
+                                className={styles.bubbleEdit}
+                                value={scriptText}
+                                onChange={e => setScriptText(e.target.value)}
+                                rows={8}
+                              />
+                              <div className={styles.bubbleTime}>오전 9:41</div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className={styles.emojiRow}>
+                          {EMOJIS.map(e => (
+                            <button key={e} className={styles.emojiBtn} onClick={() => insertEmoji(e)}>{e}</button>
+                          ))}
+                        </div>
+                      </div>
+                      <div className={styles.phoneHome}></div>
+                    </div>
+
+                    <div className={styles.charCount}>{scriptText.length}자</div>
+
+                    <div className={styles.actionBtns}>
+                      <button className={styles.btnSend} onClick={handleSend} disabled={sending}>{sending ? '발송 중...' : '발송하기'}</button>
+                      <button className={styles.btnCopy} onClick={handleCopy}>복사</button>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
-          )}
+          </div>
         </>
       )}
     </div>
