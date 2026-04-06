@@ -45,7 +45,7 @@ export default function Dashboard() {
           .then(({ data: agent }) => { if (agent) setAgentName(agent.name) })
       }
     })
-    // localStorage에서 확인된 항목 불러오기
+    // localStorage에서 확인된 항목 불러오기 (날짜 무관, 영구 저장)
     setSeenNearDone(JSON.parse(localStorage.getItem('dpa_seen_nearDone') || '[]'))
     setSeenBirthday(JSON.parse(localStorage.getItem('dpa_seen_birthday') || '[]'))
     setSeenGap(JSON.parse(localStorage.getItem('dpa_seen_gap') || '[]'))
@@ -59,21 +59,21 @@ export default function Dashboard() {
   // 카드 클릭 시 확인 처리 + 페이지 이동
   const handleNearDoneClick = () => {
     const ids = nearDoneCustomers.map((c: any) => c.id)
-    const updated = [...new Set([...seenNearDone, ...ids])]
+    const updated = [...seenNearDone, ...ids].filter((v, i, a) => a.indexOf(v) === i)
     localStorage.setItem('dpa_seen_nearDone', JSON.stringify(updated))
     setSeenNearDone(updated)
     router.push('/customers?sort=완납임박')
   }
   const handleBirthdayClick = () => {
     const ids = birthdayCustomers.map((c: any) => c.id)
-    const updated = [...new Set([...seenBirthday, ...ids])]
+    const updated = [...seenBirthday, ...ids].filter((v, i, a) => a.indexOf(v) === i)
     localStorage.setItem('dpa_seen_birthday', JSON.stringify(updated))
     setSeenBirthday(updated)
     router.push('/customers?sort=생일임박')
   }
   const handleGapClick = () => {
     const ids = gapCustomers.map((c: any) => c.id)
-    const updated = [...new Set([...seenGap, ...ids])]
+    const updated = [...seenGap, ...ids].filter((v, i, a) => a.indexOf(v) === i)
     localStorage.setItem('dpa_seen_gap', JSON.stringify(updated))
     setSeenGap(updated)
     router.push('/customers?sort=보장공백')
