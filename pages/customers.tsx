@@ -741,7 +741,7 @@ export default function Customers() {
                 const cvs = selectedCoverages.filter(cv => cv.contract_id === ct.id)
                 const groups = COVERAGE_GROUPS.map(g => ({ ...g, items: cvs.filter((cv:any) => cv.category === g.key) })).filter(g => g.items.length > 0)
                 return (
-                  <div key={ct.id} className={styles.insCard}>
+                  <div key={ct.id} className={calcPaymentRate(ct) >= 90 && ct.payment_status !== '완납' ? styles.insCardWarn : styles.insCard}>
                     <div className={styles.insCardHeader}>
                       <div className={styles.insCardLeft}>
                         <div className={styles.insCardTitle}>{idx+1}. {ct.company}{ct.product_name ? ` · ${ct.product_name}` : ''}</div>
@@ -1045,7 +1045,7 @@ export default function Customers() {
                   const groups = getCoveragesByContract(ct.id)
                   const isEditing = editContractId === ct.id
                   return (
-                    <div key={ct.id} className={styles.insCard}>
+                    <div key={ct.id} className={calcPaymentRate(ct) >= 90 && ct.payment_status !== '완납' ? styles.insCardWarn : styles.insCard}>
                       <div className={styles.insCardHeader}>
                         <div className={styles.insCardLeft}>
                           <div className={styles.insCardTitle}>{idx + 1}. {ct.company}{ct.product_name ? ` · ${ct.product_name}` : ''}</div>
