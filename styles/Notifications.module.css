@@ -1,4 +1,4 @@
-.wrap { padding: 0 0 2rem; max-width: 1200px; }
+.wrap { padding: 0 0 2rem; max-width: 1000px; position: relative; }
 .loading { text-align: center; padding: 40px; color: #9CA3AF; }
 
 /* 탭 - 고객관리와 동일 */
@@ -9,19 +9,19 @@
 .tabActive { color: #1D9E75; border-bottom: 2px solid #1D9E75; font-weight: 600; }
 .tabBadge { background: #E24B4A; color: white; font-size: 10px; font-weight: 500; border-radius: 999px; padding: 1px 5px; margin-left: 4px; }
 
-/* 3컬럼 레이아웃 */
-.layout { display: grid; grid-template-columns: minmax(0, 1fr) 240px 300px; gap: 14px; align-items: start; }
+/* 2컬럼 그리드 - 고객관리와 동일 */
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
 /* 왼쪽: 알림 리스트 */
-.listCol {}
+.listCol { background: white; border: 0.5px solid #EDEBE4; border-radius: 14px; padding: 16px; min-height: 400px; max-height: calc(100vh - 200px); overflow-y: auto; }
 .sectionLabel { font-size: 10px; font-weight: 500; color: #9CA3AF; letter-spacing: 0.06em; margin-bottom: 7px; text-transform: uppercase; }
 .divider { height: 0.5px; background: #EDEBE4; margin: 12px 0; }
 .empty { text-align: center; padding: 40px; color: #9CA3AF; font-size: 13px; }
 
 /* 알림 카드 */
-.notifCard { background: white; border: 0.5px solid #EDEBE4; border-radius: 10px; padding: 11px 13px; margin-bottom: 7px; cursor: pointer; transition: border-color 0.15s; }
+.notifCard { border: 0.5px solid #EDEBE4; border-radius: 10px; padding: 11px 13px; margin-bottom: 7px; cursor: pointer; transition: border-color 0.15s; background: white; }
 .notifCard:hover { border-color: #1D9E75; }
-.selected { border: 1.5px solid #1D9E75; background: #F0FBF7; }
+.selected { border: 1.5px solid #1D9E75 !important; background: #F0FBF7 !important; }
 .unread { border-left: 3px solid #1D9E75; }
 .cardRow { display: flex; align-items: flex-start; gap: 9px; }
 .iconWrap { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 16px; }
@@ -42,10 +42,10 @@
 .badgeGreen { background: #EAF3DE; color: #3B6D11; }
 .badgeGray  { background: #F1EFE8; color: #5F5E5A; }
 
-/* 가운데: 발송 이력 */
-.historyCol { background: white; border: 0.5px solid #EDEBE4; border-radius: 10px; padding: 14px; min-height: 300px; overflow-y: auto; max-height: 80vh; }
+/* 오른쪽: 발송 이력 */
+.historyCol { background: white; border: 0.5px solid #EDEBE4; border-radius: 14px; padding: 16px; min-height: 400px; max-height: calc(100vh - 200px); overflow-y: auto; }
 .historyColTitle { font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 0.5px solid #EDEBE4; }
-.historyEmpty { text-align: center; padding: 30px 10px; color: #9CA3AF; font-size: 12px; line-height: 1.8; }
+.historyEmpty { text-align: center; padding: 40px 16px; color: #9CA3AF; font-size: 12px; line-height: 1.8; white-space: pre-line; }
 .historyItem { padding: 10px 0; border-bottom: 0.5px solid #EDEBE4; }
 .historyItem:last-child { border-bottom: none; }
 .historyItemRow { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
@@ -61,77 +61,81 @@
 .historyTime { font-size: 11px; color: #9CA3AF; }
 .historyScript { font-size: 12px; color: #6B7280; line-height: 1.6; white-space: pre-wrap; background: #F9F9F7; border-radius: 6px; padding: 8px 10px; }
 
-/* 오른쪽: 폰 블록 (항상 고정) */
-.phoneCol { position: sticky; top: 16px; }
-.phonePanel { background: #FAF9F5; border: 0.5px solid #EDEBE4; border-radius: 12px; padding: 16px; }
+/* 폰 블록 팝업 - 리스트 오른쪽에 붙어서 발송이력 위에 살짝 오버랩 */
+.phoneOverlay { position: fixed; inset: 0; z-index: 300; }
+.phonePopup {
+  position: absolute;
+  left: calc(50% + 8px);
+  width: 300px;
+  background: #FAF9F5;
+  border: 0.5px solid #EDEBE4;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  padding: 14px;
+  z-index: 400;
+}
 
-/* 닫기 버튼 */
-.panelCloseRow { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 0.5px solid #EDEBE4; }
-.panelLabel { font-size: 13px; font-weight: 500; color: #6B7280; }
-.panelHandle { display: none; }
-.panelClose { background: none; border: none; color: #9CA3AF; font-size: 18px; cursor: pointer; padding: 0; line-height: 1; }
-.panelClose:hover { color: #374151; }
+/* 팝업 헤더 */
+.popupHeader { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 0.5px solid #EDEBE4; }
+.popupTitle { font-size: 13px; font-weight: 500; color: #6B7280; }
+.popupClose { background: none; border: none; color: #9CA3AF; font-size: 16px; cursor: pointer; padding: 0; line-height: 1; }
+.popupClose:hover { color: #374151; }
 
 /* 수신자 */
-.recipientRow { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
-.avatar { width: 34px; height: 34px; border-radius: 50%; background: #E1F5EE; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; color: #0F6E56; flex-shrink: 0; }
-.recipientName  { font-size: 14px; font-weight: 500; color: #111827; }
-.recipientPhone { font-size: 12px; color: #9CA3AF; }
+.recipientRow { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.avatar { width: 30px; height: 30px; border-radius: 50%; background: #E1F5EE; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; color: #0F6E56; flex-shrink: 0; }
+.recipientName  { font-size: 13px; font-weight: 500; color: #111827; }
+.recipientPhone { font-size: 11px; color: #9CA3AF; }
 
 /* AI 배지 */
-.aiRow { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
-.aiBadge { display: flex; align-items: center; gap: 4px; background: #EEEDFE; color: #3C3489; font-size: 12px; font-weight: 500; border-radius: 999px; padding: 4px 10px; }
-.aiDot { width: 6px; height: 6px; border-radius: 50%; background: #7F77DD; }
+.aiRow { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.aiBadge { display: flex; align-items: center; gap: 4px; background: #EEEDFE; color: #3C3489; font-size: 11px; font-weight: 500; border-radius: 999px; padding: 3px 8px; }
+.aiDot { width: 5px; height: 5px; border-radius: 50%; background: #7F77DD; }
 .aiDotPulse { animation: pulse 0.8s infinite; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-.aiLoading { font-size: 11px; color: #7F77DD; }
-.aiDesc { font-size: 11px; color: #9CA3AF; margin-bottom: 10px; line-height: 1.4; }
+.aiLoading { font-size: 10px; color: #7F77DD; }
+.aiDesc { font-size: 10px; color: #9CA3AF; margin-bottom: 8px; line-height: 1.4; }
 
 /* 톤 버튼 */
-.toneRow { display: flex; gap: 5px; margin-bottom: 12px; }
-.toneBtn { font-size: 12px; padding: 5px 0; border-radius: 999px; cursor: pointer; border: 0.5px solid #D1D5DB; background: white; color: #6B7280; flex: 1; text-align: center; font-family: inherit; }
+.toneRow { display: flex; gap: 4px; margin-bottom: 10px; }
+.toneBtn { font-size: 11px; padding: 4px 0; border-radius: 999px; cursor: pointer; border: 0.5px solid #D1D5DB; background: white; color: #6B7280; flex: 1; text-align: center; font-family: inherit; }
 .toneBtn:hover { border-color: #1D9E75; color: #1D9E75; }
 .toneBtnActive { background: #1D9E75; color: white; border-color: #1D9E75; }
 
 /* 스마트폰 */
-.phoneFrame { background: #1C1C1E; border-radius: 36px; padding: 12px 6px 14px; }
-.phoneNotch { width: 52px; height: 6px; background: #3A3A3C; border-radius: 999px; margin: 0 auto 8px; }
-.phoneScreen { background: #F2F2F7; border-radius: 28px; overflow: hidden; }
-.statusBar { background: #F2F2F7; padding: 7px 16px 3px; display: flex; justify-content: space-between; }
-.statusTime  { font-size: 12px; font-weight: 600; color: #1C1C1E; }
-.statusIcons { font-size: 11px; color: #1C1C1E; }
-.smsHeader { background: #F2F2F7; padding: 5px 12px 10px; text-align: center; border-bottom: 0.5px solid #E5E5EA; }
-.smsName { font-size: 14px; font-weight: 500; color: #1C1C1E; }
-.smsType { font-size: 11px; color: #8E8E93; }
-.smsBody { background: white; padding: 14px 12px 10px; }
+.phoneFrame { background: #1C1C1E; border-radius: 32px; padding: 10px 5px 12px; }
+.phoneNotch { width: 46px; height: 5px; background: #3A3A3C; border-radius: 999px; margin: 0 auto 7px; }
+.phoneScreen { background: #F2F2F7; border-radius: 24px; overflow: hidden; }
+.statusBar { background: #F2F2F7; padding: 5px 12px 2px; display: flex; justify-content: space-between; }
+.statusTime  { font-size: 10px; font-weight: 600; color: #1C1C1E; }
+.statusIcons { font-size: 9px; color: #1C1C1E; }
+.smsHeader { background: #F2F2F7; padding: 3px 10px 6px; text-align: center; border-bottom: 0.5px solid #E5E5EA; }
+.smsName { font-size: 12px; font-weight: 500; color: #1C1C1E; }
+.smsType { font-size: 10px; color: #8E8E93; }
+.smsBody { background: white; padding: 10px 8px 6px; }
 .bubbleWrap { display: flex; justify-content: flex-end; }
-.bubble { background: #34C759; border-radius: 14px 14px 4px 14px; padding: 10px 12px; max-width: 90%; width: 90%; }
-.bubbleEdit { width: 100%; border: none; background: transparent; outline: none; font-size: 13px; color: white; line-height: 1.65; resize: none; font-family: inherit; min-height: 200px; overflow: hidden; -webkit-appearance: none; appearance: none; }
+.bubble { background: #34C759; border-radius: 12px 12px 3px 12px; padding: 8px 10px; max-width: 92%; width: 92%; }
+.bubbleEdit { width: 100%; border: none; background: transparent; outline: none; font-size: 11px; color: white; line-height: 1.6; resize: none; font-family: inherit; min-height: 130px; overflow: hidden; -webkit-appearance: none; appearance: none; }
 .bubbleEdit::-webkit-scrollbar { display: none; }
-.bubbleEdit::-webkit-resizer { display: none; }
-.bubbleEdit::placeholder { color: rgba(255,255,255,0.6); }
-.bubbleTime { font-size: 10px; color: rgba(255,255,255,0.7); text-align: right; margin-top: 6px; }
-
-/* 이모지 */
-.emojiRow { background: #F2F2F7; padding: 6px 8px; display: flex; flex-wrap: wrap; gap: 3px; border-top: 0.5px solid #E5E5EA; }
-.emojiBtn { background: none; border: none; cursor: pointer; font-size: 16px; padding: 3px; border-radius: 4px; }
+.bubbleTime { font-size: 8px; color: rgba(255,255,255,0.7); text-align: right; margin-top: 3px; }
+.emojiRow { background: #F2F2F7; padding: 4px 5px; display: flex; flex-wrap: wrap; gap: 2px; border-top: 0.5px solid #E5E5EA; }
+.emojiBtn { background: none; border: none; cursor: pointer; font-size: 14px; padding: 2px; border-radius: 3px; }
 .emojiBtn:hover { background: #E5E5EA; }
-
-.phoneHome { width: 36px; height: 4px; background: #444; border-radius: 999px; margin: 10px auto 0; }
-.charCount { font-size: 11px; color: #9CA3AF; text-align: right; margin: 6px 0 4px; }
+.phoneHome { width: 30px; height: 3px; background: #444; border-radius: 999px; margin: 7px auto 0; }
+.charCount { font-size: 10px; color: #9CA3AF; text-align: right; margin: 4px 0; }
 
 /* 발송 버튼 */
-.actionBtns { display: flex; gap: 6px; margin-top: 8px; }
-.btnSend { flex: 2; padding: 10px; background: #1D9E75; color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit; }
+.actionBtns { display: flex; gap: 6px; margin-top: 6px; }
+.btnSend { flex: 2; padding: 9px; background: #1D9E75; color: white; border: none; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit; }
 .btnSend:disabled { background: #9CA3AF; cursor: not-allowed; }
 .btnSend:hover:not(:disabled) { background: #0F6E56; }
-.btnCopy { flex: 1; padding: 10px; background: none; color: #1D9E75; border: 0.5px solid #1D9E75; border-radius: 8px; font-size: 13px; cursor: pointer; font-family: inherit; }
+.btnCopy { flex: 1; padding: 9px; background: none; color: #1D9E75; border: 0.5px solid #1D9E75; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: inherit; }
 
 /* 설정 */
-.settingsCard { background: white; border: 0.5px solid #EDEBE4; border-radius: 10px; padding: 0 14px; }
-.settingRow { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 0.5px solid #EDEBE4; }
+.settingsCard { background: white; border: 0.5px solid #EDEBE4; border-radius: 14px; padding: 0 16px; }
+.settingRow { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 0.5px solid #EDEBE4; }
 .settingRow:last-child { border-bottom: none; }
-.settingLabel { font-size: 13px; color: #111827; }
+.settingLabel { font-size: 14px; color: #111827; }
 .settingSub { font-size: 11px; color: #9CA3AF; margin-top: 2px; }
 .toggle { width: 36px; height: 20px; border-radius: 999px; position: relative; flex-shrink: 0; }
 .toggleOn  { background: #1D9E75; }
@@ -142,7 +146,7 @@
 
 /* 모바일 */
 @media (max-width: 768px) {
-  .layout { grid-template-columns: 1fr; }
+  .grid { grid-template-columns: 1fr; }
   .historyCol { display: none; }
-  .phoneCol { position: static; }
+  .phonePopup { position: fixed; left: 50%; transform: translateX(-50%); top: 50% !important; transform: translate(-50%, -50%); width: 92vw; max-width: 380px; }
 }
