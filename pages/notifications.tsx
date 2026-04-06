@@ -418,6 +418,7 @@ export default function NotificationsPage() {
             )}
 
             {/* 스마트폰 목업 */}
+            <div style={{flex:1, display:'flex', alignItems:'center', justifyContent:'center'}}>
             <div className={styles.phoneWrapper}>
             <div className={styles.phoneFrame}>
               <div className={styles.phoneNotch}></div>
@@ -466,6 +467,7 @@ export default function NotificationsPage() {
             <div className={styles.actionBtns}>
               <button className={styles.btnSend} onClick={handleSend} disabled={sending || !selected}>{sending ? '발송 중...' : '발송하기'}</button>
               <button className={styles.btnCopy} onClick={handleCopy} disabled={!selected}>복사</button>
+            </div>
             </div>
             </div>
           </div>
