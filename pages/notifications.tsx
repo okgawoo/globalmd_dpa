@@ -471,7 +471,7 @@ export default function NotificationsPage() {
                             className={styles.bubbleEdit}
                             value={scriptText}
                             onChange={e => setScriptText(e.target.value)}
-                            rows={6}
+                            rows={10}
                           />
                           <div className={styles.bubbleTime}>오전 9:41</div>
                         </div>
