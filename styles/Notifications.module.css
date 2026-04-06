@@ -41,11 +41,11 @@
 .badgeGray  { background: #F1EFE8; color: #5F5E5A; }
 
 /* 오른쪽 패널 */
-.phoneCol { position: sticky; top: 16px; }
+.phoneCol { position: sticky; top: 16px; padding-top: 25px; }
 .phonePanelEmpty { background: #FAF9F5; border-radius: 12px; padding: 48px 14px; text-align: center; color: #9CA3AF; font-size: 12px; line-height: 1.8; border: 0.5px solid #EDEBE4; min-height: 400px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .emptyIcon { font-size: 32px; margin-bottom: 10px; }
 .phonePanel { background: #FAF9F5; border-radius: 12px; padding: 14px; border: 0.5px solid #EDEBE4; }
-.panelLabel { font-size: 10px; font-weight: 500; color: #9CA3AF; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 10px; }
+.panelLabel { font-size: 13px; font-weight: 500; color: #6B7280; letter-spacing: 0; margin-bottom: 12px; }
 
 /* 모바일 닫기 */
 .panelCloseRow { display: none; justify-content: space-between; align-items: center; margin-bottom: 10px; }
