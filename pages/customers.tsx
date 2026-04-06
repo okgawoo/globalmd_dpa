@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
+import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
 import { useConfirm } from '../lib/useConfirm'
 import styles from '../styles/Customers.module.css'
@@ -186,6 +187,7 @@ export default function Customers() {
   const [customers, setCustomers] = useState<any[]>([])
   const [contracts, setContracts] = useState<any[]>([])
   const [coverages, setCoverages] = useState<any[]>([])
+  const router = useRouter()
   const [selected, setSelected] = useState<any>(null)
   const [selectedContracts, setSelectedContracts] = useState<any[]>([])
   const [selectedCoverages, setSelectedCoverages] = useState<any[]>([])
@@ -202,6 +204,14 @@ export default function Customers() {
   const [addForm, setAddForm] = useState(emptyCustomerForm)
   const [addType, setAddType] = useState<'existing' | 'prospect'>('existing')
   const [slideOpen, setSlideOpen] = useState(false)
+
+  // URL 파라미터로 필터 자동 적용
+  useEffect(() => {
+    if (!router.isReady) return
+    const sort = router.query.sort as string
+    if (sort === '완납임박') setSortFilter('🔥 완납 임박순')
+    else if (sort === '보장공백') setSortFilter('🎂 생일 임박순')
+  }, [router.isReady, router.query.sort])
   const isMobile = useIsMobile()
   const slideContentRef = useRef<HTMLDivElement>(null)
   const { confirm, ConfirmDialog } = useConfirm()

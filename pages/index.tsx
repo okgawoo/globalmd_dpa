@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
 import styles from '../styles/Dashboard.module.css'
 
-// 납입률 실시간 계산 함수 (customers.tsx와 동일)
 function calcPaymentRate(ct: any): number {
   if (ct.payment_status === '완납') return 100
   if (ct.contract_start && ct.payment_years) {
@@ -21,11 +21,11 @@ function calcPaymentRate(ct: any): number {
 }
 
 export default function Dashboard() {
+  const router = useRouter()
   const [customers, setCustomers] = useState<any[]>([])
   const [contracts, setContracts] = useState<any[]>([])
   const [coverages, setCoverages] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [popup, setPopup] = useState<{ type: string; list: any[] } | null>(null)
   const [calOpen, setCalOpen] = useState(false)
   const [calYear, setCalYear] = useState(new Date().getFullYear())
   const [calMonth, setCalMonth] = useState(new Date().getMonth())
@@ -103,13 +103,6 @@ export default function Dashboard() {
     return `안녕하세요 ${c.name} 님! 😊\n\n최근 뇌혈관 질환 관련 뉴스가 많더라고요.\n${c.name} 님 보험을 확인해보니 뇌혈관 전체 보장이 빠져있어서 한번 말씀드리고 싶었어요.\n잠깐 시간 되실 때 통화 가능하실까요? 📞`
   }
 
-  const openPopup = (type: string) => {
-    if (type === 'customers') setPopup({ type: '전체 고객', list: customers })
-    else if (type === 'contracts') setPopup({ type: '전체 계약', list: contracts })
-    else if (type === 'nearDone') setPopup({ type: '완납 임박 고객', list: nearDoneCustomers })
-    else if (type === 'gap') setPopup({ type: '보장 공백 고객', list: gapCustomers })
-  }
-
   if (loading) return <div className={styles.loading}>불러오는 중...</div>
 
   return (
@@ -181,22 +174,22 @@ export default function Dashboard() {
       </div>
 
       <div className={styles.metrics}>
-        <div className={styles.metric} onClick={() => openPopup('customers')}>
+        <div className={styles.metric} onClick={() => router.push('/customers')}>
           <div className={styles.mlabel}>총 고객</div>
           <div className={styles.mvalue}>{customers.length}</div>
           <div className={styles.msub}>기존 고객 ↗</div>
         </div>
-        <div className={styles.metric} onClick={() => openPopup('contracts')}>
+        <div className={styles.metric} onClick={() => router.push('/customers')}>
           <div className={styles.mlabel}>보험 계약</div>
           <div className={styles.mvalue}>{contracts.length}</div>
           <div className={styles.msub}>총 계약 건수 ↗</div>
         </div>
-        <div className={styles.metric} onClick={() => openPopup('nearDone')}>
+        <div className={styles.metric} onClick={() => router.push('/customers?sort=완납임박')}>
           <div className={styles.mlabel}>완납 임박</div>
           <div className={[styles.mvalue, styles.red].join(' ')}>{nearDoneCustomers.length}</div>
           <div className={styles.msub}>납입률 90%↑ ↗</div>
         </div>
-        <div className={styles.metric} onClick={() => openPopup('gap')}>
+        <div className={styles.metric} onClick={() => router.push('/customers?sort=보장공백')}>
           <div className={styles.mlabel}>보장 공백</div>
           <div className={[styles.mvalue, styles.amber].join(' ')}>{gapCustomers.length}</div>
           <div className={styles.msub}>뇌혈관 미가입 ↗</div>
@@ -252,27 +245,6 @@ export default function Dashboard() {
         ))}
         {customers.length === 0 && <div className={styles.emptySmall}>활동 내역 없음</div>}
       </div>
-
-      {popup && (
-        <div className={styles.popupOverlay} onClick={() => setPopup(null)}>
-          <div className={styles.popup} onClick={e => e.stopPropagation()}>
-            <div className={styles.popupHeader}>
-              <div className={styles.popupTitle}>{popup.type}</div>
-              <button className={styles.popupClose} onClick={() => setPopup(null)}>✕</button>
-            </div>
-            {popup.list.length === 0 ? (
-              <div className={styles.emptySmall}>해당 고객 없음</div>
-            ) : popup.list.map((item, i) => (
-              <div key={i} className={styles.popupRow}>
-                <div className={styles.popupName}>{item.name || item.company}</div>
-                <div className={styles.popupMeta}>
-                  {item.age ? `${item.age}세 · ${item.gender}` : `납입률 ${calcPaymentRate(item)}% · ${item.payment_status}`}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   )
 }

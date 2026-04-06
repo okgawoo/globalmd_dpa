@@ -107,6 +107,9 @@ export default function InputPage() {
   const [jobCustom, setJobCustom] = useState('')
   const [dragOver, setDragOver] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [saveMode, setSaveMode] = useState<'new' | 'existing'>('new')
+  const [existingCustomers, setExistingCustomers] = useState<any[]>([])
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string>('')
 
   const [form, setForm] = useState({
     name: '', rrn: '', age: '', gender: '여', job: '직장인 (회사원)',
@@ -208,34 +211,52 @@ export default function InputPage() {
       })
       const data = await res.json()
       setParsed(data)
+      setSaveMode('new')
+      setSelectedCustomerId('')
+      // 기존 고객 목록 불러오기
+      const { data: { user } } = await supabase.auth.getUser()
+      const { data: custs } = await supabase.from('dpa_customers').select('id, name, age').eq('agent_id', user?.id).order('name')
+      setExistingCustomers(custs || [])
     } catch (e) { alert('파싱 중 오류가 발생했어요!') }
     setParsing(false)
   }
 
   async function handleParseSave() {
     if (!parsed) return
+    if (saveMode === 'existing' && !selectedCustomerId) return alert('기존 고객을 선택해주세요!')
     setSaving(true)
     try {
       const { data: { user } } = await supabase.auth.getUser()
       const agentId = user?.id
-      const birthDate = getBirthDateFromRRN(parsed.rrn || '')
-      const { data: cust } = await supabase.from('dpa_customers').insert({
-        name: parsed.name || '이름미상', age: parsed.age || null,
-        gender: parsed.gender || '미상', grade: '일반',
-        phone: parsed.phone || null, address: parsed.address || null,
-        job: parsed.job || null, workplace: parsed.workplace || null,
-        bank_name: parsed.bank_name || null, bank_account: parsed.bank_account || null,
-        driver_license: parsed.driver_license || null,
-        resident_number: parsed.rrn || null,
-        birth_date: birthDate,
-        customer_type: 'existing',
-        agent_id: agentId,
-      }).select().single()
 
-      if (cust && parsed.contracts) {
+      let customerId: string
+
+      if (saveMode === 'existing') {
+        // 기존 고객에 보험만 추가
+        customerId = selectedCustomerId
+      } else {
+        // 새 고객으로 저장
+        const birthDate = getBirthDateFromRRN(parsed.rrn || '')
+        const { data: cust } = await supabase.from('dpa_customers').insert({
+          name: parsed.name || '이름미상', age: parsed.age || null,
+          gender: parsed.gender || '미상', grade: '일반',
+          phone: parsed.phone || null, address: parsed.address || null,
+          job: parsed.job || null, workplace: parsed.workplace || null,
+          bank_name: parsed.bank_name || null, bank_account: parsed.bank_account || null,
+          driver_license: parsed.driver_license || null,
+          resident_number: parsed.rrn || null,
+          birth_date: birthDate,
+          customer_type: 'existing',
+          agent_id: agentId,
+        }).select().single()
+        if (!cust) throw new Error('고객 저장 실패')
+        customerId = cust.id
+      }
+
+      if (parsed.contracts) {
         for (const ct of parsed.contracts) {
           const { data: contract } = await supabase.from('dpa_contracts').insert({
-            customer_id: cust.id, agent_id: agentId,
+            customer_id: customerId, agent_id: agentId,
             company: ct.company || '', product_name: ct.product_name || '',
             monthly_fee: ct.monthly_fee || 0, payment_status: ct.payment_status || '유지',
             payment_rate: ct.payment_rate || 0, insurance_type: ct.insurance_type || '',
@@ -446,7 +467,30 @@ export default function InputPage() {
             <div className={styles.parsedResult}>
               <div className={styles.parsedResultTitle}>✅ 분석 완료! 내용을 확인하고 수정해주세요</div>
 
+              {/* 저장 방식 선택 */}
+              <div style={{display:'flex',gap:8,marginBottom:12}}>
+                <button onClick={() => setSaveMode('new')} style={{flex:1,padding:'8px 0',borderRadius:8,border:`2px solid ${saveMode==='new'?'#1D9E75':'#E5E7EB'}`,background:saveMode==='new'?'#E8F8F2':'#fff',color:saveMode==='new'?'#1D9E75':'#6B7280',fontWeight:saveMode==='new'?600:400,fontSize:13,cursor:'pointer'}}>
+                  ➕ 새 고객으로 저장
+                </button>
+                <button onClick={() => setSaveMode('existing')} style={{flex:1,padding:'8px 0',borderRadius:8,border:`2px solid ${saveMode==='existing'?'#1D9E75':'#E5E7EB'}`,background:saveMode==='existing'?'#E8F8F2':'#fff',color:saveMode==='existing'?'#1D9E75':'#6B7280',fontWeight:saveMode==='existing'?600:400,fontSize:13,cursor:'pointer'}}>
+                  👤 기존 고객에 추가
+                </button>
+              </div>
+
+              {/* 기존 고객 선택 드롭다운 */}
+              {saveMode === 'existing' && (
+                <div style={{marginBottom:12}}>
+                  <select value={selectedCustomerId} onChange={e => setSelectedCustomerId(e.target.value)} style={{width:'100%',fontSize:13,padding:'8px 12px',borderRadius:8,border:'1px solid #E5E7EB',background:'#fff'}}>
+                    <option value="">고객을 선택해주세요</option>
+                    {existingCustomers.map(c => (
+                      <option key={c.id} value={c.id}>{c.name} {c.age ? `(${c.age}세)` : ''}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               <div className={styles.parsedSection}>고객 정보</div>
+              {saveMode === 'new' && (
               <div className={styles.parsedEditGrid}>
                 <div className={styles.field}><label>고객명</label><input value={parsed.name || ''} onChange={e => setParsed({...parsed, name: e.target.value})} placeholder="고객명" /></div>
                 <div className={styles.field}><label>나이</label><input value={parsed.age || ''} onChange={e => setParsed({...parsed, age: e.target.value})} placeholder="나이" /></div>
@@ -455,6 +499,7 @@ export default function InputPage() {
                 <div className={styles.field}><label>연락처</label><input value={parsed.phone || ''} onChange={e => setParsed({...parsed, phone: e.target.value})} placeholder="010-0000-0000" /></div>
                 <div className={styles.field}><label>직업</label><input value={parsed.job || ''} onChange={e => setParsed({...parsed, job: e.target.value})} placeholder="공무원" /></div>
               </div>
+              )}
 
               {parsed.contracts?.map((ct: any, ctIdx: number) => (
                 <div key={ctIdx} className={styles.parsedContractBlock}>
