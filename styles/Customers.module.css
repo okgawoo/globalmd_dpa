@@ -178,6 +178,12 @@
 .cancelBtn { font-size: 13px; padding: 7px 20px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text-secondary); cursor: pointer; }
 
 .insCard { background: #FAF9F5; border: 1px solid #EDEBE4; border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
+.insCardWarn { background: #FAF9F5; border: 1.5px solid #E53E3E; border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; animation: warnPulse 1.5s ease-in-out infinite; }
+@keyframes warnPulse {
+  0% { box-shadow: 0 0 0 0 rgba(229, 62, 62, 0.5); border-color: #E53E3E; }
+  50% { box-shadow: 0 0 0 6px rgba(229, 62, 62, 0); border-color: #FC8181; }
+  100% { box-shadow: 0 0 0 0 rgba(229, 62, 62, 0); border-color: #E53E3E; }
+}
 .insCardHeader { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
 .insCardLeft { flex: 1; }
 .insCardTitle { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
