@@ -43,9 +43,9 @@
 .badgeGray  { background: #F1EFE8; color: #5F5E5A; }
 
 /* 오른쪽: 발송 이력 */
-.historyCol { background: white; border: 0.5px solid #EDEBE4; border-radius: 14px; padding: 16px; min-height: 400px; max-height: calc(100vh - 200px); overflow-y: auto; }
+.historyCol { background: white; border: 0.5px solid #EDEBE4; border-radius: 14px; padding: 16px; min-height: 400px; max-height: calc(100vh - 200px); overflow-y: auto; display: flex; flex-direction: column; }
 .historyColTitle { font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 0.5px solid #EDEBE4; }
-.historyEmpty { text-align: center; padding: 40px 16px; color: #9CA3AF; font-size: 12px; line-height: 1.8; white-space: pre-line; }
+.historyEmpty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #9CA3AF; font-size: 12px; line-height: 1.8; white-space: pre-line; padding: 20px; }
 .historyItem { padding: 10px 0; border-bottom: 0.5px solid #EDEBE4; }
 .historyItem:last-child { border-bottom: none; }
 .historyItemRow { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
@@ -62,17 +62,17 @@
 .historyScript { font-size: 12px; color: #6B7280; line-height: 1.6; white-space: pre-wrap; background: #F9F9F7; border-radius: 6px; padding: 8px 10px; }
 
 /* 발송 이력 헤더 */
-.historyColHeader { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 0.5px solid #EDEBE4; }
+.historyColHeader { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 0.5px solid #EDEBE4; flex-shrink: 0; }
 .historyColTitle { font-size: 13px; font-weight: 500; color: #374151; }
 .smsBtn { font-size: 12px; font-weight: 500; padding: 5px 12px; background: #1D9E75; color: white; border: none; border-radius: 8px; cursor: pointer; white-space: nowrap; font-family: inherit; }
 .smsBtn:hover { background: #0F6E56; }
 
-/* 폰 블록 팝업: 하단 슬라이드 업 - SMS 버튼 아래 우정렬 */
+/* 폰 블록 팝업: SMS 버튼 우측 끝에 맞춘 우정렬 슬라이드업 */
 .phoneOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 300; }
 .phoneSlideUp {
   position: fixed;
   bottom: 0;
-  right: max(20px, calc(50% - 500px));
+  right: calc(50% - 490px);
   width: 300px;
   max-height: 95vh;
   background: #FAF9F5;
