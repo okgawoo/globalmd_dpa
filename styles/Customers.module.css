@@ -274,8 +274,9 @@
 
 /* 소팅필터 + 필터 행 */
 .tabRow2 { display: flex; align-items: center; gap: 8px; width: 100%; margin-bottom: 16px; }
+.ageFilter { font-size: 12px; padding: 5px 8px; border: 1px solid #E5E7EB; border-radius: 8px; background: #fff; color: #374151; cursor: pointer; width: 130px; }
 .sortFilter { font-size: 12px; padding: 5px 8px; border: 1px solid #E5E7EB; border-radius: 8px; background: #fff; color: #374151; cursor: pointer; width: 130px; }
-.searchBoxDesktop { display: flex; align-items: center; gap: 6px; max-width: 220px; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 5px 10px; }
+.searchBoxDesktop { display: flex; align-items: center; gap: 6px; width: 130px; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 5px 10px; }
 .searchBoxMobile { display: none; }
 .searchToggleBtn { display: none; background: none; border: none; cursor: pointer; color: #6B7280; padding: 8px; border-radius: 8px; }
 
