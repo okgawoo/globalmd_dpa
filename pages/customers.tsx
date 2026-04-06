@@ -160,6 +160,7 @@ export default function Customers() {
   const [addType, setAddType] = useState<'existing' | 'prospect'>('existing')
   const [slideOpen, setSlideOpen] = useState(false)
   const isMobile = useIsMobile()
+  const slideContentRef = useRef<HTMLDivElement>(null)
   const { confirm, ConfirmDialog } = useConfirm()
   const [addInsMode, setAddInsMode] = useState(false)
   const [insForm, setInsForm] = useState({ company: '삼성생명', product_name: '', insurance_type: '건강', monthly_fee: '', payment_status: '유지', payment_years: '', expiry_age: '', contract_start: '' })
@@ -466,7 +467,7 @@ export default function Customers() {
                   {c.name}
                   <span className={[styles.badge, c.grade === 'VIP' ? styles.badgeAmber : styles.badgeBlue].join(' ')}>{c.grade}</span>
                 </div>
-                <div className={styles.custMeta}>{c.age}세 · {c.gender} · {c.job} · {cCount}건<span className={styles.custFee}> · {cMonthly.toLocaleString()}원</span></div>
+                <div className={styles.custMeta}>{c.age}세 · {c.gender} · {c.job} · {cCount}건<span className={styles.custFee}>{cMonthly.toLocaleString()}원</span></div>
                 {badges.length > 0 && (
                   <div className={styles.badgeRow}>
                     {badges.map((b, i) => <span key={i} className={b.cls}>{b.label}</span>)}
@@ -760,11 +761,14 @@ export default function Customers() {
             const startY = e.touches[0].clientY
             const startX = e.touches[0].clientX
             const panel = e.currentTarget as HTMLElement
+            const content = slideContentRef.current
             let dragging = false
             const onMove = (ev: TouchEvent) => {
               const dy = ev.touches[0].clientY - startY
               const dx = Math.abs(ev.touches[0].clientX - startX)
-              if (dy > 10 && dy > dx) {
+              // 스크롤이 최상단일 때만 패널 드래그 허용
+              const atTop = !content || content.scrollTop <= 0
+              if (atTop && dy > 10 && dy > dx) {
                 dragging = true
                 ev.preventDefault()
                 panel.style.transform = `translateY(${dy}px)`
@@ -784,7 +788,7 @@ export default function Customers() {
           }}
         >
           <div className={styles.slideHandle} />
-          <div className={styles.slideContent}>
+          <div className={styles.slideContent} ref={slideContentRef}>
             {addMode && !selected && (
               <div className={styles.editBox} style={{padding:'20px 0'}}>
                 <div className={styles.slideHeader} style={{marginBottom:12}}>
