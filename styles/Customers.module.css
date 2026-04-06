@@ -180,14 +180,14 @@
 .insCard { background: #FAF9F5; border: 1px solid #EDEBE4; border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
 .insCardWarn { background: #FAF9F5; border: 1.5px solid #E53E3E; border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; animation: warnPulse 1.5s ease-in-out infinite; }
 @keyframes warnPulse {
-  0% { box-shadow: 0 0 0 0 rgba(229, 62, 62, 0.5); border-color: #E53E3E; }
-  50% { box-shadow: 0 0 0 6px rgba(229, 62, 62, 0); border-color: #FC8181; }
-  100% { box-shadow: 0 0 0 0 rgba(229, 62, 62, 0); border-color: #E53E3E; }
+  0%   { border-color: #E53E3E; box-shadow: 0 0 0 0 rgba(229, 62, 62, 0.6); }
+  50%  { border-color: rgba(229, 62, 62, 0.2); box-shadow: 0 0 0 6px rgba(229, 62, 62, 0); }
+  100% { border-color: #E53E3E; box-shadow: 0 0 0 0 rgba(229, 62, 62, 0); }
 }
 .insCardHeader { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
 .insCardLeft { flex: 1; }
 .insCardTitle { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
-.insCardMeta { font-size: 11px; color: var(--text-muted); }
+.insCardMeta { font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .insCardRight { display: flex; align-items: center; gap: 4px; flex-shrink: 0; margin-left: 8px; }
 .insTypeBadge { font-size: 10px; background: #E1F5EE; color: #085041; padding: 2px 6px; border-radius: 999px; }
 
