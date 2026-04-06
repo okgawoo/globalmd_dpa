@@ -72,7 +72,7 @@
 .phoneSlideUp {
   position: fixed;
   bottom: 0; left: 50%; transform: translateX(-50%);
-  width: 420px;
+  width: 360px;
   max-height: 95vh;
   background: #FAF9F5;
   border-radius: 20px 20px 0 0;
@@ -114,9 +114,9 @@
 .toneBtnActive { background: #1D9E75; color: white; border-color: #1D9E75; }
 
 /* 스마트폰 - 실제 비율 (9:19.5) */
-.phoneFrame { background: #1C1C1E; border-radius: 40px; padding: 14px 7px 16px; }
-.phoneNotch { width: 54px; height: 7px; background: #3A3A3C; border-radius: 999px; margin: 0 auto 10px; }
-.phoneScreen { background: #F2F2F7; border-radius: 32px; overflow: hidden; }
+.phoneFrame { background: #1C1C1E; border-radius: 36px; padding: 10px 10px 14px; }
+.phoneNotch { width: 48px; height: 5px; background: #3A3A3C; border-radius: 999px; margin: 0 auto 8px; }
+.phoneScreen { background: #F2F2F7; border-radius: 26px; overflow: hidden; }
 .statusBar { background: #F2F2F7; padding: 8px 16px 3px; display: flex; justify-content: space-between; }
 .statusTime  { font-size: 12px; font-weight: 600; color: #1C1C1E; }
 .statusIcons { font-size: 11px; color: #1C1C1E; }
