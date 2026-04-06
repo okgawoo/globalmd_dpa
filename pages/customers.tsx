@@ -493,7 +493,7 @@ export default function Customers() {
 
       {/* 데스크탑 상세 패널 */}
       {!isMobile && (
-        <div className={styles.detailPanel}>
+        <div className={styles.detailPanel} onWheel={e => { e.currentTarget.scrollTop += e.deltaY; }}>
           {addMode ? (
             <div className={styles.editBox}>
               <div className={styles.editSectionTitle}>{addType === 'existing' ? '기존 고객' : '잠재 고객'} 추가</div>
