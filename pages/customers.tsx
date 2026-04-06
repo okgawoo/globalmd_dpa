@@ -444,6 +444,19 @@ export default function Customers() {
         const q = searchQuery.toLowerCase()
         return c.name?.toLowerCase().includes(q) || c.phone?.includes(q)
       })
+      .filter(c => {
+        // 완납임박 소팅 시 완납임박 고객만 표시
+        if (sortFilter === '🔥 완납 임박순') {
+          const cts = contracts.filter((ct: any) => ct.customer_id === c.id)
+          return cts.some((ct: any) => calcPaymentRate(ct) >= 90 && ct.payment_status !== '완납')
+        }
+        // 생일임박 소팅 시 생일임박 고객만 표시
+        if (sortFilter === '🎂 생일 임박순') {
+          const days = getBirthdayDays(c.birth_date)
+          return days !== null
+        }
+        return true
+      })
   )
 
   const getCoveragesByContract = (ctId: string) => {
