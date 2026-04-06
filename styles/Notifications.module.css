@@ -1,0 +1,139 @@
+.wrap { padding: 0 0 2rem; }
+.loading { text-align: center; padding: 40px; color: #9CA3AF; }
+.pageTitle { font-size: 20px; font-weight: 500; color: #111827; margin-bottom: 16px; }
+
+/* 탭 */
+.tabRow { display: flex; border-bottom: 0.5px solid #EDEBE4; margin-bottom: 16px; overflow-x: auto; }
+.tab { font-size: 12px; padding: 7px 11px; color: #6B7280; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; flex-shrink: 0; }
+.tabActive { color: #1D9E75; border-bottom: 2px solid #1D9E75; font-weight: 500; }
+.tabBadge { background: #E24B4A; color: white; font-size: 9px; font-weight: 500; border-radius: 999px; padding: 1px 5px; margin-left: 3px; }
+
+/* 레이아웃 */
+.layout { display: grid; grid-template-columns: 1fr 268px; gap: 16px; align-items: start; }
+.listCol {}
+.sectionLabel { font-size: 10px; font-weight: 500; color: #9CA3AF; letter-spacing: 0.06em; margin-bottom: 7px; text-transform: uppercase; }
+.divider { height: 0.5px; background: #EDEBE4; margin: 12px 0; }
+.empty { text-align: center; padding: 40px; color: #9CA3AF; font-size: 13px; }
+
+/* 알림 카드 */
+.notifCard { background: white; border: 0.5px solid #EDEBE4; border-radius: 10px; padding: 11px 13px; margin-bottom: 7px; cursor: pointer; transition: border-color 0.15s; }
+.notifCard:hover { border-color: #1D9E75; }
+.selected { border: 1.5px solid #1D9E75; background: #F0FBF7; }
+.unread { border-left: 3px solid #1D9E75; }
+.cardRow { display: flex; align-items: flex-start; gap: 9px; }
+.iconWrap { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 13px; }
+.iconAmber { background: #FAEEDA; }
+.iconTeal  { background: #E1F5EE; }
+.iconRed   { background: #FCEBEB; }
+.iconBlue  { background: #E6F1FB; }
+.iconGreen { background: #EAF3DE; }
+.cardBody { flex: 1; min-width: 0; }
+.cardTitle { font-size: 12px; font-weight: 500; color: #111827; margin-bottom: 2px; }
+.cardDesc  { font-size: 11px; color: #6B7280; line-height: 1.4; }
+.cardMeta  { margin-top: 5px; }
+.badge { font-size: 9px; padding: 2px 6px; border-radius: 999px; font-weight: 500; }
+.badgeAmber { background: #FAEEDA; color: #854F0B; }
+.badgeTeal  { background: #E1F5EE; color: #0F6E56; }
+.badgeRed   { background: #FCEBEB; color: #A32D2D; }
+.badgeBlue  { background: #E6F1FB; color: #185FA5; }
+.badgeGreen { background: #EAF3DE; color: #3B6D11; }
+.badgeGray  { background: #F1EFE8; color: #5F5E5A; }
+
+/* 오른쪽 패널 */
+.phoneCol { position: sticky; top: 16px; }
+.phonePanelEmpty { background: #FAF9F5; border-radius: 12px; padding: 48px 16px; text-align: center; color: #9CA3AF; font-size: 12px; line-height: 1.8; border: 0.5px solid #EDEBE4; }
+.emptyIcon { font-size: 32px; margin-bottom: 10px; }
+.phonePanel { background: #FAF9F5; border-radius: 12px; padding: 14px; border: 0.5px solid #EDEBE4; }
+
+/* 모바일 닫기 */
+.panelCloseRow { display: none; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.panelHandle { width: 36px; height: 4px; background: #D1D5DB; border-radius: 999px; margin: 0 auto; }
+.panelClose { background: none; border: none; color: #9CA3AF; font-size: 16px; cursor: pointer; padding: 0; }
+
+/* 수신자 */
+.recipientRow { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.avatar { width: 28px; height: 28px; border-radius: 50%; background: #E1F5EE; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 500; color: #0F6E56; flex-shrink: 0; }
+.recipientName  { font-size: 12px; font-weight: 500; color: #111827; }
+.recipientPhone { font-size: 10px; color: #9CA3AF; }
+
+/* AI 배지 */
+.aiRow { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+.aiBadge { display: flex; align-items: center; gap: 4px; background: #EEEDFE; color: #3C3489; font-size: 10px; font-weight: 500; border-radius: 999px; padding: 3px 8px; }
+.aiDot { width: 5px; height: 5px; border-radius: 50%; background: #7F77DD; }
+.aiDotPulse { animation: pulse 0.8s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.aiLoading { font-size: 10px; color: #7F77DD; }
+
+/* 톤 버튼 */
+.toneRow { display: flex; gap: 4px; margin-bottom: 10px; }
+.toneBtn { font-size: 10px; padding: 3px 8px; border-radius: 999px; cursor: pointer; border: 0.5px solid #D1D5DB; background: white; color: #6B7280; white-space: nowrap; }
+.toneBtn:hover { border-color: #1D9E75; color: #1D9E75; }
+.toneBtnActive { background: #1D9E75; color: white; border-color: #1D9E75; }
+
+/* 스마트폰 */
+.phoneFrame { background: #1C1C1E; border-radius: 30px; padding: 9px 5px 11px; }
+.phoneNotch { width: 48px; height: 5px; background: #3A3A3C; border-radius: 999px; margin: 0 auto 7px; }
+.phoneScreen { background: #F2F2F7; border-radius: 22px; overflow: hidden; }
+.statusBar { background: #F2F2F7; padding: 5px 12px 2px; display: flex; justify-content: space-between; }
+.statusTime  { font-size: 9px; font-weight: 600; color: #1C1C1E; }
+.statusIcons { font-size: 8px; color: #1C1C1E; }
+.smsHeader { background: #F2F2F7; padding: 3px 12px 6px; text-align: center; border-bottom: 0.5px solid #E5E5EA; }
+.smsName { font-size: 11px; font-weight: 500; color: #1C1C1E; }
+.smsType { font-size: 9px; color: #8E8E93; }
+.smsBody { background: white; padding: 10px 8px 6px; }
+.bubbleWrap { display: flex; justify-content: flex-end; }
+.bubble { background: #34C759; border-radius: 14px 14px 4px 14px; padding: 7px 9px; max-width: 90%; width: 90%; }
+.bubbleEdit { width: 100%; border: none; background: transparent; outline: none; font-size: 9.5px; color: white; line-height: 1.55; resize: none; font-family: inherit; min-height: 100px; }
+.bubbleEdit::placeholder { color: rgba(255,255,255,0.6); }
+.bubbleTime { font-size: 7px; color: rgba(255,255,255,0.7); text-align: right; margin-top: 3px; }
+
+/* 이모지 */
+.emojiRow { background: #F2F2F7; padding: 5px 6px; display: flex; flex-wrap: wrap; gap: 3px; border-top: 0.5px solid #E5E5EA; }
+.emojiBtn { background: none; border: none; cursor: pointer; font-size: 14px; padding: 2px; border-radius: 4px; }
+.emojiBtn:hover { background: #E5E5EA; }
+
+.phoneHome { width: 32px; height: 3px; background: #444; border-radius: 999px; margin: 7px auto 0; }
+.charCount { font-size: 10px; color: #9CA3AF; text-align: right; margin: 4px 0; }
+
+/* 발송 버튼 */
+.actionBtns { display: flex; gap: 6px; margin-top: 8px; }
+.btnSend { flex: 2; padding: 9px; background: #1D9E75; color: white; border: none; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; }
+.btnSend:disabled { background: #9CA3AF; cursor: not-allowed; }
+.btnCopy { flex: 1; padding: 9px; background: none; color: #1D9E75; border: 0.5px solid #1D9E75; border-radius: 8px; font-size: 12px; cursor: pointer; }
+
+/* 발송 이력 */
+.historyList { display: flex; flex-direction: column; gap: 8px; }
+.historyCard { background: white; border: 0.5px solid #EDEBE4; border-radius: 10px; padding: 12px 14px; }
+.historyRow { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.historyName { font-size: 13px; font-weight: 500; color: #111827; flex: 1; }
+.historyTime { font-size: 11px; color: #9CA3AF; }
+.historyScript { font-size: 12px; color: #6B7280; line-height: 1.6; white-space: pre-wrap; background: #F9F9F7; border-radius: 6px; padding: 8px 10px; }
+
+/* 설정 */
+.settingsCard { background: white; border: 0.5px solid #EDEBE4; border-radius: 10px; padding: 0 14px; }
+.settingRow { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 0.5px solid #EDEBE4; }
+.settingRow:last-child { border-bottom: none; }
+.settingLabel { font-size: 13px; color: #111827; }
+.settingSub { font-size: 11px; color: #9CA3AF; margin-top: 2px; }
+.toggle { width: 36px; height: 20px; border-radius: 999px; position: relative; flex-shrink: 0; }
+.toggleOn  { background: #1D9E75; }
+.toggleOff { background: #D1D5DB; }
+.toggleKnob { width: 16px; height: 16px; border-radius: 50%; background: white; position: absolute; top: 2px; }
+.toggleOn  .toggleKnob { left: 18px; }
+.toggleOff .toggleKnob { left: 2px; }
+
+/* 모바일 */
+@media (max-width: 768px) {
+  .layout { grid-template-columns: 1fr; }
+  .phoneCol {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    transform: translateY(100%); transition: transform 0.3s ease;
+    z-index: 300; max-height: 90vh; overflow-y: auto;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+  }
+  .phoneColOpen { transform: translateY(0); }
+  .panelCloseRow { display: flex; }
+  .phonePanelEmpty { display: none; }
+  .phonePanel { border-radius: 20px 20px 0 0; padding-bottom: 30px; }
+}
