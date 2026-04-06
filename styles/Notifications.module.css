@@ -65,54 +65,50 @@
 .historyTime { font-size: 11px; color: #9CA3AF; }
 .historyScript { font-size: 12px; color: #6B7280; line-height: 1.6; white-space: pre-wrap; background: #F9F9F7; border-radius: 6px; padding: 8px 10px; }
 
-/* 폰 블록 팝업 - historyCol 기준 우측, 헤더 줄 아래부터 슬라이드업 */
+/* 폰 블록 팝업 - fixed + 밑에서 올라오는 슬라이드업 */
 .phoneOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 300; }
 .phoneSlideUp {
-  position: absolute;
-  top: 58px;
-  right: 0;
+  position: fixed;
   width: 300px;
-  height: calc(100% - 58px);
   background: #FAF9F5;
   border-radius: 14px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.18);
   z-index: 400;
   overflow-y: auto;
-  transform-origin: top right;
-  animation: popDown 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation: slideUp 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
-@keyframes popDown {
-  from { opacity: 0; transform: scaleY(0.7) translateY(-10px); }
-  to   { opacity: 1; transform: scaleY(1) translateY(0); }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-/* 팝업 내부 - 공간 압축 */
-.phonePanel { padding: 10px 12px 16px; }
+/* 팝업 내부 */
+.phonePanel { padding: 12px 14px 16px; display: flex; flex-direction: column; height: 100%; }
 
 /* 팝업 헤더 */
-.popupHeader { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 0.5px solid #EDEBE4; }
-.popupTitle { font-size: 13px; font-weight: 500; color: #374151; }
-.popupClose { background: none; border: none; color: #9CA3AF; font-size: 16px; cursor: pointer; padding: 0; line-height: 1; }
+.popupHeader { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 0.5px solid #EDEBE4; }
+.popupTitle { font-size: 14px; font-weight: 500; color: #374151; }
+.popupClose { background: none; border: none; color: #9CA3AF; font-size: 18px; cursor: pointer; padding: 0; line-height: 1; }
 .popupClose:hover { color: #374151; }
 
 /* 수신자 */
-.recipientRow { display: flex; align-items: center; gap: 7px; margin-bottom: 8px; }
-.avatar { width: 28px; height: 28px; border-radius: 50%; background: #E1F5EE; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; color: #0F6E56; flex-shrink: 0; }
-.recipientName  { font-size: 13px; font-weight: 500; color: #111827; }
-.recipientPhone { font-size: 11px; color: #9CA3AF; }
+.recipientRow { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.avatar { width: 32px; height: 32px; border-radius: 50%; background: #E1F5EE; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; color: #0F6E56; flex-shrink: 0; }
+.recipientName  { font-size: 15px; font-weight: 500; color: #111827; }
+.recipientPhone { font-size: 13px; color: #9CA3AF; }
 
 /* AI 배지 */
-.aiRow { display: flex; align-items: center; gap: 5px; margin-bottom: 3px; }
-.aiBadge { display: flex; align-items: center; gap: 4px; background: #EEEDFE; color: #3C3489; font-size: 10px; font-weight: 500; border-radius: 999px; padding: 2px 8px; }
-.aiDot { width: 4px; height: 4px; border-radius: 50%; background: #7F77DD; }
+.aiRow { display: flex; align-items: center; gap: 5px; margin-bottom: 4px; }
+.aiBadge { display: flex; align-items: center; gap: 4px; background: #EEEDFE; color: #3C3489; font-size: 12px; font-weight: 500; border-radius: 999px; padding: 3px 10px; }
+.aiDot { width: 5px; height: 5px; border-radius: 50%; background: #7F77DD; }
 .aiDotPulse { animation: pulse 0.8s infinite; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-.aiLoading { font-size: 10px; color: #7F77DD; }
-.aiDesc { font-size: 10px; color: #9CA3AF; margin-bottom: 7px; line-height: 1.4; }
+.aiLoading { font-size: 11px; color: #7F77DD; }
+.aiDesc { font-size: 12px; color: #9CA3AF; margin-bottom: 8px; line-height: 1.4; }
 
 /* 톤 버튼 */
 .toneRow { display: flex; gap: 4px; margin-bottom: 8px; }
-.toneBtn { font-size: 11px; padding: 4px 0; border-radius: 999px; cursor: pointer; border: 0.5px solid #D1D5DB; background: white; color: #6B7280; flex: 1; text-align: center; font-family: inherit; }
+.toneBtn { font-size: 12px; padding: 5px 0; border-radius: 999px; cursor: pointer; border: 0.5px solid #D1D5DB; background: white; color: #6B7280; flex: 1; text-align: center; font-family: inherit; }
 .toneBtn:hover { border-color: #1D9E75; color: #1D9E75; }
 .toneBtnActive { background: #1D9E75; color: white; border-color: #1D9E75; }
 
@@ -129,7 +125,7 @@
 .smsBody { background: white; padding: 12px 10px 8px; }
 .bubbleWrap { display: flex; justify-content: flex-end; }
 .bubble { background: #34C759; border-radius: 14px 14px 4px 14px; padding: 9px 11px; max-width: 92%; width: 92%; }
-.bubbleEdit { width: 100%; border: none; background: transparent; outline: none; font-size: 13px; color: white; line-height: 1.65; resize: none; font-family: inherit; min-height: 130px; overflow: hidden; -webkit-appearance: none; appearance: none; }
+.bubbleEdit { width: 100%; border: none; background: transparent; outline: none; font-size: 13px; color: white; line-height: 1.65; resize: none; font-family: inherit; min-height: 200px; overflow: hidden; -webkit-appearance: none; appearance: none; }
 .bubbleEdit::-webkit-scrollbar { display: none; }
 .bubbleEdit::placeholder { color: rgba(255,255,255,0.6); }
 .bubbleTime { font-size: 9px; color: rgba(255,255,255,0.7); text-align: right; margin-top: 4px; }
