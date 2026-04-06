@@ -179,7 +179,7 @@ export default function Customers() {
   useEffect(() => {
     if (slideOpen) {
       window.history.pushState({ slideOpen: true }, '')
-      const onPop = () => { closeSlide() }
+      const onPop = () => closeSlide()
       window.addEventListener('popstate', onPop)
       return () => window.removeEventListener('popstate', onPop)
     }
@@ -467,7 +467,7 @@ export default function Customers() {
                   {c.name}
                   <span className={[styles.badge, c.grade === 'VIP' ? styles.badgeAmber : styles.badgeBlue].join(' ')}>{c.grade}</span>
                 </div>
-                <div className={styles.custMeta}>{c.age}세 · {c.gender} · {c.job} · {cCount}건<span className={styles.custFee}>{cMonthly.toLocaleString()}원</span></div>
+                <div className={styles.custMeta}>{c.age}세 · {c.gender} · {c.job} · {cCount}건<span className={styles.custFee}><span className={styles.feeDot}> · </span>{cMonthly.toLocaleString()}원</span></div>
                 {badges.length > 0 && (
                   <div className={styles.badgeRow}>
                     {badges.map((b, i) => <span key={i} className={b.cls}>{b.label}</span>)}
@@ -763,23 +763,28 @@ export default function Customers() {
             const panel = e.currentTarget as HTMLElement
             const content = slideContentRef.current
             let dragging = false
+            let blocked = false
             const onMove = (ev: TouchEvent) => {
+              if (blocked) return
               const dy = ev.touches[0].clientY - startY
               const dx = Math.abs(ev.touches[0].clientX - startX)
-              // 스크롤이 최상단일 때만 패널 드래그 허용
               const atTop = !content || content.scrollTop <= 0
-              if (atTop && dy > 10 && dy > dx) {
+              // 가로 스와이프면 차단
+              if (dx > dy && dx > 10) { blocked = true; return }
+              // 위로 스크롤 중이거나 스크롤 여유 있으면 패널 드래그 안 함
+              if (!atTop && dy > 0) { blocked = true; return }
+              if (dy > 8 && dy > dx) {
                 dragging = true
                 ev.preventDefault()
-                panel.style.transform = `translateY(${dy}px)`
+                panel.style.transform = `translateY(${Math.max(0, dy)}px)`
                 panel.style.transition = 'none'
               }
             }
             const onEnd = (ev: TouchEvent) => {
               const dy = ev.changedTouches[0].clientY - startY
-              panel.style.transition = ''
+              panel.style.transition = 'transform 0.3s ease'
               panel.style.transform = ''
-              if (dragging && dy > 80) closeSlide()
+              if (dragging && dy > 100) closeSlide()
               document.removeEventListener('touchmove', onMove)
               document.removeEventListener('touchend', onEnd)
             }
