@@ -392,7 +392,7 @@ export default function NotificationsPage() {
 
           {/* 오른쪽: 스마트폰 목업 고정 */}
           <div className={styles.phoneCol}>
-            {/* AI 추천 배지 */}
+            {/* AI 추천 배지 - phoneCol 직계 자식 (전체 너비) */}
             {selected && (
               <>
                 <div className={styles.recipientRow}>
@@ -417,58 +417,58 @@ export default function NotificationsPage() {
               </>
             )}
 
-            {/* 스마트폰 목업 */}
+            {/* 스마트폰 목업 - 중앙 정렬 컨테이너 */}
             <div style={{flex:1, display:'flex', alignItems:'center', justifyContent:'center'}}>
-            <div className={styles.phoneWrapper}>
-            <div className={styles.phoneFrame}>
-              <div className={styles.phoneNotch}></div>
-              <div className={styles.phoneScreen}>
-                <div className={styles.statusBar}>
-                  <span className={styles.statusTime}>9:41</span>
-                  <span className={styles.statusIcons}>●●● 🔋</span>
-                </div>
-                <div className={styles.smsHeader}>
-                  <div className={styles.smsName} style={{color: selected ? '#1C1C1E' : '#C7C7CC'}}>
-                    {selected ? selected.customer.name : '-'}
-                  </div>
-                  <div className={styles.smsType}>문자 메시지</div>
-                </div>
-                <div className={styles.smsBody}>
-                  {selected ? (
-                    <div className={styles.bubbleWrap}>
-                      <div className={styles.bubble}>
-                        <textarea
-                          ref={textareaRef}
-                          className={styles.bubbleEdit}
-                          value={scriptText}
-                          onChange={e => setScriptText(e.target.value)}
-                          rows={8}
-                        />
-                        <div className={styles.bubbleTime}>오전 9:41</div>
+              <div className={styles.phoneWrapper}>
+                <div className={styles.phoneFrame}>
+                  <div className={styles.phoneNotch}></div>
+                  <div className={styles.phoneScreen}>
+                    <div className={styles.statusBar}>
+                      <span className={styles.statusTime}>9:41</span>
+                      <span className={styles.statusIcons}>●●● 🔋</span>
+                    </div>
+                    <div className={styles.smsHeader}>
+                      <div className={styles.smsName} style={{color: selected ? '#1C1C1E' : '#C7C7CC'}}>
+                        {selected ? selected.customer.name : '-'}
                       </div>
+                      <div className={styles.smsType}>문자 메시지</div>
                     </div>
-                  ) : (
-                    <div className={styles.phoneEmpty}>
-                      <div style={{fontSize:24, marginBottom:6}}>💬</div>
-                      <div>왼쪽에서 알림을<br/>선택해 주세요</div>
+                    <div className={styles.smsBody}>
+                      {selected ? (
+                        <div className={styles.bubbleWrap}>
+                          <div className={styles.bubble}>
+                            <textarea
+                              ref={textareaRef}
+                              className={styles.bubbleEdit}
+                              value={scriptText}
+                              onChange={e => setScriptText(e.target.value)}
+                              rows={8}
+                            />
+                            <div className={styles.bubbleTime}>오전 9:41</div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className={styles.phoneEmpty}>
+                          <div style={{fontSize:24, marginBottom:6}}>💬</div>
+                          <div>왼쪽에서 알림을<br/>선택해 주세요</div>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-                <div className={styles.emojiRow}>
-                  {EMOJIS.map(e => (
-                    <button key={e} className={styles.emojiBtn} onClick={() => insertEmoji(e)} disabled={!selected}>{e}</button>
-                  ))}
+                    <div className={styles.emojiRow}>
+                      {EMOJIS.map(e => (
+                        <button key={e} className={styles.emojiBtn} onClick={() => insertEmoji(e)} disabled={!selected}>{e}</button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className={styles.phoneHome}></div>
                 </div>
               </div>
-              <div className={styles.phoneHome}></div>
             </div>
 
             {/* 발송 버튼 */}
             <div className={styles.actionBtns}>
               <button className={styles.btnSend} onClick={handleSend} disabled={sending || !selected}>{sending ? '발송 중...' : '발송하기'}</button>
               <button className={styles.btnCopy} onClick={handleCopy} disabled={!selected}>복사</button>
-            </div>
-            </div>
             </div>
           </div>
         </div>
