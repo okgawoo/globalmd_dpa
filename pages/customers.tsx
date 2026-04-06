@@ -174,6 +174,16 @@ export default function Customers() {
 
   useEffect(() => { fetchAll() }, [])
 
+  // 뒤로가기 버튼으로 슬라이드 닫기
+  useEffect(() => {
+    if (slideOpen) {
+      window.history.pushState({ slideOpen: true }, '')
+      const onPop = () => { closeSlide() }
+      window.addEventListener('popstate', onPop)
+      return () => window.removeEventListener('popstate', onPop)
+    }
+  }, [slideOpen])
+
   async function fetchAll() {
     setLoading(true)
     const { data: custs, error: e1 } = await supabase.from('dpa_customers').select('*').order('created_at', { ascending: false })
@@ -743,27 +753,37 @@ export default function Customers() {
       {ConfirmDialog}
       {/* 슬라이드업 팝업 (모바일 전용) */}
       <div className={[styles.slideOverlay, slideOpen ? styles.overlayVisible : ''].join(' ')} onClick={closeSlide}>
-        <div className={[styles.slidePanel, slideOpen ? styles.slideIn : styles.slideOut].join(' ')} onClick={e => e.stopPropagation()}>
-          <div className={styles.slideHandle}
-            onTouchStart={e => {
-              const startY = e.touches[0].clientY
-              const panel = e.currentTarget.parentElement!
-              const onMove = (ev: TouchEvent) => {
+        <div
+          className={[styles.slidePanel, slideOpen ? styles.slideIn : styles.slideOut].join(' ')}
+          onClick={e => e.stopPropagation()}
+          onTouchStart={e => {
+            const startY = e.touches[0].clientY
+            const startX = e.touches[0].clientX
+            const panel = e.currentTarget as HTMLElement
+            let dragging = false
+            const onMove = (ev: TouchEvent) => {
+              const dy = ev.touches[0].clientY - startY
+              const dx = Math.abs(ev.touches[0].clientX - startX)
+              if (dy > 10 && dy > dx) {
+                dragging = true
                 ev.preventDefault()
-                const dy = ev.touches[0].clientY - startY
-                if (dy > 0) panel.style.transform = `translateY(${dy}px)`
+                panel.style.transform = `translateY(${dy}px)`
+                panel.style.transition = 'none'
               }
-              const onEnd = (ev: TouchEvent) => {
-                const dy = ev.changedTouches[0].clientY - startY
-                panel.style.transform = ''
-                if (dy > 80) closeSlide()
-                document.removeEventListener('touchmove', onMove)
-                document.removeEventListener('touchend', onEnd)
-              }
-              document.addEventListener('touchmove', onMove, { passive: false })
-              document.addEventListener('touchend', onEnd)
-            }}
-          />
+            }
+            const onEnd = (ev: TouchEvent) => {
+              const dy = ev.changedTouches[0].clientY - startY
+              panel.style.transition = ''
+              panel.style.transform = ''
+              if (dragging && dy > 80) closeSlide()
+              document.removeEventListener('touchmove', onMove)
+              document.removeEventListener('touchend', onEnd)
+            }
+            document.addEventListener('touchmove', onMove, { passive: false })
+            document.addEventListener('touchend', onEnd)
+          }}
+        >
+          <div className={styles.slideHandle} />
           <div className={styles.slideContent}>
             {addMode && !selected && (
               <div className={styles.editBox} style={{padding:'20px 0'}}>
