@@ -387,9 +387,35 @@ export default function NotificationsPage() {
           {/* 오른쪽: 문자 패널 (데스크탑) / 슬라이드 패널 (모바일) */}
           <div className={[styles.phoneCol, panelOpen ? styles.phoneColOpen : ''].join(' ')}>
             {!selected ? (
-              <div className={styles.phonePanelEmpty}>
-                <div className={styles.emptyIcon}>💬</div>
-                <div>알림을 선택하면<br/>문자를 보낼 수 있어요</div>
+              <div className={styles.phonePanel}>
+                <div className={styles.panelLabel}>문자 미리보기</div>
+                <div className={styles.phoneFrame}>
+                  <div className={styles.phoneNotch}></div>
+                  <div className={styles.phoneScreen}>
+                    <div className={styles.statusBar}>
+                      <span className={styles.statusTime}>9:41</span>
+                      <span className={styles.statusIcons}>●●● 🔋</span>
+                    </div>
+                    <div className={styles.smsHeader}>
+                      <div className={styles.smsName} style={{color:'#C7C7CC'}}>-</div>
+                      <div className={styles.smsType}>문자 메시지</div>
+                    </div>
+                    <div className={styles.smsBody} style={{minHeight:200, display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:8}}>
+                      <div style={{fontSize:28}}>💬</div>
+                      <div style={{fontSize:11, color:'#C7C7CC', textAlign:'center', lineHeight:1.6}}>왼쪽에서 알림을<br/>선택해 주세요</div>
+                    </div>
+                    <div className={styles.emojiRow} style={{opacity:0.3}}>
+                      {['😊','😄','🎂','🎉','🎊','💚','📞','🙏','👍','✅','🔥','💪','⭐','🌟','❤️'].map(e => (
+                        <button key={e} className={styles.emojiBtn} disabled>{e}</button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className={styles.phoneHome}></div>
+                </div>
+                <div className={styles.actionBtns}>
+                  <button className={styles.btnSend} disabled style={{opacity:0.4}}>발송하기</button>
+                  <button className={styles.btnCopy} disabled style={{opacity:0.4}}>복사</button>
+                </div>
               </div>
             ) : (
               <div className={styles.phonePanel}>
