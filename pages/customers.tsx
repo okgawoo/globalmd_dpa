@@ -10,7 +10,7 @@ const AGE_FILTERS = ['연령대전체', '유아(0-7)', '10대', '20대', '30대'
 const INSURANCE_COMPANIES = ['삼성생명','한화생명','교보생명','신한라이프','DB생명','흥국생명','동양생명','미래에셋생명','삼성화재','현대해상','DB손해보험','KB손해보험','메리츠화재','롯데손해보험','기타']
 const INSURANCE_TYPES = ['건강','실손','운전자','자동차','암','치아','간병','CI','종신','기타']
 const PAYMENT_STATUSES = ['유지','완납','실효','실납','해지']
-const PAYMENT_YEARS = ['5년납','10년납','15년납','20년납','25년납','30년납','전기납','일시납']
+const PAYMENT_YEARS = ['1년납','3년납','5년납','10년납','15년납','20년납','25년납','30년납','40년납','전기납','종신납','일시납']
 const EXPIRY_AGES = ['60세','65세','70세','75세','80세','85세','90세','95세','100세','종신']
 const CURRENT_YEAR = new Date().getFullYear()
 const YEARS = Array.from({length: 30}, (_, i) => String(CURRENT_YEAR - i))
