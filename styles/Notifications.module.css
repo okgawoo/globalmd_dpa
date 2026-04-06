@@ -41,7 +41,7 @@
 .badgeGray  { background: #F1EFE8; color: #5F5E5A; }
 
 /* 오른쪽 패널 */
-.phoneCol { position: sticky; top: 16px; padding-top: 25px; }
+.phoneCol { position: sticky; top: 16px; padding-top: 48px; }
 .phonePanelEmpty { background: #FAF9F5; border-radius: 12px; padding: 48px 14px; text-align: center; color: #9CA3AF; font-size: 12px; line-height: 1.8; border: 0.5px solid #EDEBE4; min-height: 400px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .emptyIcon { font-size: 32px; margin-bottom: 10px; }
 .phonePanel { background: #FAF9F5; border-radius: 12px; padding: 14px; border: 0.5px solid #EDEBE4; }
@@ -86,8 +86,9 @@
 .smsBody { background: white; padding: 14px 12px 10px; }
 .bubbleWrap { display: flex; justify-content: flex-end; }
 .bubble { background: #34C759; border-radius: 14px 14px 4px 14px; padding: 10px 12px; max-width: 90%; width: 90%; }
-.bubbleEdit { width: 100%; border: none; background: transparent; outline: none; font-size: 13px; color: white; line-height: 1.65; resize: none; font-family: inherit; min-height: 200px; overflow: hidden; }
+.bubbleEdit { width: 100%; border: none; background: transparent; outline: none; font-size: 13px; color: white; line-height: 1.65; resize: none; font-family: inherit; min-height: 200px; overflow: hidden; -webkit-appearance: none; appearance: none; }
 .bubbleEdit::-webkit-scrollbar { display: none; }
+.bubbleEdit::-webkit-resizer { display: none; }
 .bubbleEdit::placeholder { color: rgba(255,255,255,0.6); }
 .bubbleTime { font-size: 10px; color: rgba(255,255,255,0.7); text-align: right; margin-top: 6px; }
 
