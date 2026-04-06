@@ -367,61 +367,64 @@ export default function NotificationsPage() {
       ) : (
         <div className={styles.layout}>
           {/* 왼쪽: 알림 리스트 */}
-          <div className={styles.listCol}>
-            {todayNotifs.length > 0 && (
-              <>
-                <div className={styles.sectionLabel}>오늘</div>
-                {todayNotifs.map(n => renderCard(n))}
-              </>
-            )}
-            {weekNotifs.length > 0 && (
-              <>
-                <div className={styles.divider}></div>
-                <div className={styles.sectionLabel}>이번 주</div>
-                {weekNotifs.map(n => renderCard(n))}
-              </>
-            )}
-            {filtered.length === 0 && <div className={styles.empty}>해당 알림이 없어요</div>}
+          {/* 3컬럼: 알림리스트 + 발송이력 + 폰팝업 */}
+          <div className={styles.layout}>
+
+            {/* 왼쪽: 알림 리스트 */}
+            <div className={styles.listCol}>
+              {todayNotifs.length > 0 && (
+                <>
+                  <div className={styles.sectionLabel}>오늘</div>
+                  {todayNotifs.map(n => renderCard(n))}
+                </>
+              )}
+              {weekNotifs.length > 0 && (
+                <>
+                  <div className={styles.divider}></div>
+                  <div className={styles.sectionLabel}>이번 주</div>
+                  {weekNotifs.map(n => renderCard(n))}
+                </>
+              )}
+              {filtered.length === 0 && <div className={styles.empty}>해당 알림이 없어요</div>}
+            </div>
+
+            {/* 가운데: 발송 이력 */}
+            <div className={styles.historyCol}>
+              <div className={styles.historyColTitle}>
+                {selected ? `${selected.customer.name} 님 발송 이력` : '발송 이력'}
+              </div>
+              {(() => {
+                const filtered_msgs = selected
+                  ? messages.filter(m => m.customer_id === selected.customer.id)
+                  : messages.slice(0, 10)
+                if (filtered_msgs.length === 0) return (
+                  <div className={styles.historyEmpty}>
+                    <div style={{fontSize:24, marginBottom:6}}>📭</div>
+                    <div>{selected ? '이 고객에게 발송한 이력이 없어요' : '발송 이력이 없어요'}</div>
+                  </div>
+                )
+                return filtered_msgs.map(m => (
+                  <div key={m.id} className={styles.historyItem}>
+                    <div className={styles.historyItemRow}>
+                      <span className={[styles.badge, m.is_sent ? styles.badgeTeal : styles.badgeGray].join(' ')}>{m.is_sent ? '발송' : '복사'}</span>
+                      <span className={styles.historyItemType}>{m.message_type === 'birthday' ? '생일' : m.message_type === 'nearDone' ? '완납임박' : m.message_type === 'gap' ? '보장공백' : m.message_type === 'expiry' ? '만기임박' : m.message_type}</span>
+                      <span className={styles.historyItemDate}>{new Date(m.created_at).toLocaleDateString('ko-KR', {month:'numeric', day:'numeric'})}</span>
+                    </div>
+                    <div className={styles.historyItemScript}>{m.sent_script}</div>
+                  </div>
+                ))
+              })()}
+            </div>
           </div>
 
-          {/* 오른쪽: 문자 패널 (데스크탑) / 슬라이드 패널 (모바일) */}
-          <div className={[styles.phoneCol, panelOpen ? styles.phoneColOpen : ''].join(' ')}>
-            {!selected ? (
+          {/* 오른쪽: 폰 슬라이드 팝업 (fixed) */}
+          {panelOpen && selected && (
+            <div className={styles.phoneOverlay} onClick={() => setPanelOpen(false)}>
+              <div className={styles.phoneSlide} onClick={e => e.stopPropagation()}>
               <div className={styles.phonePanel}>
-                <div className={styles.panelLabel}>문자 미리보기</div>
-                <div className={styles.phoneFrame}>
-                  <div className={styles.phoneNotch}></div>
-                  <div className={styles.phoneScreen}>
-                    <div className={styles.statusBar}>
-                      <span className={styles.statusTime}>9:41</span>
-                      <span className={styles.statusIcons}>●●● 🔋</span>
-                    </div>
-                    <div className={styles.smsHeader}>
-                      <div className={styles.smsName} style={{color:'#C7C7CC'}}>-</div>
-                      <div className={styles.smsType}>문자 메시지</div>
-                    </div>
-                    <div className={styles.smsBody} style={{minHeight:200, display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:8}}>
-                      <div style={{fontSize:28}}>💬</div>
-                      <div style={{fontSize:11, color:'#C7C7CC', textAlign:'center', lineHeight:1.6}}>왼쪽에서 알림을<br/>선택해 주세요</div>
-                    </div>
-                    <div className={styles.emojiRow} style={{opacity:0.3}}>
-                      {['😊','😄','🎂','🎉','🎊','💚','📞','🙏','👍','✅','🔥','💪','⭐','🌟','❤️'].map(e => (
-                        <button key={e} className={styles.emojiBtn} disabled>{e}</button>
-                      ))}
-                    </div>
-                  </div>
-                  <div className={styles.phoneHome}></div>
-                </div>
-                <div className={styles.actionBtns}>
-                  <button className={styles.btnSend} disabled style={{opacity:0.4}}>발송하기</button>
-                  <button className={styles.btnCopy} disabled style={{opacity:0.4}}>복사</button>
-                </div>
-              </div>
-            ) : (
-              <div className={styles.phonePanel}>
-                {/* 모바일 닫기 */}
+                {/* 닫기 버튼 */}
                 <div className={styles.panelCloseRow}>
-                  <div className={styles.panelHandle}></div>
+                  <div className={styles.panelLabel}>문자 미리보기</div>
                   <button className={styles.panelClose} onClick={() => setPanelOpen(false)}>✕</button>
                 </div>
 
@@ -494,9 +497,9 @@ export default function NotificationsPage() {
                   <button className={styles.btnCopy} onClick={handleCopy}>복사</button>
                 </div>
               </div>
-            )}
+            </div>
           </div>
-        </div>
+          )}
       )}
     </div>
   )
