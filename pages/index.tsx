@@ -30,6 +30,9 @@ export default function Dashboard() {
   const [calYear, setCalYear] = useState(new Date().getFullYear())
   const [calMonth, setCalMonth] = useState(new Date().getMonth())
   const [agentName, setAgentName] = useState('')
+  const [seenNearDone, setSeenNearDone] = useState<string[]>([])
+  const [seenBirthday, setSeenBirthday] = useState<string[]>([])
+  const [seenGap, setSeenGap] = useState<string[]>([])
 
   const now = new Date()
   const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })
@@ -42,7 +45,39 @@ export default function Dashboard() {
           .then(({ data: agent }) => { if (agent) setAgentName(agent.name) })
       }
     })
+    // localStorage에서 확인된 항목 불러오기
+    setSeenNearDone(JSON.parse(localStorage.getItem('dpa_seen_nearDone') || '[]'))
+    setSeenBirthday(JSON.parse(localStorage.getItem('dpa_seen_birthday') || '[]'))
+    setSeenGap(JSON.parse(localStorage.getItem('dpa_seen_gap') || '[]'))
   }, [])
+
+  // NEW 뱃지 여부 체크
+  const isNewNearDone = (customerId: string) => !seenNearDone.includes(customerId)
+  const isNewBirthday = (customerId: string) => !seenBirthday.includes(customerId)
+  const isNewGap = (customerId: string) => !seenGap.includes(customerId)
+
+  // 카드 클릭 시 확인 처리 + 페이지 이동
+  const handleNearDoneClick = () => {
+    const ids = nearDoneCustomers.map((c: any) => c.id)
+    const updated = [...new Set([...seenNearDone, ...ids])]
+    localStorage.setItem('dpa_seen_nearDone', JSON.stringify(updated))
+    setSeenNearDone(updated)
+    router.push('/customers?sort=완납임박')
+  }
+  const handleBirthdayClick = () => {
+    const ids = birthdayCustomers.map((c: any) => c.id)
+    const updated = [...new Set([...seenBirthday, ...ids])]
+    localStorage.setItem('dpa_seen_birthday', JSON.stringify(updated))
+    setSeenBirthday(updated)
+    router.push('/customers?sort=생일임박')
+  }
+  const handleGapClick = () => {
+    const ids = gapCustomers.map((c: any) => c.id)
+    const updated = [...new Set([...seenGap, ...ids])]
+    localStorage.setItem('dpa_seen_gap', JSON.stringify(updated))
+    setSeenGap(updated)
+    router.push('/customers?sort=보장공백')
+  }
 
   const prevMonth = () => { if (calMonth === 0) { setCalYear(y => y - 1); setCalMonth(11) } else setCalMonth(m => m - 1) }
   const nextMonth = () => { if (calMonth === 11) { setCalYear(y => y + 1); setCalMonth(0) } else setCalMonth(m => m + 1) }
@@ -147,28 +182,37 @@ export default function Dashboard() {
 
       <div className={styles.alertsTitle}>오늘의 액션 알림</div>
       <div className={styles.alerts}>
-        <div className={[styles.alertCard, styles.acRed].join(' ')}>
+        <div className={[styles.alertCard, styles.acRed].join(' ')} onClick={handleGapClick} style={{cursor: gapCustomers.length > 0 ? 'pointer' : 'default'}}>
           <div className={styles.alertIcon}>⚠</div>
-          <div className={styles.alertTitle}>보장 공백</div>
+          <div className={styles.alertTitle}>
+            보장 공백
+            {gapCustomers.some((c: any) => isNewGap(c.id)) && <span style={{marginLeft:6,fontSize:10,background:'#E53E3E',color:'#fff',borderRadius:4,padding:'1px 5px',fontWeight:700,verticalAlign:'middle'}}>NEW</span>}
+          </div>
           <div className={styles.alertDesc}>
-            {gapCustomers.length === 0 ? '공백 고객 없음' : gapCustomers.map(c => `${c.name} 님`).join(', ')} — 뇌혈관 확대 제안 필요
+            {gapCustomers.length === 0 ? '공백 고객 없음' : gapCustomers.map((c: any) => `${c.name} 님`).join(', ')} — 뇌혈관 확대 제안 필요
           </div>
         </div>
-        <div className={[styles.alertCard, styles.acAmber].join(' ')}>
+        <div className={[styles.alertCard, styles.acAmber].join(' ')} onClick={handleNearDoneClick} style={{cursor: nearDoneCustomers.length > 0 ? 'pointer' : 'default'}}>
           <div className={styles.alertIcon}>🔥</div>
-          <div className={styles.alertTitle}>완납 임박 {nearDoneCustomers.length}명</div>
+          <div className={styles.alertTitle}>
+            완납 임박 {nearDoneCustomers.length}명
+            {nearDoneCustomers.some((c: any) => isNewNearDone(c.id)) && <span style={{marginLeft:6,fontSize:10,background:'#E53E3E',color:'#fff',borderRadius:4,padding:'1px 5px',fontWeight:700,verticalAlign:'middle'}}>NEW</span>}
+          </div>
           <div className={styles.alertDesc}>
-            {nearDoneCustomers.length === 0 ? '해당 없음' : nearDoneCustomers.map(c => {
-              const ct = nearDoneContracts.find(ct => ct.customer_id === c.id)
+            {nearDoneCustomers.length === 0 ? '해당 없음' : nearDoneCustomers.map((c: any) => {
+              const ct = nearDoneContracts.find((ct: any) => ct.customer_id === c.id)
               return `${c.name}(${ct?.company} ${ct ? calcPaymentRate(ct) : 0}%)`
             }).join(', ')}
           </div>
         </div>
-        <div className={[styles.alertCard, styles.acGreen].join(' ')}>
+        <div className={[styles.alertCard, styles.acGreen].join(' ')} onClick={handleBirthdayClick} style={{cursor: birthdayCustomers.length > 0 ? 'pointer' : 'default'}}>
           <div className={styles.alertIcon}>★</div>
-          <div className={styles.alertTitle}>유지 관리</div>
+          <div className={styles.alertTitle}>
+            유지 관리
+            {birthdayCustomers.some((c: any) => isNewBirthday(c.id)) && <span style={{marginLeft:6,fontSize:10,background:'#E53E3E',color:'#fff',borderRadius:4,padding:'1px 5px',fontWeight:700,verticalAlign:'middle'}}>NEW</span>}
+          </div>
           <div className={styles.alertDesc}>
-            {fullCustomers.length === 0 ? '해당 없음' : fullCustomers.map(c => `${c.name} 님`).join(', ')} — 보장 완비, 정기 안부 연락
+            {fullCustomers.length === 0 ? '해당 없음' : fullCustomers.map((c: any) => `${c.name} 님`).join(', ')} — 보장 완비, 정기 안부 연락
           </div>
         </div>
       </div>
@@ -184,13 +228,19 @@ export default function Dashboard() {
           <div className={styles.mvalue}>{contracts.length}</div>
           <div className={styles.msub}>총 계약 건수 ↗</div>
         </div>
-        <div className={styles.metric} onClick={() => router.push('/customers?sort=완납임박')}>
-          <div className={styles.mlabel}>완납 임박</div>
+        <div className={styles.metric} onClick={handleNearDoneClick} style={{cursor:'pointer'}}>
+          <div className={styles.mlabel}>
+            완납 임박
+            {nearDoneCustomers.some((c: any) => isNewNearDone(c.id)) && <span style={{marginLeft:6,fontSize:10,background:'#E53E3E',color:'#fff',borderRadius:4,padding:'1px 5px',fontWeight:700,verticalAlign:'middle'}}>NEW</span>}
+          </div>
           <div className={[styles.mvalue, styles.red].join(' ')}>{nearDoneCustomers.length}</div>
           <div className={styles.msub}>납입률 90%↑ ↗</div>
         </div>
-        <div className={styles.metric} onClick={() => router.push('/customers?sort=보장공백')}>
-          <div className={styles.mlabel}>보장 공백</div>
+        <div className={styles.metric} onClick={handleGapClick} style={{cursor:'pointer'}}>
+          <div className={styles.mlabel}>
+            보장 공백
+            {gapCustomers.some((c: any) => isNewGap(c.id)) && <span style={{marginLeft:6,fontSize:10,background:'#E53E3E',color:'#fff',borderRadius:4,padding:'1px 5px',fontWeight:700,verticalAlign:'middle'}}>NEW</span>}
+          </div>
           <div className={[styles.mvalue, styles.amber].join(' ')}>{gapCustomers.length}</div>
           <div className={styles.msub}>뇌혈관 미가입 ↗</div>
         </div>

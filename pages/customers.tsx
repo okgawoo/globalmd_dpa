@@ -210,6 +210,7 @@ export default function Customers() {
     if (!router.isReady) return
     const sort = router.query.sort as string
     if (sort === '완납임박') setSortFilter('🔥 완납 임박순')
+    else if (sort === '생일임박') setSortFilter('🎂 생일 임박순')
     else if (sort === '보장공백') setSortFilter('🎂 생일 임박순')
   }, [router.isReady, router.query.sort])
   const isMobile = useIsMobile()
