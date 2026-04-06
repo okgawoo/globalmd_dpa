@@ -1,4 +1,4 @@
-.wrap { padding: 0 0 2rem; }
+.wrap { padding: 0 0 2rem; max-width: 1000px; }
 .loading { text-align: center; padding: 40px; color: #9CA3AF; }
 .pageTitle { font-size: 20px; font-weight: 500; color: #111827; margin-bottom: 16px; }
 
@@ -44,6 +44,7 @@
 .phonePanelEmpty { background: #FAF9F5; border-radius: 12px; padding: 48px 14px; text-align: center; color: #9CA3AF; font-size: 12px; line-height: 1.8; border: 0.5px solid #EDEBE4; min-height: 400px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .emptyIcon { font-size: 32px; margin-bottom: 10px; }
 .phonePanel { background: #FAF9F5; border-radius: 12px; padding: 14px; border: 0.5px solid #EDEBE4; }
+.panelLabel { font-size: 10px; font-weight: 500; color: #9CA3AF; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 10px; }
 
 /* 모바일 닫기 */
 .panelCloseRow { display: none; justify-content: space-between; align-items: center; margin-bottom: 10px; }
