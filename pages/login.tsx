@@ -33,8 +33,14 @@ export default function Login() {
     if (!loginId || !loginPw) return setError('아이디와 비밀번호를 입력해주세요.')
     setLoading(true); setError('')
     const email = `${loginId}@dpa.com`
-    const { error: e } = await supabase.auth.signInWithPassword({ email, password: loginPw })
+    const { data: authData, error: e } = await supabase.auth.signInWithPassword({ email, password: loginPw })
     if (e) { setError('아이디 또는 비밀번호가 올바르지 않아요.'); setLoading(false); return }
+    const { data: agent } = await supabase.from('dpa_agents').select('status').eq('user_id', authData.user!.id).single()
+    if (agent && agent.status === 'pending') {
+      await supabase.auth.signOut()
+      setError('관리자 승인 대기 중이에요. 승인 후 로그인 가능해요 😊')
+      setLoading(false); return
+    }
     router.push('/')
   }
 

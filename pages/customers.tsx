@@ -187,8 +187,10 @@ export default function Customers() {
 
   async function fetchAll() {
     setLoading(true)
-    const { data: custs, error: e1 } = await supabase.from('dpa_customers').select('*').order('created_at', { ascending: false })
-    const { data: conts, error: e2 } = await supabase.from('dpa_contracts').select('*')
+    const { data: { user } } = await supabase.auth.getUser()
+    const agentId = user?.id
+    const { data: custs, error: e1 } = await supabase.from('dpa_customers').select('*').eq('agent_id', agentId).order('created_at', { ascending: false })
+    const { data: conts, error: e2 } = await supabase.from('dpa_contracts').select('*').eq('agent_id', agentId)
     const { data: covs, error: e3 } = await supabase.from('dpa_coverages').select('*')
     if (e1) console.error('customers error:', e1)
     if (e2) console.error('contracts error:', e2)
@@ -257,6 +259,8 @@ export default function Customers() {
 
   async function saveAddCustomer() {
     if (!addForm.name) return alert('고객명은 필수예요!')
+    const { data: { user } } = await supabase.auth.getUser()
+    const agentId = user?.id
     const { gender, age, birthDate } = parseResident(addForm.resident_number)
     const { data: cust } = await supabase.from('dpa_customers').insert({
       ...addForm,
@@ -264,7 +268,8 @@ export default function Customers() {
       gender: addForm.resident_number.length >= 8 ? gender : addForm.gender,
       birth_date: birthDate || null,
       resident_number: addForm.resident_number,
-      customer_type: addType
+      customer_type: addType,
+      agent_id: agentId
     }).select().single()
     if (cust) {
       // 보험 계약도 한번에 저장
@@ -274,6 +279,7 @@ export default function Customers() {
         const payRate = totalM > 0 ? Math.round(paidM / totalM * 100) : 0
         const { data: savedCt } = await supabase.from('dpa_contracts').insert({
           customer_id: cust.id,
+          agent_id: agentId,
           company: ct.company, product_name: ct.product_name,
           insurance_type: ct.insurance_type,
           monthly_fee: parseInt(ct.monthly_fee) || 0,
@@ -301,8 +307,10 @@ export default function Customers() {
   async function saveInsurance() {
     if (!selected) return
     if (!insForm.company || !insForm.monthly_fee) return alert('보험사와 월보험료는 필수예요!')
+    const { data: { user } } = await supabase.auth.getUser()
     const { data: ct } = await supabase.from('dpa_contracts').insert({
       customer_id: selected.id,
+      agent_id: user?.id,
       company: insForm.company, product_name: insForm.product_name,
       insurance_type: insForm.insurance_type,
       monthly_fee: parseInt(insForm.monthly_fee) || 0,
