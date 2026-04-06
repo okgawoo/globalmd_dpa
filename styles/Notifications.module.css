@@ -67,11 +67,12 @@
 .smsBtn { font-size: 12px; font-weight: 500; padding: 5px 12px; background: #1D9E75; color: white; border: none; border-radius: 8px; cursor: pointer; white-space: nowrap; font-family: inherit; }
 .smsBtn:hover { background: #0F6E56; }
 
-/* 폰 블록 팝업: 하단 슬라이드 업 */
+/* 폰 블록 팝업: 하단 슬라이드 업 - 우정렬 */
 .phoneOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 300; }
 .phoneSlideUp {
   position: fixed;
-  bottom: 0; left: 50%; transform: translateX(-50%);
+  bottom: 0;
+  right: 20px;
   width: 300px;
   max-height: 95vh;
   background: #FAF9F5;
@@ -81,7 +82,7 @@
   overflow-y: auto;
   animation: slideUp 0.25s ease;
 }
-@keyframes slideUp { from { transform: translateX(-50%) translateY(100%); } to { transform: translateX(-50%) translateY(0); } }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
 /* 팝업 내부 */
 .phonePanel { padding: 16px 20px 24px; }
