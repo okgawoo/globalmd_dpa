@@ -44,7 +44,7 @@
 
 /* 오른쪽: 발송 이력 */
 .historyCol { background: white; border: 0.5px solid #EDEBE4; border-radius: 14px; padding: 16px; min-height: 400px; max-height: calc(100vh - 200px); overflow-y: auto; display: flex; flex-direction: column; position: relative; }
-.historyColHeader { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 0.5px solid #EDEBE4; flex-shrink: 0; }
+.historyColHeader { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-bottom: 10px; flex-shrink: 0; }
 .historyColTitle { font-size: 13px; font-weight: 500; color: #374151; }
 .smsBtn { font-size: 12px; font-weight: 500; padding: 5px 12px; background: #1D9E75; color: white; border: none; border-radius: 8px; cursor: pointer; white-space: nowrap; font-family: inherit; }
 .smsBtn:hover { background: #0F6E56; }
@@ -69,18 +69,18 @@
 .phoneOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 300; }
 .phoneSlideUp {
   position: absolute;
-  top: 48px;
+  top: 52px;
   right: 0;
   width: 300px;
-  max-height: 85vh;
+  max-height: calc(100% - 52px);
   background: #FAF9F5;
-  border-radius: 16px;
-  box-shadow: 0 4px 32px rgba(0,0,0,0.18);
+  border-radius: 0 0 16px 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.15);
   z-index: 400;
   overflow-y: auto;
   animation: fadeDown 0.2s ease;
 }
-@keyframes fadeDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeDown { from { opacity: 0; } to { opacity: 1; } }
 
 /* 팝업 내부 */
 .phonePanel { padding: 16px 16px 24px; }
