@@ -404,10 +404,9 @@ export default function NotificationsPage() {
                 </div>
                 <div className={styles.aiRow}>
                   <div className={styles.aiBadge}>
-                    <div className={[styles.aiDot, aiLoading ? styles.aiDotPulse : ''].join(' ')}></div>
-                    AI 추천 스크립트
+                    <div className={styles.aiDot}></div>
+                    AI 추천 스크립트 작성중
                   </div>
-                  {aiLoading && <span className={styles.aiLoading}>생성 중...</span>}
                 </div>
                 <div className={styles.aiDesc}>상황에 맞는 문자를 추천해 드려요. 자유롭게 수정 후 발송하세요 😊</div>
                 <div className={styles.toneRow}>
