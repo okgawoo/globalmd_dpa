@@ -215,22 +215,10 @@ export default function NotificationsPage() {
     setScriptText(tpl.replace(/{name}/g, n.customer.name))
   }
 
-  function selectNotif(n: any, e: React.MouseEvent) {
+  function selectNotif(n: any) {
     setSelected(n)
     applyScript(n, tone)
-
-    // 클릭한 카드의 Y 위치 계산 → 폰 블록 위치 결정
-    const cardEl = (e.currentTarget as HTMLElement)
-    const cardRect = cardEl.getBoundingClientRect()
-    const listRect = listColRef.current?.getBoundingClientRect()
-    const scrollY = window.scrollY
-
-    // 카드 상단 Y(절대좌표) 기준으로 팝업 위치 설정
-    // 화면 하단 넘어가지 않도록 clamp
-    const rawTop = cardRect.top + scrollY - 60
-    const maxTop = document.body.scrollHeight - 620
-    setPopupTop(Math.max(0, Math.min(rawTop, maxTop)))
-    setPanelOpen(true)
+    // 팝업은 SMS 보내기 버튼으로만 열림
   }
 
   function changeTone(t: ToneType) {
@@ -306,7 +294,7 @@ export default function NotificationsPage() {
     return (
       <div key={n.id}
         className={[styles.notifCard, isSel ? styles.selected : '', isToday ? styles.unread : ''].join(' ')}
-        onClick={(e) => selectNotif(n, e)}
+        onClick={() => selectNotif(n)}
       >
         <div className={styles.cardRow}>
           <div className={[styles.iconWrap, s.iconCls].join(' ')}>{s.icon}</div>
