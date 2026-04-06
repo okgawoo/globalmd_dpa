@@ -216,14 +216,14 @@
 .overlayVisible { background: rgba(0,0,0,0.45); pointer-events: all; }
 
 /* 슬라이드 패널 */
-.slidePanel { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-radius: 20px 20px 0 0; max-height: 88vh; display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.32s cubic-bezier(0.32,0.72,0,1); box-shadow: 0 -8px 32px rgba(0,0,0,0.15); overscroll-behavior: none; touch-action: pan-x; }
+.slidePanel { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-radius: 20px 20px 0 0; max-height: 88vh; display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.32s cubic-bezier(0.32,0.72,0,1); box-shadow: 0 -8px 32px rgba(0,0,0,0.15); overscroll-behavior: none; touch-action: none; }
 .slideIn { transform: translateY(0); }
 .slideOut { transform: translateY(100%); }
 
 .slideHandle { width: 100%; display: flex; justify-content: center; align-items: center; padding: 14px 0 10px; flex-shrink: 0; cursor: grab; }
 .slideHandle::after { content: ''; display: block; width: 40px; height: 4px; background: #D1D5DB; border-radius: 2px; }
 
-.slideContent { overflow-y: auto; padding: 8px 20px 40px; flex: 1; }
+.slideContent { overflow-y: auto; padding: 8px 20px 40px; flex: 1; touch-action: pan-y; overscroll-behavior: contain; }
 
 .slideHeader { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid #F3F4F6; }
 
@@ -304,5 +304,4 @@
 
 @media (max-width: 768px) {
   .custFee { display: block !important; margin-top: 1px; }
-  .feeDot { display: none; }
 }
