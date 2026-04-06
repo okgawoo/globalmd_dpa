@@ -117,10 +117,10 @@
 .toneBtnActive { background: #1D9E75; color: white; border-color: #1D9E75; }
 
 /* 스마트폰 - 실제 9:19.5 비율 */
-.phoneFrame { background: #1C1C1E; border-radius: 40px; padding: 12px 16px 16px; }
-.phoneNotch { width: 40px; height: 5px; background: #3A3A3C; border-radius: 999px; margin: 0 auto 8px; }
-.phoneScreen { background: #F2F2F7; border-radius: 24px; overflow: hidden; }
-.statusBar { background: #F2F2F7; padding: 6px 12px 2px; display: flex; justify-content: space-between; }
+.phoneFrame { background: #1C1C1E; border-radius: 44px; padding: 12px 10px 16px; }
+.phoneNotch { width: 36px; height: 5px; background: #3A3A3C; border-radius: 999px; margin: 0 auto 8px; }
+.phoneScreen { background: #F2F2F7; border-radius: 34px; overflow: hidden; }
+.statusBar { background: #F2F2F7; padding: 6px 14px 2px; display: flex; justify-content: space-between; }
 .statusTime  { font-size: 11px; font-weight: 600; color: #1C1C1E; }
 .statusIcons { font-size: 10px; color: #1C1C1E; }
 .smsHeader { background: #F2F2F7; padding: 4px 12px 8px; text-align: center; border-bottom: 0.5px solid #E5E5EA; }
@@ -129,7 +129,7 @@
 .smsBody { background: white; padding: 12px 10px 8px; }
 .bubbleWrap { display: flex; justify-content: flex-end; }
 .bubble { background: #34C759; border-radius: 14px 14px 4px 14px; padding: 9px 11px; max-width: 92%; width: 92%; }
-.bubbleEdit { width: 100%; border: none; background: transparent; outline: none; font-size: 13px; color: white; line-height: 1.65; resize: none; font-family: inherit; min-height: 160px; overflow: hidden; -webkit-appearance: none; appearance: none; }
+.bubbleEdit { width: 100%; border: none; background: transparent; outline: none; font-size: 13px; color: white; line-height: 1.65; resize: none; font-family: inherit; min-height: 130px; overflow: hidden; -webkit-appearance: none; appearance: none; }
 .bubbleEdit::-webkit-scrollbar { display: none; }
 .bubbleEdit::placeholder { color: rgba(255,255,255,0.6); }
 .bubbleTime { font-size: 9px; color: rgba(255,255,255,0.7); text-align: right; margin-top: 4px; }
