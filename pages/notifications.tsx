@@ -397,8 +397,15 @@ export default function NotificationsPage() {
 
           {/* 오른쪽: 발송 이력 */}
           <div className={styles.historyCol}>
-            <div className={styles.historyColTitle}>
-              {selected ? `${selected.customer.name} 님 발송 이력` : '발송 이력'}
+            <div className={styles.historyColHeader}>
+              <div className={styles.historyColTitle}>
+                {selected ? `${selected.customer.name} 님 발송 이력` : '발송 이력'}
+              </div>
+              {selected && (
+                <button className={styles.smsBtn} onClick={() => setPanelOpen(true)}>
+                  📱 SMS 보내기
+                </button>
+              )}
             </div>
             {filteredMsgs.length === 0 ? (
               <div className={styles.historyEmpty}>
@@ -421,16 +428,12 @@ export default function NotificationsPage() {
         </div>
       )}
 
-      {/* 폰 블록 팝업: 알림리스트 오른쪽 + 발송이력 위에 살짝 오버랩 */}
+      {/* 폰 블록 팝업: 하단에서 위로 슬라이드 업 */}
       {panelOpen && selected && (
         <>
-          {/* 배경 클릭 시 닫힘 */}
           <div className={styles.phoneOverlay} onClick={() => setPanelOpen(false)} />
-
-          <div
-            className={styles.phonePopup}
-            style={{ top: popupTop }}
-          >
+          <div className={styles.phoneSlideUp}>
+            <div className={styles.phonePanel}>
             {/* 닫기 */}
             <div className={styles.popupHeader}>
               <span className={styles.popupTitle}>문자 미리보기</span>
@@ -504,6 +507,7 @@ export default function NotificationsPage() {
               <button className={styles.btnSend} onClick={handleSend} disabled={sending}>{sending ? '발송 중...' : '발송하기'}</button>
               <button className={styles.btnCopy} onClick={handleCopy}>복사</button>
             </div>
+          </div>
           </div>
         </>
       )}
