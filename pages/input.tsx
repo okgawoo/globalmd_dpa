@@ -218,6 +218,7 @@ export default function InputPage() {
     try {
       const { data: { user } } = await supabase.auth.getUser()
       const agentId = user?.id
+      const birthDate = getBirthDateFromRRN(parsed.rrn || '')
       const { data: cust } = await supabase.from('dpa_customers').insert({
         name: parsed.name || '이름미상', age: parsed.age || null,
         gender: parsed.gender || '미상', grade: '일반',
@@ -226,6 +227,7 @@ export default function InputPage() {
         bank_name: parsed.bank_name || null, bank_account: parsed.bank_account || null,
         driver_license: parsed.driver_license || null,
         resident_number: parsed.rrn || null,
+        birth_date: birthDate,
         customer_type: 'existing',
         agent_id: agentId,
       }).select().single()
