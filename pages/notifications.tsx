@@ -414,15 +414,12 @@ export default function NotificationsPage() {
                 </div>
                 <div className={styles.historyItemScript}>{m.sent_script}</div>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
+              ))}
 
-      {/* 폰 블록 팝업: 하단에서 위로 슬라이드 업 */}
-      {panelOpen && selected && (
-        <>
-          <div className={styles.phoneOverlay} onClick={() => setPanelOpen(false)} />
+            {/* 폰 블록 팝업 - historyCol 기준 우측 상단 */}
+            {panelOpen && selected && (
+              <>
+                <div className={styles.phoneOverlay} onClick={() => setPanelOpen(false)} />
           <div className={styles.phoneSlideUp}>
             <div className={styles.phonePanel}>
             {/* 닫기 */}
@@ -500,7 +497,10 @@ export default function NotificationsPage() {
             </div>
           </div>
           </div>
-        </>
+              </>
+            )}
+          </div>
+        </div>
       )}
     </div>
   )
