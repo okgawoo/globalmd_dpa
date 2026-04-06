@@ -2,6 +2,24 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import styles from '../styles/Dashboard.module.css'
 
+// 납입률 실시간 계산 함수 (customers.tsx와 동일)
+function calcPaymentRate(ct: any): number {
+  if (ct.payment_status === '완납') return 100
+  if (ct.contract_start && ct.payment_years) {
+    const match = ct.payment_years.match(/(\d+)년/)
+    if (match) {
+      const totalMonths = parseInt(match[1]) * 12
+      const [year, month] = ct.contract_start.split('.').map(Number)
+      if (year && month) {
+        const now = new Date()
+        const paidMonths = (now.getFullYear() - year) * 12 + (now.getMonth() + 1 - month) + 1
+        return Math.min(Math.round(Math.max(0, paidMonths) / totalMonths * 100), 100)
+      }
+    }
+  }
+  return ct.payment_rate || 0
+}
+
 export default function Dashboard() {
   const [customers, setCustomers] = useState<any[]>([])
   const [contracts, setContracts] = useState<any[]>([])
@@ -33,8 +51,10 @@ export default function Dashboard() {
   const calMonthStr = new Date(calYear, calMonth).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long' })
 
   async function fetchAll() {
-    const { data: custs } = await supabase.from('dpa_customers').select('*')
-    const { data: conts } = await supabase.from('dpa_contracts').select('*')
+    const { data: { user } } = await supabase.auth.getUser()
+    const agentId = user?.id
+    const { data: custs } = await supabase.from('dpa_customers').select('*').eq('agent_id', agentId)
+    const { data: conts } = await supabase.from('dpa_contracts').select('*').eq('agent_id', agentId)
     const { data: covs } = await supabase.from('dpa_coverages').select('*')
     setCustomers(custs || [])
     setContracts(conts || [])
@@ -42,7 +62,7 @@ export default function Dashboard() {
     setLoading(false)
   }
 
-  const nearDoneContracts = contracts.filter(c => c.payment_rate >= 90 && c.payment_status !== '완납')
+  const nearDoneContracts = contracts.filter(c => calcPaymentRate(c) >= 90 && c.payment_status !== '완납')
   const nearDoneCustomers = customers.filter(c => nearDoneContracts.some(ct => ct.customer_id === c.id))
 
   const gapCustomers = customers.filter(c => {
@@ -147,7 +167,7 @@ export default function Dashboard() {
           <div className={styles.alertDesc}>
             {nearDoneCustomers.length === 0 ? '해당 없음' : nearDoneCustomers.map(c => {
               const ct = nearDoneContracts.find(ct => ct.customer_id === c.id)
-              return `${c.name}(${ct?.company} ${ct?.payment_rate}%)`
+              return `${c.name}(${ct?.company} ${ct ? calcPaymentRate(ct) : 0}%)`
             }).join(', ')}
           </div>
         </div>
@@ -246,7 +266,7 @@ export default function Dashboard() {
               <div key={i} className={styles.popupRow}>
                 <div className={styles.popupName}>{item.name || item.company}</div>
                 <div className={styles.popupMeta}>
-                  {item.age ? `${item.age}세 · ${item.gender}` : `납입률 ${item.payment_rate}% · ${item.payment_status}`}
+                  {item.age ? `${item.age}세 · ${item.gender}` : `납입률 ${calcPaymentRate(item)}% · ${item.payment_status}`}
                 </div>
               </div>
             ))}
