@@ -92,8 +92,11 @@ export default function NotificationsPage() {
   const [sending, setSending] = useState(false)
   const [panelOpen, setPanelOpen] = useState(false)
   const [popupTop, setPopupTop] = useState(0)
+  const [popupRight, setPopupRight] = useState(0)
+  const [popupHeight, setPopupHeight] = useState(0)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const listColRef = useRef<HTMLDivElement>(null)
+  const historyColRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => { fetchAll() }, [])
 
@@ -384,14 +387,22 @@ export default function NotificationsPage() {
           </div>
 
           {/* 오른쪽: 발송 이력 */}
-          <div className={styles.historyCol}>
+          <div className={styles.historyCol} ref={historyColRef}>
             <div className={styles.historyColHeader}>
               <div className={styles.historyColTitle}>
                 {selected ? `${selected.customer.name} 님 발송 이력` : '발송 이력'}
               </div>
               <button
                 className={styles.smsBtn}
-                onClick={() => setPanelOpen(true)}
+                onClick={() => {
+                  if (historyColRef.current) {
+                    const rect = historyColRef.current.getBoundingClientRect()
+                    setPopupTop(rect.top + 58)
+                    setPopupRight(window.innerWidth - rect.right)
+                    setPopupHeight(rect.height - 58)
+                  }
+                  setPanelOpen(true)
+                }}
                 disabled={!selected}
                 style={!selected ? {opacity: 0.4, cursor: 'not-allowed'} : {}}
               >
@@ -420,7 +431,7 @@ export default function NotificationsPage() {
             {panelOpen && selected && (
               <>
                 <div className={styles.phoneOverlay} onClick={() => setPanelOpen(false)} />
-          <div className={styles.phoneSlideUp}>
+          <div className={styles.phoneSlideUp} style={{ top: popupTop, right: popupRight, height: popupHeight }}>
             <div className={styles.phonePanel}>
             {/* 닫기 */}
             <div className={styles.popupHeader}>
