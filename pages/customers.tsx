@@ -757,53 +757,37 @@ export default function Customers() {
         <div
           className={[styles.slidePanel, slideOpen ? styles.slideIn : styles.slideOut].join(' ')}
           onClick={e => e.stopPropagation()}
+          onTouchStart={e => {
+            const startY = e.touches[0].clientY
+            const panel = e.currentTarget as HTMLElement
+            const content = slideContentRef.current
+            let dragging = false
+
+            const onMove = (ev: TouchEvent) => {
+              const dy = ev.touches[0].clientY - startY
+              // 콘텐츠 스크롤 중이면 패널 드래그 안 함
+              if (content && content.scrollTop > 0 && dy > 0) return
+              if (dy > 0) {
+                dragging = true
+                ev.preventDefault()
+                panel.style.transform = `translateY(${dy}px)`
+                panel.style.transition = 'none'
+              }
+            }
+            const onEnd = (ev: TouchEvent) => {
+              const dy = ev.changedTouches[0].clientY - startY
+              panel.style.transition = ''
+              panel.style.transform = ''
+              if (dragging && dy > 100) closeSlide()
+              document.removeEventListener('touchmove', onMove)
+              document.removeEventListener('touchend', onEnd)
+            }
+            document.addEventListener('touchmove', onMove, { passive: false })
+            document.addEventListener('touchend', onEnd)
+          }}
         >
           <div className={styles.slideHandle} />
-          <div
-            className={styles.slideContent}
-            ref={slideContentRef}
-            onTouchStart={e => {
-              const startY = e.touches[0].clientY
-              const startX = e.touches[0].clientX
-              const panel = slideContentRef.current?.parentElement as HTMLElement
-              const content = slideContentRef.current!
-              let dragging = false
-              let blocked = false
-
-              const onMove = (ev: TouchEvent) => {
-                if (blocked) return
-                const dy = ev.touches[0].clientY - startY
-                const dx = Math.abs(ev.touches[0].clientX - startX)
-
-                // 가로 스와이프면 무시
-                if (dx > 10 && dx > dy) { blocked = true; return }
-
-                // 콘텐츠가 스크롤 중이면 무시 (최상단에서만 패널 드래그)
-                if (content.scrollTop > 0) { blocked = true; return }
-
-                // 아래 방향 스와이프일 때만
-                if (dy > 8) {
-                  dragging = true
-                  ev.preventDefault()
-                  ev.stopPropagation()
-                  panel.style.transform = `translateY(${Math.max(0, dy)}px)`
-                  panel.style.transition = 'none'
-                }
-              }
-
-              const onEnd = (ev: TouchEvent) => {
-                const dy = ev.changedTouches[0].clientY - startY
-                panel.style.transition = 'transform 0.3s ease'
-                panel.style.transform = ''
-                if (dragging && dy > 100) closeSlide()
-                document.removeEventListener('touchmove', onMove)
-                document.removeEventListener('touchend', onEnd)
-              }
-
-              document.addEventListener('touchmove', onMove, { passive: false })
-              document.addEventListener('touchend', onEnd)
-            }}
-          >
+          <div className={styles.slideContent} ref={slideContentRef}>
             {addMode && !selected && (
               <div className={styles.editBox} style={{padding:'20px 0'}}>
                 <div className={styles.slideHeader} style={{marginBottom:12}}>
