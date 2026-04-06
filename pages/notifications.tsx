@@ -83,6 +83,7 @@ export default function NotificationsPage() {
   const [tab, setTab] = useState<TabType>('all')
   const [customers, setCustomers] = useState<any[]>([])
   const [contracts, setContracts] = useState<any[]>([])
+  const [coverages, setCoverages] = useState<any[]>([])
   const [messages, setMessages] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState<any>(null)
@@ -100,9 +101,11 @@ export default function NotificationsPage() {
     const agentId = user?.id
     const { data: custs } = await supabase.from('dpa_customers').select('*').eq('agent_id', agentId)
     const { data: conts } = await supabase.from('dpa_contracts').select('*').eq('agent_id', agentId)
+    const { data: covs } = await supabase.from('dpa_coverages').select('*').in('contract_id', (conts || []).map((c: any) => c.id))
     const { data: msgs } = await supabase.from('dpa_messages').select('*, dpa_customers(name)').eq('agent_id', agentId).order('created_at', { ascending: false }).limit(50)
     setCustomers(custs || [])
     setContracts(conts || [])
+    setCoverages(covs || [])
     setMessages(msgs || [])
     setLoading(false)
   }
@@ -131,11 +134,16 @@ export default function NotificationsPage() {
     }
   })
 
-  // 보장 공백
+  // 보장 공백 (뇌혈관 보장항목 없는 고객만)
   customers.forEach(c => {
     const cts = contracts.filter(ct => ct.customer_id === c.id)
     if (cts.length === 0) return
-    notifications.push({ id: `gap-${c.id}`, type: 'gap', customer: c, priority: 200 })
+    const cvs = coverages.filter(cv => cts.some(ct => ct.id === cv.contract_id))
+    const hasBrain = cvs.some(cv => cv.category === '뇌혈관')
+    const hasCare = cvs.some(cv => cv.category === '간병')
+    if (!hasBrain || !hasCare) {
+      notifications.push({ id: `gap-${c.id}`, type: 'gap', customer: c, hasBrain, hasCare, priority: 200 })
+    }
   })
 
   // 만기 임박 (납입기간으로 계산)
@@ -198,7 +206,12 @@ export default function NotificationsPage() {
     if (n.type === 'birthday_d1') return '내일 생일이에요 — 오늘 미리 문자 보내드리세요'
     if (n.type === 'birthday_week') return `${n.days}일 후 생일이에요 — 미리 준비해두세요`
     if (n.type === 'nearDone') return `납입률 ${n.rate}% 도달 — 완납 후 재설계 제안 필요`
-    if (n.type === 'gap') return '뇌혈관 + 간병인 미가입 — 확대 제안 필요'
+    if (n.type === 'gap') {
+      const parts = []
+      if (!n.hasBrain) parts.push('뇌혈관')
+      if (!n.hasCare) parts.push('간병인')
+      return `${parts.join(' + ')} 미가입 — 확대 제안 필요`
+    }
     if (n.type === 'expiry') return `${n.contract?.product_name} 만기 임박 — 재가입 안내 필요`
     return ''
   }
@@ -308,7 +321,6 @@ export default function NotificationsPage() {
 
   return (
     <div className={styles.wrap}>
-      <div className={styles.pageTitle}>알림</div>
 
       {/* 탭 */}
       <div className={styles.tabRow}>
@@ -404,6 +416,7 @@ export default function NotificationsPage() {
                   </div>
                   {aiLoading && <span className={styles.aiLoading}>생성 중...</span>}
                 </div>
+                <div className={styles.aiDesc}>상황에 맞는 문자를 추천해 드려요. 자유롭게 수정 후 발송하세요 😊</div>
 
                 {/* 톤 버튼 */}
                 <div className={styles.toneRow}>
