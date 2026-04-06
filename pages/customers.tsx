@@ -697,7 +697,7 @@ export default function Customers() {
                     <div className={styles.insCardHeader}>
                       <div className={styles.insCardLeft}>
                         <div className={styles.insCardTitle}>{idx+1}. {ct.company}{ct.product_name ? ` · ${ct.product_name}` : ''}</div>
-                        <div className={styles.insCardMeta}>{ct.monthly_fee>0?`${ct.monthly_fee.toLocaleString()}원/월`:''}{ct.payment_years?` · ${ct.payment_years}`:''}{ct.expiry_age?` · ${ct.expiry_age}만기`:''}</div>
+                        <div className={styles.insCardMeta}>{ct.monthly_fee>0?`${ct.monthly_fee.toLocaleString()}원/월`:''}{ct.contract_start?` · ${ct.contract_start} 가입`:''}{ct.payment_years?` · ${ct.payment_years}`:''}{ct.expiry_age?` · ${ct.expiry_age}만기`:''}</div>
                       </div>
                       <div className={styles.insCardRight}>
                         <span className={[styles.badge, ct.payment_status==='완납'?styles.badgeGreen:calcPaymentRate(ct)>=90?styles.badgeWarn:styles.badgeBlue].join(' ')}>{ct.payment_status==='완납'?'완납':`${calcPaymentRate(ct)}%`}</span>
