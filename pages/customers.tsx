@@ -46,6 +46,27 @@ function fmtAmount(n: number): string {
   return `${n.toLocaleString()}원`
 }
 
+// 납입률 실시간 계산 함수
+function calcPaymentRate(ct: any): number {
+  if (ct.payment_status === '완납') return 100
+  // contract_start(YYYY.MM)와 payment_years(20년납) 있으면 자동 계산
+  if (ct.contract_start && ct.payment_years) {
+    const match = ct.payment_years.match(/(\d+)년/)
+    if (match) {
+      const totalMonths = parseInt(match[1]) * 12
+      const [year, month] = ct.contract_start.split('.').map(Number)
+      if (year && month) {
+        const now = new Date()
+        const paidMonths = (now.getFullYear() - year) * 12 + (now.getMonth() + 1 - month) + 1
+        const rate = Math.min(Math.round(Math.max(0, paidMonths) / totalMonths * 100), 100)
+        return rate
+      }
+    }
+  }
+  // fallback: DB 저장값 사용
+  return ct.payment_rate || 0
+}
+
 const emptyCustomerForm = {
   name: '', resident_number: '', age: '', gender: '남', job: '직장인', phone: '', grade: '일반',
   address: '', workplace: '', bank_name: '', bank_account: '', driver_license: ''
@@ -335,7 +356,7 @@ export default function Customers() {
   const getBadges = (c: any) => {
     const badges = []
     const cContracts = contracts.filter((ct: any) => ct.customer_id === c.id)
-    if (cContracts.some((ct: any) => ct.payment_rate >= 90 && ct.payment_status !== '완납'))
+    if (cContracts.some((ct: any) => calcPaymentRate(ct) >= 90 && ct.payment_status !== '완납'))
       badges.push({ label: '🔥 완납임박', cls: styles.badgeWarn })
     const cCoverages = coverages.filter((cv: any) => cContracts.some((ct: any) => ct.id === cv.contract_id))
     const brainTypes = cCoverages.filter((cv: any) => cv.category === '뇌혈관').map((cv: any) => cv.brain_coverage_type)
@@ -373,7 +394,7 @@ export default function Customers() {
         const getRate = (c: any) => {
           const cts = contracts.filter((ct: any) => ct.customer_id === c.id)
           if (!cts.length) return 0
-          return Math.max(...cts.map((ct: any) => ct.payment_rate || 0))
+          return Math.max(...cts.map((ct: any) => calcPaymentRate(ct)))
         }
         return getRate(b) - getRate(a)
       })
@@ -679,10 +700,33 @@ export default function Customers() {
                         <div className={styles.insCardMeta}>{ct.monthly_fee>0?`${ct.monthly_fee.toLocaleString()}원/월`:''}{ct.payment_years?` · ${ct.payment_years}`:''}{ct.expiry_age?` · ${ct.expiry_age}만기`:''}</div>
                       </div>
                       <div className={styles.insCardRight}>
-                        <span className={[styles.badge, ct.payment_status==='완납'?styles.badgeGreen:ct.payment_rate>=90?styles.badgeWarn:styles.badgeBlue].join(' ')}>{ct.payment_status==='완납'?'완납':`${ct.payment_rate}%`}</span>
+                        <span className={[styles.badge, ct.payment_status==='완납'?styles.badgeGreen:calcPaymentRate(ct)>=90?styles.badgeWarn:styles.badgeBlue].join(' ')}>{ct.payment_status==='완납'?'완납':`${calcPaymentRate(ct)}%`}</span>
                         {ct.insurance_type && <span className={styles.insTypeBadge}>{ct.insurance_type}</span>}
+                        <button className={styles.editBtn} onClick={() => { setEditContractId(editContractId === ct.id ? null : ct.id); setEditContractForm(ct) }}>수정</button>
+                        <button className={styles.deleteBtn} onClick={e => deleteContract(ct.id, e)}>삭제</button>
                       </div>
                     </div>
+                    {editContractId === ct.id && (
+                      <div className={styles.contractEditBox}>
+                        <div className={styles.editGrid}>
+                          {[
+                            { key: 'company', label: '보험사' }, { key: 'product_name', label: '상품명' },
+                            { key: 'monthly_fee', label: '월보험료' }, { key: 'insurance_type', label: '보험종류' },
+                            { key: 'contract_start', label: '가입연월' }, { key: 'payment_years', label: '납입기간' },
+                            { key: 'expiry_age', label: '만기' }, { key: 'payment_status', label: '납입상태' },
+                          ].map(f => (
+                            <div key={f.key} className={styles.editField}>
+                              <label>{f.label}</label>
+                              <input value={editContractForm[f.key] || ''} onChange={e => setEditContractForm({ ...editContractForm, [f.key]: e.target.value })} />
+                            </div>
+                          ))}
+                        </div>
+                        <div className={styles.editActions}>
+                          <button className={styles.saveBtn} onClick={saveContractEdit}>저장</button>
+                          <button className={styles.cancelBtn} onClick={() => setEditContractId(null)}>취소</button>
+                        </div>
+                      </div>
+                    )}
                     {groups.length > 0 && (
                       <div className={styles.coverageList}>
                         {groups.map(g => (
@@ -909,8 +953,8 @@ export default function Customers() {
                           </div>
                         </div>
                         <div className={styles.insCardRight}>
-                          <span className={[styles.badge, ct.payment_status === '완납' ? styles.badgeGreen : ct.payment_rate >= 90 ? styles.badgeWarn : styles.badgeBlue].join(' ')}>
-                            {ct.payment_status === '완납' ? '완납' : `${ct.payment_rate}%`}
+                          <span className={[styles.badge, ct.payment_status === '완납' ? styles.badgeGreen : calcPaymentRate(ct) >= 90 ? styles.badgeWarn : styles.badgeBlue].join(' ')}>
+                            {ct.payment_status === '완납' ? '완납' : `${calcPaymentRate(ct)}%`}
                           </span>
                           {ct.insurance_type && <span className={styles.insTypeBadge}>{ct.insurance_type}</span>}
                           <button className={styles.editBtn} onClick={() => { setEditContractId(isEditing ? null : ct.id); setEditContractForm(ct) }}>수정</button>
