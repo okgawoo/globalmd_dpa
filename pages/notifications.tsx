@@ -389,11 +389,14 @@ export default function NotificationsPage() {
               <div className={styles.historyColTitle}>
                 {selected ? `${selected.customer.name} 님 발송 이력` : '발송 이력'}
               </div>
-              {selected && (
-                <button className={styles.smsBtn} onClick={() => setPanelOpen(true)}>
-                  📱 SMS 보내기
-                </button>
-              )}
+              <button
+                className={styles.smsBtn}
+                onClick={() => setPanelOpen(true)}
+                disabled={!selected}
+                style={!selected ? {opacity: 0.4, cursor: 'not-allowed'} : {}}
+              >
+                📱 SMS 보내기
+              </button>
             </div>
             {filteredMsgs.length === 0 ? (
               <div className={styles.historyEmpty}>
