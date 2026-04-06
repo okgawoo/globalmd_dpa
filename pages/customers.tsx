@@ -6,6 +6,28 @@ import styles from '../styles/Customers.module.css'
 type Tab = 'existing' | 'prospect'
 const AGE_FILTERS = ['연령대전체', '유아(0-7)', '10대', '20대', '30대', '40대', '50대', '60대+']
 
+// 공통 드롭다운 옵션
+const INSURANCE_COMPANIES = ['삼성생명','한화생명','교보생명','신한라이프','DB생명','흥국생명','동양생명','미래에셋생명','삼성화재','현대해상','DB손해보험','KB손해보험','메리츠화재','롯데손해보험','기타']
+const INSURANCE_TYPES = ['건강','실손','운전자','자동차','암','치아','간병','CI','종신','기타']
+const PAYMENT_STATUSES = ['유지','완납','실효','실납','해지']
+const PAYMENT_YEARS = ['5년납','10년납','15년납','20년납','25년납','30년납','전기납','일시납']
+const EXPIRY_AGES = ['60세','65세','70세','75세','80세','85세','90세','95세','100세','종신']
+const CURRENT_YEAR = new Date().getFullYear()
+const YEARS = Array.from({length: 30}, (_, i) => String(CURRENT_YEAR - i))
+const MONTHS = ['01','02','03','04','05','06','07','08','09','10','11','12']
+
+// 가입연월 파싱 (YYYY.MM → {year, month})
+function parseContractStart(v: string): {year: string, month: string} {
+  if (!v) return {year: '', month: ''}
+  const [y, m] = v.split('.')
+  return {year: y || '', month: m ? m.padStart(2,'0') : ''}
+}
+// 가입연월 합치기
+function joinContractStart(year: string, month: string): string {
+  if (!year || !month) return ''
+  return `${year}.${month}`
+}
+
 const COVERAGE_GROUPS = [
   { key: '암진단', icon: '💊', label: '암 보장' },
   { key: '뇌혈관', icon: '🧠', label: '뇌혈관' },
@@ -427,18 +449,18 @@ export default function Customers() {
         <button
           className={[styles.iconTab, tab === 'existing' ? styles.activeIconTab : ''].join(' ')}
           onClick={() => { setTab('existing'); setAddMode(false); setAddForm(emptyCustomerForm); setAddContracts([{company:'삼성생명',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}]); closeSlide() }}
-          title="기존 고객"
-        >
+          title="마이고객"
+          >
           <span className={styles.tabIcon}><IconUsers active={tab === 'existing'} /></span>
-          <span>기존 고객</span>
+          <span>마이고객</span>
         </button>
         <button
           className={[styles.iconTab, tab === 'prospect' ? styles.activeIconTab : ''].join(' ')}
           onClick={() => { setTab('prospect'); setAddMode(false); setAddForm(emptyCustomerForm); setAddContracts([{company:'삼성생명',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}]); closeSlide() }}
-          title="잠재 고객"
-        >
+          title="관심고객"
+          >
           <span className={styles.tabIcon}><IconUser active={tab === 'prospect'} /></span>
-          <span>잠재 고객</span>
+          <span>관심고객</span>
         </button>
 
         {/* 모바일 전용: 인라인 검색 + 고객추가 */}
@@ -517,7 +539,7 @@ export default function Customers() {
         <div className={styles.detailPanel} onWheel={e => { e.currentTarget.scrollTop += e.deltaY; }}>
           {addMode ? (
             <div className={styles.editBox}>
-              <div className={styles.editSectionTitle}>{addType === 'existing' ? '기존 고객' : '잠재 고객'} 추가</div>
+              <div className={styles.editSectionTitle}>{addType === 'existing' ? '마이고객' : '관심고객'} 추가</div>
               <div className={styles.editGrid}>
                 <div className={styles.editField}><label>이름 *</label><input placeholder="홍길동" value={addForm.name} onChange={e => setAddForm({ ...addForm, name: e.target.value.replace(/[0-9]/g, '') })} /></div>
                 <div className={styles.editField}><label>연락처</label><input placeholder="010-0000-0000" inputMode="numeric" value={addForm.phone} onChange={e => setAddForm({ ...addForm, phone: formatPhone(e.target.value) })} /></div>
@@ -553,24 +575,45 @@ export default function Customers() {
                   <div className={styles.editGrid}>
                     <div className={styles.editField}><label>보험사</label>
                       <select value={ct.company} onChange={e=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,company:e.target.value}:c))} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
-                        {['삼성생명','한화생명','교보생명','신한라이프','DB생명','흥국생명','동양생명','미래에셋생명','삼성화재','현대해상','DB손해보험','KB손해보험','메리츠화재','롯데손해보험','기타'].map(c=><option key={c}>{c}</option>)}
+                        {INSURANCE_COMPANIES.map(c=><option key={c}>{c}</option>)}
                       </select>
                     </div>
                     <div className={styles.editField}><label>상품명</label><input value={ct.product_name} onChange={e=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,product_name:e.target.value}:c))} placeholder="무배당 건강보험" /></div>
                     <div className={styles.editField}><label>보험 종류</label>
                       <select value={ct.insurance_type} onChange={e=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,insurance_type:e.target.value}:c))} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
-                        {['건강','실손','운전자','자동차','암','치아','간병','CI','종신','기타'].map(t=><option key={t}>{t}</option>)}
+                        {INSURANCE_TYPES.map(t=><option key={t}>{t}</option>)}
                       </select>
                     </div>
                     <div className={styles.editField}><label>월보험료(원) *</label><input inputMode="numeric" value={ct.monthly_fee?formatMoney(String(ct.monthly_fee)):''} onChange={e=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,monthly_fee:parseMoney(e.target.value)}:c))} placeholder="50,000" /></div>
                     <div className={styles.editField}><label>납입상태</label>
                       <select value={ct.payment_status} onChange={e=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,payment_status:e.target.value}:c))} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
-                        <option>유지</option><option>완납</option><option>실효</option>
+                        {PAYMENT_STATUSES.map(s=><option key={s}>{s}</option>)}
                       </select>
                     </div>
-                    <div className={styles.editField}><label>가입연월</label><input value={ct.contract_start} onChange={e=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,contract_start:e.target.value}:c))} placeholder="2020.01" /></div>
-                    <div className={styles.editField}><label>납입기간</label><input value={ct.payment_years} onChange={e=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,payment_years:e.target.value}:c))} placeholder="20년납" /></div>
-                    <div className={styles.editField}><label>만기</label><input value={ct.expiry_age} onChange={e=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,expiry_age:e.target.value}:c))} placeholder="90세" /></div>
+                    <div className={styles.editField}><label>가입연월</label>
+                      <div style={{display:'flex',gap:4}}>
+                        <select value={parseContractStart(ct.contract_start).year} onChange={e=>{const m=parseContractStart(ct.contract_start).month;setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,contract_start:joinContractStart(e.target.value,m)}:c))}} style={{flex:1,fontSize:13,padding:'6px 6px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                          <option value="">년</option>
+                          {YEARS.map(y=><option key={y}>{y}</option>)}
+                        </select>
+                        <select value={parseContractStart(ct.contract_start).month} onChange={e=>{const y=parseContractStart(ct.contract_start).year;setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,contract_start:joinContractStart(y,e.target.value)}:c))}} style={{flex:1,fontSize:13,padding:'6px 6px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                          <option value="">월</option>
+                          {MONTHS.map(m=><option key={m}>{m}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                    <div className={styles.editField}><label>납입기간</label>
+                      <select value={ct.payment_years} onChange={e=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,payment_years:e.target.value}:c))} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                        <option value="">선택</option>
+                        {PAYMENT_YEARS.map(p=><option key={p}>{p}</option>)}
+                      </select>
+                    </div>
+                    <div className={styles.editField}><label>만기</label>
+                      <select value={ct.expiry_age} onChange={e=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,expiry_age:e.target.value}:c))} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                        <option value="">선택</option>
+                        {EXPIRY_AGES.map(a=><option key={a}>{a}</option>)}
+                      </select>
+                    </div>
                     <div className={styles.editField}><label>총 납입 회차</label><input inputMode="numeric" value={ct.total_months||''} onChange={e=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,total_months:e.target.value.replace(/[^0-9]/g,'')}:c))} placeholder="120" /></div>
                     <div className={styles.editField}><label>완료 회차</label><input inputMode="numeric" value={ct.paid_months||''} onChange={e=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,paid_months:e.target.value.replace(/[^0-9]/g,'')}:c))} placeholder="36" /></div>
                     <div className={styles.editField} style={{gridColumn:'span 2'}}>
@@ -709,17 +752,47 @@ export default function Customers() {
                     {editContractId === ct.id && (
                       <div className={styles.contractEditBox}>
                         <div className={styles.editGrid}>
-                          {[
-                            { key: 'company', label: '보험사' }, { key: 'product_name', label: '상품명' },
-                            { key: 'monthly_fee', label: '월보험료' }, { key: 'insurance_type', label: '보험종류' },
-                            { key: 'contract_start', label: '가입연월' }, { key: 'payment_years', label: '납입기간' },
-                            { key: 'expiry_age', label: '만기' }, { key: 'payment_status', label: '납입상태' },
-                          ].map(f => (
-                            <div key={f.key} className={styles.editField}>
-                              <label>{f.label}</label>
-                              <input value={editContractForm[f.key] || ''} onChange={e => setEditContractForm({ ...editContractForm, [f.key]: e.target.value })} />
+                          <div className={styles.editField}><label>보험사</label>
+                            <select value={editContractForm.company||''} onChange={e=>setEditContractForm({...editContractForm,company:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                              {INSURANCE_COMPANIES.map(c=><option key={c}>{c}</option>)}
+                            </select>
+                          </div>
+                          <div className={styles.editField}><label>상품명</label><input value={editContractForm.product_name||''} onChange={e=>setEditContractForm({...editContractForm,product_name:e.target.value})} /></div>
+                          <div className={styles.editField}><label>월보험료(원)</label><input inputMode="numeric" value={editContractForm.monthly_fee?formatMoney(String(editContractForm.monthly_fee)):''} onChange={e=>setEditContractForm({...editContractForm,monthly_fee:parseMoney(e.target.value)})} placeholder="50,000" /></div>
+                          <div className={styles.editField}><label>보험종류</label>
+                            <select value={editContractForm.insurance_type||''} onChange={e=>setEditContractForm({...editContractForm,insurance_type:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                              {INSURANCE_TYPES.map(t=><option key={t}>{t}</option>)}
+                            </select>
+                          </div>
+                          <div className={styles.editField}><label>가입연월</label>
+                            <div style={{display:'flex',gap:4}}>
+                              <select value={parseContractStart(editContractForm.contract_start||'').year} onChange={e=>setEditContractForm({...editContractForm,contract_start:joinContractStart(e.target.value,parseContractStart(editContractForm.contract_start||'').month)})} style={{flex:1,fontSize:13,padding:'6px 6px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                                <option value="">년</option>
+                                {YEARS.map(y=><option key={y}>{y}</option>)}
+                              </select>
+                              <select value={parseContractStart(editContractForm.contract_start||'').month} onChange={e=>setEditContractForm({...editContractForm,contract_start:joinContractStart(parseContractStart(editContractForm.contract_start||'').year,e.target.value)})} style={{flex:1,fontSize:13,padding:'6px 6px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                                <option value="">월</option>
+                                {MONTHS.map(m=><option key={m}>{m}</option>)}
+                              </select>
                             </div>
-                          ))}
+                          </div>
+                          <div className={styles.editField}><label>납입기간</label>
+                            <select value={editContractForm.payment_years||''} onChange={e=>setEditContractForm({...editContractForm,payment_years:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                              <option value="">선택</option>
+                              {PAYMENT_YEARS.map(p=><option key={p}>{p}</option>)}
+                            </select>
+                          </div>
+                          <div className={styles.editField}><label>만기</label>
+                            <select value={editContractForm.expiry_age||''} onChange={e=>setEditContractForm({...editContractForm,expiry_age:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                              <option value="">선택</option>
+                              {EXPIRY_AGES.map(a=><option key={a}>{a}</option>)}
+                            </select>
+                          </div>
+                          <div className={styles.editField}><label>납입상태</label>
+                            <select value={editContractForm.payment_status||''} onChange={e=>setEditContractForm({...editContractForm,payment_status:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                              {PAYMENT_STATUSES.map(s=><option key={s}>{s}</option>)}
+                            </select>
+                          </div>
                         </div>
                         <div className={styles.editActions}>
                           <button className={styles.saveBtn} onClick={saveContractEdit}>저장</button>
@@ -749,24 +822,45 @@ export default function Customers() {
                   <div className={styles.editGrid}>
                     <div className={styles.editField}><label>보험사</label>
                       <select value={insForm.company} onChange={e=>setInsForm({...insForm,company:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
-                        {['삼성생명','한화생명','교보생명','신한라이프','DB생명','흥국생명','동양생명','미래에셋생명','삼성화재','현대해상','DB손해보험','KB손해보험','메리츠화재','롯데손해보험','기타'].map(c=><option key={c}>{c}</option>)}
+                        {INSURANCE_COMPANIES.map(c=><option key={c}>{c}</option>)}
                       </select>
                     </div>
                     <div className={styles.editField}><label>상품명</label><input value={insForm.product_name} onChange={e=>setInsForm({...insForm,product_name:e.target.value})} placeholder="무배당 건강보험" /></div>
                     <div className={styles.editField}><label>보험 종류</label>
                       <select value={insForm.insurance_type} onChange={e=>setInsForm({...insForm,insurance_type:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
-                        {['건강','실손','운전자','자동차','암','치아','간병','CI','종신','기타'].map(t=><option key={t}>{t}</option>)}
+                        {INSURANCE_TYPES.map(t=><option key={t}>{t}</option>)}
                       </select>
                     </div>
-                    <div className={styles.editField}><label>월보험료(원) *</label><input inputMode="numeric" value={insForm.monthly_fee} onChange={e=>setInsForm({...insForm,monthly_fee:e.target.value.replace(/[^0-9]/g,'')})} placeholder="50000" /></div>
+                    <div className={styles.editField}><label>월보험료(원) *</label><input inputMode="numeric" value={insForm.monthly_fee?formatMoney(String(insForm.monthly_fee)):''} onChange={e=>setInsForm({...insForm,monthly_fee:parseMoney(e.target.value)})} placeholder="50,000" /></div>
                     <div className={styles.editField}><label>납입상태</label>
                       <select value={insForm.payment_status} onChange={e=>setInsForm({...insForm,payment_status:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
-                        <option>유지</option><option>완납</option><option>실효</option>
+                        {PAYMENT_STATUSES.map(s=><option key={s}>{s}</option>)}
                       </select>
                     </div>
-                    <div className={styles.editField}><label>가입연월</label><input value={insForm.contract_start} onChange={e=>setInsForm({...insForm,contract_start:e.target.value})} placeholder="2020.01" /></div>
-                    <div className={styles.editField}><label>납입기간</label><input value={insForm.payment_years} onChange={e=>setInsForm({...insForm,payment_years:e.target.value})} placeholder="20년납" /></div>
-                    <div className={styles.editField}><label>만기</label><input value={insForm.expiry_age} onChange={e=>setInsForm({...insForm,expiry_age:e.target.value})} placeholder="90세" /></div>
+                    <div className={styles.editField}><label>가입연월</label>
+                      <div style={{display:'flex',gap:4}}>
+                        <select value={parseContractStart(insForm.contract_start).year} onChange={e=>setInsForm({...insForm,contract_start:joinContractStart(e.target.value,parseContractStart(insForm.contract_start).month)})} style={{flex:1,fontSize:13,padding:'6px 6px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                          <option value="">년</option>
+                          {YEARS.map(y=><option key={y}>{y}</option>)}
+                        </select>
+                        <select value={parseContractStart(insForm.contract_start).month} onChange={e=>setInsForm({...insForm,contract_start:joinContractStart(parseContractStart(insForm.contract_start).year,e.target.value)})} style={{flex:1,fontSize:13,padding:'6px 6px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                          <option value="">월</option>
+                          {MONTHS.map(m=><option key={m}>{m}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                    <div className={styles.editField}><label>납입기간</label>
+                      <select value={insForm.payment_years} onChange={e=>setInsForm({...insForm,payment_years:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                        <option value="">선택</option>
+                        {PAYMENT_YEARS.map(p=><option key={p}>{p}</option>)}
+                      </select>
+                    </div>
+                    <div className={styles.editField}><label>만기</label>
+                      <select value={insForm.expiry_age} onChange={e=>setInsForm({...insForm,expiry_age:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                        <option value="">선택</option>
+                        {EXPIRY_AGES.map(a=><option key={a}>{a}</option>)}
+                      </select>
+                    </div>
                   </div>
                   <div className={styles.editSectionTitle} style={{marginTop:12}}>보장 항목</div>
                   {insCoverages.map((cv,i) => (
@@ -843,7 +937,7 @@ export default function Customers() {
             {addMode && !selected && (
               <div className={styles.editBox} style={{padding:'20px 0'}}>
                 <div className={styles.slideHeader} style={{marginBottom:12}}>
-                  <div style={{flex:1,fontWeight:700,fontSize:15}}>{addType === 'existing' ? '기존 고객' : '잠재 고객'} 추가</div>
+                  <div style={{flex:1,fontWeight:700,fontSize:15}}>{addType === 'existing' ? '마이고객' : '관심고객'} 추가</div>
                   <button className={styles.slideCloseBtn} onClick={closeSlide}>✕</button>
                 </div>
                 <div className={styles.editSectionTitle}>개인정보</div>
@@ -964,17 +1058,47 @@ export default function Customers() {
                       {isEditing && (
                         <div className={styles.contractEditBox}>
                           <div className={styles.editGrid}>
-                            {[
-                              { key: 'company', label: '보험사' }, { key: 'product_name', label: '상품명' },
-                              { key: 'monthly_fee', label: '월보험료' }, { key: 'insurance_type', label: '보험종류' },
-                              { key: 'contract_start', label: '가입연월' }, { key: 'payment_years', label: '납입기간' },
-                              { key: 'expiry_age', label: '만기' }, { key: 'payment_status', label: '납입상태' },
-                            ].map(f => (
-                              <div key={f.key} className={styles.editField}>
-                                <label>{f.label}</label>
-                                <input value={editContractForm[f.key] || ''} onChange={e => setEditContractForm({ ...editContractForm, [f.key]: e.target.value })} />
+                            <div className={styles.editField}><label>보험사</label>
+                              <select value={editContractForm.company||''} onChange={e=>setEditContractForm({...editContractForm,company:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                                {INSURANCE_COMPANIES.map(c=><option key={c}>{c}</option>)}
+                              </select>
+                            </div>
+                            <div className={styles.editField}><label>상품명</label><input value={editContractForm.product_name||''} onChange={e=>setEditContractForm({...editContractForm,product_name:e.target.value})} /></div>
+                            <div className={styles.editField}><label>월보험료(원)</label><input inputMode="numeric" value={editContractForm.monthly_fee?formatMoney(String(editContractForm.monthly_fee)):''} onChange={e=>setEditContractForm({...editContractForm,monthly_fee:parseMoney(e.target.value)})} placeholder="50,000" /></div>
+                            <div className={styles.editField}><label>보험종류</label>
+                              <select value={editContractForm.insurance_type||''} onChange={e=>setEditContractForm({...editContractForm,insurance_type:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                                {INSURANCE_TYPES.map(t=><option key={t}>{t}</option>)}
+                              </select>
+                            </div>
+                            <div className={styles.editField}><label>가입연월</label>
+                              <div style={{display:'flex',gap:4}}>
+                                <select value={parseContractStart(editContractForm.contract_start||'').year} onChange={e=>setEditContractForm({...editContractForm,contract_start:joinContractStart(e.target.value,parseContractStart(editContractForm.contract_start||'').month)})} style={{flex:1,fontSize:13,padding:'6px 6px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                                  <option value="">년</option>
+                                  {YEARS.map(y=><option key={y}>{y}</option>)}
+                                </select>
+                                <select value={parseContractStart(editContractForm.contract_start||'').month} onChange={e=>setEditContractForm({...editContractForm,contract_start:joinContractStart(parseContractStart(editContractForm.contract_start||'').year,e.target.value)})} style={{flex:1,fontSize:13,padding:'6px 6px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                                  <option value="">월</option>
+                                  {MONTHS.map(m=><option key={m}>{m}</option>)}
+                                </select>
                               </div>
-                            ))}
+                            </div>
+                            <div className={styles.editField}><label>납입기간</label>
+                              <select value={editContractForm.payment_years||''} onChange={e=>setEditContractForm({...editContractForm,payment_years:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                                <option value="">선택</option>
+                                {PAYMENT_YEARS.map(p=><option key={p}>{p}</option>)}
+                              </select>
+                            </div>
+                            <div className={styles.editField}><label>만기</label>
+                              <select value={editContractForm.expiry_age||''} onChange={e=>setEditContractForm({...editContractForm,expiry_age:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                                <option value="">선택</option>
+                                {EXPIRY_AGES.map(a=><option key={a}>{a}</option>)}
+                              </select>
+                            </div>
+                            <div className={styles.editField}><label>납입상태</label>
+                              <select value={editContractForm.payment_status||''} onChange={e=>setEditContractForm({...editContractForm,payment_status:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                                {PAYMENT_STATUSES.map(s=><option key={s}>{s}</option>)}
+                              </select>
+                            </div>
                           </div>
                           <div className={styles.editActions}>
                             <button className={styles.saveBtn} onClick={saveContractEdit}>저장</button>

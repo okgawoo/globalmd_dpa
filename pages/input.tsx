@@ -11,6 +11,22 @@ const COMPANIES = ['삼성생명', '한화생명', '교보생명', '신한라이
 const INS_TYPES = ['건강', '실손', '운전자', '자동차', '암', '치아', '간병', 'CI', '종신', '기타']
 const CATEGORIES = ['암진단', '뇌혈관', '심장', '간병', '수술비', '실손', '비급여', '상해', '사고처리', '벌금', '특이사항']
 const BANKS = ['국민은행', '신한은행', '우리은행', '하나은행', 'IBK기업은행', 'NH농협은행', '카카오뱅크', '토스뱅크', '케이뱅크', 'SC제일은행', '씨티은행', '대구은행', '부산은행', '경남은행', '광주은행', '전북은행', '제주은행', '수협은행', '신협', '우체국', '기타']
+const PAYMENT_STATUSES = ['유지', '완납', '실효', '실납', '해지']
+const PAYMENT_YEARS = ['5년납', '10년납', '15년납', '20년납', '25년납', '30년납', '전기납', '일시납']
+const EXPIRY_AGES = ['60세', '65세', '70세', '75세', '80세', '85세', '90세', '95세', '100세', '종신']
+const CURRENT_YEAR = new Date().getFullYear()
+const YEARS = Array.from({length: 30}, (_, i) => String(CURRENT_YEAR - i))
+const MONTHS = ['01','02','03','04','05','06','07','08','09','10','11','12']
+
+function parseContractStart(v: string): {year: string, month: string} {
+  if (!v) return {year: '', month: ''}
+  const [y, m] = v.split('.')
+  return {year: y || '', month: m ? m.padStart(2,'0') : ''}
+}
+function joinContractStart(year: string, month: string): string {
+  if (!year || !month) return ''
+  return `${year}.${month}`
+}
 
 function formatMoney(value: string): string {
   const num = value.replace(/[^0-9]/g, '')
@@ -306,10 +322,21 @@ export default function InputPage() {
                 <div className={styles.field}><label>상품명</label><input value={ct.product_name} onChange={e => updateContract(idx, 'product_name', e.target.value)} placeholder="무배당 건강보험" /></div>
                 <div className={styles.field}><label>보험 종류</label><select value={ct.insurance_type} onChange={e => updateContract(idx, 'insurance_type', e.target.value)}>{INS_TYPES.map(t => <option key={t}>{t}</option>)}</select></div>
                 <div className={styles.field}><label>월보험료 (원)</label><input inputMode="numeric" value={ct.monthly_fee ? formatMoney(String(ct.monthly_fee)) : ''} onChange={e => updateContract(idx, 'monthly_fee', parseMoney(e.target.value))} placeholder="50,000" /></div>
-                <div className={styles.field}><label>납입 상태</label><select value={ct.payment_status} onChange={e => updateContract(idx, 'payment_status', e.target.value)}><option>유지</option><option>완납</option><option>실효</option></select></div>
-                <div className={styles.field}><label>가입 연월</label><input value={ct.contract_start} onChange={e => updateContract(idx, 'contract_start', e.target.value)} placeholder="2022.12" /></div>
-                <div className={styles.field}><label>납입기간</label><input value={ct.payment_years} onChange={e => updateContract(idx, 'payment_years', e.target.value)} placeholder="20년납" /></div>
-                <div className={styles.field}><label>만기</label><input value={ct.expiry_age} onChange={e => updateContract(idx, 'expiry_age', e.target.value)} placeholder="90세" /></div>
+                <div className={styles.field}><label>납입 상태</label><select value={ct.payment_status} onChange={e => updateContract(idx, 'payment_status', e.target.value)}>{PAYMENT_STATUSES.map(s => <option key={s}>{s}</option>)}</select></div>
+                <div className={styles.field}><label>가입 연월</label>
+                  <div style={{display:'flex',gap:4}}>
+                    <select value={parseContractStart(ct.contract_start).year} onChange={e=>updateContract(idx,'contract_start',joinContractStart(e.target.value,parseContractStart(ct.contract_start).month))} style={{flex:1,fontSize:13,padding:'9px 6px',borderRadius:8,border:'1px solid var(--border)',background:'var(--bg)'}}>
+                      <option value="">년</option>
+                      {YEARS.map(y=><option key={y}>{y}</option>)}
+                    </select>
+                    <select value={parseContractStart(ct.contract_start).month} onChange={e=>updateContract(idx,'contract_start',joinContractStart(parseContractStart(ct.contract_start).year,e.target.value))} style={{flex:1,fontSize:13,padding:'9px 6px',borderRadius:8,border:'1px solid var(--border)',background:'var(--bg)'}}>
+                      <option value="">월</option>
+                      {MONTHS.map(m=><option key={m}>{m}</option>)}
+                    </select>
+                  </div>
+                </div>
+                <div className={styles.field}><label>납입기간</label><select value={ct.payment_years} onChange={e => updateContract(idx, 'payment_years', e.target.value)}><option value="">선택</option>{PAYMENT_YEARS.map(p => <option key={p}>{p}</option>)}</select></div>
+                <div className={styles.field}><label>만기</label><select value={ct.expiry_age} onChange={e => updateContract(idx, 'expiry_age', e.target.value)}><option value="">선택</option>{EXPIRY_AGES.map(a => <option key={a}>{a}</option>)}</select></div>
                 <div className={styles.field}><label>총 납입 회차</label><input inputMode="numeric" value={ct.payment_total} onChange={e => updateContract(idx, 'payment_total', e.target.value.replace(/[^0-9]/g, ''))} placeholder="120" /></div>
                 <div className={styles.field}><label>완료 회차</label><input inputMode="numeric" value={ct.payment_done} onChange={e => updateContract(idx, 'payment_done', e.target.value.replace(/[^0-9]/g, ''))} placeholder="36" /></div>
                 <div className={styles.field}><label>납입률 (%) <span className={styles.autoTag}>자동</span></label><input value={ct.payment_rate} readOnly placeholder="자동 계산" className={styles.readOnly} /></div>
@@ -420,10 +447,18 @@ export default function InputPage() {
                 <div key={ctIdx} className={styles.parsedContractBlock}>
                   <div className={styles.parsedSection}>{ctIdx + 1}. {ct.company} · {ct.product_name}</div>
                   <div className={styles.parsedEditGrid}>
-                    <div className={styles.field}><label>보험사</label><input value={ct.company || ''} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].company = e.target.value; setParsed({...parsed, contracts: c}) }} /></div>
+                    <div className={styles.field}><label>보험사</label>
+                      <select value={ct.company || ''} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].company = e.target.value; setParsed({...parsed, contracts: c}) }}>
+                        {COMPANIES.map(c => <option key={c}>{c}</option>)}
+                      </select>
+                    </div>
                     <div className={styles.field}><label>상품명</label><input value={ct.product_name || ''} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].product_name = e.target.value; setParsed({...parsed, contracts: c}) }} /></div>
                     <div className={styles.field}><label>월보험료</label><input value={ct.monthly_fee ? Number(ct.monthly_fee).toLocaleString() : ''} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].monthly_fee = e.target.value.replace(/,/g, ''); setParsed({...parsed, contracts: c}) }} /></div>
-                    <div className={styles.field}><label>납입상태</label><input value={ct.payment_status || ''} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].payment_status = e.target.value; setParsed({...parsed, contracts: c}) }} /></div>
+                    <div className={styles.field}><label>납입상태</label>
+                      <select value={ct.payment_status || '유지'} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].payment_status = e.target.value; setParsed({...parsed, contracts: c}) }}>
+                        {PAYMENT_STATUSES.map(s => <option key={s}>{s}</option>)}
+                      </select>
+                    </div>
                   </div>
                   <div className={styles.parsedCovList}>
                     {ct.coverages?.map((cv: any, cvIdx: number) => (
