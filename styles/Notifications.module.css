@@ -57,25 +57,28 @@
 .inlineHistoryScript { font-size: 11px; color: #6B7280; line-height: 1.55; white-space: pre-wrap; background: white; border-radius: 6px; padding: 6px 8px; }
 
 /* 오른쪽: 스마트폰 목업 고정 */
-.phoneCol { position: sticky; top: 16px; }
+.phoneCol { position: sticky; top: 16px; display: flex; flex-direction: column; align-items: center; }
+
+/* 스마트폰 래퍼 - 너비 고정으로 세로 비율 유지 */
+.phoneWrapper { width: 260px; }
 
 /* 수신자 */
-.recipientRow { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.recipientRow { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; width: 260px; }
 .avatar { width: 30px; height: 30px; border-radius: 50%; background: #E1F5EE; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; color: #0F6E56; flex-shrink: 0; }
 .recipientName  { font-size: 13px; font-weight: 500; color: #111827; }
 .recipientPhone { font-size: 11px; color: #9CA3AF; }
 
 /* AI 배지 */
-.aiRow { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.aiRow { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; width: 260px; }
 .aiBadge { display: flex; align-items: center; gap: 4px; background: #EEEDFE; color: #3C3489; font-size: 11px; font-weight: 500; border-radius: 999px; padding: 3px 9px; }
 .aiDot { width: 5px; height: 5px; border-radius: 50%; background: #7F77DD; }
 .aiDotPulse { animation: pulse 0.8s infinite; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 .aiLoading { font-size: 10px; color: #7F77DD; }
-.aiDesc { font-size: 11px; color: #9CA3AF; margin-bottom: 8px; line-height: 1.4; }
+.aiDesc { font-size: 11px; color: #9CA3AF; margin-bottom: 8px; line-height: 1.4; width: 260px; }
 
 /* 톤 버튼 */
-.toneRow { display: flex; gap: 5px; margin-bottom: 10px; }
+.toneRow { display: flex; gap: 5px; margin-bottom: 10px; width: 260px; }
 .toneBtn { font-size: 12px; padding: 5px 0; border-radius: 999px; cursor: pointer; border: 0.5px solid #D1D5DB; background: white; color: #6B7280; flex: 1; text-align: center; font-family: inherit; }
 .toneBtn:hover { border-color: #1D9E75; color: #1D9E75; }
 .toneBtnActive { background: #1D9E75; color: white; border-color: #1D9E75; }
