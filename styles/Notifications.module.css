@@ -110,7 +110,7 @@
 .phoneHome { width: 32px; height: 4px; background: #444; border-radius: 999px; margin: 8px auto 0; }
 
 /* 발송 버튼 */
-.actionBtns { display: flex; gap: 8px; margin-top: 10px; }
+.actionBtns { display: flex; gap: 8px; margin-top: auto; padding-top: 12px; width: 100%; }
 .btnSend { flex: 2; padding: 11px; background: #1D9E75; color: white; border: none; border-radius: 10px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit; }
 .btnSend:disabled { background: #9CA3AF; cursor: not-allowed; }
 .btnSend:hover:not(:disabled) { background: #0F6E56; }
