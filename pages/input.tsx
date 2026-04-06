@@ -154,6 +154,8 @@ export default function InputPage() {
     if (!form.name) return alert('고객명은 필수예요!')
     setSaving(true)
     try {
+      const { data: { user } } = await supabase.auth.getUser()
+      const agentId = user?.id
       const finalJob = form.job === '기타' ? jobCustom : form.job
       const birthDate = getBirthDateFromRRN(form.rrn)
       const { data: cust } = await supabase.from('dpa_customers').insert({
@@ -162,6 +164,7 @@ export default function InputPage() {
         address: form.address, workplace: form.workplace,
         bank_name: form.bank_name, bank_account: form.bank_account,
         driver_license: form.driver_license,
+        agent_id: agentId,
       }).select().single()
 
       if (cust) {
@@ -169,7 +172,8 @@ export default function InputPage() {
           const finalCompany = ct.company === '기타' ? ct.companyCustom : ct.company
           if (!finalCompany) continue
           const { data: contract } = await supabase.from('dpa_contracts').insert({
-            customer_id: cust.id, company: finalCompany, product_name: ct.product_name,
+            customer_id: cust.id, agent_id: agentId,
+            company: finalCompany, product_name: ct.product_name,
             insurance_type: ct.insurance_type, monthly_fee: parseInt(ct.monthly_fee) || 0,
             payment_status: ct.payment_status, payment_rate: parseInt(ct.payment_rate) || 0,
             payment_total: parseInt(ct.payment_total) || 0, payment_done: parseInt(ct.payment_done) || 0,
@@ -212,6 +216,8 @@ export default function InputPage() {
     if (!parsed) return
     setSaving(true)
     try {
+      const { data: { user } } = await supabase.auth.getUser()
+      const agentId = user?.id
       const { data: cust } = await supabase.from('dpa_customers').insert({
         name: parsed.name || '이름미상', age: parsed.age || null,
         gender: parsed.gender || '미상', grade: '일반',
@@ -221,12 +227,14 @@ export default function InputPage() {
         driver_license: parsed.driver_license || null,
         resident_number: parsed.rrn || null,
         customer_type: 'existing',
+        agent_id: agentId,
       }).select().single()
 
       if (cust && parsed.contracts) {
         for (const ct of parsed.contracts) {
           const { data: contract } = await supabase.from('dpa_contracts').insert({
-            customer_id: cust.id, company: ct.company || '', product_name: ct.product_name || '',
+            customer_id: cust.id, agent_id: agentId,
+            company: ct.company || '', product_name: ct.product_name || '',
             monthly_fee: ct.monthly_fee || 0, payment_status: ct.payment_status || '유지',
             payment_rate: ct.payment_rate || 0, insurance_type: ct.insurance_type || '',
             contract_start: ct.contract_start || '', payment_years: ct.payment_years || '',
