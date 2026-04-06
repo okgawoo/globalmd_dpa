@@ -726,8 +726,8 @@ export default function Customers() {
                 {selected.resident_number && <div className={styles.infoRow}><span className={styles.infoLabel}>주민번호</span><span className={styles.infoValue}>{selected.resident_number}</span></div>}
                 {selected.phone && <div className={styles.infoRow}><span className={styles.infoLabel}>연락처</span><span className={styles.infoValue}>{selected.phone}</span></div>}
                 {selected.job && <div className={styles.infoRow}><span className={styles.infoLabel}>직업</span><span className={styles.infoValue}>{selected.job}</span></div>}
-                {selected.address && <div className={styles.infoRow}><span className={styles.infoLabel}>주소</span><span className={styles.infoValue}>{selected.address}</span></div>}
                 {selected.workplace && <div className={styles.infoRow}><span className={styles.infoLabel}>직장/소속</span><span className={styles.infoValue}>{selected.workplace}</span></div>}
+                {selected.address && <div className={styles.infoRow}><span className={styles.infoLabel}>주소</span><span className={styles.infoValue}>{selected.address}</span></div>}
                 {(selected.bank_name || selected.bank_account) && <div className={styles.infoRow}><span className={styles.infoLabel}>계좌번호</span><span className={styles.infoValue}>{selected.bank_name} {selected.bank_account}</span></div>}
                 {selected.driver_license && <div className={styles.infoRow}><span className={styles.infoLabel}>운전면허</span><span className={styles.infoValue}>{selected.driver_license}</span></div>}
                 {selected.grade && <div className={styles.infoRow}><span className={styles.infoLabel}>등급</span><span className={styles.infoValue}>{selected.grade}</span></div>}
@@ -1029,8 +1029,8 @@ export default function Customers() {
                     <div className={styles.infoHalf}><span className={styles.infoLabel}>직업</span><span className={styles.infoValue}>{selected.job}</span></div>
                   </div>
                   {selected.resident_number && <div className={styles.infoRow}><span className={styles.infoLabel}>주민번호</span><span className={styles.infoValue}>{selected.resident_number}</span></div>}
-                  {selected.address && <div className={styles.infoRow}><span className={styles.infoLabel}>주소</span><span className={styles.infoValue}>{selected.address}</span></div>}
                   {selected.workplace && <div className={styles.infoRow}><span className={styles.infoLabel}>직장/소속</span><span className={styles.infoValue}>{selected.workplace}</span></div>}
+                  {selected.address && <div className={styles.infoRow}><span className={styles.infoLabel}>주소</span><span className={styles.infoValue}>{selected.address}</span></div>}
                   {(selected.bank_name || selected.bank_account) && <div className={styles.infoRow}><span className={styles.infoLabel}>계좌번호</span><span className={styles.infoValue}>{selected.bank_name} {selected.bank_account}</span></div>}
                   {selected.driver_license && <div className={styles.infoRow}><span className={styles.infoLabel}>운전면허</span><span className={styles.infoValue}>{selected.driver_license}</span></div>}
                   {selected.grade && <div className={styles.infoRow}><span className={styles.infoLabel}>등급</span><span className={styles.infoValue}>{selected.grade}</span></div>}
