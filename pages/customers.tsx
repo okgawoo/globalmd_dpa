@@ -564,6 +564,9 @@ export default function Customers() {
                 </div>
                 <div className={styles.editField}><label>주소</label><input placeholder="서울시 강남구..." value={addForm.address} onChange={e => setAddForm({ ...addForm, address: e.target.value })} /></div>
                 <div className={styles.editField}><label>직장/소속</label><input placeholder="직장명" value={addForm.workplace} onChange={e => setAddForm({ ...addForm, workplace: e.target.value })} /></div>
+                <div className={styles.editField}><label>은행명</label><input placeholder="우리은행" value={addForm.bank_name||''} onChange={e => setAddForm({ ...addForm, bank_name: e.target.value })} /></div>
+                <div className={styles.editField}><label>계좌번호</label><input placeholder="1002-3628-09746" inputMode="numeric" value={addForm.bank_account||''} onChange={e => setAddForm({ ...addForm, bank_account: e.target.value.replace(/[^0-9-]/g,'') })} /></div>
+                <div className={styles.editField} style={{gridColumn:'span 2'}}><label>운전면허</label><input placeholder="26-06-009864-70" value={addForm.driver_license||''} onChange={e => setAddForm({ ...addForm, driver_license: e.target.value })} /></div>
               </div>
               {/* 보험 폼들이 쌓이는 구조 */}
               {addContracts.map((ct:any, i:number) => (
@@ -720,12 +723,14 @@ export default function Customers() {
               <div className={styles.infoTable}>
                 {selected.age && <div className={styles.infoRow}><span className={styles.infoLabel}>나이</span><span className={styles.infoValue}>{selected.age}세</span></div>}
                 {selected.gender && <div className={styles.infoRow}><span className={styles.infoLabel}>성별</span><span className={styles.infoValue}>{selected.gender}</span></div>}
+                {selected.resident_number && <div className={styles.infoRow}><span className={styles.infoLabel}>주민번호</span><span className={styles.infoValue}>{selected.resident_number}</span></div>}
                 {selected.phone && <div className={styles.infoRow}><span className={styles.infoLabel}>연락처</span><span className={styles.infoValue}>{selected.phone}</span></div>}
                 {selected.job && <div className={styles.infoRow}><span className={styles.infoLabel}>직업</span><span className={styles.infoValue}>{selected.job}</span></div>}
                 {selected.address && <div className={styles.infoRow}><span className={styles.infoLabel}>주소</span><span className={styles.infoValue}>{selected.address}</span></div>}
                 {selected.workplace && <div className={styles.infoRow}><span className={styles.infoLabel}>직장/소속</span><span className={styles.infoValue}>{selected.workplace}</span></div>}
                 {(selected.bank_name || selected.bank_account) && <div className={styles.infoRow}><span className={styles.infoLabel}>계좌번호</span><span className={styles.infoValue}>{selected.bank_name} {selected.bank_account}</span></div>}
                 {selected.driver_license && <div className={styles.infoRow}><span className={styles.infoLabel}>운전면허</span><span className={styles.infoValue}>{selected.driver_license}</span></div>}
+                {selected.grade && <div className={styles.infoRow}><span className={styles.infoLabel}>등급</span><span className={styles.infoValue}>{selected.grade}</span></div>}
                 <div className={styles.infoRowLast}>
                   <div className={styles.infoRow} style={{ borderBottom: 'none', paddingBottom: 0 }}><span className={styles.infoLabel}>계약 수</span><span className={styles.infoValue}>{selectedContracts.length}건</span></div>
                   <div className={styles.infoRow} style={{ borderBottom: 'none', paddingBottom: 0 }}><span className={styles.infoLabel}>총 월납입</span><span className={[styles.infoValue, styles.infoGreen].join(' ')}>{selectedContracts.reduce((s,ct)=>s+(ct.monthly_fee||0),0).toLocaleString()}원</span></div>
@@ -962,6 +967,9 @@ export default function Customers() {
                   </div>
                   <div className={styles.editField} style={{gridColumn:'span 2'}}><label>주소</label><input value={addForm.address||''} onChange={e => setAddForm({ ...addForm, address: e.target.value })} /></div>
                   <div className={styles.editField} style={{gridColumn:'span 2'}}><label>직장/소속</label><input value={addForm.workplace||''} onChange={e => setAddForm({ ...addForm, workplace: e.target.value })} /></div>
+                  <div className={styles.editField}><label>은행명</label><input placeholder="우리은행" value={addForm.bank_name||''} onChange={e => setAddForm({ ...addForm, bank_name: e.target.value })} /></div>
+                  <div className={styles.editField}><label>계좌번호</label><input placeholder="1002-3628-09746" inputMode="numeric" value={addForm.bank_account||''} onChange={e => setAddForm({ ...addForm, bank_account: e.target.value.replace(/[^0-9-]/g,'') })} /></div>
+                  <div className={styles.editField} style={{gridColumn:'span 2'}}><label>운전면허</label><input placeholder="26-06-009864-70" value={addForm.driver_license||''} onChange={e => setAddForm({ ...addForm, driver_license: e.target.value })} /></div>
                 </div>
                 <div className={styles.editActions}>
                   <button className={styles.saveBtn} onClick={saveAddCustomer}>저장</button>
@@ -1020,10 +1028,12 @@ export default function Customers() {
                     <div className={styles.infoHalf}><span className={styles.infoLabel}>연락처</span><span className={styles.infoValue}>{selected.phone}</span></div>
                     <div className={styles.infoHalf}><span className={styles.infoLabel}>직업</span><span className={styles.infoValue}>{selected.job}</span></div>
                   </div>
+                  {selected.resident_number && <div className={styles.infoRow}><span className={styles.infoLabel}>주민번호</span><span className={styles.infoValue}>{selected.resident_number}</span></div>}
                   {selected.address && <div className={styles.infoRow}><span className={styles.infoLabel}>주소</span><span className={styles.infoValue}>{selected.address}</span></div>}
                   {selected.workplace && <div className={styles.infoRow}><span className={styles.infoLabel}>직장/소속</span><span className={styles.infoValue}>{selected.workplace}</span></div>}
                   {(selected.bank_name || selected.bank_account) && <div className={styles.infoRow}><span className={styles.infoLabel}>계좌번호</span><span className={styles.infoValue}>{selected.bank_name} {selected.bank_account}</span></div>}
                   {selected.driver_license && <div className={styles.infoRow}><span className={styles.infoLabel}>운전면허</span><span className={styles.infoValue}>{selected.driver_license}</span></div>}
+                  {selected.grade && <div className={styles.infoRow}><span className={styles.infoLabel}>등급</span><span className={styles.infoValue}>{selected.grade}</span></div>}
                   <div className={styles.infoRowLast}>
                     <div className={styles.infoRow} style={{ borderBottom: 'none', paddingBottom: 0 }}><span className={styles.infoLabel}>계약 수</span><span className={styles.infoValue}>{selectedContracts.length}건</span></div>
                     <div className={styles.infoRow} style={{ borderBottom: 'none', paddingBottom: 0 }}><span className={styles.infoLabel}>총 월납입</span><span className={[styles.infoValue, styles.infoGreen].join(' ')}>{totalMonthly.toLocaleString()}원</span></div>
