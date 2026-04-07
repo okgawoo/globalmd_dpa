@@ -207,7 +207,7 @@ export default function Dashboard() {
         <div className={styles.mobileCard}>
           <div className={styles.mobileCardHeader}>
             <span className={styles.mobileCardTitle}>미팅 일정</span>
-            <span className={styles.mobileCardLink} onClick={() => router.push('/customers')}>전체보기 →</span>
+            <span className={styles.mobileCardLink} onClick={() => router.push('/sales')}>전체보기 →</span>
           </div>
           <div className={styles.mobileCardBody}>
           <p className={styles.mobileEmpty} style={{ padding: '8px 0' }}>미팅 일정 기능 준비중이에요</p>
