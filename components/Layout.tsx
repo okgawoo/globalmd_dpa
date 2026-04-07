@@ -37,7 +37,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
-    const pagePaths = ['/', '/customers', '/input', '/analysis', '/report', '/notifications', '/newsletter', '/settings']
+    const pagePaths = ['/', '/customers', '/input', '/analysis', '/report', '/sales', '/notifications', '/newsletter', '/settings']
     let startX = 0
     let startY = 0
     const onStart = (e: TouchEvent) => {
@@ -146,7 +146,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </Link>
         </header>
 
-        <div className={[styles.content, isDashboardMobile ? styles.contentNoPadding : ''].join(' ')}>
+        <div className={styles.content} style={isDashboardMobile ? {padding: 0, display: 'flex', flexDirection: 'column'} : {}}>
           {children}
         </div>
       </div>

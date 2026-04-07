@@ -184,8 +184,7 @@ export default function Dashboard() {
               </svg>
               <p style={{ margin: 0, fontSize: 13, color: 'white', fontWeight: 700, letterSpacing: 1 }}>DPA</p>
             </div>
-            <p className={styles.mobileGreet}>안녕하세요 👋</p>
-              <p className={styles.mobileName}>{agentName || ''} {(agentRole === 'admin' || agentEmail === 'admin@dpa.com') ? '대표님' : '설계사님'}</p>
+            <p className={styles.mobileGreet}>안녕하세요 👋 {agentName || ''} {(agentRole === 'admin' || agentEmail === 'admin@dpa.com') ? '대표님' : '설계사님'}</p>
           </div>
           <div className={styles.mobileDateBadge}>
             <p style={{ margin: 0, fontSize: 12, opacity: 0.85 }}>{mobileDateStr}</p>
