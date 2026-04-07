@@ -192,10 +192,10 @@ export default function Dashboard() {
         </div>
 
         {/* 스크롤 영역 */}
-        <div style={{ overflowY: 'auto', flex: 1 }}>
+        <div style={{ overflowY: 'auto', flex: 1, paddingTop: 6 }}>
 
         {/* 오늘 할 일 */}
-        <div className={styles.mobileCard}>
+        <div className={styles.mobileCard} style={{ marginTop: 16 }}>
           <div className={styles.mobileCardHeader}>
             <span className={styles.mobileCardTitle} style={{ color: '#1D9E75' }}>오늘 할 일</span>
             <span className={styles.mobileCardLink} onClick={handleGapClick}>전체보기 →</span>
