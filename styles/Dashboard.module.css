@@ -91,7 +91,7 @@
 .mobileHeader { background: #1D9E75; padding: 16px 16px 14px; display: flex; justify-content: space-between; align-items: center; }
 .mobileGreet { font-size: 13px; color: rgba(255,255,255,0.7); margin: 0; }
 .mobileName { font-size: 18px; font-weight: 500; color: white; margin: 2px 0 0; }
-.mobileDateBadge { background: rgba(255,255,255,0.2); border-radius: 12px; padding: 6px 12px; color: white; text-align: center; }
+.mobileDateBadge { color: white; text-align: center; }
 
 .mobileCard { background: white; border-radius: 12px; border: 1px solid #EDEBE4; margin: 8px 10px 0; }
 .mobileCardHeader { padding: 10px 14px 8px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #EDEBE4; }
