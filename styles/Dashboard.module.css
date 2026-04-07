@@ -2,7 +2,7 @@
 .loading { padding: 40px; text-align: center; color: var(--text-muted); }
 
 /* 웹/모바일 분리 */
-.mobileDash { display: none; }
+.mobileDash { display: none; overflow-y: auto; }
 .desktopDash { display: block; }
 
 .topRow { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }
@@ -88,7 +88,7 @@
 .calToday:hover { background: #1D9E75; }
 
 /* ── 모바일 전용 스타일 ── */
-.mobileHeader { background: #1D9E75; padding: 16px 16px 14px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; box-shadow: 0 4px 12px rgba(29,158,117,0.35); }
+.mobileHeader { background: #1D9E75; padding: 16px 16px 14px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
 .mobileGreet { font-size: 15px; color: white; margin: 0; font-weight: 500; }
 .mobileName { font-size: 18px; font-weight: 500; color: white; margin: 2px 0 0; }
 .mobileDateBadge { color: white; text-align: center; user-select: none; -webkit-user-select: none; pointer-events: none; }
@@ -126,7 +126,7 @@
 
 /* 반응형 분기 */
 @media (max-width: 768px) {
-  .mobileDash { display: block; }
+  .mobileDash { display: flex; flex-direction: column; }
   .desktopDash { display: none; }
   .wrap { padding: 0; }
 }

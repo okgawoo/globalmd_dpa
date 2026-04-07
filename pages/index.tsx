@@ -184,7 +184,8 @@ export default function Dashboard() {
               </svg>
               <p style={{ margin: 0, fontSize: 13, color: 'white', fontWeight: 700, letterSpacing: 1 }}>DPA</p>
             </div>
-            <p className={styles.mobileGreet}>안녕하세요 👋 {agentName || ''} {(agentRole === 'admin' || agentEmail === 'admin@dpa.com') ? '대표님' : '설계사님'}</p>
+            <p className={styles.mobileGreet}>안녕하세요 👋</p>
+              <p className={styles.mobileName}>{agentName || ''} {(agentRole === 'admin' || agentEmail === 'admin@dpa.com') ? '대표님' : '설계사님'}</p>
           </div>
           <div className={styles.mobileDateBadge}>
             <p style={{ margin: 0, fontSize: 12, opacity: 0.85 }}>{mobileDateStr}</p>
@@ -192,9 +193,9 @@ export default function Dashboard() {
         </div>
 
         {/* 오늘 할 일 */}
-        <div className={styles.mobileCard} style={{ borderColor: '#B8E8D4' }}>
-          <div className={styles.mobileCardHeader} style={{ borderBottomColor: '#E8F7F1' }}>
-            <span className={styles.mobileCardTitle} style={{ color: '#0F6E56' }}>오늘 할 일</span>
+        <div className={styles.mobileCard}>
+          <div className={styles.mobileCardHeader}>
+            <span className={styles.mobileCardTitle} style={{ color: '#1D9E75' }}>오늘 할 일</span>
             <span className={styles.mobileCardLink} onClick={handleGapClick}>전체보기 →</span>
           </div>
           <div className={styles.mobileCardBody}>
