@@ -88,12 +88,13 @@
 .calToday:hover { background: #1D9E75; }
 
 /* ── 모바일 전용 스타일 ── */
-.mobileHeader { background: #1D9E75; padding: 16px 16px 14px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
+.mobileHeader { background: #1D9E75; padding: 16px 16px 14px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
 .mobileGreet { font-size: 15px; color: white; margin: 0; font-weight: 500; }
 .mobileName { font-size: 18px; font-weight: 500; color: white; margin: 2px 0 0; }
 .mobileDateBadge { color: white; text-align: center; user-select: none; -webkit-user-select: none; pointer-events: none; }
 
 .mobileCard { background: white; border-radius: 12px; border: 1px solid #EDEBE4; margin: 8px 10px 0; }
+.mobileFirstCard { margin-top: 14px !important; }
 .mobileCardHeader { padding: 10px 14px 8px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #EDEBE4; }
 .mobileCardTitle { font-size: 13px; font-weight: 500; color: #111827; }
 .mobileCardLink { font-size: 12px; color: #1D9E75; cursor: pointer; }
