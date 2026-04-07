@@ -22,7 +22,7 @@ export default function Sales() {
   const [customers, setCustomers] = useState<any[]>([])
   const [contracts, setContracts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'today' | 'flow' | 'contact'>('today')
+  const [activeTab, setActiveTab] = useState<'contact' | 'today' | 'flow'>('contact')
   const [showForm, setShowForm] = useState(false)
   const [showFlow, setShowFlow] = useState(false)
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null)
@@ -172,9 +172,9 @@ export default function Sales() {
 
       {/* 탭 */}
       <div className={styles.tabs}>
-        <button className={[styles.tab, activeTab === 'today' ? styles.active : ''].join(' ')} onClick={() => setActiveTab('today')}>📅 미팅 일정</button>
-        <button className={[styles.tab, activeTab === 'flow' ? styles.active : ''].join(' ')} onClick={() => setActiveTab('flow')}>📊 영업 진행</button>
         <button className={[styles.tab, activeTab === 'contact' ? styles.active : ''].join(' ')} onClick={() => setActiveTab('contact')}>📞 연락할 고객</button>
+        <button className={[styles.tab, activeTab === 'today' ? styles.active : ''].join(' ')} onClick={() => setActiveTab('today')}>📅 미팅 일정</button>
+        <button className={[styles.tab, activeTab === 'flow' ? styles.active : ''].join(' ')} onClick={() => setActiveTab('flow')}>📊 영업 추적</button>
       </div>
 
       {/* ── 미팅 일정 탭 ── */}
