@@ -71,4 +71,7 @@
 
 @media (max-width: 768px) {
   .headerTitle { font-size: 18px; }
+  .headerHiddenMobile { display: none; }
+  .contentNoPadding { padding: 0; }
+  .hamburger { display: none !important; }
 }
