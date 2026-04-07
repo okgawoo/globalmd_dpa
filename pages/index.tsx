@@ -152,10 +152,12 @@ export default function Dashboard() {
   })
 
   const formatMonthly = (val: number) => {
-    if (val >= 100000000) return `${Math.floor(val / 100000000)}억`
-    if (val >= 10000000) return `${Math.floor(val / 10000000)}천만`
-    if (val >= 1000000) return `${Math.floor(val / 1000000)}백만`
-    if (val >= 10000) return `${Math.floor(val / 10000)}만`
+    if (val >= 100000000) {
+      const uk = Math.floor(val / 100000000)
+      const man = Math.floor((val % 100000000) / 10000)
+      return man > 0 ? `${uk}억 ${man}만` : `${uk}억`
+    }
+    if (val >= 10000) return `${Math.floor(val / 10000).toLocaleString()}만`
     return val.toLocaleString()
   }
 
