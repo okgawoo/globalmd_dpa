@@ -30,6 +30,7 @@ export default function Dashboard() {
   const [calYear, setCalYear] = useState(new Date().getFullYear())
   const [calMonth, setCalMonth] = useState(new Date().getMonth())
   const [agentName, setAgentName] = useState('')
+  const [agentRole, setAgentRole] = useState('')
   const [seenNearDone, setSeenNearDone] = useState<string[]>([])
   const [seenBirthday, setSeenBirthday] = useState<string[]>([])
   const [seenGap, setSeenGap] = useState<string[]>([])
@@ -42,8 +43,8 @@ export default function Dashboard() {
     fetchAll()
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) {
-        supabase.from('dpa_agents').select('name').eq('user_id', data.user.id).single()
-          .then(({ data: agent }) => { if (agent) setAgentName(agent.name) })
+        supabase.from('dpa_agents').select('name, role').eq('user_id', data.user.id).single()
+          .then(({ data: agent }) => { if (agent) { setAgentName(agent.name); setAgentRole(agent.role || 'agent') } })
       }
     })
     setSeenNearDone(JSON.parse(localStorage.getItem('dpa_seen_nearDone') || '[]'))
@@ -170,7 +171,7 @@ export default function Dashboard() {
         <div className={styles.mobileHeader}>
           <div>
             <p className={styles.mobileGreet}>안녕하세요 👋</p>
-            <p className={styles.mobileName}>{agentName || 'admin'} 대표님</p>
+            <p className={styles.mobileName}>{agentName || ''} {agentRole === 'admin' ? '대표님' : '설계사님'}</p>
           </div>
           <div className={styles.mobileDateBadge}>
             <p style={{ margin: 0, fontWeight: 700, fontSize: 13, letterSpacing: 0.5 }}>DPA</p>
