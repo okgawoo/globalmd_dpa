@@ -93,10 +93,11 @@
 .mobileName { font-size: 15px; font-weight: 500; color: white; margin: 2px 0 0; }
 .mobileDateBadge { background: rgba(255,255,255,0.2); border-radius: 20px; padding: 3px 10px; font-size: 10px; color: white; }
 
-.mobileCard { background: white; border-radius: 12px; border: 1px solid #EDEBE4; margin: 8px 10px 0; }
+.mobileCard { background: white; border-radius: 12px; border: 1px solid #EDEBE4; margin: 8px 4px 0; }
 .mobileCardHeader { padding: 7px 12px 6px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #EDEBE4; }
 .mobileCardTitle { font-size: 11px; font-weight: 500; color: #111827; }
 .mobileCardLink { font-size: 10px; color: #1D9E75; cursor: pointer; }
+.mobileCardBody { min-height: 72px; display: flex; flex-direction: column; justify-content: center; }
 .mobileEmpty { font-size: 11px; color: #9CA3AF; text-align: center; padding: 10px 0; margin: 0; }
 
 .mobileTodoRow { display: flex; align-items: center; gap: 7px; padding: 5px 12px; }
@@ -106,20 +107,20 @@
 .mobileTodoText { font-size: 11px; color: #111827; flex: 1; }
 .mobileBadge { font-size: 10px; padding: 1px 6px; border-radius: 5px; white-space: nowrap; }
 
-.mobileGrid2 { margin: 8px 10px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.mobileGrid2 { margin: 8px 4px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .mobileMenuBtn { background: white; border: 1px solid #EDEBE4; border-radius: 12px; padding: 10px 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; text-align: left; }
 .mobileMenuName { font-size: 11px; font-weight: 500; color: #111827; margin: 0; }
 .mobileMenuSub { font-size: 9px; color: #6B7280; margin: 1px 0 0; }
 
 /* 핵심 지표 */
-.mobileMetrics { margin: 8px 10px 0; background: white; border-radius: 12px; border: 1px solid #EDEBE4; display: flex; align-items: center; padding: 8px 0; }
+.mobileMetrics { margin: 8px 4px 0; background: white; border-radius: 12px; border: 1px solid #EDEBE4; display: flex; align-items: center; padding: 8px 0; }
 .mobileMetricItem { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2px 8px; }
 .mobileMetricVal { font-size: 16px; font-weight: 500; color: #1D9E75; margin: 0; line-height: 1.2; }
 .mobileMetricLabel { font-size: 9px; color: #6B7280; margin: 3px 0 0; white-space: nowrap; }
 .mobileMetricDivider { width: 1px; background: #EDEBE4; align-self: stretch; flex-shrink: 0; }
 
 /* 하단 아이콘 4개 */
-.mobileBottomIcons { margin: 8px 10px 10px; background: white; border-radius: 12px; border: 1px solid #EDEBE4; display: grid; grid-template-columns: repeat(4, 1fr); padding: 10px 8px 8px; gap: 4px; }
+.mobileBottomIcons { margin: 8px 4px 4px; background: white; border-radius: 12px; border: 1px solid #EDEBE4; display: grid; grid-template-columns: repeat(4, 1fr); padding: 10px 8px 8px; gap: 4px; }
 .mobileIconBtn { background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 2px; }
 .mobileIconLabel { font-size: 9px; color: #9CA3AF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 52px; text-align: center; }
 

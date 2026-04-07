@@ -181,6 +181,7 @@ export default function Dashboard() {
             <span className={styles.mobileCardTitle} style={{ color: '#0F6E56' }}>오늘 할 일</span>
             <span className={styles.mobileCardLink} onClick={handleGapClick}>전체보기 →</span>
           </div>
+          <div className={styles.mobileCardBody}>
           {todoItems.length === 0 ? (
             <p className={styles.mobileEmpty}>오늘 할 일 없음 🎉</p>
           ) : todoItems.map((item, i) => (
@@ -190,6 +191,7 @@ export default function Dashboard() {
               <span className={styles.mobileBadge} style={{ color: item.badgeColor, background: item.badgeBg }}>{item.badge}</span>
             </div>
           ))}
+          </div>
         </div>
 
         {/* 미팅 일정 */}
@@ -198,7 +200,9 @@ export default function Dashboard() {
             <span className={styles.mobileCardTitle}>미팅 일정</span>
             <span className={styles.mobileCardLink} onClick={() => router.push('/customers')}>전체보기 →</span>
           </div>
+          <div className={styles.mobileCardBody}>
           <p className={styles.mobileEmpty} style={{ padding: '8px 0' }}>미팅 일정 기능 준비중이에요</p>
+          </div>
         </div>
 
         {/* 메뉴 2x2 */}
