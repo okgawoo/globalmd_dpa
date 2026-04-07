@@ -735,6 +735,11 @@ export default function Customers() {
                     </div>
                     <div className={styles.editField}><label>주소</label><input value={editForm.address||''} onChange={e=>setEditForm({...editForm,address:e.target.value})} /></div>
                     <div className={styles.editField}><label>직장/소속</label><input value={editForm.workplace||''} onChange={e=>setEditForm({...editForm,workplace:e.target.value})} /></div>
+                    <div className={styles.editField}><label>등급</label>
+                      <select value={editForm.grade||'일반'} onChange={e=>setEditForm({...editForm,grade:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                        {['일반','우수','VIP','VVIP'].map(g=><option key={g}>{g}</option>)}
+                      </select>
+                    </div>
                     <div className={styles.editField}><label>은행명</label><input value={editForm.bank_name||''} onChange={e=>setEditForm({...editForm,bank_name:e.target.value})} /></div>
                     <div className={styles.editField}><label>계좌번호</label><input value={editForm.bank_account||''} onChange={e=>setEditForm({...editForm,bank_account:e.target.value.replace(/[^0-9-]/g,'')})} inputMode="numeric" /></div>
                   </div>
@@ -1032,6 +1037,11 @@ export default function Customers() {
                         </select>
                       </div>
                       <div className={styles.editField}><label>주소</label><input value={editForm.address||''} onChange={e=>setEditForm({...editForm,address:e.target.value})} /></div>
+                      <div className={styles.editField}><label>등급</label>
+                        <select value={editForm.grade||'일반'} onChange={e=>setEditForm({...editForm,grade:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                        {['일반','우수','VIP','VVIP'].map(g=><option key={g}>{g}</option>)}
+                      </select>
+                      </div>
                       <div className={styles.editField}><label>직장/소속</label><input value={editForm.workplace||''} onChange={e=>setEditForm({...editForm,workplace:e.target.value})} /></div>
                       <div className={styles.editField}><label>은행명</label><input value={editForm.bank_name||''} onChange={e=>setEditForm({...editForm,bank_name:e.target.value})} /></div>
                       <div className={styles.editField}><label>계좌번호</label><input inputMode="numeric" value={editForm.bank_account||''} onChange={e=>setEditForm({...editForm,bank_account:e.target.value.replace(/[^0-9-]/g,'')})} /></div>
