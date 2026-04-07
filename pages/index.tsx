@@ -174,20 +174,20 @@ export default function Dashboard() {
 
         {/* 헤더 */}
         <div className={styles.mobileHeader}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <svg width="36" height="36" viewBox="0 0 40 40" fill="none">
-              <rect width="40" height="40" rx="10" fill="rgba(255,255,255,0.2)"/>
-              <path d="M10 20C10 14.477 14.477 10 20 10C25.523 10 30 14.477 30 20C30 25.523 25.523 30 20 30" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
-              <path d="M20 30C17.5 30 15 28 15 25C15 22 17 20 20 20C23 20 25 22 25 25" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
-              <circle cx="20" cy="20" r="2" fill="white"/>
-            </svg>
-            <div>
-              <p style={{ margin: 0, fontSize: 11, color: 'rgba(255,255,255,0.75)', fontWeight: 700, letterSpacing: 1 }}>DPA</p>
-              <p className={styles.mobileName}>{agentName || ''} {(agentRole === 'admin' || agentEmail === 'admin@dpa.com') ? '대표님' : '설계사님'}</p>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+              <svg width="14" height="14" viewBox="0 0 40 40" fill="none">
+                <rect width="40" height="40" rx="10" fill="rgba(255,255,255,0.25)"/>
+                <path d="M10 20C10 14.477 14.477 10 20 10C25.523 10 30 14.477 30 20C30 25.523 25.523 30 20 30" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+                <path d="M20 30C17.5 30 15 28 15 25C15 22 17 20 20 20C23 20 25 22 25 25" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+                <circle cx="20" cy="20" r="2.5" fill="white"/>
+              </svg>
+              <p style={{ margin: 0, fontSize: 13, color: 'white', fontWeight: 700, letterSpacing: 1 }}>DPA</p>
             </div>
+            <p className={styles.mobileGreet}>안녕하세요 👋 {agentName || ''} {(agentRole === 'admin' || agentEmail === 'admin@dpa.com') ? '대표님' : '설계사님'}</p>
           </div>
           <div className={styles.mobileDateBadge}>
-            <p style={{ margin: 0, fontSize: 11, opacity: 0.85 }}>{mobileDateStr}</p>
+            <p style={{ margin: 0, fontSize: 12, opacity: 0.85 }}>{mobileDateStr}</p>
           </div>
         </div>
 
