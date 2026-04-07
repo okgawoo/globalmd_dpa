@@ -223,11 +223,11 @@ export default function Dashboard() {
               <p className={styles.mobileMenuSub}>{customers.length}명</p>
             </div>
           </button>
-          <button className={styles.mobileMenuBtn} onClick={() => router.push('/customers')}>
+          <button className={styles.mobileMenuBtn} onClick={() => router.push('/sales')}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="1.8"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
             <div>
               <p className={styles.mobileMenuName}>영업 관리</p>
-              <p className={styles.mobileMenuSub}>미팅 준비중</p>
+              <p className={styles.mobileMenuSub}>미팅 3건</p>
             </div>
           </button>
           <button className={styles.mobileMenuBtn} onClick={() => router.push('/input')}>
