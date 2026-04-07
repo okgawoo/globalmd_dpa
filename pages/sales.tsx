@@ -179,7 +179,7 @@ export default function Sales() {
 
       {/* ── 미팅 일정 탭 ── */}
       {activeTab === 'today' && (
-        <>
+        <div style={{paddingTop:16}}>
           <div className={styles.sectionHeader}>
             <span className={styles.sectionTitle}>오늘 미팅 ({todayMeetings.length}건)</span>
             <button className={styles.addBtn} onClick={() => setShowForm(true)}>+ 미팅 추가</button>
@@ -256,7 +256,7 @@ export default function Sales() {
 
       {/* ── 영업 진행 탭 ── */}
       {activeTab === 'flow' && (
-        <>
+        <div style={{paddingTop:16}}>
           <div className={styles.sectionHeader}>
             <span className={styles.sectionTitle}>고객별 영업 진행 현황</span>
             <button className={styles.addBtn} onClick={() => setShowForm(true)}>+ 추가</button>
@@ -306,7 +306,7 @@ export default function Sales() {
 
       {/* ── 연락할 고객 탭 ── */}
       {activeTab === 'contact' && (
-        <>
+        <div style={{paddingTop:16}}>
           <div className={styles.sectionHeader}>
             <span className={styles.sectionTitle}>오늘 연락할 고객</span>
           </div>

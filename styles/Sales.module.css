@@ -1,10 +1,11 @@
 .wrap { max-width: 1000px; }
+.tabContent { padding-top: 16px; }
 .loading { padding: 40px; text-align: center; color: #9CA3AF; }
 
 /* 탭 */
-.tabs { display: flex; gap: 6px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 2px; }
-.tab { flex-shrink: 0; padding: 7px 14px; border-radius: 20px; border: 1px solid #EDEBE4; background: white; font-size: 13px; color: #6B7280; cursor: pointer; white-space: nowrap; }
-.tab.active { background: #1D9E75; color: white; border-color: #1D9E75; font-weight: 500; }
+.tabs { display: flex; margin-bottom: 0; border-bottom: 1px solid #EDEBE4; }
+.tab { flex: 1; padding: 10px 4px; border-radius: 0; border: none; background: white; font-size: 13px; color: #6B7280; cursor: pointer; white-space: nowrap; text-align: center; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab.active { background: white; color: #1D9E75; border-bottom: 2px solid #1D9E75; font-weight: 500; }
 
 /* 섹션 헤더 */
 .sectionHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
