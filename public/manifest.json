@@ -1,0 +1,22 @@
+{
+  "name": "DPA 다빨아",
+  "short_name": "DPA",
+  "description": "보험 설계사를 위한 고객 관리 시스템",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF9F5",
+  "theme_color": "#1D9E75",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
