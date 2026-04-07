@@ -251,7 +251,7 @@ export default function Sales() {
               ))}
             </>
           )}
-        </>
+        </div>
       )}
 
       {/* ── 영업 진행 탭 ── */}
@@ -301,7 +301,7 @@ export default function Sales() {
               미팅을 추가하면 여기서 진행 현황을 볼 수 있어요 😊
             </div>
           )}
-        </>
+        </div>
       )}
 
       {/* ── 연락할 고객 탭 ── */}
@@ -336,7 +336,7 @@ export default function Sales() {
           {nearDone.length === 0 && birthdayContacts.length === 0 && (
             <div className={styles.empty}>오늘 연락할 고객이 없어요 😊</div>
           )}
-        </>
+        </div>
       )}
 
       {/* ── 영업 흐름 팝업 (퀘스트 스타일) ── */}
