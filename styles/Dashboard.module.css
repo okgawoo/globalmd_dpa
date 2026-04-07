@@ -127,10 +127,10 @@
 
 /* 반응형 분기 */
 @media (max-width: 768px) {
-  .mobileDash { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+  .mobileDash { display: block; }
   .desktopDash { display: none; }
-  .wrap { padding: 0; height: 100vh; }
-  .mobileHeader { flex-shrink: 0; }
+  .wrap { padding: 0; }
+  .mobileHeader { position: sticky; top: 0; z-index: 50; }
 }
 
 @media (min-width: 769px) {

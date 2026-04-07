@@ -191,11 +191,10 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* 스크롤 영역 */}
-        <div style={{ overflowY: 'auto', flex: 1, paddingTop: 6 }}>
+
 
         {/* 오늘 할 일 */}
-        <div className={styles.mobileCard} style={{ marginTop: 16 }}>
+        <div className={styles.mobileCard} style={{ marginTop: 8 }}>
           <div className={styles.mobileCardHeader}>
             <span className={styles.mobileCardTitle} style={{ color: '#1D9E75' }}>오늘 할 일</span>
             <span className={styles.mobileCardLink} onClick={handleGapClick}>전체보기 →</span>
@@ -298,10 +297,9 @@ export default function Dashboard() {
             <span className={styles.mobileIconLabel}>설정</span>
           </button>
         </div>
-        </div>
       </div>
 
-      {/* ── 웹(데스크탑) 기존 대시보드 ── */}
+      {/* ── 웹(데스크탑) 기존 대시보드 ── */
       <div className={styles.desktopDash}>
         <div className={styles.topRow}>
           <div className={styles.welcomeMsg}>
