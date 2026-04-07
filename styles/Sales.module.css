@@ -1,15 +1,15 @@
 .wrap { max-width: 1000px; }
 .loading { padding: 40px; text-align: center; color: #9CA3AF; }
 
-/* 상단 탭 */
-.tabs { display: flex; gap: 8px; margin-bottom: 16px; }
-.tab { padding: 7px 16px; border-radius: 20px; border: 1px solid #EDEBE4; background: white; font-size: 13px; color: #6B7280; cursor: pointer; }
+/* 탭 */
+.tabs { display: flex; gap: 6px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 2px; }
+.tab { flex-shrink: 0; padding: 7px 14px; border-radius: 20px; border: 1px solid #EDEBE4; background: white; font-size: 13px; color: #6B7280; cursor: pointer; white-space: nowrap; }
 .tab.active { background: #1D9E75; color: white; border-color: #1D9E75; font-weight: 500; }
 
 /* 섹션 헤더 */
 .sectionHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .sectionTitle { font-size: 13px; font-weight: 600; color: #374151; }
-.addBtn { display: flex; align-items: center; gap: 4px; padding: 6px 12px; border-radius: 8px; border: 1px solid #1D9E75; background: white; color: #1D9E75; font-size: 12px; font-weight: 500; cursor: pointer; }
+.addBtn { display: flex; align-items: center; gap: 4px; padding: 6px 14px; border-radius: 8px; border: 1px solid #1D9E75; background: white; color: #1D9E75; font-size: 13px; font-weight: 500; cursor: pointer; }
 .addBtn:hover { background: #1D9E75; color: white; }
 
 /* 미팅 카드 */
@@ -18,30 +18,59 @@
 .meetingTop { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
 .meetingName { font-size: 14px; font-weight: 500; color: #111827; flex: 1; }
 .meetingTime { font-size: 12px; color: #6B7280; }
-.meetingBottom { display: flex; align-items: center; gap: 8px; }
+.meetingBottom { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .meetingLocation { font-size: 12px; color: #9CA3AF; flex: 1; }
-.statusBadge { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+.cancelWarn { font-size: 11px; color: #E24B4A; }
+.statusBadge { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; white-space: nowrap; }
 .statusConfirmed { background: #E1F5EE; color: #0F6E56; }
 .statusPending { background: #FEF3E2; color: #B45309; }
 .statusCancelled { background: #FCEBEB; color: #B91C1C; }
 .statusDone { background: #F3F4F6; color: #6B7280; }
-.cancelWarn { font-size: 11px; color: #E24B4A; margin-left: 4px; }
-
-/* 파이프라인 */
-.pipeline { display: flex; gap: 6px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; }
-.pipeStage { flex-shrink: 0; background: white; border: 1px solid #EDEBE4; border-radius: 10px; padding: 10px 12px; min-width: 100px; text-align: center; }
-.pipeStage.active { border-color: #1D9E75; background: #F0FBF6; }
-.stageName { font-size: 11px; color: #6B7280; margin-bottom: 4px; }
-.stageCount { font-size: 20px; font-weight: 600; color: #1D9E75; }
+.typeBadge { font-size: 11px; padding: 2px 8px; border-radius: 20px; background: #F3F4F6; color: #6B7280; }
+.actionRow { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.actionBtn { font-size: 11px; padding: 3px 10px; border-radius: 6px; border: 1px solid #EDEBE4; background: white; color: #6B7280; cursor: pointer; }
+.actionBtn:hover { border-color: #1D9E75; color: #1D9E75; }
 
 /* 빈 상태 */
-.empty { text-align: center; padding: 32px; color: #9CA3AF; font-size: 13px; }
+.empty { text-align: center; padding: 32px; color: #9CA3AF; font-size: 13px; line-height: 1.8; }
 
-/* 미팅 추가 폼 */
-.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; display: flex; align-items: flex-end; }
-.formPanel { background: white; border-radius: 20px 20px 0 0; padding: 20px; width: 100%; max-height: 90vh; overflow-y: auto; }
+/* ── 영업 흐름 팝업 ── */
+.flowOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 300; display: flex; align-items: flex-end; }
+.flowPanel { background: white; border-radius: 20px 20px 0 0; padding: 20px; width: 100%; max-height: 85vh; overflow-y: auto; }
+.flowPanelHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.flowPanelTitle { font-size: 16px; font-weight: 600; color: #111827; }
+.flowClose { background: none; border: none; font-size: 20px; color: #9CA3AF; cursor: pointer; }
+
+/* 영업 플로우 세로 도식 */
+.flowStages { position: relative; padding-left: 20px; }
+.flowStage { position: relative; margin-bottom: 0; }
+.flowLine { position: absolute; left: -12px; top: 24px; bottom: -4px; width: 2px; background: #EDEBE4; }
+.flowLine.done { background: #1D9E75; }
+.flowStageInner { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; }
+.flowDot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #EDEBE4; background: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: -31px; font-size: 11px; position: relative; z-index: 1; }
+.flowDot.done { border-color: #1D9E75; background: #1D9E75; }
+.flowDot.current { border-color: #1D9E75; background: white; animation: pulse 1.5s ease-in-out infinite; }
+.flowDot.locked { border-color: #E5E7EB; background: #F9FAFB; }
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(29,158,117,0.4); }
+  50% { box-shadow: 0 0 0 6px rgba(29,158,117,0); }
+}
+
+.flowContent { flex: 1; }
+.flowStageName { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+.flowStageName.done { color: #1D9E75; }
+.flowStageName.current { color: #1D9E75; font-weight: 600; }
+.flowStageName.locked { color: #D1D5DB; }
+.flowStageDate { font-size: 11px; color: #9CA3AF; }
+.flowCurrentBadge { display: inline-block; font-size: 10px; padding: 1px 8px; border-radius: 10px; background: #FEF3E2; color: #B45309; font-weight: 500; margin-left: 6px; }
+
+/* 미팅 추가 폼 슬라이드업 */
+.formOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; display: flex; align-items: flex-end; }
+.formPanel { background: white; border-radius: 20px 20px 0 0; padding: 20px; width: 100%; max-height: 90vh; overflow-y: auto; transform: translateY(0); animation: slideUp 0.3s ease; }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 .formTitle { font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 16px; }
-.formClose { float: right; background: none; border: none; font-size: 18px; color: #9CA3AF; cursor: pointer; margin-top: -2px; }
+.formClose { float: right; background: none; border: none; font-size: 20px; color: #9CA3AF; cursor: pointer; margin-top: -2px; }
 .formGroup { margin-bottom: 14px; }
 .formLabel { font-size: 12px; color: #6B7280; margin-bottom: 6px; display: block; }
 .formInput { width: 100%; padding: 10px 12px; border: 1px solid #EDEBE4; border-radius: 8px; font-size: 14px; color: #111827; box-sizing: border-box; }
@@ -56,15 +85,13 @@
 
 /* 연락할 고객 */
 .contactCard { background: white; border: 1px solid #EDEBE4; border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
-.contactIcon { font-size: 18px; flex-shrink: 0; }
+.contactIcon { font-size: 20px; flex-shrink: 0; }
 .contactName { font-size: 13px; font-weight: 500; color: #111827; }
 .contactReason { font-size: 11px; color: #6B7280; margin-top: 2px; }
 .contactBtn { margin-left: auto; padding: 5px 12px; border-radius: 6px; border: 1px solid #1D9E75; background: white; color: #1D9E75; font-size: 12px; cursor: pointer; white-space: nowrap; }
 .contactBtn:hover { background: #1D9E75; color: white; }
 
 @media (max-width: 768px) {
-  .pipeline { gap: 4px; }
-  .pipeStage { min-width: 80px; padding: 8px 8px; }
-  .stageName { font-size: 10px; }
-  .stageCount { font-size: 18px; }
+  .tabs { gap: 4px; }
+  .tab { font-size: 12px; padding: 6px 12px; }
 }

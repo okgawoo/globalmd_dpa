@@ -3,7 +3,16 @@ import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
 import styles from '../styles/Sales.module.css'
 
-const PIPELINE_STAGES = ['신규접촉', '미팅잡기', '미팅완료', '계약검토', '계약완료']
+const FLOW_STAGES = [
+  { key: '첫접촉', icon: '📞', label: '첫 접촉' },
+  { key: '통화', icon: '💬', label: '통화 / 문자' },
+  { key: '미팅확정', icon: '🤝', label: '미팅 확정' },
+  { key: '미팅완료', icon: '✅', label: '미팅 완료' },
+  { key: '계약검토', icon: '📋', label: '계약 검토' },
+  { key: '계약완료', icon: '🎉', label: '계약 완료' },
+]
+
+const TYPE_OPTIONS = ['첫접촉', '통화', '문자', '미팅', '방문']
 const STATUS_OPTIONS = ['대기', '확정', '취소', '완료']
 
 export default function Sales() {
@@ -13,11 +22,12 @@ export default function Sales() {
   const [customers, setCustomers] = useState<any[]>([])
   const [contracts, setContracts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'today' | 'pipeline' | 'contact'>('today')
+  const [activeTab, setActiveTab] = useState<'today' | 'flow' | 'contact'>('today')
   const [showForm, setShowForm] = useState(false)
+  const [showFlow, setShowFlow] = useState(false)
+  const [selectedCustomer, setSelectedCustomer] = useState<any>(null)
   const [isNewProspect, setIsNewProspect] = useState(false)
 
-  // 폼 상태
   const [form, setForm] = useState({
     customer_id: '',
     prospect_name: '',
@@ -26,17 +36,16 @@ export default function Sales() {
     meeting_date: new Date().toISOString().split('T')[0],
     meeting_time: '',
     location: '',
+    type: '미팅',
     status: '대기',
-    pipeline_stage: '신규접촉',
+    pipeline_stage: '첫접촉',
     memo: '',
   })
 
   const now = new Date()
   const todayStr = now.toISOString().split('T')[0]
 
-  useEffect(() => {
-    init()
-  }, [])
+  useEffect(() => { init() }, [])
 
   async function init() {
     const { data: { user } } = await supabase.auth.getUser()
@@ -57,10 +66,8 @@ export default function Sales() {
     setContracts(ct || [])
   }
 
-  // 오늘 미팅
   const todayMeetings = meetings.filter(m => m.meeting_date === todayStr)
-  // 전체 예정 미팅 (오늘 포함 이후)
-  const upcomingMeetings = meetings.filter(m => m.meeting_date >= todayStr && m.status !== '취소' && m.status !== '완료')
+  const upcomingMeetings = meetings.filter(m => m.meeting_date > todayStr && m.status !== '취소' && m.status !== '완료')
 
   // 오늘 연락할 고객
   const nearDone = customers.filter(c => {
@@ -88,12 +95,6 @@ export default function Sales() {
     return b.getMonth() === now.getMonth() && Math.abs(b.getDate() - now.getDate()) <= 7
   })
 
-  // 파이프라인 카운트
-  const pipelineCounts = PIPELINE_STAGES.map(stage =>
-    meetings.filter(m => m.pipeline_stage === stage && m.status !== '취소').length
-  )
-
-  // 미팅 이름 표시
   const getMeetingName = (m: any) => {
     if (m.prospect_name) return m.prospect_name
     const c = customers.find(c => c.id === m.customer_id)
@@ -107,6 +108,23 @@ export default function Sales() {
     return styles.statusDone
   }
 
+  // 영업 플로우 단계 계산
+  const getCustomerFlow = (customerId: string) => {
+    const customerMeetings = meetings.filter(m => m.customer_id === customerId)
+    const stages = FLOW_STAGES.map(s => s.key)
+    let currentStageIdx = -1
+
+    // 가장 높은 단계 찾기
+    customerMeetings.forEach(m => {
+      if (m.pipeline_stage) {
+        const idx = stages.indexOf(m.pipeline_stage)
+        if (idx > currentStageIdx) currentStageIdx = idx
+      }
+    })
+
+    return { currentStageIdx, customerMeetings }
+  }
+
   async function handleSubmit() {
     if (!form.meeting_date) return alert('날짜를 입력해주세요')
     if (isNewProspect && !form.prospect_name) return alert('이름을 입력해주세요')
@@ -117,6 +135,7 @@ export default function Sales() {
       meeting_date: form.meeting_date,
       meeting_time: form.meeting_time,
       location: form.location,
+      type: form.type,
       status: form.status,
       pipeline_stage: form.pipeline_stage,
       memo: form.memo,
@@ -134,16 +153,15 @@ export default function Sales() {
     if (error) { alert('저장 실패: ' + error.message); return }
 
     setShowForm(false)
-    setForm({ customer_id: '', prospect_name: '', prospect_phone: '', introducer: '', meeting_date: todayStr, meeting_time: '', location: '', status: '대기', pipeline_stage: '신규접촉', memo: '' })
+    setForm({ customer_id: '', prospect_name: '', prospect_phone: '', introducer: '', meeting_date: todayStr, meeting_time: '', location: '', type: '미팅', status: '대기', pipeline_stage: '첫접촉', memo: '' })
     await fetchAll(agentId)
   }
 
   async function updateStatus(id: string, status: string) {
-    await supabase.from('dpa_meetings').update({ status }).eq('id', id)
-    if (status === '취소') {
-      const m = meetings.find(m => m.id === id)
-      await supabase.from('dpa_meetings').update({ cancel_count: (m?.cancel_count || 0) + 1 }).eq('id', id)
-    }
+    const m = meetings.find(m => m.id === id)
+    const updates: any = { status }
+    if (status === '취소') updates.cancel_count = (m?.cancel_count || 0) + 1
+    await supabase.from('dpa_meetings').update(updates).eq('id', id)
     await fetchAll(agentId)
   }
 
@@ -155,11 +173,11 @@ export default function Sales() {
       {/* 탭 */}
       <div className={styles.tabs}>
         <button className={[styles.tab, activeTab === 'today' ? styles.active : ''].join(' ')} onClick={() => setActiveTab('today')}>📅 미팅 일정</button>
-        <button className={[styles.tab, activeTab === 'pipeline' ? styles.active : ''].join(' ')} onClick={() => setActiveTab('pipeline')}>📊 파이프라인</button>
+        <button className={[styles.tab, activeTab === 'flow' ? styles.active : ''].join(' ')} onClick={() => setActiveTab('flow')}>📊 영업 진행</button>
         <button className={[styles.tab, activeTab === 'contact' ? styles.active : ''].join(' ')} onClick={() => setActiveTab('contact')}>📞 연락할 고객</button>
       </div>
 
-      {/* 미팅 일정 탭 */}
+      {/* ── 미팅 일정 탭 ── */}
       {activeTab === 'today' && (
         <>
           <div className={styles.sectionHeader}>
@@ -168,7 +186,7 @@ export default function Sales() {
           </div>
 
           {todayMeetings.length === 0 && (
-            <div className={styles.empty}>오늘 미팅이 없어요 😊</div>
+            <div className={styles.empty}>오늘 미팅이 없어요 😊<br />+ 미팅 추가로 일정을 등록해보세요</div>
           )}
 
           {todayMeetings.map(m => (
@@ -180,25 +198,32 @@ export default function Sales() {
               </div>
               <div className={styles.meetingBottom}>
                 <span className={styles.meetingLocation}>📍 {m.location || '장소 미정'}</span>
+                <span className={styles.typeBadge}>{m.type || '미팅'}</span>
                 {m.cancel_count > 0 && <span className={styles.cancelWarn}>⚠ 취소 {m.cancel_count}회</span>}
-                <span style={{ fontSize: 11, color: '#9CA3AF' }}>{m.pipeline_stage}</span>
               </div>
-              {m.memo && <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 6 }}>💬 {m.memo}</div>}
-              <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
+              {m.memo && <div style={{ fontSize: 12, color: '#9CA3AF', marginTop: 6 }}>💬 {m.memo}</div>}
+              <div className={styles.actionRow}>
                 {STATUS_OPTIONS.filter(s => s !== m.status).map(s => (
-                  <button key={s} onClick={() => updateStatus(m.id, s)} style={{ fontSize: 11, padding: '3px 10px', borderRadius: 6, border: '1px solid #EDEBE4', background: 'white', color: '#6B7280', cursor: 'pointer' }}>{s}으로 변경</button>
+                  <button key={s} className={styles.actionBtn} onClick={() => updateStatus(m.id, s)}>{s}</button>
                 ))}
+                {m.customer_id && (
+                  <button className={styles.actionBtn} onClick={() => {
+                    const c = customers.find(c => c.id === m.customer_id)
+                    setSelectedCustomer(c)
+                    setShowFlow(true)
+                  }}>영업 흐름 보기</button>
+                )}
               </div>
             </div>
           ))}
 
           {/* 예정 미팅 */}
-          {upcomingMeetings.filter(m => m.meeting_date !== todayStr).length > 0 && (
+          {upcomingMeetings.length > 0 && (
             <>
               <div className={styles.sectionHeader} style={{ marginTop: 20 }}>
-                <span className={styles.sectionTitle}>예정 미팅</span>
+                <span className={styles.sectionTitle}>예정 미팅 ({upcomingMeetings.length}건)</span>
               </div>
-              {upcomingMeetings.filter(m => m.meeting_date !== todayStr).map(m => (
+              {upcomingMeetings.map(m => (
                 <div key={m.id} className={styles.meetingCard}>
                   <div className={styles.meetingTop}>
                     <span className={styles.meetingName}>{getMeetingName(m)}</span>
@@ -207,7 +232,20 @@ export default function Sales() {
                   </div>
                   <div className={styles.meetingBottom}>
                     <span className={styles.meetingLocation}>📍 {m.location || '장소 미정'}</span>
+                    <span className={styles.typeBadge}>{m.type || '미팅'}</span>
                     {m.cancel_count > 0 && <span className={styles.cancelWarn}>⚠ 취소 {m.cancel_count}회</span>}
+                  </div>
+                  <div className={styles.actionRow}>
+                    {STATUS_OPTIONS.filter(s => s !== m.status).map(s => (
+                      <button key={s} className={styles.actionBtn} onClick={() => updateStatus(m.id, s)}>{s}</button>
+                    ))}
+                    {m.customer_id && (
+                      <button className={styles.actionBtn} onClick={() => {
+                        const c = customers.find(c => c.id === m.customer_id)
+                        setSelectedCustomer(c)
+                        setShowFlow(true)
+                      }}>영업 흐름 보기</button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -216,49 +254,57 @@ export default function Sales() {
         </>
       )}
 
-      {/* 파이프라인 탭 */}
-      {activeTab === 'pipeline' && (
+      {/* ── 영업 진행 탭 ── */}
+      {activeTab === 'flow' && (
         <>
-          <div className={styles.pipeline}>
-            {PIPELINE_STAGES.map((stage, i) => (
-              <div key={stage} className={[styles.pipeStage, pipelineCounts[i] > 0 ? styles.active : ''].join(' ')}>
-                <div className={styles.stageName}>{stage}</div>
-                <div className={styles.stageCount}>{pipelineCounts[i]}</div>
-              </div>
-            ))}
+          <div className={styles.sectionHeader}>
+            <span className={styles.sectionTitle}>고객별 영업 진행 현황</span>
+            <button className={styles.addBtn} onClick={() => setShowForm(true)}>+ 추가</button>
           </div>
 
-          {PIPELINE_STAGES.map(stage => {
-            const stageMeetings = meetings.filter(m => m.pipeline_stage === stage && m.status !== '취소')
-            if (stageMeetings.length === 0) return null
+          {customers.length === 0 && (
+            <div className={styles.empty}>등록된 고객이 없어요</div>
+          )}
+
+          {customers.map(c => {
+            const { currentStageIdx } = getCustomerFlow(c.id)
+            if (currentStageIdx < 0) return null
+            const currentStage = FLOW_STAGES[currentStageIdx]
             return (
-              <div key={stage}>
-                <div className={styles.sectionHeader}>
-                  <span className={styles.sectionTitle}>{stage} ({stageMeetings.length})</span>
+              <div key={c.id} className={styles.meetingCard} onClick={() => { setSelectedCustomer(c); setShowFlow(true) }}>
+                <div className={styles.meetingTop}>
+                  <span className={styles.meetingName}>{c.name}</span>
+                  <span style={{ fontSize: 12, color: '#6B7280' }}>{c.age}세</span>
                 </div>
-                {stageMeetings.map(m => (
-                  <div key={m.id} className={styles.meetingCard}>
-                    <div className={styles.meetingTop}>
-                      <span className={styles.meetingName}>{getMeetingName(m)}</span>
-                      <span className={styles.meetingTime}>{m.meeting_date}</span>
-                      <span className={[styles.statusBadge, getStatusClass(m.status)].join(' ')}>{m.status}</span>
-                    </div>
-                    {m.memo && <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 4 }}>💬 {m.memo}</div>}
-                  </div>
-                ))}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 14 }}>{currentStage.icon}</span>
+                  <span style={{ fontSize: 12, color: '#1D9E75', fontWeight: 500 }}>{currentStage.label}</span>
+                  <span style={{ fontSize: 11, color: '#9CA3AF', marginLeft: 'auto' }}>탭해서 상세 보기 →</span>
+                </div>
+                {/* 미니 진행바 */}
+                <div style={{ display: 'flex', gap: 3, marginTop: 10 }}>
+                  {FLOW_STAGES.map((s, i) => (
+                    <div key={s.key} style={{
+                      flex: 1, height: 4, borderRadius: 2,
+                      background: i < currentStageIdx ? '#1D9E75' : i === currentStageIdx ? '#1D9E75' : '#EDEBE4',
+                      opacity: i === currentStageIdx ? 1 : i < currentStageIdx ? 0.6 : 0.3,
+                    }} />
+                  ))}
+                </div>
               </div>
             )
           })}
 
-          {meetings.filter(m => m.status !== '취소').length === 0 && (
-            <div className={styles.empty}>파이프라인에 미팅이 없어요<br />미팅을 추가해봐요! 😊</div>
+          {customers.filter(c => getCustomerFlow(c.id).currentStageIdx >= 0).length === 0 && (
+            <div className={styles.empty}>
+              아직 영업 진행 중인 고객이 없어요<br />
+              미팅을 추가하면 여기서 진행 현황을 볼 수 있어요 😊
+            </div>
           )}
-
-          <button className={styles.addBtn} onClick={() => setShowForm(true)} style={{ width: '100%', justifyContent: 'center', marginTop: 16 }}>+ 미팅 추가</button>
         </>
       )}
 
-      {/* 연락할 고객 탭 */}
+      {/* ── 연락할 고객 탭 ── */}
       {activeTab === 'contact' && (
         <>
           <div className={styles.sectionHeader}>
@@ -293,33 +339,92 @@ export default function Sales() {
         </>
       )}
 
-      {/* 미팅 추가 폼 */}
+      {/* ── 영업 흐름 팝업 (퀘스트 스타일) ── */}
+      {showFlow && selectedCustomer && (
+        <div className={styles.flowOverlay} onClick={() => setShowFlow(false)}>
+          <div className={styles.flowPanel} onClick={e => e.stopPropagation()}>
+            <div className={styles.flowPanelHeader}>
+              <span className={styles.flowPanelTitle}>{selectedCustomer.name} 영업 흐름</span>
+              <button className={styles.flowClose} onClick={() => setShowFlow(false)}>✕</button>
+            </div>
+
+            {(() => {
+              const { currentStageIdx, customerMeetings } = getCustomerFlow(selectedCustomer.id)
+              return (
+                <div className={styles.flowStages}>
+                  {FLOW_STAGES.map((stage, i) => {
+                    const isDone = i < currentStageIdx
+                    const isCurrent = i === currentStageIdx
+                    const isLocked = i > currentStageIdx
+                    const stageMeetings = customerMeetings.filter(m => m.pipeline_stage === stage.key)
+                    const lastMeeting = stageMeetings[stageMeetings.length - 1]
+
+                    return (
+                      <div key={stage.key} className={styles.flowStage}>
+                        {i < FLOW_STAGES.length - 1 && (
+                          <div className={[styles.flowLine, isDone ? styles.done : ''].join(' ')} />
+                        )}
+                        <div className={styles.flowStageInner}>
+                          <div className={[styles.flowDot, isDone ? styles.done : isCurrent ? styles.current : styles.locked].join(' ')}>
+                            {isDone ? '✓' : stage.icon}
+                          </div>
+                          <div className={styles.flowContent}>
+                            <div>
+                              <span className={[styles.flowStageName, isDone ? styles.done : isCurrent ? styles.current : styles.locked].join(' ')}>
+                                {stage.label}
+                              </span>
+                              {isCurrent && <span className={styles.flowCurrentBadge}>진행중</span>}
+                            </div>
+                            {lastMeeting && (
+                              <div className={styles.flowStageDate}>
+                                {lastMeeting.meeting_date} {lastMeeting.meeting_time && `· ${lastMeeting.meeting_time}`}
+                                {lastMeeting.location && ` · ${lastMeeting.location}`}
+                              </div>
+                            )}
+                            {lastMeeting?.memo && (
+                              <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>💬 {lastMeeting.memo}</div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )
+            })()}
+
+            <button className={styles.submitBtn} style={{ marginTop: 20 }} onClick={() => {
+              setShowFlow(false)
+              setForm(f => ({ ...f, customer_id: selectedCustomer.id }))
+              setIsNewProspect(false)
+              setShowForm(true)
+            }}>+ 다음 단계 추가</button>
+          </div>
+        </div>
+      )}
+
+      {/* ── 미팅 추가 폼 (슬라이드업) ── */}
       {showForm && (
-        <div className={styles.overlay} onClick={() => setShowForm(false)}>
+        <div className={styles.formOverlay} onClick={() => setShowForm(false)}>
           <div className={styles.formPanel} onClick={e => e.stopPropagation()}>
             <button className={styles.formClose} onClick={() => setShowForm(false)}>✕</button>
-            <div className={styles.formTitle}>미팅 추가</div>
+            <div className={styles.formTitle}>미팅 / 접촉 추가</div>
 
-            {/* 기존 고객 / 신규 토글 */}
             <div className={styles.toggleRow}>
               <button className={[styles.toggleBtn, !isNewProspect ? styles.on : ''].join(' ')} onClick={() => setIsNewProspect(false)}>기존 고객</button>
               <button className={[styles.toggleBtn, isNewProspect ? styles.on : ''].join(' ')} onClick={() => setIsNewProspect(true)}>신규 (미등록)</button>
             </div>
 
-            {/* 기존 고객 선택 */}
             {!isNewProspect && (
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>고객 선택</label>
                 <select className={styles.formSelect} value={form.customer_id} onChange={e => setForm(f => ({ ...f, customer_id: e.target.value }))}>
                   <option value="">고객 선택</option>
-                  {customers.map(c => (
-                    <option key={c.id} value={c.id}>{c.name} ({c.age}세)</option>
-                  ))}
+                  {customers.map(c => <option key={c.id} value={c.id}>{c.name} ({c.age}세)</option>)}
                 </select>
               </div>
             )}
 
-            {/* 신규 입력 */}
             {isNewProspect && (
               <>
                 <div className={styles.formRow}>
@@ -339,7 +444,6 @@ export default function Sales() {
               </>
             )}
 
-            {/* 날짜 / 시간 */}
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>날짜 *</label>
@@ -351,29 +455,33 @@ export default function Sales() {
               </div>
             </div>
 
-            {/* 장소 */}
             <div className={styles.formGroup}>
               <label className={styles.formLabel}>장소</label>
               <input className={styles.formInput} placeholder="스타벅스 강남점" value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} />
             </div>
 
-            {/* 상태 / 파이프라인 */}
             <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>접촉 유형</label>
+                <select className={styles.formSelect} value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))}>
+                  {TYPE_OPTIONS.map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
+              </div>
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>상태</label>
                 <select className={styles.formSelect} value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
                   {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>단계</label>
-                <select className={styles.formSelect} value={form.pipeline_stage} onChange={e => setForm(f => ({ ...f, pipeline_stage: e.target.value }))}>
-                  {PIPELINE_STAGES.map(s => <option key={s} value={s}>{s}</option>)}
-                </select>
-              </div>
             </div>
 
-            {/* 메모 */}
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>영업 단계</label>
+              <select className={styles.formSelect} value={form.pipeline_stage} onChange={e => setForm(f => ({ ...f, pipeline_stage: e.target.value }))}>
+                {FLOW_STAGES.map(s => <option key={s.key} value={s.key}>{s.icon} {s.label}</option>)}
+              </select>
+            </div>
+
             <div className={styles.formGroup}>
               <label className={styles.formLabel}>메모</label>
               <input className={styles.formInput} placeholder="특이사항 메모" value={form.memo} onChange={e => setForm(f => ({ ...f, memo: e.target.value }))} />
