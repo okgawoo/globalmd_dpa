@@ -172,7 +172,10 @@ export default function Dashboard() {
             <p className={styles.mobileGreet}>안녕하세요 👋</p>
             <p className={styles.mobileName}>{agentName || 'admin'} 대표님</p>
           </div>
-          <div className={styles.mobileDateBadge}>{mobileDateStr}</div>
+          <div className={styles.mobileDateBadge}>
+            <p style={{ margin: 0, fontWeight: 700, fontSize: 13, letterSpacing: 0.5 }}>DPA</p>
+            <p style={{ margin: 0, fontSize: 11, opacity: 0.85 }}>{mobileDateStr}</p>
+          </div>
         </div>
 
         {/* 오늘 할 일 */}
