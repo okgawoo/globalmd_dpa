@@ -88,7 +88,7 @@
 .calToday:hover { background: #1D9E75; }
 
 /* ── 모바일 전용 스타일 ── */
-.mobileHeader { background: #1D9E75; padding: 16px 16px 14px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+.mobileHeader { background: #1D9E75; padding: 16px 16px 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
 .mobileGreet { font-size: 15px; color: white; margin: 0; font-weight: 500; }
 .mobileName { font-size: 18px; font-weight: 500; color: white; margin: 2px 0 0; }
 .mobileDateBadge { color: white; text-align: center; user-select: none; -webkit-user-select: none; pointer-events: none; }

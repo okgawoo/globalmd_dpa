@@ -194,7 +194,7 @@ export default function Dashboard() {
 
 
         {/* 오늘 할 일 */}
-        <div className={styles.mobileCard} style={{ marginTop: 8 }}>
+        <div className={styles.mobileCard} style={{ marginTop: 4 }}>
           <div className={styles.mobileCardHeader}>
             <span className={styles.mobileCardTitle} style={{ color: '#1D9E75' }}>오늘 할 일</span>
             <span className={styles.mobileCardLink} onClick={handleGapClick}>전체보기 →</span>
