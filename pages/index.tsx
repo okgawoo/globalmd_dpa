@@ -31,6 +31,7 @@ export default function Dashboard() {
   const [calMonth, setCalMonth] = useState(new Date().getMonth())
   const [agentName, setAgentName] = useState('')
   const [agentRole, setAgentRole] = useState('')
+  const [agentEmail, setAgentEmail] = useState('')
   const [seenNearDone, setSeenNearDone] = useState<string[]>([])
   const [seenBirthday, setSeenBirthday] = useState<string[]>([])
   const [seenGap, setSeenGap] = useState<string[]>([])
@@ -43,6 +44,8 @@ export default function Dashboard() {
     fetchAll()
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) {
+        supabase.auth.getUser().then(({ data: u }) => { if (u.user) setAgentEmail(u.user.email || '') })
+        setAgentEmail(data.user.email || '')
         supabase.from('dpa_agents').select('name, role').eq('user_id', data.user.id).single()
           .then(({ data: agent }) => { if (agent) { setAgentName(agent.name); setAgentRole(agent.role || 'agent') } })
       }
@@ -173,7 +176,7 @@ export default function Dashboard() {
         <div className={styles.mobileHeader}>
           <div>
             <p className={styles.mobileGreet}>안녕하세요 👋</p>
-            <p className={styles.mobileName}>{agentName || ''} {agentRole === 'admin' ? '대표님' : '설계사님'}</p>
+            <p className={styles.mobileName}>{agentName || ''} {(agentRole === 'admin' || agentEmail === 'admin@dpa.com') ? '대표님' : '설계사님'}</p>
           </div>
           <div className={styles.mobileDateBadge}>
             <p style={{ margin: 0, fontWeight: 700, fontSize: 13, letterSpacing: 0.5 }}>DPA</p>
