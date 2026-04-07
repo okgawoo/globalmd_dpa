@@ -1,6 +1,10 @@
 .wrap { max-width: 1000px; }
 .loading { padding: 40px; text-align: center; color: var(--text-muted); }
 
+/* 웹/모바일 분리 */
+.mobileDash { display: none; }
+.desktopDash { display: block; }
+
 .topRow { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }
 .dateStr { font-size: 13px; color: var(--text-muted); }
 .tagline { font-size: 13px; color: var(--green); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%; }
@@ -61,13 +65,6 @@
 .popupName { font-size: 14px; font-weight: 500; color: var(--text-primary); }
 .popupMeta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 
-@media (max-width: 768px) {
-  .metrics { grid-template-columns: repeat(2, 1fr); }
-  .alerts { grid-template-columns: 1fr; }
-  .grid2 { grid-template-columns: 1fr; }
-  .tagline { font-size: 11px; }
-}
-
 /* 환영문구 + 날짜 */
 .welcomeMsg { font-size: 15px; color: #111827; margin-bottom: 6px; }
 .welcomeMsg strong { font-weight: 700; color: #1D9E75; }
@@ -90,8 +87,54 @@
 .calToday { background: #1D9E75; color: #fff; font-weight: 700; border-radius: 6px; }
 .calToday:hover { background: #1D9E75; }
 
-/* 모바일 최적화 */
+/* ── 모바일 전용 스타일 ── */
+.mobileHeader { background: #1D9E75; padding: 14px 16px 12px; display: flex; justify-content: space-between; align-items: center; }
+.mobileGreet { font-size: 11px; color: rgba(255,255,255,0.7); margin: 0; }
+.mobileName { font-size: 15px; font-weight: 500; color: white; margin: 2px 0 0; }
+.mobileDateBadge { background: rgba(255,255,255,0.2); border-radius: 20px; padding: 3px 10px; font-size: 10px; color: white; }
+
+.mobileCard { background: white; border-radius: 12px; border: 1px solid #EDEBE4; margin: 8px 10px 0; }
+.mobileCardHeader { padding: 7px 12px 6px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #EDEBE4; }
+.mobileCardTitle { font-size: 11px; font-weight: 500; color: #111827; }
+.mobileCardLink { font-size: 10px; color: #1D9E75; cursor: pointer; }
+.mobileEmpty { font-size: 11px; color: #9CA3AF; text-align: center; padding: 10px 0; margin: 0; }
+
+.mobileTodoRow { display: flex; align-items: center; gap: 7px; padding: 5px 12px; }
+.mobileTodoRow:first-of-type { padding-top: 7px; }
+.mobileTodoRow:last-of-type { padding-bottom: 8px; }
+.mobileTodoIcon { font-size: 11px; flex-shrink: 0; }
+.mobileTodoText { font-size: 11px; color: #111827; flex: 1; }
+.mobileBadge { font-size: 10px; padding: 1px 6px; border-radius: 5px; white-space: nowrap; }
+
+.mobileGrid2 { margin: 8px 10px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.mobileMenuBtn { background: white; border: 1px solid #EDEBE4; border-radius: 12px; padding: 10px 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; text-align: left; }
+.mobileMenuName { font-size: 11px; font-weight: 500; color: #111827; margin: 0; }
+.mobileMenuSub { font-size: 9px; color: #6B7280; margin: 1px 0 0; }
+
+/* 핵심 지표 */
+.mobileMetrics { margin: 8px 10px 0; background: white; border-radius: 12px; border: 1px solid #EDEBE4; display: flex; align-items: center; padding: 8px 0; }
+.mobileMetricItem { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2px 8px; }
+.mobileMetricVal { font-size: 16px; font-weight: 500; color: #1D9E75; margin: 0; line-height: 1.2; }
+.mobileMetricLabel { font-size: 9px; color: #6B7280; margin: 3px 0 0; white-space: nowrap; }
+.mobileMetricDivider { width: 1px; background: #EDEBE4; align-self: stretch; flex-shrink: 0; }
+
+/* 하단 아이콘 4개 */
+.mobileBottomIcons { margin: 8px 10px 10px; background: white; border-radius: 12px; border: 1px solid #EDEBE4; display: grid; grid-template-columns: repeat(4, 1fr); padding: 10px 8px 8px; gap: 4px; }
+.mobileIconBtn { background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 2px; }
+.mobileIconLabel { font-size: 9px; color: #9CA3AF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 52px; text-align: center; }
+
+/* 반응형 분기 */
 @media (max-width: 768px) {
+  .mobileDash { display: block; }
+  .desktopDash { display: none; }
+  .wrap { padding: 0; }
+}
+
+@media (min-width: 769px) {
+  .metrics { grid-template-columns: repeat(2, 1fr); }
+  .alerts { grid-template-columns: 1fr; }
+  .grid2 { grid-template-columns: 1fr; }
+  .tagline { font-size: 11px; }
   .topRow { flex-direction: column; align-items: flex-start; gap: 4px; }
   .welcomeMsg { font-size: 13px; }
   .dateRow { flex-direction: row; flex-wrap: nowrap; gap: 6px; margin-bottom: 14px; justify-content: flex-end; align-items: center; width: 100%; }
