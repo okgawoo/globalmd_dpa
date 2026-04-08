@@ -225,7 +225,7 @@ export default function Dashboard() {
             const customer = customers.find(c => c.id === m.customer_id)
             const name = m.prospect_name || customer?.name || '이름 없음'
             return (
-              <div key={i} className={styles.mobileTodoRow} onClick={() => router.push(`/sales?customerId=${m.customer_id || ''}&meetingId=${m.id}`)} style={{ cursor: 'pointer' }}>
+              <div key={i} className={styles.mobileTodoRow} onClick={() => router.push(`/sales?meetingId=${m.id}`)} style={{ cursor: 'pointer' }}>
                 <span className={styles.mobileTodoIcon}>🤝</span>
                 <span className={styles.mobileTodoText}>{name}</span>
                 <span className={styles.mobileBadge} style={{ color: m.status === '확정' ? '#0F6E56' : '#B45309', background: m.status === '확정' ? '#E1F5EE' : '#FEF3E2' }}>{m.meeting_time || m.status}</span>
