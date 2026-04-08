@@ -93,7 +93,8 @@ export default function Dashboard() {
     const { data: conts } = await supabase.from('dpa_contracts').select('*').eq('agent_id', agentId)
     const { data: covs } = await supabase.from('dpa_coverages').select('*')
     const todayStr = new Date().toISOString().split('T')[0]
-    const { data: meets } = await supabase.from('dpa_meetings').select('*').eq('agent_id', agentId).eq('meeting_date', todayStr).neq('status', '취소')
+    const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    const { data: meets } = await supabase.from('dpa_meetings').select('*').eq('agent_id', agentId).gte('meeting_date', todayStr).lte('meeting_date', nextWeek).neq('status', '취소').order('meeting_date', { ascending: true })
     setCustomers(custs || [])
     setContracts(conts || [])
     setCoverages(covs || [])
