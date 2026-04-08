@@ -397,7 +397,7 @@ export default function Sales() {
       {activeTab === 'contact' && (
         <div style={{paddingTop:16}}>
           <div className={styles.sectionHeader}>
-            <span className={styles.sectionTitle}>오늘 연락할 고객 ({nearDone.length + birthdayList.length}명)</span>
+            <span className={styles.sectionTitle}>오늘 연락할 고객 ({nearDone.length + birthdayContacts.length}명)</span>
           </div>
 
           {nearDone.map(c => (
