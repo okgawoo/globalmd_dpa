@@ -292,9 +292,8 @@ export default function Sales() {
                         const c = customers.find((c:any) => c.id === m.customer_id)
                         return c?.customer_type !== t
                       }).map(t => (
-                        <button key={t} className={styles.actionBtn} style={{fontSize:11,color:'#6B7280'}} onClick={async () => {
-                          await supabase.from('dpa_customers').update({customer_type: t}).eq('id', m.customer_id)
-                          await fetchAll(agentId)
+                        <button key={t} className={styles.actionBtn} style={{fontSize:11,color:'#6B7280'}} onClick={() => {
+                          supabase.from('dpa_customers').update({customer_type: t}).eq('id', m.customer_id).then(() => fetchAll(agentId))
                         }}>
                           {t === 'existing' ? '마이고객으로' : t === 'prospect' ? '관심고객으로' : '신규로'}
                         </button>
@@ -366,9 +365,8 @@ export default function Sales() {
                         const c = customers.find((c:any) => c.id === m.customer_id)
                         return c?.customer_type !== t
                       }).map(t => (
-                        <button key={t} className={styles.actionBtn} style={{fontSize:11,color:'#6B7280'}} onClick={async () => {
-                          await supabase.from('dpa_customers').update({customer_type: t}).eq('id', m.customer_id)
-                          await fetchAll(agentId)
+                        <button key={t} className={styles.actionBtn} style={{fontSize:11,color:'#6B7280'}} onClick={() => {
+                          supabase.from('dpa_customers').update({customer_type: t}).eq('id', m.customer_id).then(() => fetchAll(agentId))
                         }}>
                           {t === 'existing' ? '마이고객으로' : t === 'prospect' ? '관심고객으로' : '신규로'}
                         </button>
