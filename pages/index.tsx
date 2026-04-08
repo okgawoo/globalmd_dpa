@@ -143,17 +143,17 @@ export default function Dashboard() {
     return `안녕하세요 ${c.name} 님! 😊\n\n최근 뇌혈관 질환 관련 뉴스가 많더라고요.\n${c.name} 님 보험을 확인해보니 뇌혈관 전체 보장이 빠져있어서 한번 말씀드리고 싶었어요.\n잠깐 시간 되실 때 통화 가능하실까요? 📞`
   }
 
-  const todoItems: { icon: string; text: string; badge: string; badgeColor: string; badgeBg: string }[] = []
+  const todoItems: { icon: string; text: string; badge: string; badgeColor: string; badgeBg: string; sort: string }[] = []
   birthdayCustomers.slice(0, 1).forEach(c => {
     const diff = Math.abs(new Date(c.birth_date).getDate() - now.getDate())
-    todoItems.push({ icon: '🎂', text: `${c.name} 생일`, badge: diff === 0 ? 'D-day' : `D-${diff}`, badgeColor: '#EF9F27', badgeBg: '#FEF3E2' })
+    todoItems.push({ icon: '🎂', text: `${c.name} 생일`, badge: diff === 0 ? 'D-day' : `D-${diff}`, badgeColor: '#EF9F27', badgeBg: '#FEF3E2', sort: '생일임박' })
   })
   nearDoneCustomers.slice(0, 1).forEach(c => {
     const ct = nearDoneContracts.find((ct: any) => ct.customer_id === c.id)
-    todoItems.push({ icon: '🔥', text: `${c.name} 완납임박`, badge: `${ct ? calcPaymentRate(ct) : 0}%`, badgeColor: '#E24B4A', badgeBg: '#FCEBEB' })
+    todoItems.push({ icon: '🔥', text: `${c.name} 완납임박`, badge: `${ct ? calcPaymentRate(ct) : 0}%`, badgeColor: '#E24B4A', badgeBg: '#FCEBEB', sort: '완납임박' })
   })
   gapCustomers.slice(0, 1).forEach(c => {
-    todoItems.push({ icon: '⚠️', text: `${c.name} 보장공백`, badge: '확인', badgeColor: '#E24B4A', badgeBg: '#FCEBEB' })
+    todoItems.push({ icon: '⚠️', text: `${c.name} 보장공백`, badge: '확인', badgeColor: '#E24B4A', badgeBg: '#FCEBEB', sort: '보장공백' })
   })
 
   const formatMonthly = (val: number) => {
@@ -197,13 +197,16 @@ export default function Dashboard() {
         <div className={styles.mobileCard} style={{ marginTop: 4 }}>
           <div className={styles.mobileCardHeader}>
             <span className={styles.mobileCardTitle} style={{ color: '#1D9E75' }}>오늘 할일</span>
-            <span className={styles.mobileCardLink} onClick={handleGapClick}>전체보기 →</span>
+            <span className={styles.mobileCardLink} onClick={() => {
+              const sort = todoItems.length > 0 ? todoItems[0].sort : '보장공백'
+              router.push(`/customers?sort=${sort}`)
+            }}>전체보기 →</span>
           </div>
           <div className={styles.mobileCardBody}>
           {todoItems.length === 0 ? (
             <p className={styles.mobileEmpty}>오늘 할 일 없음 🎉</p>
           ) : todoItems.map((item, i) => (
-            <div key={i} className={styles.mobileTodoRow}>
+            <div key={i} className={styles.mobileTodoRow} onClick={() => router.push(`/customers?sort=${item.sort}`)} style={{ cursor: 'pointer' }}>
               <span className={styles.mobileTodoIcon}>{item.icon}</span>
               <span className={styles.mobileTodoText}>{item.text}</span>
               <span className={styles.mobileBadge} style={{ color: item.badgeColor, background: item.badgeBg }}>{item.badge}</span>
