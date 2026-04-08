@@ -30,7 +30,6 @@ export default function Dashboard() {
   const [calYear, setCalYear] = useState(new Date().getFullYear())
   const [calMonth, setCalMonth] = useState(new Date().getMonth())
   const [agentName, setAgentName] = useState('')
-  const [agentRole, setAgentRole] = useState('')
   const [agentEmail, setAgentEmail] = useState('')
   const [seenNearDone, setSeenNearDone] = useState<string[]>([])
   const [seenBirthday, setSeenBirthday] = useState<string[]>([])
@@ -44,10 +43,9 @@ export default function Dashboard() {
     fetchAll()
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) {
-        supabase.auth.getUser().then(({ data: u }) => { if (u.user) setAgentEmail(u.user.email || '') })
         setAgentEmail(data.user.email || '')
-        supabase.from('dpa_agents').select('name, role').eq('user_id', data.user.id).single()
-          .then(({ data: agent }) => { if (agent) { setAgentName(agent.name); setAgentRole(agent.role || 'agent') } })
+        supabase.from('dpa_agents').select('name').eq('user_id', data.user.id).single()
+          .then(({ data: agent }) => { if (agent) setAgentName(agent.name) })
       }
     })
     setSeenNearDone(JSON.parse(localStorage.getItem('dpa_seen_nearDone') || '[]'))
@@ -140,7 +138,6 @@ export default function Dashboard() {
     return `안녕하세요 ${c.name} 님! 😊\n\n최근 뇌혈관 질환 관련 뉴스가 많더라고요.\n${c.name} 님 보험을 확인해보니 뇌혈관 전체 보장이 빠져있어서 한번 말씀드리고 싶었어요.\n잠깐 시간 되실 때 통화 가능하실까요? 📞`
   }
 
-  // 오늘 할 일 목록 (최대 3개)
   const todoItems: { icon: string; text: string; badge: string; badgeColor: string; badgeBg: string }[] = []
   birthdayCustomers.slice(0, 1).forEach(c => {
     const diff = Math.abs(new Date(c.birth_date).getDate() - now.getDate())
@@ -184,19 +181,17 @@ export default function Dashboard() {
               </svg>
               <p style={{ margin: 0, fontSize: 13, color: 'white', fontWeight: 700, letterSpacing: 1 }}>DPA</p>
             </div>
-            <p className={styles.mobileGreet}>안녕하세요 👋 {agentName || ''} {(agentRole === 'admin' || agentEmail === 'admin@dpa.com') ? '대표님' : '설계사님'}</p>
+            <p className={styles.mobileGreet}>안녕하세요 👋 {agentName || ''} {agentEmail === 'admin@dpa.com' ? '대표님' : '설계사님'}</p>
           </div>
-          <div className={styles.mobileDateBadge}>
+          <div className={styles.mobileDateBadge} style={{ color: 'white', textAlign: 'center', userSelect: 'none', WebkitUserSelect: 'none', pointerEvents: 'none' }}>
             <p style={{ margin: 0, fontSize: 12, opacity: 0.85 }}>{mobileDateStr}</p>
           </div>
         </div>
 
-
-
-        {/* 오늘 할 일 */}
+        {/* 오늘 할일 */}
         <div className={styles.mobileCard} style={{ marginTop: 4 }}>
           <div className={styles.mobileCardHeader}>
-            <span className={styles.mobileCardTitle} style={{ color: '#1D9E75' }}>오늘 할 일</span>
+            <span className={styles.mobileCardTitle} style={{ color: '#1D9E75' }}>오늘 할일</span>
             <span className={styles.mobileCardLink} onClick={handleGapClick}>전체보기 →</span>
           </div>
           <div className={styles.mobileCardBody}>
@@ -281,7 +276,7 @@ export default function Dashboard() {
         {/* 하단 아이콘 4개 */}
         <div className={styles.mobileBottomIcons}>
           <button className={styles.mobileIconBtn} onClick={() => router.push('/customers')}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/><circle cx="5" cy="19" r="1.5" fill="#9CA3AF" stroke="none"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
             <span className={styles.mobileIconLabel}>이력추적</span>
           </button>
           <button className={styles.mobileIconBtn} onClick={() => router.push('/analysis')}>
@@ -455,8 +450,7 @@ export default function Dashboard() {
           {customers.length === 0 && <div className={styles.emptySmall}>활동 내역 없음</div>}
         </div>
       </div>
-      </div>
+
     </div>
   )
 }
-
