@@ -89,6 +89,7 @@ export default function Sales() {
 
   const todayMeetings = meetings.filter(m => m.meeting_date === todayStr)
   const upcomingMeetings = meetings.filter(m => m.meeting_date > todayStr && m.status !== '취소' && m.status !== '완료')
+  const contactMeetings = meetings.filter(m => (m.type === '전화' || m.type === '문자') && m.status !== '취소' && m.status !== '완료')
 
   // 오늘 연락할 고객
   const nearDone = customers.filter(c => {
@@ -396,35 +397,71 @@ export default function Sales() {
       {/* ── 연락할 고객 탭 ── */}
       {activeTab === 'contact' && (
         <div style={{paddingTop:16}}>
+
+          {/* AI 추천 섹션 */}
           <div className={styles.sectionHeader}>
-            <span className={styles.sectionTitle}>오늘 연락할 고객 ({nearDone.length + birthdayContacts.length}명)</span>
+            <span className={styles.sectionTitle}>AI 추천 연락 고객 ({nearDone.length + birthdayContacts.length}명)</span>
           </div>
 
           {nearDone.map(c => (
             <div key={c.id} className={styles.contactCard}>
               <span className={styles.contactIcon}>🔥</span>
-              <div>
-                <div className={styles.contactName}>{c.name}</div>
+              <div style={{flex:1}}>
+                <div className={styles.contactName}>
+                  {c.name}고객
+                  <span style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:'#EFF6FF',color:'#1D4ED8',marginLeft:6,fontWeight:700}}>AI 추천</span>
+                </div>
                 <div className={styles.contactReason}>완납 임박 → 재설계 제안</div>
               </div>
-              <button className={styles.contactBtn} onClick={() => router.push('/customers')}>고객 보기</button>
+              <button className={styles.contactBtn} onClick={() => router.push('/customers?sort=완납임박')}>고객 보기</button>
             </div>
           ))}
 
           {birthdayContacts.map(c => (
             <div key={c.id} className={styles.contactCard}>
               <span className={styles.contactIcon}>🎂</span>
-              <div>
-                <div className={styles.contactName}>{c.name}</div>
+              <div style={{flex:1}}>
+                <div className={styles.contactName}>
+                  {c.name}고객
+                  <span style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:'#EFF6FF',color:'#1D4ED8',marginLeft:6,fontWeight:700}}>AI 추천</span>
+                </div>
                 <div className={styles.contactReason}>생일 → 안부 연락</div>
               </div>
-              <button className={styles.contactBtn} onClick={() => router.push('/customers')}>고객 보기</button>
+              <button className={styles.contactBtn} onClick={() => router.push('/customers?sort=생일임박')}>고객 보기</button>
             </div>
           ))}
 
           {nearDone.length === 0 && birthdayContacts.length === 0 && (
-            <div className={styles.empty}>오늘 연락할 고객이 없어요 😊</div>
+            <div className={styles.empty} style={{marginBottom:8}}>AI 추천 연락 고객이 없어요 😊</div>
           )}
+
+          {/* 직접 추가 연락 섹션 */}
+          <div className={styles.sectionHeader} style={{marginTop:16}}>
+            <span className={styles.sectionTitle}>직접 추가 연락 ({contactMeetings.length}건)</span>
+            <button className={styles.addBtn} onClick={() => { setForm(f => ({...f, type:'전화'})); setShowForm(true) }}>+ 연락 추가</button>
+          </div>
+
+          {contactMeetings.length === 0 ? (
+            <div className={styles.empty}>직접 추가한 연락 일정이 없어요</div>
+          ) : contactMeetings.map(m => {
+            const badge = getMeetingBadge(m)
+            const dateObj = new Date(m.meeting_date)
+            const dateLabel = `${dateObj.getMonth()+1}/${dateObj.getDate()}(${['일','월','화','수','목','금','토'][dateObj.getDay()]})`
+            return (
+              <div key={m.id} className={styles.contactCard}>
+                <span className={styles.contactIcon}>{m.type === '문자' ? '💬' : '📞'}</span>
+                <div style={{flex:1}}>
+                  <div className={styles.contactName}>
+                    {getMeetingName(m)}고객
+                    <span style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:badge.bg,color:badge.color,marginLeft:6,fontWeight:600}}>{badge.text}</span>
+                  </div>
+                  <div className={styles.contactReason}>{dateLabel} {m.meeting_time || ''} · {m.type} {m.memo ? `· ${m.memo}` : ''}</div>
+                </div>
+                <button className={styles.contactBtn} onClick={() => router.push(`/customers`)}>고객 보기</button>
+              </div>
+            )
+          })}
+
         </div>
       )}
 
