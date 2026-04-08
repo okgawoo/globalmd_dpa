@@ -455,6 +455,7 @@ export default function Dashboard() {
           {customers.length === 0 && <div className={styles.emptySmall}>활동 내역 없음</div>}
         </div>
       </div>
+      </div>
 
     </div>
   )
