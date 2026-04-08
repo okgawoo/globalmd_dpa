@@ -224,11 +224,21 @@ export default function Dashboard() {
           ) : meetings.map((m, i) => {
             const customer = customers.find(c => c.id === m.customer_id)
             const name = m.prospect_name || customer?.name || '이름 없음'
+            const isMyCustomer = !!m.customer_id && !!customer
+            const badgeText = m.prospect_name ? '신규' : '마이고객'
+            const badgeColor = m.prospect_name ? '#6B7280' : '#1D4ED8'
+            const badgeBg = m.prospect_name ? '#F3F4F6' : '#EFF6FF'
+            const dateObj = new Date(m.meeting_date)
+            const dateLabel = `${dateObj.getMonth()+1}/${dateObj.getDate()}(${['일','월','화','수','목','금','토'][dateObj.getDay()]})`
+            const timeLabel = m.meeting_time ? ` ${m.meeting_time}` : ''
             return (
               <div key={i} className={styles.mobileTodoRow} onClick={() => router.push(`/sales?meetingId=${m.id}`)} style={{ cursor: 'pointer' }}>
                 <span className={styles.mobileTodoIcon}>🤝</span>
-                <span className={styles.mobileTodoText}>{name}</span>
-                <span className={styles.mobileBadge} style={{ color: m.status === '확정' ? '#0F6E56' : '#B45309', background: m.status === '확정' ? '#E1F5EE' : '#FEF3E2' }}>{m.meeting_time || m.status}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <span className={styles.mobileTodoText}>{name}고객</span>
+                  <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 10, background: badgeBg, color: badgeColor, marginLeft: 4, fontWeight: 600 }}>{badgeText}</span>
+                </div>
+                <span className={styles.mobileBadge} style={{ color: '#374151', background: '#F3F4F6', fontSize: 11, whiteSpace: 'nowrap' }}>{dateLabel}{timeLabel}</span>
               </div>
             )
           })}
