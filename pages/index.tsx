@@ -25,6 +25,7 @@ export default function Dashboard() {
   const [customers, setCustomers] = useState<any[]>([])
   const [contracts, setContracts] = useState<any[]>([])
   const [coverages, setCoverages] = useState<any[]>([])
+  const [meetings, setMeetings] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [calOpen, setCalOpen] = useState(false)
   const [calYear, setCalYear] = useState(new Date().getFullYear())
@@ -91,9 +92,12 @@ export default function Dashboard() {
     const { data: custs } = await supabase.from('dpa_customers').select('*').eq('agent_id', agentId)
     const { data: conts } = await supabase.from('dpa_contracts').select('*').eq('agent_id', agentId)
     const { data: covs } = await supabase.from('dpa_coverages').select('*')
+    const todayStr = new Date().toISOString().split('T')[0]
+    const { data: meets } = await supabase.from('dpa_meetings').select('*').eq('agent_id', agentId).eq('meeting_date', todayStr).neq('status', '취소')
     setCustomers(custs || [])
     setContracts(conts || [])
     setCoverages(covs || [])
+    setMeetings(meets || [])
     setLoading(false)
   }
 
@@ -214,7 +218,19 @@ export default function Dashboard() {
             <span className={styles.mobileCardLink} onClick={() => router.push('/sales')}>전체보기 →</span>
           </div>
           <div className={styles.mobileCardBody}>
-          <p className={styles.mobileEmpty} style={{ padding: '8px 0' }}>미팅 일정 기능 준비중이에요</p>
+          {meetings.length === 0 ? (
+            <p className={styles.mobileEmpty} style={{ padding: '8px 0' }}>오늘 미팅이 없어요 😊</p>
+          ) : meetings.map((m, i) => {
+            const customer = customers.find(c => c.id === m.customer_id)
+            const name = m.prospect_name || customer?.name || '이름 없음'
+            return (
+              <div key={i} className={styles.mobileTodoRow} onClick={() => router.push('/sales')} style={{ cursor: 'pointer' }}>
+                <span className={styles.mobileTodoIcon}>🤝</span>
+                <span className={styles.mobileTodoText}>{name}</span>
+                <span className={styles.mobileBadge} style={{ color: m.status === '확정' ? '#0F6E56' : '#B45309', background: m.status === '확정' ? '#E1F5EE' : '#FEF3E2' }}>{m.meeting_time || m.status}</span>
+              </div>
+            )
+          })}
           </div>
         </div>
 
