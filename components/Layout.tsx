@@ -82,7 +82,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const isDashboardMobile = router.pathname === '/'
 
   return (
-    <div className={styles.root}>
+    <div className={styles.root} style={{userSelect:"none", WebkitUserSelect:"none"}}>
       {ConfirmDialog}
       {sidebarOpen && <div className={styles.overlay} onClick={() => setSidebarOpen(false)} />}
 

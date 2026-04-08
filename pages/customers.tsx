@@ -535,7 +535,7 @@ export default function Customers() {
           const cMonthly = contracts.filter((ct: any) => ct.customer_id === c.id).reduce((s: number, ct: any) => s + (ct.monthly_fee || 0), 0)
           const cCount = contracts.filter((ct: any) => ct.customer_id === c.id).length
           return (
-            <div key={c.id} className={[styles.custRow, selected?.id === c.id ? styles.active : ''].join(' ')} onClick={() => selectCustomer(c)}>
+            <div key={c.id} className={[styles.custRow, selected?.id === c.id ? styles.active : ''].join(' ')} onClick={() => selectCustomer(c)} style={{borderBottom:'1px solid #F3F4F6'}}>
               <div className={[styles.avatar, c.grade === 'VIP' ? styles.avVip : styles.avNormal].join(' ')} style={{
   background: c.customer_type === 'prospect' ? '#FEF3E2' : c.customer_type === 'existing' ? '#EFF6FF' : '#F3F4F6',
   color: c.customer_type === 'prospect' ? '#B45309' : c.customer_type === 'existing' ? '#1D4ED8' : '#6B7280',

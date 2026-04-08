@@ -15,6 +15,13 @@ const FLOW_STAGES = [
 const TYPE_OPTIONS = ['첫접촉', '통화', '문자', '미팅', '방문']
 const STATUS_OPTIONS = ['대기', '확정', '취소', '완료']
 
+const slideUpStyle = `
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+`
+
 export default function Sales() {
   const router = useRouter()
   const [agentId, setAgentId] = useState('')
@@ -212,6 +219,7 @@ export default function Sales() {
 
   return (
     <div className={styles.wrap}>
+      <style>{slideUpStyle}</style>
 
       {/* 탭 */}
       <div className={styles.tabs}>
@@ -264,19 +272,36 @@ export default function Sales() {
                   </div>
                 </div>
               ) : (
-                <div className={styles.actionRow}>
-                  <button className={styles.actionBtn} onClick={() => { setEditId(m.id); setEditForm(m) }}>✏️ 수정</button>
-                  {STATUS_OPTIONS.filter(s => s !== m.status).map(s => (
-                    <button key={s} className={styles.actionBtn} onClick={() => updateStatus(m.id, s)}>{s}</button>
-                  ))}
+                <>
+                  <div className={styles.actionRow}>
+                    <button className={styles.actionBtn} onClick={() => { setEditId(m.id); setEditForm(m) }}>✏️ 수정</button>
+                    {STATUS_OPTIONS.filter(s => s !== m.status).map(s => (
+                      <button key={s} className={styles.actionBtn} onClick={() => updateStatus(m.id, s)}>{s}</button>
+                    ))}
+                    {m.customer_id && (
+                      <button className={styles.actionBtn} onClick={() => {
+                        const c = customers.find((c:any) => c.id === m.customer_id)
+                        setSelectedCustomer(c)
+                        setShowFlow(true)
+                      }}>영업 이력</button>
+                    )}
+                  </div>
                   {m.customer_id && (
-                    <button className={styles.actionBtn} onClick={() => {
-                      const c = customers.find((c:any) => c.id === m.customer_id)
-                      setSelectedCustomer(c)
-                      setShowFlow(true)
-                    }}>영업 흐름 보기</button>
+                    <div className={styles.actionRow} style={{marginTop:4}}>
+                      {['existing','prospect','new'].filter(t => {
+                        const c = customers.find((c:any) => c.id === m.customer_id)
+                        return c?.customer_type !== t
+                      }).map(t => (
+                        <button key={t} className={styles.actionBtn} style={{fontSize:11,color:'#6B7280'}} onClick={async () => {
+                          await supabase.from('dpa_customers').update({customer_type: t}).eq('id', m.customer_id)
+                          await fetchAll(agentId)
+                        }}>
+                          {t === 'existing' ? '마이고객으로' : t === 'prospect' ? '관심고객으로' : '신규로'}
+                        </button>
+                      ))}
+                    </div>
                   )}
-                </div>
+                </>
               )}
             </div>
             )
@@ -332,9 +357,24 @@ export default function Sales() {
                         const c = customers.find(c => c.id === m.customer_id)
                         setSelectedCustomer(c)
                         setShowFlow(true)
-                      }}>영업 흐름 보기</button>
+                      }}>영업 이력</button>
                     )}
                   </div>
+                  {m.customer_id && (
+                    <div className={styles.actionRow} style={{marginTop:4}}>
+                      {['existing','prospect','new'].filter(t => {
+                        const c = customers.find((c:any) => c.id === m.customer_id)
+                        return c?.customer_type !== t
+                      }).map(t => (
+                        <button key={t} className={styles.actionBtn} style={{fontSize:11,color:'#6B7280'}} onClick={async () => {
+                          await supabase.from('dpa_customers').update({customer_type: t}).eq('id', m.customer_id)
+                          await fetchAll(agentId)
+                        }}>
+                          {t === 'existing' ? '마이고객으로' : t === 'prospect' ? '관심고객으로' : '신규로'}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                   )}
                 </div>
                 )
@@ -363,7 +403,7 @@ export default function Sales() {
             return (
               <div key={c.id} className={styles.meetingCard} onClick={() => { setSelectedCustomer(c); setShowFlow(true) }}>
                 <div className={styles.meetingTop}>
-                  <span className={styles.meetingName}>{c.name}</span>
+                  <span className={styles.meetingName}>{c.name}고객 <span style={{fontSize:11,color:'#9CA3AF',fontWeight:400}}>영업이력</span></span>
                   <span style={{ fontSize: 12, color: '#6B7280' }}>{c.age}세</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -436,7 +476,7 @@ export default function Sales() {
           )}
 
           {/* 직접 추가 연락 섹션 */}
-          <div className={styles.sectionHeader} style={{marginTop:16}}>
+          <div className={styles.sectionHeader} style={{marginTop:28}}>
             <span className={styles.sectionTitle}>직접 추가 연락 ({contactMeetings.length}건)</span>
             <button className={styles.addBtn} onClick={() => { setForm(f => ({...f, type:'전화'})); setShowForm(true) }}>+ 연락 추가</button>
           </div>
@@ -467,10 +507,10 @@ export default function Sales() {
 
       {/* ── 영업 흐름 팝업 (퀘스트 스타일) ── */}
       {showFlow && selectedCustomer && (
-        <div className={styles.flowOverlay} onClick={() => setShowFlow(false)}>
-          <div className={styles.flowPanel} onClick={e => e.stopPropagation()}>
+        <div className={styles.flowOverlay} onClick={() => setShowFlow(false)} style={{display:'flex',alignItems:'flex-end',justifyContent:'center'}}>
+          <div className={styles.flowPanel} onClick={e => e.stopPropagation()} style={{width:'100%',maxWidth:480,borderRadius:'16px 16px 0 0',maxHeight:'80vh',overflowY:'auto',animation:'slideUp 0.3s ease'}}>
             <div className={styles.flowPanelHeader}>
-              <span className={styles.flowPanelTitle}>{selectedCustomer.name} 영업 흐름</span>
+              <span className={styles.flowPanelTitle}>{selectedCustomer.name}고객 영업 이력</span>
               <button className={styles.flowClose} onClick={() => setShowFlow(false)}>✕</button>
             </div>
 
