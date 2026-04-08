@@ -536,7 +536,13 @@ export default function Customers() {
           const cCount = contracts.filter((ct: any) => ct.customer_id === c.id).length
           return (
             <div key={c.id} className={[styles.custRow, selected?.id === c.id ? styles.active : ''].join(' ')} onClick={() => selectCustomer(c)}>
-              <div className={[styles.avatar, c.grade === 'VIP' ? styles.avVip : styles.avNormal].join(' ')}>{c.name.slice(0, 2)}</div>
+              <div className={[styles.avatar, c.grade === 'VIP' ? styles.avVip : styles.avNormal].join(' ')} style={{
+  background: c.customer_type === 'prospect' ? '#FEF3E2' : c.customer_type === 'existing' ? '#EFF6FF' : '#F3F4F6',
+  color: c.customer_type === 'prospect' ? '#B45309' : c.customer_type === 'existing' ? '#1D4ED8' : '#6B7280',
+  fontSize: 10, fontWeight: 700
+}}>
+  {c.customer_type === 'prospect' ? '관심' : c.customer_type === 'existing' ? '마이' : '신규'}
+</div>
               <div className={styles.custInfo}>
                 <div className={styles.custName}>
                   {c.name}
@@ -710,7 +716,13 @@ export default function Customers() {
           ) : selected ? (
             <div className={styles.slideContent}>
               <div className={styles.slideHeader}>
-                <div className={[styles.avatar, styles.avLg, selected.grade === 'VIP' ? styles.avVip : styles.avNormal].join(' ')}>{selected.name.slice(0, 2)}</div>
+                <div className={[styles.avatar, styles.avLg, selected.grade === 'VIP' ? styles.avVip : styles.avNormal].join(' ')} style={{
+  background: selected.customer_type === 'prospect' ? '#FEF3E2' : selected.customer_type === 'existing' ? '#EFF6FF' : '#F3F4F6',
+  color: selected.customer_type === 'prospect' ? '#B45309' : selected.customer_type === 'existing' ? '#1D4ED8' : '#6B7280',
+  fontSize: 12, fontWeight: 700
+}}>
+  {selected.customer_type === 'prospect' ? '관심' : selected.customer_type === 'existing' ? '마이' : '신규'}
+</div>
                 <div style={{ flex: 1 }}>
                   <div className={styles.detailName}>{selected.name}</div>
                   <div className={styles.detailMeta}>{selected.age}세 · {selected.gender} · {selected.job} · {selected.phone}</div>
@@ -1016,7 +1028,13 @@ export default function Customers() {
             {selected && (
               <>
                 <div className={styles.slideHeader}>
-                  <div className={[styles.avatar, styles.avLg, selected.grade === 'VIP' ? styles.avVip : styles.avNormal].join(' ')}>{selected.name.slice(0, 2)}</div>
+                  <div className={[styles.avatar, styles.avLg, selected.grade === 'VIP' ? styles.avVip : styles.avNormal].join(' ')} style={{
+  background: selected.customer_type === 'prospect' ? '#FEF3E2' : selected.customer_type === 'existing' ? '#EFF6FF' : '#F3F4F6',
+  color: selected.customer_type === 'prospect' ? '#B45309' : selected.customer_type === 'existing' ? '#1D4ED8' : '#6B7280',
+  fontSize: 12, fontWeight: 700
+}}>
+  {selected.customer_type === 'prospect' ? '관심' : selected.customer_type === 'existing' ? '마이' : '신규'}
+</div>
                   <div style={{ flex: 1 }}>
                     <div className={styles.detailName}>{selected.name}</div>
                     <div className={styles.detailMeta}>{selected.age}세 · {selected.gender} · {selected.job} · {selected.phone}</div>
