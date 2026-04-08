@@ -346,6 +346,7 @@ export default function Sales() {
                       </div>
                     </div>
                   ) : (
+                  <>
                   <div className={styles.actionRow}>
                     <button className={styles.actionBtn} onClick={() => { setEditId(m.id); setEditForm(m) }}>✏️ 수정</button>
                     {STATUS_OPTIONS.filter(s => s !== m.status).map(s => (
@@ -373,10 +374,9 @@ export default function Sales() {
                       ))}
                     </div>
                   )}
-                </div>
+                </>
                 )
               })}
-            </>
           )}
         </div>
       )}
