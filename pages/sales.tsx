@@ -23,7 +23,6 @@ export default function Sales() {
   const [contracts, setContracts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'contact' | 'today' | 'flow'>('contact')
-  const [highlightId, setHighlightId] = useState<string|null>(null)
   const [showForm, setShowForm] = useState(false)
   const [showFlow, setShowFlow] = useState(false)
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null)
@@ -49,7 +48,8 @@ export default function Sales() {
   useEffect(() => { init() }, [])
 
   useEffect(() => {
-    const { meetingId } = router.query
+    const { meetingId, tab } = router.query
+    if (tab === 'today') setActiveTab('today')
     if (meetingId) {
       setActiveTab('today')
       setHighlightId(meetingId as string)
@@ -199,7 +199,7 @@ export default function Sales() {
           )}
 
           {todayMeetings.map(m => (
-            <div key={m.id} className={styles.meetingCard} style={highlightId === m.id ? {borderColor:'#1D9E75', boxShadow:'0 0 0 2px rgba(29,158,117,0.2)'} : {}}>
+            <div key={m.id} className={styles.meetingCard}>
               <div className={styles.meetingTop}>
                 <span className={styles.meetingName}>{getMeetingName(m)}</span>
                 <span className={styles.meetingTime}>{m.meeting_time || '시간 미정'}</span>

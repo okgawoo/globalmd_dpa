@@ -172,7 +172,7 @@ export default function Dashboard() {
     <div className={styles.wrap}>
 
       {/* ── 모바일 전용 대시보드 ── */}
-      <div className={styles.mobileDash}>
+      <div className={styles.mobileDash} style={{ userSelect: 'none', WebkitUserSelect: 'none' }}>
 
         {/* 헤더 */}
         <div className={styles.mobileHeader}>
@@ -216,7 +216,7 @@ export default function Dashboard() {
         <div className={styles.mobileCard}>
           <div className={styles.mobileCardHeader}>
             <span className={styles.mobileCardTitle}>미팅 일정</span>
-            <span className={styles.mobileCardLink} onClick={() => router.push('/sales')}>전체보기 →</span>
+            <span className={styles.mobileCardLink} onClick={() => router.push('/sales?tab=today')}>전체보기 →</span>
           </div>
           <div className={styles.mobileCardBody}>
           {meetings.length === 0 ? (
