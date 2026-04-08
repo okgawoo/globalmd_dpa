@@ -299,7 +299,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ── 웹(데스크탑) 기존 대시보드 ── */
+      {/* ── 웹(데스크탑) 기존 대시보드 ── */}
       <div className={styles.desktopDash}>
         <div className={styles.topRow}>
           <div className={styles.welcomeMsg}>
