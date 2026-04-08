@@ -25,6 +25,8 @@ export default function Sales() {
   const [activeTab, setActiveTab] = useState<'contact' | 'today' | 'flow'>('contact')
   const [showForm, setShowForm] = useState(false)
   const [showFlow, setShowFlow] = useState(false)
+  const [editId, setEditId] = useState<string|null>(null)
+  const [editForm, setEditForm] = useState<any>({})
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null)
   const [isNewProspect, setIsNewProspect] = useState(false)
 
@@ -125,6 +127,19 @@ export default function Sales() {
     return { currentStageIdx, customerMeetings }
   }
 
+  async function handleEdit(id: string) {
+    const { error } = await supabase.from('dpa_meetings').update({
+      meeting_date: editForm.meeting_date,
+      meeting_time: editForm.meeting_time,
+      location: editForm.location,
+      status: editForm.status,
+      memo: editForm.memo,
+    }).eq('id', id)
+    if (error) { alert('수정 실패: ' + error.message); return }
+    setEditId(null)
+    await fetchAll(agentId)
+  }
+
   async function handleSubmit() {
     if (!form.meeting_date) return alert('날짜를 입력해주세요')
     if (isNewProspect && !form.prospect_name) return alert('이름을 입력해주세요')
@@ -202,18 +217,34 @@ export default function Sales() {
                 {m.cancel_count > 0 && <span className={styles.cancelWarn}>⚠ 취소 {m.cancel_count}회</span>}
               </div>
               {m.memo && <div style={{ fontSize: 12, color: '#9CA3AF', marginTop: 6 }}>💬 {m.memo}</div>}
-              <div className={styles.actionRow}>
-                {STATUS_OPTIONS.filter(s => s !== m.status).map(s => (
-                  <button key={s} className={styles.actionBtn} onClick={() => updateStatus(m.id, s)}>{s}</button>
-                ))}
-                {m.customer_id && (
-                  <button className={styles.actionBtn} onClick={() => {
-                    const c = customers.find(c => c.id === m.customer_id)
-                    setSelectedCustomer(c)
-                    setShowFlow(true)
-                  }}>영업 흐름 보기</button>
-                )}
-              </div>
+              {editId === m.id ? (
+                <div style={{ marginTop: 10, background: '#F9FAFB', borderRadius: 8, padding: 10 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
+                    <div><label style={{ fontSize: 11, color: '#6B7280' }}>날짜</label><input type="date" value={editForm.meeting_date||''} onChange={e=>setEditForm((f:any)=>({...f,meeting_date:e.target.value}))} style={{ width:'100%', fontSize:13, padding:'6px 8px', border:'1px solid #E5E7EB', borderRadius:6 }} /></div>
+                    <div><label style={{ fontSize: 11, color: '#6B7280' }}>시간</label><input type="time" value={editForm.meeting_time||''} onChange={e=>setEditForm((f:any)=>({...f,meeting_time:e.target.value}))} style={{ width:'100%', fontSize:13, padding:'6px 8px', border:'1px solid #E5E7EB', borderRadius:6 }} /></div>
+                  </div>
+                  <div style={{ marginBottom: 8 }}><label style={{ fontSize: 11, color: '#6B7280' }}>장소</label><input value={editForm.location||''} onChange={e=>setEditForm((f:any)=>({...f,location:e.target.value}))} placeholder="장소 입력" style={{ width:'100%', fontSize:13, padding:'6px 8px', border:'1px solid #E5E7EB', borderRadius:6 }} /></div>
+                  <div style={{ marginBottom: 8 }}><label style={{ fontSize: 11, color: '#6B7280' }}>메모</label><input value={editForm.memo||''} onChange={e=>setEditForm((f:any)=>({...f,memo:e.target.value}))} placeholder="메모" style={{ width:'100%', fontSize:13, padding:'6px 8px', border:'1px solid #E5E7EB', borderRadius:6 }} /></div>
+                  <div style={{ display:'flex', gap:6 }}>
+                    <button onClick={() => handleEdit(m.id)} style={{ flex:1, padding:'7px', background:'#1D9E75', color:'white', border:'none', borderRadius:6, fontSize:13, cursor:'pointer' }}>저장</button>
+                    <button onClick={() => setEditId(null)} style={{ flex:1, padding:'7px', background:'#F3F4F6', color:'#6B7280', border:'none', borderRadius:6, fontSize:13, cursor:'pointer' }}>취소</button>
+                  </div>
+                </div>
+              ) : (
+                <div className={styles.actionRow}>
+                  <button className={styles.actionBtn} onClick={() => { setEditId(m.id); setEditForm(m) }}>✏️ 수정</button>
+                  {STATUS_OPTIONS.filter(s => s !== m.status).map(s => (
+                    <button key={s} className={styles.actionBtn} onClick={() => updateStatus(m.id, s)}>{s}</button>
+                  ))}
+                  {m.customer_id && (
+                    <button className={styles.actionBtn} onClick={() => {
+                      const c = customers.find(c => c.id === m.customer_id)
+                      setSelectedCustomer(c)
+                      setShowFlow(true)
+                    }}>영업 흐름 보기</button>
+                  )}
+                </div>
+              )}
             </div>
           ))}
 
@@ -235,18 +266,34 @@ export default function Sales() {
                     <span className={styles.typeBadge}>{m.type || '미팅'}</span>
                     {m.cancel_count > 0 && <span className={styles.cancelWarn}>⚠ 취소 {m.cancel_count}회</span>}
                   </div>
-                  <div className={styles.actionRow}>
-                    {STATUS_OPTIONS.filter(s => s !== m.status).map(s => (
-                      <button key={s} className={styles.actionBtn} onClick={() => updateStatus(m.id, s)}>{s}</button>
-                    ))}
-                    {m.customer_id && (
-                      <button className={styles.actionBtn} onClick={() => {
-                        const c = customers.find(c => c.id === m.customer_id)
-                        setSelectedCustomer(c)
-                        setShowFlow(true)
-                      }}>영업 흐름 보기</button>
-                    )}
-                  </div>
+                  {editId === m.id ? (
+                    <div style={{ marginTop: 10, background: '#F9FAFB', borderRadius: 8, padding: 10 }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
+                        <div><label style={{ fontSize: 11, color: '#6B7280' }}>날짜</label><input type="date" value={editForm.meeting_date||''} onChange={e=>setEditForm((f:any)=>({...f,meeting_date:e.target.value}))} style={{ width:'100%', fontSize:13, padding:'6px 8px', border:'1px solid #E5E7EB', borderRadius:6 }} /></div>
+                        <div><label style={{ fontSize: 11, color: '#6B7280' }}>시간</label><input type="time" value={editForm.meeting_time||''} onChange={e=>setEditForm((f:any)=>({...f,meeting_time:e.target.value}))} style={{ width:'100%', fontSize:13, padding:'6px 8px', border:'1px solid #E5E7EB', borderRadius:6 }} /></div>
+                      </div>
+                      <div style={{ marginBottom: 8 }}><label style={{ fontSize: 11, color: '#6B7280' }}>장소</label><input value={editForm.location||''} onChange={e=>setEditForm((f:any)=>({...f,location:e.target.value}))} placeholder="장소 입력" style={{ width:'100%', fontSize:13, padding:'6px 8px', border:'1px solid #E5E7EB', borderRadius:6 }} /></div>
+                      <div style={{ marginBottom: 8 }}><label style={{ fontSize: 11, color: '#6B7280' }}>메모</label><input value={editForm.memo||''} onChange={e=>setEditForm((f:any)=>({...f,memo:e.target.value}))} placeholder="메모" style={{ width:'100%', fontSize:13, padding:'6px 8px', border:'1px solid #E5E7EB', borderRadius:6 }} /></div>
+                      <div style={{ display:'flex', gap:6 }}>
+                        <button onClick={() => handleEdit(m.id)} style={{ flex:1, padding:'7px', background:'#1D9E75', color:'white', border:'none', borderRadius:6, fontSize:13, cursor:'pointer' }}>저장</button>
+                        <button onClick={() => setEditId(null)} style={{ flex:1, padding:'7px', background:'#F3F4F6', color:'#6B7280', border:'none', borderRadius:6, fontSize:13, cursor:'pointer' }}>취소</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className={styles.actionRow}>
+                      <button className={styles.actionBtn} onClick={() => { setEditId(m.id); setEditForm(m) }}>✏️ 수정</button>
+                      {STATUS_OPTIONS.filter(s => s !== m.status).map(s => (
+                        <button key={s} className={styles.actionBtn} onClick={() => updateStatus(m.id, s)}>{s}</button>
+                      ))}
+                      {m.customer_id && (
+                        <button className={styles.actionBtn} onClick={() => {
+                          const c = customers.find(c => c.id === m.customer_id)
+                          setSelectedCustomer(c)
+                          setShowFlow(true)
+                        }}>영업 흐름 보기</button>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </>
