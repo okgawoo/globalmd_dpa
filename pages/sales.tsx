@@ -25,6 +25,9 @@ export default function Sales() {
   const [activeTab, setActiveTab] = useState<'contact' | 'today' | 'flow'>('contact')
   const [showForm, setShowForm] = useState(false)
   const [showFlow, setShowFlow] = useState(false)
+  const [highlightId, setHighlightId] = useState<string|null>(null)
+  const [editId, setEditId] = useState<string|null>(null)
+  const [editForm, setEditForm] = useState<any>({})
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null)
   const [isNewProspect, setIsNewProspect] = useState(false)
 
@@ -46,6 +49,15 @@ export default function Sales() {
   const todayStr = now.toISOString().split('T')[0]
 
   useEffect(() => { init() }, [])
+
+  useEffect(() => {
+    const { meetingId, tab } = router.query
+    if (tab === 'today') setActiveTab('today')
+    if (meetingId) {
+      setActiveTab('today')
+      setHighlightId(meetingId as string)
+    }
+  }, [router.query])
 
   useEffect(() => {
     const { meetingId, tab } = router.query
@@ -104,6 +116,14 @@ export default function Sales() {
     return b.getMonth() === now.getMonth() && Math.abs(b.getDate() - now.getDate()) <= 7
   })
 
+  const getMeetingBadge = (m: any) => {
+    if (m.prospect_name) return { text: '신규', color: '#6B7280', bg: '#F3F4F6' }
+    const c = customers.find((c: any) => c.id === m.customer_id)
+    if (!c) return { text: '신규', color: '#6B7280', bg: '#F3F4F6' }
+    if (c.customer_type === 'prospect') return { text: '관심고객', color: '#B45309', bg: '#FEF3E2' }
+    return { text: '마이고객', color: '#1D4ED8', bg: '#EFF6FF' }
+  }
+
   const getMeetingName = (m: any) => {
     if (m.prospect_name) return m.prospect_name
     const c = customers.find(c => c.id === m.customer_id)
@@ -132,6 +152,19 @@ export default function Sales() {
     })
 
     return { currentStageIdx, customerMeetings }
+  }
+
+  async function handleEdit(id: string) {
+    const { error } = await supabase.from('dpa_meetings').update({
+      meeting_date: editForm.meeting_date,
+      meeting_time: editForm.meeting_time,
+      location: editForm.location,
+      status: editForm.status,
+      memo: editForm.memo,
+    }).eq('id', id)
+    if (error) { alert('수정 실패: ' + error.message); return }
+    setEditId(null)
+    await fetchAll(agentId)
   }
 
   async function handleSubmit() {
@@ -198,10 +231,15 @@ export default function Sales() {
             <div className={styles.empty}>오늘 미팅이 없어요 😊<br />+ 미팅 추가로 일정을 등록해보세요</div>
           )}
 
-          {todayMeetings.map(m => (
-            <div key={m.id} className={styles.meetingCard}>
+          {todayMeetings.map(m => {
+            const badge = getMeetingBadge(m)
+            return (
+            <div key={m.id} className={styles.meetingCard} style={highlightId === m.id ? {borderColor:'#1D9E75',boxShadow:'0 0 0 2px rgba(29,158,117,0.2)'} : {}}>
               <div className={styles.meetingTop}>
-                <span className={styles.meetingName}>{getMeetingName(m)}</span>
+                <span className={styles.meetingName}>
+                  {getMeetingName(m)}고객
+                  <span style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:badge.bg,color:badge.color,marginLeft:4,fontWeight:600}}>{badge.text}</span>
+                </span>
                 <span className={styles.meetingTime}>{m.meeting_time || '시간 미정'}</span>
                 <span className={[styles.statusBadge, getStatusClass(m.status)].join(' ')}>{m.status}</span>
               </div>
@@ -211,20 +249,37 @@ export default function Sales() {
                 {m.cancel_count > 0 && <span className={styles.cancelWarn}>⚠ 취소 {m.cancel_count}회</span>}
               </div>
               {m.memo && <div style={{ fontSize: 12, color: '#9CA3AF', marginTop: 6 }}>💬 {m.memo}</div>}
-              <div className={styles.actionRow}>
-                {STATUS_OPTIONS.filter(s => s !== m.status).map(s => (
-                  <button key={s} className={styles.actionBtn} onClick={() => updateStatus(m.id, s)}>{s}</button>
-                ))}
-                {m.customer_id && (
-                  <button className={styles.actionBtn} onClick={() => {
-                    const c = customers.find(c => c.id === m.customer_id)
-                    setSelectedCustomer(c)
-                    setShowFlow(true)
-                  }}>영업 흐름 보기</button>
-                )}
-              </div>
+              {editId === m.id ? (
+                <div style={{ marginTop:10, background:'#F9FAFB', borderRadius:8, padding:10 }}>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:8 }}>
+                    <div><label style={{ fontSize:11, color:'#6B7280' }}>날짜</label><input type="date" value={editForm.meeting_date||''} onChange={e=>setEditForm((f:any)=>({...f,meeting_date:e.target.value}))} style={{ width:'100%', fontSize:13, padding:'6px 8px', border:'1px solid #E5E7EB', borderRadius:6 }} /></div>
+                    <div><label style={{ fontSize:11, color:'#6B7280' }}>시간</label><input type="time" value={editForm.meeting_time||''} onChange={e=>setEditForm((f:any)=>({...f,meeting_time:e.target.value}))} style={{ width:'100%', fontSize:13, padding:'6px 8px', border:'1px solid #E5E7EB', borderRadius:6 }} /></div>
+                  </div>
+                  <div style={{ marginBottom:8 }}><label style={{ fontSize:11, color:'#6B7280' }}>장소</label><input value={editForm.location||''} onChange={e=>setEditForm((f:any)=>({...f,location:e.target.value}))} placeholder="장소" style={{ width:'100%', fontSize:13, padding:'6px 8px', border:'1px solid #E5E7EB', borderRadius:6 }} /></div>
+                  <div style={{ marginBottom:8 }}><label style={{ fontSize:11, color:'#6B7280' }}>메모</label><input value={editForm.memo||''} onChange={e=>setEditForm((f:any)=>({...f,memo:e.target.value}))} placeholder="메모" style={{ width:'100%', fontSize:13, padding:'6px 8px', border:'1px solid #E5E7EB', borderRadius:6 }} /></div>
+                  <div style={{ display:'flex', gap:6 }}>
+                    <button onClick={() => handleEdit(m.id)} style={{ flex:1, padding:'7px', background:'#1D9E75', color:'white', border:'none', borderRadius:6, fontSize:13, cursor:'pointer' }}>저장</button>
+                    <button onClick={() => setEditId(null)} style={{ flex:1, padding:'7px', background:'#F3F4F6', color:'#6B7280', border:'none', borderRadius:6, fontSize:13, cursor:'pointer' }}>취소</button>
+                  </div>
+                </div>
+              ) : (
+                <div className={styles.actionRow}>
+                  <button className={styles.actionBtn} onClick={() => { setEditId(m.id); setEditForm(m) }}>✏️ 수정</button>
+                  {STATUS_OPTIONS.filter(s => s !== m.status).map(s => (
+                    <button key={s} className={styles.actionBtn} onClick={() => updateStatus(m.id, s)}>{s}</button>
+                  ))}
+                  {m.customer_id && (
+                    <button className={styles.actionBtn} onClick={() => {
+                      const c = customers.find((c:any) => c.id === m.customer_id)
+                      setSelectedCustomer(c)
+                      setShowFlow(true)
+                    }}>영업 흐름 보기</button>
+                  )}
+                </div>
+              )}
             </div>
-          ))}
+            )
+          })}
 
           {/* 예정 미팅 */}
           {upcomingMeetings.length > 0 && (
@@ -232,11 +287,18 @@ export default function Sales() {
               <div className={styles.sectionHeader} style={{ marginTop: 20 }}>
                 <span className={styles.sectionTitle}>예정 미팅 ({upcomingMeetings.length}건)</span>
               </div>
-              {upcomingMeetings.map(m => (
-                <div key={m.id} className={styles.meetingCard}>
+              {upcomingMeetings.map(m => {
+                const badge = getMeetingBadge(m)
+                const dateObj = new Date(m.meeting_date)
+                const dateLabel = `${dateObj.getMonth()+1}/${dateObj.getDate()}(${['일','월','화','수','목','금','토'][dateObj.getDay()]})`
+                return (
+                <div key={m.id} className={styles.meetingCard} style={highlightId === m.id ? {borderColor:'#1D9E75',boxShadow:'0 0 0 2px rgba(29,158,117,0.2)'} : {}}>
                   <div className={styles.meetingTop}>
-                    <span className={styles.meetingName}>{getMeetingName(m)}</span>
-                    <span className={styles.meetingTime}>{m.meeting_date} {m.meeting_time}</span>
+                    <span className={styles.meetingName}>
+                      {getMeetingName(m)}고객
+                      <span style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:badge.bg,color:badge.color,marginLeft:4,fontWeight:600}}>{badge.text}</span>
+                    </span>
+                    <span className={styles.meetingTime}>{dateLabel} {m.meeting_time || ''}</span>
                     <span className={[styles.statusBadge, getStatusClass(m.status)].join(' ')}>{m.status}</span>
                   </div>
                   <div className={styles.meetingBottom}>
@@ -244,7 +306,23 @@ export default function Sales() {
                     <span className={styles.typeBadge}>{m.type || '미팅'}</span>
                     {m.cancel_count > 0 && <span className={styles.cancelWarn}>⚠ 취소 {m.cancel_count}회</span>}
                   </div>
+                  {m.memo && <div style={{ fontSize: 12, color: '#9CA3AF', marginTop: 6 }}>💬 {m.memo}</div>}
+                  {editId === m.id ? (
+                    <div style={{ marginTop:10, background:'#F9FAFB', borderRadius:8, padding:10 }}>
+                      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:8 }}>
+                        <div><label style={{ fontSize:11, color:'#6B7280' }}>날짜</label><input type="date" value={editForm.meeting_date||''} onChange={e=>setEditForm((f:any)=>({...f,meeting_date:e.target.value}))} style={{ width:'100%', fontSize:13, padding:'6px 8px', border:'1px solid #E5E7EB', borderRadius:6 }} /></div>
+                        <div><label style={{ fontSize:11, color:'#6B7280' }}>시간</label><input type="time" value={editForm.meeting_time||''} onChange={e=>setEditForm((f:any)=>({...f,meeting_time:e.target.value}))} style={{ width:'100%', fontSize:13, padding:'6px 8px', border:'1px solid #E5E7EB', borderRadius:6 }} /></div>
+                      </div>
+                      <div style={{ marginBottom:8 }}><label style={{ fontSize:11, color:'#6B7280' }}>장소</label><input value={editForm.location||''} onChange={e=>setEditForm((f:any)=>({...f,location:e.target.value}))} placeholder="장소" style={{ width:'100%', fontSize:13, padding:'6px 8px', border:'1px solid #E5E7EB', borderRadius:6 }} /></div>
+                      <div style={{ marginBottom:8 }}><label style={{ fontSize:11, color:'#6B7280' }}>메모</label><input value={editForm.memo||''} onChange={e=>setEditForm((f:any)=>({...f,memo:e.target.value}))} placeholder="메모" style={{ width:'100%', fontSize:13, padding:'6px 8px', border:'1px solid #E5E7EB', borderRadius:6 }} /></div>
+                      <div style={{ display:'flex', gap:6 }}>
+                        <button onClick={() => handleEdit(m.id)} style={{ flex:1, padding:'7px', background:'#1D9E75', color:'white', border:'none', borderRadius:6, fontSize:13, cursor:'pointer' }}>저장</button>
+                        <button onClick={() => setEditId(null)} style={{ flex:1, padding:'7px', background:'#F3F4F6', color:'#6B7280', border:'none', borderRadius:6, fontSize:13, cursor:'pointer' }}>취소</button>
+                      </div>
+                    </div>
+                  ) : (
                   <div className={styles.actionRow}>
+                    <button className={styles.actionBtn} onClick={() => { setEditId(m.id); setEditForm(m) }}>✏️ 수정</button>
                     {STATUS_OPTIONS.filter(s => s !== m.status).map(s => (
                       <button key={s} className={styles.actionBtn} onClick={() => updateStatus(m.id, s)}>{s}</button>
                     ))}
@@ -256,8 +334,10 @@ export default function Sales() {
                       }}>영업 흐름 보기</button>
                     )}
                   </div>
+                  )}
                 </div>
-              ))}
+                )
+              })}
             </>
           )}
         </div>
