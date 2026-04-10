@@ -242,7 +242,7 @@ export default function Dashboard() {
           <div className={styles.mobileCardBody}>
           {meetings.length === 0 ? (
             <p className={styles.mobileEmpty} style={{ padding: '8px 0' }}>오늘 미팅이 없어요 😊</p>
-          ) : meetings.slice(0,3).map((m, i) => {
+          ) : (meetingExpanded ? meetings : meetings.slice(0,3)).map((m, i) => {
             const customer = customers.find(c => c.id === m.customer_id)
             const name = m.prospect_name || customer?.name || '이름 없음'
             const badgeText = m.prospect_name ? '신규' : '마이고객'
