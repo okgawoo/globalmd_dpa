@@ -373,10 +373,15 @@ export default function Sales() {
                 {sorted.map(m => {
                   const badge = getMeetingBadge(m)
                   const isToday = m.meeting_date === todayStr
+                  const isHighlighted = highlightId === m.id
                   const dateObj = new Date(m.meeting_date)
                   const dateLabel = isToday ? '오늘' : `${dateObj.getMonth()+1}/${dateObj.getDate()}(${['일','월','화','수','목','금','토'][dateObj.getDay()]})`
                   return (
-                    <div key={m.id} className={styles.meetingCard} style={{borderLeft: isToday ? '3px solid #1D9E75' : '3px solid transparent'}}>
+                    <div key={m.id}
+                      ref={el => { if (el && isHighlighted) setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300) }}
+                      className={styles.meetingCard}
+                      style={{borderLeft: isHighlighted ? '3px solid #1D9E75' : isToday ? '3px solid #1D9E75' : '3px solid transparent', background: isHighlighted ? '#F0FDF9' : 'white', transition:'background 0.3s'}}
+                    >
                       <div className={styles.meetingTop}>
                         <span className={styles.meetingName}>{getMeetingName(m)}</span>
                         <span className={styles.statusBadge} style={{background:badge.bg,color:badge.color}}>{badge.text}</span>

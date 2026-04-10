@@ -258,7 +258,7 @@ export default function Dashboard() {
             const dateLabel = `${dateObj.getMonth()+1}/${dateObj.getDate()}(${['일','월','화','수','목','금','토'][dateObj.getDay()]})`
             const timeLabel = m.meeting_time ? ` ${m.meeting_time}` : ''
             return (
-              <div key={i} className={styles.mobileTodoRow} onClick={(e) => { e.preventDefault(); router.push(`/sales?meetingId=${m.id}`) }} style={{ cursor: 'pointer' }}>
+              <div key={i} className={styles.mobileTodoRow} onClick={(e) => { e.preventDefault(); router.push(`/sales?tab=meeting&sub=today&meetingId=${m.id}`) }} style={{ cursor: 'pointer' }}>
                 <span className={styles.mobileTodoIcon}>🤝</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <span className={styles.mobileTodoText}>{name}고객</span>
@@ -280,7 +280,7 @@ export default function Dashboard() {
                 const dateLabel = `${dateObj.getMonth()+1}/${dateObj.getDate()}(${['일','월','화','수','목','금','토'][dateObj.getDay()]})`
                 const timeLabel = m.meeting_time ? ` ${m.meeting_time}` : ''
                 return (
-                  <div key={i+3} className={styles.mobileTodoRow} onClick={(e) => { e.preventDefault(); router.push(`/sales?meetingId=${m.id}`) }} style={{cursor:'pointer'}}>
+                  <div key={i+3} className={styles.mobileTodoRow} onClick={(e) => { e.preventDefault(); router.push(`/sales?tab=meeting&sub=today&meetingId=${m.id}`) }} style={{cursor:'pointer'}}>
                     <span className={styles.mobileTodoIcon}>🤝</span>
                     <div style={{flex:1,minWidth:0}}>
                       <span className={styles.mobileTodoText}>{name}고객</span>
