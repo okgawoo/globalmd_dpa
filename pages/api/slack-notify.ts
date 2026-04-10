@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-const WEBHOOK_URL = 'https://hooks.slack.com/services/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'
+const SLACK_BOT_TOKEN = 'xoxb-8679762004994-10724994099346-fiswHyILwQajyvtPKNVRqWWV'
+const SLACK_CHANNEL_ID = 'C0ASED4L16V' // dpa-admin
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end()
@@ -15,11 +16,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    await fetch(WEBHOOK_URL, {
+    const response = await fetch('https://slack.com/api/chat.postMessage', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text })
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SLACK_BOT_TOKEN}`
+      },
+      body: JSON.stringify({ channel: SLACK_CHANNEL_ID, text })
     })
+    const data = await response.json()
+    if (!data.ok) throw new Error(data.error)
     res.status(200).json({ ok: true })
   } catch (error: any) {
     console.error('Slack notify error:', error?.message)
