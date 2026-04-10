@@ -57,7 +57,7 @@ function FlowPanel({ onClose, title, children }: { onClose: () => void; title: s
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        style={{width:'100%',background:'white',borderRadius:'20px 20px 0 0',maxHeight:'85vh',display:'flex',flexDirection:'column',animation:'slideUp 0.3s ease'}}
+        style={{width:'100%',background:'white',borderRadius:'20px 20px 0 0',maxHeight:'85vh',display:'flex',flexDirection:'column',animation:'slideUp 0.3s ease',boxSizing:'border-box',overflowX:'hidden'}}
       >
         {/* 핸들 */}
         <div
@@ -326,7 +326,7 @@ export default function Sales() {
             <button
               onClick={() => { const next = !sortAsc; setSortAsc(next); localStorage.setItem('dpa_sort_asc', String(next)) }}
               style={{padding:'5px 10px',borderRadius:16,fontSize:13,border:'1px solid #E5E7EB',background:'white',cursor:'pointer',color:'#6B7280',flexShrink:0}}>
-              {sortAsc ? '↑ 오래된순' : '↓ 최신순'}
+              {sortAsc ? '↑' : '↓'}
             </button>
           </div>
 
@@ -395,7 +395,7 @@ export default function Sales() {
                               }).map(t=>(
                                 <button key={t} className={styles.actionBtn} style={{fontSize:11,color:'#6B7280'}}
                                   onClick={()=>supabase.from('dpa_customers').update({customer_type:t}).eq('id',m.customer_id).then(()=>fetchAll(agentId))}>
-                                  {t==='existing'?'마이고객으로':t==='prospect'?'관심고객으로':'신규로'}
+                                  {t==='existing'?'마이고객으로 이동':t==='prospect'?'관심고객으로 이동':'신규고객으로 이동'}
                                 </button>
                               ))}
                             </div>
