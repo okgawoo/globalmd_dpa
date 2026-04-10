@@ -54,10 +54,7 @@ function FlowPanel({ onClose, title, children }: { onClose: () => void; title: s
       <div
         ref={panelRef}
         onClick={e => e.stopPropagation()}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        style={{width:'100%',maxWidth:'100vw',background:'white',borderRadius:'20px 20px 0 0',maxHeight:'85vh',display:'flex',flexDirection:'column',animation:'slideUp 0.3s ease',boxSizing:'border-box',overflow:'hidden'}}
+        style={{width:'100%',maxWidth:'100vw',boxSizing:'border-box',background:'white',borderRadius:'20px 20px 0 0',maxHeight:'85vh',display:'flex',flexDirection:'column',animation:'slideUp 0.3s ease',overflow:'hidden'}}
       >
         {/* 핸들 */}
         <div
@@ -313,6 +310,7 @@ export default function Sales() {
 
   return (
     <div className={styles.wrap}>
+      <style>{`@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }`}</style>
 
       {/* 탭 */}
       <div className={styles.tabs}>
@@ -343,7 +341,7 @@ export default function Sales() {
             <button
               onClick={() => { const next = !sortAsc; setSortAsc(next); localStorage.setItem('dpa_sort_asc', String(next)) }}
               style={{padding:'5px 10px',borderRadius:16,fontSize:13,border:'1px solid #E5E7EB',background:'white',cursor:'pointer',color:'#6B7280',flexShrink:0}}>
-              {sortAsc ? '⇅' : '⇅'}
+              {'⇅'}
             </button>
           </div>
 
