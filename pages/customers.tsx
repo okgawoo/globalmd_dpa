@@ -214,6 +214,16 @@ export default function Customers() {
     else if (sort === '생일임박') setSortFilter('🎂 생일 임박순')
     else if (sort === '보장공백') setSortFilter('⚠️ 보장 공백순')
   }, [router.isReady, router.query.sort])
+
+  // id 파라미터로 고객 슬라이드 자동 오픈
+  useEffect(() => {
+    if (!router.isReady || customers.length === 0) return
+    const id = router.query.id as string
+    if (id) {
+      const target = customers.find(c => c.id === id)
+      if (target) selectCustomer(target)
+    }
+  }, [router.isReady, router.query.id, customers])
   const isMobile = useIsMobile()
   const slideContentRef = useRef<HTMLDivElement>(null)
   const { confirm, ConfirmDialog } = useConfirm()
@@ -456,25 +466,9 @@ export default function Customers() {
     })
   }
 
-  const isAIFilter = sortFilter === '🤖 AI추천 일정'
-
-  const matchesAICondition = (c: any) => {
-    // 생일임박 (7일 이내)
-    const days = getBirthdayDays(c.birth_date)
-    if (days !== null && days <= 7) return true
-    // 완납임박 (90% 이상)
-    const cts = contracts.filter((ct: any) => ct.customer_id === c.id)
-    if (cts.some((ct: any) => calcPaymentRate(ct) >= 90 && ct.payment_status !== '완납')) return true
-    // 보장공백
-    const cCoverages = coverages.filter((cv: any) => cts.some((ct: any) => ct.id === cv.contract_id))
-    const brainTypes = cCoverages.filter((cv: any) => cv.category === '뇌혈관').map((cv: any) => cv.brain_coverage_type)
-    if (brainTypes.length === 0 || brainTypes.every((t: string) => t === '뇌출혈')) return true
-    return false
-  }
-
   const filteredCustomers = getSortedCustomers(
     customers
-      .filter(c => (isTodoFilter || isAIFilter) ? true : c.customer_type === (tab === 'existing' ? 'existing' : 'prospect'))
+      .filter(c => isTodoFilter ? true : c.customer_type === (tab === 'existing' ? 'existing' : 'prospect'))
       .filter(c => ageFilter === '연령대전체' || getAgeGroup(c.age) === ageFilter)
       .filter(c => {
         if (!searchQuery) return true
@@ -482,7 +476,6 @@ export default function Customers() {
         return c.name?.toLowerCase().includes(q) || c.phone?.includes(q)
       })
       .filter(c => {
-        if (isAIFilter) return matchesAICondition(c)
         if (isTodoFilter) return matchesTodoCondition(c)
         if (sortFilter === '🔥 완납 임박순') {
           const cts = contracts.filter((ct: any) => ct.customer_id === c.id)
@@ -551,7 +544,7 @@ export default function Customers() {
           {AGE_FILTERS.map(f => <option key={f}>{f}</option>)}
         </select>
         <select className={styles.sortFilter} value={sortFilter} onChange={e => setSortFilter(e.target.value)}>
-          {['최신 등록순','오래된순','이름순','나이순','월보험료 높은순','🎂 생일 임박순','🔥 완납 임박순','⚠️ 보장 공백순','🤖 AI추천 일정'].map(f => <option key={f}>{f}</option>)}
+          {['최신 등록순','오래된순','이름순','나이순','월보험료 높은순','🎂 생일 임박순','🔥 완납 임박순','⚠️ 보장 공백순'].map(f => <option key={f}>{f}</option>)}
         </select>
         {/* 웹에서만 보이는 검색창 */}
         <div className={styles.searchBoxDesktop}>

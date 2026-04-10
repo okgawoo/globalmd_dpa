@@ -50,14 +50,16 @@ function FlowPanel({ onClose, title, children }: { onClose: () => void; title: s
   }, [onClose])
 
   return (
-    <div onClick={onClose} className={styles.flowOverlay}>
+    <div onClick={onClose} style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.45)',zIndex:300,display:'flex',alignItems:'flex-end'}}>
       <div
         ref={panelRef}
         onClick={e => e.stopPropagation()}
-        className={styles.flowPanel}
-        style={{display:'flex',flexDirection:'column',maxHeight:'85vh'}}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        style={{width:'100%',maxWidth:'100vw',background:'white',borderRadius:'20px 20px 0 0',maxHeight:'85vh',display:'flex',flexDirection:'column',animation:'slideUp 0.3s ease',boxSizing:'border-box',overflow:'hidden'}}
       >
-        {/* 핸들 - 드래그 영역 */}
+        {/* 핸들 */}
         <div
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -77,7 +79,7 @@ function FlowPanel({ onClose, title, children }: { onClose: () => void; title: s
           <button onClick={onClose} style={{background:'none',border:'none',fontSize:18,color:'#9CA3AF',cursor:'pointer',padding:4}}>✕</button>
         </div>
         {/* 내용 (스크롤 가능) */}
-        <div style={{overflowY:'auto',overflowX:'hidden',flex:1,paddingBottom:32}}>
+        <div style={{overflowY:'auto',overflowX:'hidden',flex:1,paddingBottom:32,boxSizing:'border-box'}}>
           {children}
         </div>
       </div>
@@ -91,6 +93,7 @@ export default function Sales() {
   const [meetings, setMeetings] = useState<any[]>([])
   const [customers, setCustomers] = useState<any[]>([])
   const [contracts, setContracts] = useState<any[]>([])
+  const [coverages, setCoverages] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'contact' | 'meeting' | 'flow'>('contact')
   const [meetingSubTab, setMeetingSubTab] = useState<'today' | 'week' | 'next' | 'past'>('today')
@@ -151,14 +154,16 @@ export default function Sales() {
   }
 
   async function fetchAll(aid: string) {
-    const [{ data: m }, { data: c }, { data: ct }] = await Promise.all([
+    const [{ data: m }, { data: c }, { data: ct }, { data: cv }] = await Promise.all([
       supabase.from('dpa_meetings').select('*').eq('agent_id', aid).order('meeting_date', { ascending: true }),
       supabase.from('dpa_customers').select('*').eq('agent_id', aid),
       supabase.from('dpa_contracts').select('*').eq('agent_id', aid),
+      supabase.from('dpa_coverages').select('*'),
     ])
     setMeetings(m || [])
     setCustomers(c || [])
     setContracts(ct || [])
+    setCoverages(cv || [])
   }
 
   const todayMeetings = meetings.filter(m => m.meeting_date === todayStr)
@@ -204,6 +209,13 @@ export default function Sales() {
     if (!c.birth_date) return false
     const b = new Date(c.birth_date)
     return b.getMonth() === now.getMonth() && Math.abs(b.getDate() - now.getDate()) <= 7
+  })
+
+  const gapCustomers = customers.filter(c => {
+    const cContracts = contracts.filter(ct => ct.customer_id === c.id)
+    const cCoverages = coverages.filter((cv: any) => cContracts.some(ct => ct.id === cv.contract_id))
+    const brainTypes = cCoverages.filter((cv: any) => cv.category === '뇌혈관').map((cv: any) => cv.brain_coverage_type)
+    return brainTypes.length === 0 || brainTypes.every((t: string) => t === '뇌출혈')
   })
 
   const getMeetingBadge = (m: any) => {
@@ -304,7 +316,7 @@ export default function Sales() {
 
       {/* 탭 */}
       <div className={styles.tabs}>
-        <button className={[styles.tab, activeTab === 'contact' ? styles.active : ''].join(' ')} onClick={() => { setActiveTab('contact'); router.push('/sales?tab=contact', undefined, {shallow:true}) }}>📞 연락할 고객</button>
+        <button className={[styles.tab, activeTab === 'contact' ? styles.active : ''].join(' ')} onClick={() => { setActiveTab('contact'); router.push('/sales?tab=contact', undefined, {shallow:true}) }}>🤖 AI추천 일정</button>
         <button className={[styles.tab, activeTab === 'meeting' ? styles.active : ''].join(' ')} onClick={() => { setActiveTab('meeting'); router.push('/sales?tab=meeting', undefined, {shallow:true}) }}>📅 미팅 일정</button>
         <button className={[styles.tab, activeTab === 'flow' ? styles.active : ''].join(' ')} onClick={() => { setActiveTab('flow'); router.push('/sales?tab=flow', undefined, {shallow:true}) }}>📊 영업 이력</button>
       </div>
@@ -331,7 +343,7 @@ export default function Sales() {
             <button
               onClick={() => { const next = !sortAsc; setSortAsc(next); localStorage.setItem('dpa_sort_asc', String(next)) }}
               style={{padding:'5px 10px',borderRadius:16,fontSize:13,border:'1px solid #E5E7EB',background:'white',cursor:'pointer',color:'#6B7280',flexShrink:0}}>
-              {'⇅'}
+              {sortAsc ? '⇅' : '⇅'}
             </button>
           </div>
 
@@ -346,7 +358,7 @@ export default function Sales() {
                   <span className={styles.sectionTitle}>오늘 미팅 ({sorted.length}건)</span>
                   <button className={styles.addBtn} onClick={() => setShowForm(true)}>+ 미팅 추가</button>
                 </div>
-                {sorted.length === 0 && <div className={styles.empty}>오늘 미팅이 없어요 😊</div>}
+                {sorted.length === 0 && <div className={styles.empty}>미팅이 없어요 😊</div>}
                 {sorted.map(m => {
                   const badge = getMeetingBadge(m)
                   const isToday = m.meeting_date === todayStr
@@ -608,7 +620,7 @@ export default function Sales() {
 
           {/* AI 추천 섹션 */}
           <div className={styles.sectionHeader}>
-            <span className={styles.sectionTitle}>AI 추천 고객 ({nearDone.length + birthdayContacts.length}명)</span>
+            <span className={styles.sectionTitle}>AI추천 일정 ({nearDone.length + birthdayContacts.length + gapCustomers.length}명)</span>
           </div>
 
           {nearDone.map(c => (
@@ -617,11 +629,11 @@ export default function Sales() {
               <div style={{flex:1}}>
                 <div className={styles.contactName}>
                   {c.name}고객
-                  <span style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:'#EFF6FF',color:'#1D4ED8',marginLeft:6,fontWeight:700}}>AI 추천</span>
+                  <span style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:'#F3E8FF',color:'#7C3AED',marginLeft:6,fontWeight:700}}>AI추천</span>
                 </div>
                 <div className={styles.contactReason}>완납 임박 → 재설계 제안</div>
               </div>
-              <button className={styles.contactBtn} onClick={() => router.push('/customers?sort=완납임박')}>고객 보기</button>
+              <button className={styles.contactBtn} onClick={() => router.push(`/customers?id=${c.id}`)}>고객 보기</button>
             </div>
           ))}
 
@@ -631,15 +643,29 @@ export default function Sales() {
               <div style={{flex:1}}>
                 <div className={styles.contactName}>
                   {c.name}고객
-                  <span style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:'#EFF6FF',color:'#1D4ED8',marginLeft:6,fontWeight:700}}>AI 추천</span>
+                  <span style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:'#F3E8FF',color:'#7C3AED',marginLeft:6,fontWeight:700}}>AI추천</span>
                 </div>
                 <div className={styles.contactReason}>생일 → 안부 연락</div>
               </div>
-              <button className={styles.contactBtn} onClick={() => router.push('/customers?sort=생일임박')}>고객 보기</button>
+              <button className={styles.contactBtn} onClick={() => router.push(`/customers?id=${c.id}`)}>고객 보기</button>
             </div>
           ))}
 
-          {nearDone.length === 0 && birthdayContacts.length === 0 && (
+          {gapCustomers.map(c => (
+            <div key={c.id} className={styles.contactCard}>
+              <span className={styles.contactIcon}>⚠️</span>
+              <div style={{flex:1}}>
+                <div className={styles.contactName}>
+                  {c.name}고객
+                  <span style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:'#F3E8FF',color:'#7C3AED',marginLeft:6,fontWeight:700}}>AI추천</span>
+                </div>
+                <div className={styles.contactReason}>보장 공백 → 뇌혈관 확대 제안</div>
+              </div>
+              <button className={styles.contactBtn} onClick={() => router.push(`/customers?id=${c.id}`)}>고객 보기</button>
+            </div>
+          ))}
+
+          {nearDone.length === 0 && birthdayContacts.length === 0 && gapCustomers.length === 0 && (
             <div className={styles.empty} style={{marginBottom:8}}>AI 추천 고객이 없어요 😊</div>
           )}
 

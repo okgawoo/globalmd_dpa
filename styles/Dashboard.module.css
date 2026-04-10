@@ -2,7 +2,7 @@
 .loading { padding: 40px; text-align: center; color: var(--text-muted); }
 
 /* 웹/모바일 분리 */
-.mobileDash { display: none; overflow-y: auto; }
+.mobileDash { display: none; }
 .desktopDash { display: block; }
 
 .topRow { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }
