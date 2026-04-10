@@ -264,19 +264,34 @@ export default function Sales() {
                   </div>
                 </div>
               ) : (
-                <div className={styles.actionRow}>
-                  <button className={styles.actionBtn} onClick={() => { setEditId(m.id); setEditForm(m) }}>✏️ 수정</button>
-                  {STATUS_OPTIONS.filter(s => s !== m.status).map(s => (
-                    <button key={s} className={styles.actionBtn} onClick={() => updateStatus(m.id, s)}>{s}</button>
-                  ))}
+                <>
+                  <div className={styles.actionRow}>
+                    <button className={styles.actionBtn} onClick={() => { setEditId(m.id); setEditForm(m) }}>✏️ 수정</button>
+                    {STATUS_OPTIONS.filter(s => s !== m.status).map(s => (
+                      <button key={s} className={styles.actionBtn} onClick={() => updateStatus(m.id, s)}>{s}</button>
+                    ))}
+                    {m.customer_id && (
+                      <button className={styles.actionBtn} onClick={() => {
+                        const c = customers.find((c:any) => c.id === m.customer_id)
+                        setSelectedCustomer(c)
+                        setShowFlow(true)
+                      }}>영업 이력</button>
+                    )}
+                  </div>
                   {m.customer_id && (
-                    <button className={styles.actionBtn} onClick={() => {
-                      const c = customers.find((c:any) => c.id === m.customer_id)
-                      setSelectedCustomer(c)
-                      setShowFlow(true)
-                    }}>영업 흐름 보기</button>
+                    <div className={styles.actionRow} style={{marginTop:4}}>
+                      {(['existing','prospect','new'] as const).filter(t => {
+                        const c = customers.find((c:any) => c.id === m.customer_id)
+                        return c?.customer_type !== t
+                      }).map(t => (
+                        <button key={t} className={styles.actionBtn} style={{fontSize:11,color:'#6B7280'}}
+                          onClick={() => supabase.from('dpa_customers').update({customer_type:t}).eq('id',m.customer_id).then(()=>fetchAll(agentId))}>
+                          {t==='existing'?'마이고객으로':t==='prospect'?'관심고객으로':'신규로'}
+                        </button>
+                      ))}
+                    </div>
                   )}
-                </div>
+                </>
               )}
             </div>
             )
@@ -322,19 +337,34 @@ export default function Sales() {
                       </div>
                     </div>
                   ) : (
-                  <div className={styles.actionRow}>
-                    <button className={styles.actionBtn} onClick={() => { setEditId(m.id); setEditForm(m) }}>✏️ 수정</button>
-                    {STATUS_OPTIONS.filter(s => s !== m.status).map(s => (
-                      <button key={s} className={styles.actionBtn} onClick={() => updateStatus(m.id, s)}>{s}</button>
-                    ))}
+                  <>
+                    <div className={styles.actionRow}>
+                      <button className={styles.actionBtn} onClick={() => { setEditId(m.id); setEditForm(m) }}>✏️ 수정</button>
+                      {STATUS_OPTIONS.filter(s => s !== m.status).map(s => (
+                        <button key={s} className={styles.actionBtn} onClick={() => updateStatus(m.id, s)}>{s}</button>
+                      ))}
+                      {m.customer_id && (
+                        <button className={styles.actionBtn} onClick={() => {
+                          const c = customers.find(c => c.id === m.customer_id)
+                          setSelectedCustomer(c)
+                          setShowFlow(true)
+                        }}>영업 이력</button>
+                      )}
+                    </div>
                     {m.customer_id && (
-                      <button className={styles.actionBtn} onClick={() => {
-                        const c = customers.find(c => c.id === m.customer_id)
-                        setSelectedCustomer(c)
-                        setShowFlow(true)
-                      }}>영업 흐름 보기</button>
+                      <div className={styles.actionRow} style={{marginTop:4}}>
+                        {(['existing','prospect','new'] as const).filter(t => {
+                          const c = customers.find((c:any) => c.id === m.customer_id)
+                          return c?.customer_type !== t
+                        }).map(t => (
+                          <button key={t} className={styles.actionBtn} style={{fontSize:11,color:'#6B7280'}}
+                            onClick={() => supabase.from('dpa_customers').update({customer_type:t}).eq('id',m.customer_id).then(()=>fetchAll(agentId))}>
+                            {t==='existing'?'마이고객으로':t==='prospect'?'관심고객으로':'신규로'}
+                          </button>
+                        ))}
+                      </div>
                     )}
-                  </div>
+                  </>
                   )}
                 </div>
                 )
@@ -363,7 +393,7 @@ export default function Sales() {
             return (
               <div key={c.id} className={styles.meetingCard} onClick={() => { setSelectedCustomer(c); setShowFlow(true) }}>
                 <div className={styles.meetingTop}>
-                  <span className={styles.meetingName}>{c.name}</span>
+                  <span className={styles.meetingName}>{c.name}고객 <span style={{fontSize:11,color:'#9CA3AF',fontWeight:400}}>영업이력</span></span>
                   <span style={{ fontSize: 12, color: '#6B7280' }}>{c.age}세</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
