@@ -442,7 +442,25 @@ export default function Customers() {
     return sorted
   }
 
-  const isTodoFilter = router.query.filter === 'todo'
+  const isTodoFilter = router.isReady && router.query.filter === 'todo'
+  const todoSorts = router.isReady ? ((router.query.sorts as string) || '').split(',').filter(Boolean) : []
+
+  const matchesTodoCondition = (c: any) => {
+    return todoSorts.some(s => {
+      if (s === '완납임박') {
+        const cts = contracts.filter((ct: any) => ct.customer_id === c.id)
+        return cts.some((ct: any) => calcPaymentRate(ct) >= 90 && ct.payment_status !== '완납')
+      }
+      if (s === '생일임박') return getBirthdayDays(c.birth_date) !== null
+      if (s === '보장공백') {
+        const cContracts = contracts.filter((ct: any) => ct.customer_id === c.id)
+        const cCoverages = coverages.filter((cv: any) => cContracts.some((ct: any) => ct.id === cv.contract_id))
+        const brainTypes = cCoverages.filter((cv: any) => cv.category === '뇌혈관').map((cv: any) => cv.brain_coverage_type)
+        return brainTypes.length === 0 || brainTypes.every((t: string) => t === '뇌출혈')
+      }
+      return false
+    })
+  }
 
   const filteredCustomers = getSortedCustomers(
     customers
@@ -454,40 +472,20 @@ export default function Customers() {
         return c.name?.toLowerCase().includes(q) || c.phone?.includes(q)
       })
       .filter(c => {
-        // 완납임박 소팅 시 완납임박 고객만 표시
+        if (isTodoFilter) return matchesTodoCondition(c)
         if (sortFilter === '🔥 완납 임박순') {
           const cts = contracts.filter((ct: any) => ct.customer_id === c.id)
           return cts.some((ct: any) => calcPaymentRate(ct) >= 90 && ct.payment_status !== '완납')
         }
-        // 생일임박 소팅 시 생일임박 고객만 표시
         if (sortFilter === '🎂 생일 임박순') {
           const days = getBirthdayDays(c.birth_date)
           return days !== null
         }
-        // 보장공백 소팅 시 보장공백 고객만 표시
         if (sortFilter === '⚠️ 보장 공백순') {
           const cContracts = contracts.filter((ct: any) => ct.customer_id === c.id)
           const cCoverages = coverages.filter((cv: any) => cContracts.some((ct: any) => ct.id === cv.contract_id))
           const brainTypes = cCoverages.filter((cv: any) => cv.category === '뇌혈관').map((cv: any) => cv.brain_coverage_type)
           return brainTypes.length === 0 || brainTypes.every((t: string) => t === '뇌출혈')
-        }
-        // todo 필터 시 조건에 맞는 고객만 표시
-        if (isTodoFilter) {
-          const sorts = (router.query.sorts as string || '').split(',')
-          return sorts.some(s => {
-            if (s === '완납임박') {
-              const cts = contracts.filter((ct: any) => ct.customer_id === c.id)
-              return cts.some((ct: any) => calcPaymentRate(ct) >= 90 && ct.payment_status !== '완납')
-            }
-            if (s === '생일임박') return getBirthdayDays(c.birth_date) !== null
-            if (s === '보장공백') {
-              const cContracts = contracts.filter((ct: any) => ct.customer_id === c.id)
-              const cCoverages = coverages.filter((cv: any) => cContracts.some((ct: any) => ct.id === cv.contract_id))
-              const brainTypes = cCoverages.filter((cv: any) => cv.category === '뇌혈관').map((cv: any) => cv.brain_coverage_type)
-              return brainTypes.length === 0 || brainTypes.every((t: string) => t === '뇌출혈')
-            }
-            return false
-          })
         }
         return true
       })

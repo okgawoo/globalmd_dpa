@@ -50,14 +50,15 @@ function FlowPanel({ onClose, title, children }: { onClose: () => void; title: s
   }, [onClose])
 
   return (
-    <div onClick={onClose} style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.45)',zIndex:300,display:'flex',alignItems:'flex-end'}}>
+    <div onClick={onClose} className={styles.flowOverlay}>
       <div
         ref={panelRef}
         onClick={e => e.stopPropagation()}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        style={{width:'100%',background:'white',borderRadius:'20px 20px 0 0',maxHeight:'85vh',display:'flex',flexDirection:'column',animation:'slideUp 0.3s ease',boxSizing:'border-box',overflowX:'hidden'}}
+        className={styles.flowPanel}
+        style={{display:'flex',flexDirection:'column'}}
       >
         {/* 핸들 */}
         <div
@@ -328,22 +329,22 @@ export default function Sales() {
             <button
               onClick={() => { const next = !sortAsc; setSortAsc(next); localStorage.setItem('dpa_sort_asc', String(next)) }}
               style={{padding:'5px 10px',borderRadius:16,fontSize:13,border:'1px solid #E5E7EB',background:'white',cursor:'pointer',color:'#6B7280',flexShrink:0}}>
-              {sortAsc ? '↑' : '↓'}
+              {'⇅'}
             </button>
           </div>
 
           {/* 오늘 */}
           {meetingSubTab === 'today' && (() => {
             const sorted = sortAsc
-              ? [...todayMeetings, ...upcomingMeetings].sort((a,b) => a.meeting_date.localeCompare(b.meeting_date) || (a.meeting_time||'').localeCompare(b.meeting_time||''))
-              : [...todayMeetings, ...upcomingMeetings].sort((a,b) => b.meeting_date.localeCompare(a.meeting_date) || (b.meeting_time||'').localeCompare(a.meeting_time||''))
+              ? [...todayMeetings].sort((a,b) => (a.meeting_time||'').localeCompare(b.meeting_time||''))
+              : [...todayMeetings].sort((a,b) => (b.meeting_time||'').localeCompare(a.meeting_time||''))
             return (
               <div>
                 <div className={styles.sectionHeader}>
-                  <span className={styles.sectionTitle}>오늘 + 예정 미팅 ({sorted.length}건)</span>
+                  <span className={styles.sectionTitle}>오늘 미팅 ({sorted.length}건)</span>
                   <button className={styles.addBtn} onClick={() => setShowForm(true)}>+ 미팅 추가</button>
                 </div>
-                {sorted.length === 0 && <div className={styles.empty}>미팅이 없어요 😊</div>}
+                {sorted.length === 0 && <div className={styles.empty}>오늘 미팅이 없어요 😊</div>}
                 {sorted.map(m => {
                   const badge = getMeetingBadge(m)
                   const isToday = m.meeting_date === todayStr
@@ -558,7 +559,7 @@ export default function Sales() {
             if (currentStageIdx < 0) return null
             const currentStage = FLOW_STAGES[currentStageIdx]
             return (
-              <div key={c.id} className={styles.meetingCard} style={{cursor:'pointer',overflow:'hidden',boxSizing:'border-box'}} onClick={() => { setSelectedCustomer(c); setShowFlow(true) }}>
+              <div key={c.id} className={styles.meetingCard} style={{cursor:'pointer',overflow:'hidden'}} onClick={() => { setSelectedCustomer(c); setShowFlow(true) }}>
                 <div className={styles.meetingTop}>
                   <span className={styles.meetingName}>
                     {c.name}고객

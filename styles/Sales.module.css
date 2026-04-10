@@ -37,7 +37,7 @@
 
 /* ── 영업 흐름 팝업 ── */
 .flowOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 300; display: flex; align-items: flex-end; }
-.flowPanel { background: white; border-radius: 20px 20px 0 0; padding: 20px; width: 100%; max-height: 85vh; overflow-y: auto; }
+.flowPanel { background: white; border-radius: 20px 20px 0 0; padding: 20px; width: 100%; max-height: 85vh; overflow-y: auto; overflow-x: hidden; box-sizing: border-box; animation: slideUp 0.3s ease; }
 .flowPanelHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 .flowPanelTitle { font-size: 16px; font-weight: 600; color: #111827; }
 .flowClose { background: none; border: none; font-size: 20px; color: #9CA3AF; cursor: pointer; }
