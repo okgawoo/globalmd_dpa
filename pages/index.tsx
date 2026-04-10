@@ -196,7 +196,7 @@ export default function Dashboard() {
         </div>
 
         {/* 오늘 할일 */}
-        <div className={styles.mobileCard} style={{ marginTop: 16 }}>
+        <div className={styles.mobileCard} style={{ marginTop: 8 }}>
           <div className={styles.mobileCardHeader}>
             <span className={styles.mobileCardTitle} style={{ color: '#1D9E75' }}>오늘 할일</span>
             <span className={styles.mobileCardLink} onClick={() => {
