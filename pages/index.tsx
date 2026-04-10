@@ -146,15 +146,15 @@ export default function Dashboard() {
   }
 
   const todoItems: { icon: string; text: string; badge: string; badgeColor: string; badgeBg: string; sort: string }[] = []
-  birthdayCustomers.slice(0, 1).forEach(c => {
+  birthdayCustomers.slice(0, 3).forEach(c => {
     const diff = Math.abs(new Date(c.birth_date).getDate() - now.getDate())
     todoItems.push({ icon: '🎂', text: `${c.name} 생일`, badge: diff === 0 ? 'D-day' : `D-${diff}`, badgeColor: '#EF9F27', badgeBg: '#FEF3E2', sort: '생일임박' })
   })
-  nearDoneCustomers.slice(0, 1).forEach(c => {
+  nearDoneCustomers.slice(0, 3).forEach(c => {
     const ct = nearDoneContracts.find((ct: any) => ct.customer_id === c.id)
     todoItems.push({ icon: '🔥', text: `${c.name} 완납임박`, badge: `${ct ? calcPaymentRate(ct) : 0}%`, badgeColor: '#E24B4A', badgeBg: '#FCEBEB', sort: '완납임박' })
   })
-  gapCustomers.slice(0, 1).forEach(c => {
+  gapCustomers.slice(0, 3).forEach(c => {
     todoItems.push({ icon: '⚠️', text: `${c.name} 보장공백`, badge: '확인', badgeColor: '#E24B4A', badgeBg: '#FCEBEB', sort: '보장공백' })
   })
 
