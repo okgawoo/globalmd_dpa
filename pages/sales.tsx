@@ -15,13 +15,6 @@ const FLOW_STAGES = [
 const TYPE_OPTIONS = ['첫접촉', '통화', '문자', '미팅', '방문']
 const STATUS_OPTIONS = ['대기', '확정', '취소', '완료']
 
-const slideUpStyle = `
-@keyframes slideUp {
-  from { transform: translateY(100%); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-`
-
 export default function Sales() {
   const router = useRouter()
   const [agentId, setAgentId] = useState('')
@@ -219,8 +212,6 @@ export default function Sales() {
 
   return (
     <div className={styles.wrap}>
-      <style>{slideUpStyle}</style>
-
       {/* 탭 */}
       <div className={styles.tabs}>
         <button className={[styles.tab, activeTab === 'contact' ? styles.active : ''].join(' ')} onClick={() => setActiveTab('contact')}>📞 연락할 고객</button>
@@ -438,6 +429,7 @@ export default function Sales() {
           {/* AI 추천 섹션 */}
           <div className={styles.sectionHeader}>
             <span className={styles.sectionTitle}>AI 추천 연락 고객 ({nearDone.length + birthdayContacts.length}명)</span>
+            <span style={{fontSize:12, color:'#9CA3AF', padding:'6px 10px'}}>AI 자동 추출</span>
           </div>
 
           {nearDone.map(c => (
@@ -505,7 +497,7 @@ export default function Sales() {
       {/* ── 영업 흐름 팝업 (퀘스트 스타일) ── */}
       {showFlow && selectedCustomer && (
         <div className={styles.flowOverlay} onClick={() => setShowFlow(false)} style={{display:'flex',alignItems:'flex-end',justifyContent:'center'}}>
-          <div className={styles.flowPanel} onClick={e => e.stopPropagation()} style={{width:'100%',maxWidth:480,borderRadius:'16px 16px 0 0',maxHeight:'80vh',overflowY:'auto',animation:'slideUp 0.3s ease'}}>
+          <div className={styles.flowPanel} onClick={e => e.stopPropagation()} style={{width:'100%',maxWidth:480,borderRadius:'16px 16px 0 0',maxHeight:'80vh',overflowY:'auto',transform:'translateY(0)',transition:'transform 0.3s ease'}}>
             <div className={styles.flowPanelHeader}>
               <span className={styles.flowPanelTitle}>{selectedCustomer.name}고객 영업 이력</span>
               <button className={styles.flowClose} onClick={() => setShowFlow(false)}>✕</button>
