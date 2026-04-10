@@ -54,7 +54,7 @@ function FlowPanel({ onClose, title, children }: { onClose: () => void; title: s
       <div
         ref={panelRef}
         onClick={e => e.stopPropagation()}
-        style={{width:'100%',maxWidth:'100vw',boxSizing:'border-box',background:'white',borderRadius:'20px 20px 0 0',maxHeight:'85vh',display:'flex',flexDirection:'column',animation:'slideUp 0.3s ease',overflow:'hidden'}}
+        style={{width:'100%',maxWidth:'100vw',boxSizing:'border-box',background:'white',borderRadius:'20px 20px 0 0',maxHeight:'85vh',display:'flex',flexDirection:'column',animation:'slideUp 0.3s ease'}}
       >
         {/* 핸들 */}
         <div
@@ -73,9 +73,9 @@ function FlowPanel({ onClose, title, children }: { onClose: () => void; title: s
           style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'8px 20px 12px',borderBottom:'1px solid #F3F4F6',flexShrink:0,cursor:'grab'}}
         >
           <span style={{fontSize:16,fontWeight:700,color:'#111827'}}>{title}</span>
-          <button onClick={onClose} style={{background:'none',border:'none',fontSize:18,color:'#9CA3AF',cursor:'pointer',padding:4}}>✕</button>
+          <button onClick={e => { e.stopPropagation(); onClose() }} style={{background:'none',border:'none',fontSize:18,color:'#9CA3AF',cursor:'pointer',padding:4}}>✕</button>
         </div>
-        {/* 내용 (스크롤 가능) */}
+        {/* 내용 */}
         <div style={{overflowY:'auto',overflowX:'hidden',flex:1,paddingBottom:32,boxSizing:'border-box'}}>
           {children}
         </div>
@@ -311,10 +311,15 @@ export default function Sales() {
   if (loading) return <div className={styles.loading}>불러오는 중...</div>
 
   return (
-    <div className={styles.wrap} onTouchStart={e => {
-      const x = e.touches[0].clientX
-      if (x > window.innerWidth * 0.7) e.stopPropagation()
-    }}>
+    <div className={styles.wrap}
+      onTouchStart={e => { (e.currentTarget as any)._touchStartX = e.touches[0].clientX }}
+      onTouchMove={e => {
+        const startX = (e.currentTarget as any)._touchStartX
+        const dx = e.touches[0].clientX - startX
+        // 우→좌 스와이프 막기 (좌→우는 허용)
+        if (dx < -10) e.stopPropagation()
+      }}
+    >
       <style>{`@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }`}</style>
 
       {/* 탭 */}
@@ -737,7 +742,8 @@ export default function Sales() {
                               </div>
                               {(isDone || isCurrent) && lastMeeting && (
                                 <button
-                                  onClick={() => {
+                                  onClick={(e) => {
+                                    e.stopPropagation()
                                     if (editingMemoStage === stage.key) { setEditingMemoStage(null) }
                                     else { setEditingMemoStage(stage.key); setEditingMemoText(lastMeeting.memo || '') }
                                   }}
@@ -803,9 +809,9 @@ export default function Sales() {
             ref={(el) => {
               if (!el) return
               let startY = 0, curY = 0, dragging = false
-              el.ontouchstart = (e) => { startY = e.touches[0].clientY; dragging = true; el.style.transition = 'none' }
-              el.ontouchmove = (e) => { if (!dragging) return; curY = e.touches[0].clientY - startY; if (curY > 0) el.style.transform = `translateY(${curY}px)` }
-              el.ontouchend = () => { dragging = false; el.style.transition = 'transform 0.3s ease'; if (curY > 100) { el.style.transform = 'translateY(100%)'; setTimeout(() => setShowForm(false), 280) } else { el.style.transform = 'translateY(0)' }; curY = 0 }
+              el.ontouchstart = (e) => { startY = e.touches[0].clientY; dragging = true; el.style.transition = 'none'; e.stopPropagation() }
+              el.ontouchmove = (e) => { if (!dragging) return; e.stopPropagation(); curY = e.touches[0].clientY - startY; if (curY > 0) el.style.transform = `translateY(${curY}px)` }
+              el.ontouchend = (e) => { e.stopPropagation(); dragging = false; el.style.transition = 'transform 0.3s ease'; if (curY > 100) { el.style.transform = 'translateY(100%)'; setTimeout(() => setShowForm(false), 280) } else { el.style.transform = 'translateY(0)' }; curY = 0 }
             }}
           >
             {/* 핸들 */}

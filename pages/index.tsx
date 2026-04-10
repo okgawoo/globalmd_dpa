@@ -199,7 +199,7 @@ export default function Dashboard() {
         <div className={styles.mobileCard} style={{ marginTop: 8 }}>
           <div className={styles.mobileCardHeader}>
             <span className={styles.mobileCardTitle} style={{ color: '#1D9E75' }}>AI추천 일정</span>
-            <span className={styles.mobileCardLink} onClick={() => router.push('/customers?sort=AI추천')}>전체보기 →</span>
+            <span className={styles.mobileCardLink} onClick={() => router.push('/customers?sort=AI추천')}>전체보기</span>
           </div>
           <div className={styles.mobileCardBody}>
           {todoItems.length === 0 ? (
@@ -242,7 +242,7 @@ export default function Dashboard() {
             <span className={styles.mobileCardTitle}>영업 일정</span>
             <div style={{display:'flex',alignItems:'center',gap:8}}>
               <span style={{fontSize:12,color:'#1D9E75',cursor:'pointer',padding:'2px 8px',borderRadius:6,border:'1px solid #1D9E75'}} onClick={() => router.push('/sales?tab=meeting&showForm=true')}>+ 직접추가</span>
-              <span className={styles.mobileCardLink} onClick={() => router.push('/sales?tab=meeting&sub=week')}>전체보기 →</span>
+              <span className={styles.mobileCardLink} onClick={() => router.push('/sales?tab=meeting&sub=week')}>전체보기</span>
             </div>
           </div>
           <div className={styles.mobileCardBody}>
