@@ -209,10 +209,17 @@ export default function Customers() {
   useEffect(() => {
     if (!router.isReady) return
     const sort = router.query.sort as string
-    if (sort === '완납임박') setSortFilter('🔥 완납 임박순')
+    const filter = router.query.filter as string
+    const sorts = router.query.sorts as string
+    if (filter === 'todo' && sorts) {
+      const sortList = sorts.split(',')
+      if (sortList.includes('완납임박')) setSortFilter('🔥 완납 임박순')
+      else if (sortList.includes('생일임박')) setSortFilter('🎂 생일 임박순')
+      else if (sortList.includes('보장공백')) setSortFilter('⚠️ 보장 공백순')
+    } else if (sort === '완납임박') setSortFilter('🔥 완납 임박순')
     else if (sort === '생일임박') setSortFilter('🎂 생일 임박순')
-    else if (sort === '보장공백') setSortFilter('🎂 생일 임박순')
-  }, [router.isReady, router.query.sort])
+    else if (sort === '보장공백') setSortFilter('⚠️ 보장 공백순')
+  }, [router.isReady, router.query.sort, router.query.filter, router.query.sorts])
   const isMobile = useIsMobile()
   const slideContentRef = useRef<HTMLDivElement>(null)
   const { confirm, ConfirmDialog } = useConfirm()
@@ -455,6 +462,13 @@ export default function Customers() {
           const days = getBirthdayDays(c.birth_date)
           return days !== null
         }
+        // 보장공백 소팅 시 보장공백 고객만 표시
+        if (sortFilter === '⚠️ 보장 공백순') {
+          const cContracts = contracts.filter((ct: any) => ct.customer_id === c.id)
+          const cCoverages = coverages.filter((cv: any) => cContracts.some((ct: any) => ct.id === cv.contract_id))
+          const brainTypes = cCoverages.filter((cv: any) => cv.category === '뇌혈관').map((cv: any) => cv.brain_coverage_type)
+          return brainTypes.length === 0 || brainTypes.every((t: string) => t === '뇌출혈')
+        }
         return true
       })
   )
@@ -508,7 +522,7 @@ export default function Customers() {
           {AGE_FILTERS.map(f => <option key={f}>{f}</option>)}
         </select>
         <select className={styles.sortFilter} value={sortFilter} onChange={e => setSortFilter(e.target.value)}>
-          {['최신 등록순','오래된순','이름순','나이순','월보험료 높은순','🎂 생일 임박순','🔥 완납 임박순'].map(f => <option key={f}>{f}</option>)}
+          {['최신 등록순','오래된순','이름순','나이순','월보험료 높은순','🎂 생일 임박순','🔥 완납 임박순','⚠️ 보장 공백순'].map(f => <option key={f}>{f}</option>)}
         </select>
         {/* 웹에서만 보이는 검색창 */}
         <div className={styles.searchBoxDesktop}>

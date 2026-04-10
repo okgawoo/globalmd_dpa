@@ -612,7 +612,7 @@ export default function Sales() {
               <div style={{flex:1}}>
                 <div className={styles.contactName}>
                   {c.name}고객
-                  <span style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:'#EFF6FF',color:'#1D4ED8',marginLeft:6,fontWeight:700}}>AI 추천</span>
+                  <span style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:'#F3E8FF',color:'#7C3AED',marginLeft:6,fontWeight:700}}>AI추천</span>
                 </div>
                 <div className={styles.contactReason}>완납 임박 → 재설계 제안</div>
               </div>
@@ -626,7 +626,7 @@ export default function Sales() {
               <div style={{flex:1}}>
                 <div className={styles.contactName}>
                   {c.name}고객
-                  <span style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:'#EFF6FF',color:'#1D4ED8',marginLeft:6,fontWeight:700}}>AI 추천</span>
+                  <span style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:'#F3E8FF',color:'#7C3AED',marginLeft:6,fontWeight:700}}>AI추천</span>
                 </div>
                 <div className={styles.contactReason}>생일 → 안부 연락</div>
               </div>
