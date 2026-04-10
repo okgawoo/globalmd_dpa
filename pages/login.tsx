@@ -45,7 +45,7 @@ export default function Login() {
   }
 
   async function handleRegister() {
-    if (!form.username || !form.password || !form.name || !form.phone || !form.agent_number)
+    if (!form.username || !form.password || !form.name || !form.phone)
       return setError('필수 항목을 모두 입력해주세요. (*)')
     if (form.password !== form.password2) return setError('비밀번호가 일치하지 않아요.')
     if (form.password.length < 4) return setError('비밀번호는 4자 이상이어야 해요.')
@@ -73,6 +73,18 @@ export default function Login() {
         agent_number: form.agent_number, license_photo_url, status: 'pending'
       })
     }
+    // 슬랙 알림 발송
+    await fetch('/api/slack-notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'signup',
+        name: form.name,
+        phone: form.phone,
+        username: form.username,
+        agent_number: form.agent_number || '미입력'
+      })
+    })
     setSuccess('회원가입 신청 완료! 관리자 승인 후 로그인 가능해요 😊')
     setLoading(false)
   }
@@ -169,7 +181,7 @@ export default function Login() {
 
             <div className={styles.sectionLabel}>설계사 인증</div>
             <div className={styles.field}>
-              <label>설계사 등록번호 *</label>
+              <label>설계사 등록번호 (선택)</label>
               <input placeholder="보험설계사 등록번호" value={form.agent_number} onChange={e => setForm({ ...form, agent_number: e.target.value })} />
               <span className={styles.fieldHint}>e-클린보험서비스에서 확인 가능해요</span>
             </div>
