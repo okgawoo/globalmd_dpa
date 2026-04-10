@@ -54,13 +54,10 @@ function FlowPanel({ onClose, title, children }: { onClose: () => void; title: s
       <div
         ref={panelRef}
         onClick={e => e.stopPropagation()}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
         className={styles.flowPanel}
-        style={{display:'flex',flexDirection:'column'}}
+        style={{display:'flex',flexDirection:'column',maxHeight:'85vh'}}
       >
-        {/* 핸들 */}
+        {/* 핸들 - 드래그 영역 */}
         <div
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -70,12 +67,17 @@ function FlowPanel({ onClose, title, children }: { onClose: () => void; title: s
           <div style={{width:40,height:4,borderRadius:2,background:'#D1D5DB'}} />
         </div>
         {/* 헤더 */}
-        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'8px 20px 12px',borderBottom:'1px solid #F3F4F6',flexShrink:0}}>
+        <div
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'8px 20px 12px',borderBottom:'1px solid #F3F4F6',flexShrink:0,cursor:'grab'}}
+        >
           <span style={{fontSize:16,fontWeight:700,color:'#111827'}}>{title}</span>
           <button onClick={onClose} style={{background:'none',border:'none',fontSize:18,color:'#9CA3AF',cursor:'pointer',padding:4}}>✕</button>
         </div>
         {/* 내용 (스크롤 가능) */}
-        <div style={{overflowY:'auto',flex:1,paddingBottom:32}}>
+        <div style={{overflowY:'auto',overflowX:'hidden',flex:1,paddingBottom:32}}>
           {children}
         </div>
       </div>
