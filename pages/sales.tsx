@@ -97,6 +97,8 @@ export default function Sales() {
   const [sortAsc, setSortAsc] = useState(true) // true = 오름차순(오늘 가까운 순)
   const [showForm, setShowForm] = useState(false)
   const [showFlow, setShowFlow] = useState(false)
+  const [editingMemoStage, setEditingMemoStage] = useState<string | null>(null)
+  const [editingMemoText, setEditingMemoText] = useState('')
   const [customerSearch, setCustomerSearch] = useState('')
   const [highlightId, setHighlightId] = useState<string|null>(null)
   const [editId, setEditId] = useState<string|null>(null)
@@ -309,7 +311,10 @@ export default function Sales() {
   if (loading) return <div className={styles.loading}>불러오는 중...</div>
 
   return (
-    <div className={styles.wrap}>
+    <div className={styles.wrap} onTouchStart={e => {
+      const x = e.touches[0].clientX
+      if (x > window.innerWidth * 0.7) e.stopPropagation()
+    }}>
       <style>{`@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }`}</style>
 
       {/* 탭 */}
@@ -705,7 +710,7 @@ export default function Sales() {
             {(() => {
               const { currentStageIdx, customerMeetings } = getCustomerFlow(selectedCustomer.id)
               return (
-                <div style={{padding:"16px 20px 16px 36px"}}>
+                <div style={{padding:"16px 20px 16px 52px"}}>
                   {FLOW_STAGES.map((stage, i) => {
                     const isDone = i < currentStageIdx
                     const isCurrent = i === currentStageIdx
@@ -723,11 +728,22 @@ export default function Sales() {
                             {isDone ? '✓' : stage.icon}
                           </div>
                           <div className={styles.flowContent}>
-                            <div>
-                              <span className={[styles.flowStageName, isDone ? styles.done : isCurrent ? styles.current : styles.locked].join(' ')}>
-                                {stage.label}
-                              </span>
-                              {isCurrent && <span className={styles.flowCurrentBadge}>진행중</span>}
+                            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                              <div>
+                                <span className={[styles.flowStageName, isDone ? styles.done : isCurrent ? styles.current : styles.locked].join(' ')}>
+                                  {stage.label}
+                                </span>
+                                {isCurrent && <span className={styles.flowCurrentBadge}>진행중</span>}
+                              </div>
+                              {(isDone || isCurrent) && lastMeeting && (
+                                <button
+                                  onClick={() => {
+                                    if (editingMemoStage === stage.key) { setEditingMemoStage(null) }
+                                    else { setEditingMemoStage(stage.key); setEditingMemoText(lastMeeting.memo || '') }
+                                  }}
+                                  style={{background:'none',border:'none',fontSize:13,cursor:'pointer',color:'#9CA3AF',padding:'2px 4px'}}
+                                >✏️</button>
+                              )}
                             </div>
                             {lastMeeting && (
                               <div className={styles.flowStageDate}>
@@ -735,9 +751,33 @@ export default function Sales() {
                                 {lastMeeting.location && ` · ${lastMeeting.location}`}
                               </div>
                             )}
-                            {lastMeeting?.memo && (
-                              <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>💬 {lastMeeting.memo}</div>
-                            )}
+                            {editingMemoStage === stage.key ? (
+                              <div style={{marginTop:6}}>
+                                <textarea
+                                  value={editingMemoText}
+                                  onChange={e => setEditingMemoText(e.target.value)}
+                                  placeholder="메모를 입력하세요..."
+                                  style={{width:'100%',padding:'8px',fontSize:12,border:'1px solid #1D9E75',borderRadius:8,boxSizing:'border-box',resize:'none',height:72,color:'#111827'}}
+                                />
+                                <div style={{display:'flex',gap:6,marginTop:4}}>
+                                  <button
+                                    onClick={async () => {
+                                      if (!lastMeeting) return
+                                      await supabase.from('dpa_meetings').update({memo: editingMemoText}).eq('id', lastMeeting.id)
+                                      setEditingMemoStage(null)
+                                      await fetchAll(agentId)
+                                    }}
+                                    style={{flex:1,padding:'6px',background:'#1D9E75',color:'white',border:'none',borderRadius:6,fontSize:12,cursor:'pointer'}}
+                                  >저장</button>
+                                  <button
+                                    onClick={() => setEditingMemoStage(null)}
+                                    style={{flex:1,padding:'6px',background:'#F3F4F6',color:'#6B7280',border:'none',borderRadius:6,fontSize:12,cursor:'pointer'}}
+                                  >취소</button>
+                                </div>
+                              </div>
+                            ) : lastMeeting?.memo ? (
+                              <div style={{fontSize:11,color:'#9CA3AF',marginTop:2}}>💬 {lastMeeting.memo}</div>
+                            ) : null}
                           </div>
                         </div>
                       </div>
@@ -759,7 +799,19 @@ export default function Sales() {
       {/* ── 미팅 추가 폼 (슬라이드업) ── */}
       {showForm && (
         <div className={styles.formOverlay} onClick={() => setShowForm(false)}>
-          <div className={styles.formPanel} onClick={e => e.stopPropagation()}>
+          <div className={styles.formPanel} onClick={e => e.stopPropagation()}
+            ref={(el) => {
+              if (!el) return
+              let startY = 0, curY = 0, dragging = false
+              el.ontouchstart = (e) => { startY = e.touches[0].clientY; dragging = true; el.style.transition = 'none' }
+              el.ontouchmove = (e) => { if (!dragging) return; curY = e.touches[0].clientY - startY; if (curY > 0) el.style.transform = `translateY(${curY}px)` }
+              el.ontouchend = () => { dragging = false; el.style.transition = 'transform 0.3s ease'; if (curY > 100) { el.style.transform = 'translateY(100%)'; setTimeout(() => setShowForm(false), 280) } else { el.style.transform = 'translateY(0)' }; curY = 0 }
+            }}
+          >
+            {/* 핸들 */}
+            <div style={{display:'flex',justifyContent:'center',padding:'12px 0 4px',cursor:'grab'}}>
+              <div style={{width:40,height:4,borderRadius:2,background:'#D1D5DB'}} />
+            </div>
             <button className={styles.formClose} onClick={() => setShowForm(false)}>✕</button>
             <div className={styles.formTitle}>일정 등록</div>
 

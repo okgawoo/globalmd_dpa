@@ -357,7 +357,7 @@ export default function Dashboard() {
 
         {/* 하단 아이콘 4개 */}
         <div className={styles.mobileBottomIcons}>
-          <button className={styles.mobileIconBtn} onClick={() => router.push('/customers')}>
+          <button className={styles.mobileIconBtn} onClick={() => router.push('/sales?tab=flow')}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
             <span className={styles.mobileIconLabel}>이력추적</span>
           </button>
