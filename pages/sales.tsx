@@ -100,6 +100,12 @@ export default function Sales() {
   const weekEndStr = weekEnd.toISOString().slice(0,10)
   const weekMeetings = meetings.filter(m => m.meeting_date >= weekStartStr && m.meeting_date <= weekEndStr).sort((a,b) => a.meeting_date.localeCompare(b.meeting_date))
   const weekDays = Array.from({length:7}, (_,i) => { const d = new Date(weekStart); d.setDate(d.getDate()+i); return d.toISOString().slice(0,10) })
+  // 다음 주
+  const nextWeekStart = new Date(weekStart); nextWeekStart.setDate(nextWeekStart.getDate() + 7)
+  const nextWeekEnd = new Date(nextWeekStart); nextWeekEnd.setDate(nextWeekEnd.getDate() + 6)
+  const nextWeekStartStr = nextWeekStart.toISOString().slice(0,10)
+  const nextWeekEndStr = nextWeekEnd.toISOString().slice(0,10)
+  const nextWeekMeetings = meetings.filter(m => m.meeting_date >= nextWeekStartStr && m.meeting_date <= nextWeekEndStr).sort((a,b) => a.meeting_date.localeCompare(b.meeting_date))
   const nextWeekDays = Array.from({length:7}, (_,i) => { const d = new Date(nextWeekStart); d.setDate(d.getDate()+i); return d.toISOString().slice(0,10) })
 
   // 오늘 연락할 고객
