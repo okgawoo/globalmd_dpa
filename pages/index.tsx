@@ -146,15 +146,15 @@ export default function Dashboard() {
   }
 
   const todoItems: { icon: string; text: string; badge: string; badgeColor: string; badgeBg: string; sort: string }[] = []
-  birthdayCustomers.slice(0, 1).forEach(c => {
+  birthdayCustomers.slice(0, 2).forEach(c => {
     const diff = Math.abs(new Date(c.birth_date).getDate() - now.getDate())
     todoItems.push({ icon: '🎂', text: `${c.name} 생일`, badge: diff === 0 ? 'D-day' : `D-${diff}`, badgeColor: '#EF9F27', badgeBg: '#FEF3E2', sort: '생일임박' })
   })
-  nearDoneCustomers.slice(0, 1).forEach(c => {
+  nearDoneCustomers.slice(0, 2).forEach(c => {
     const ct = nearDoneContracts.find((ct: any) => ct.customer_id === c.id)
     todoItems.push({ icon: '🔥', text: `${c.name} 완납임박`, badge: `${ct ? calcPaymentRate(ct) : 0}%`, badgeColor: '#E24B4A', badgeBg: '#FCEBEB', sort: '완납임박' })
   })
-  gapCustomers.slice(0, 1).forEach(c => {
+  gapCustomers.slice(0, 2).forEach(c => {
     todoItems.push({ icon: '⚠️', text: `${c.name} 보장공백`, badge: '확인', badgeColor: '#E24B4A', badgeBg: '#FCEBEB', sort: '보장공백' })
   })
 
@@ -207,7 +207,7 @@ export default function Dashboard() {
           <div className={styles.mobileCardBody}>
           {todoItems.length === 0 ? (
             <p className={styles.mobileEmpty}>오늘 할 일 없음 🎉</p>
-          ) : todoItems.slice(0,3).map((item, i) => (
+          ) : (todoExpanded ? todoItems : todoItems.slice(0,3)).map((item, i) => (
             <div key={i} className={styles.mobileTodoRow} onClick={() => router.push(`/customers?sort=${item.sort}`)} style={{ cursor: 'pointer' }}>
               <span className={styles.mobileTodoIcon}>{item.icon}</span>
               <span className={styles.mobileTodoText}>{item.text}</span>
@@ -215,19 +215,8 @@ export default function Dashboard() {
             </div>
           ))}
           {todoItems.length > 3 && (
-            <div style={{overflow:'hidden', maxHeight: todoExpanded ? `${(todoItems.length-3)*48}px` : '0px', transition:'max-height 0.35s ease'}}>
-              {todoItems.slice(3).map((item, i) => (
-                <div key={i+3} className={styles.mobileTodoRow} onClick={() => router.push(`/customers?sort=${item.sort}`)} style={{cursor:'pointer'}}>
-                  <span className={styles.mobileTodoIcon}>{item.icon}</span>
-                  <span className={styles.mobileTodoText}>{item.text}</span>
-                  <span className={styles.mobileBadge} style={{color:item.badgeColor,background:item.badgeBg}}>{item.badge}</span>
-                </div>
-              ))}
-            </div>
-          )}
-          {todoItems.length > 3 && (
-            <div onClick={() => setTodoExpanded(v => !v)} style={{textAlign:'center',padding:'6px 0',cursor:'pointer',color:'#9CA3AF',fontSize:16}}>
-              ﹀
+            <div onClick={() => setTodoExpanded(v => !v)} style={{textAlign:'center',padding:'6px 0',cursor:'pointer',color:'#9CA3AF',fontSize:18}}>
+              {todoExpanded ? '︿' : '﹀'}
             </div>
           )}
           </div>
@@ -237,12 +226,12 @@ export default function Dashboard() {
         <div className={styles.mobileCard}>
           <div className={styles.mobileCardHeader}>
             <span className={styles.mobileCardTitle}>미팅 일정</span>
-            <span className={styles.mobileCardLink} onClick={() => router.push('/sales?tab=meeting')}>전체보기 →</span>
+            <span className={styles.mobileCardLink} onClick={() => router.push('/sales?tab=today')}>전체보기 →</span>
           </div>
           <div className={styles.mobileCardBody}>
           {meetings.length === 0 ? (
             <p className={styles.mobileEmpty} style={{ padding: '8px 0' }}>오늘 미팅이 없어요 😊</p>
-          ) : meetings.slice(0,3).map((m, i) => {
+          ) : (meetingExpanded ? meetings : meetings.slice(0,3)).map((m, i) => {
             const customer = customers.find(c => c.id === m.customer_id)
             const name = m.prospect_name || customer?.name || '이름 없음'
             const badgeText = m.prospect_name ? '신규' : '마이고객'
@@ -263,32 +252,8 @@ export default function Dashboard() {
             )
           })}
           {meetings.length > 3 && (
-            <div style={{overflow:'hidden', maxHeight: meetingExpanded ? `${(meetings.length-3)*56}px` : '0px', transition:'max-height 0.35s ease'}}>
-              {meetings.slice(3).map((m, i) => {
-                const customer = customers.find(c => c.id === m.customer_id)
-                const name = m.prospect_name || customer?.name || '이름 없음'
-                const badgeText = m.prospect_name ? '신규' : '마이고객'
-                const badgeColor = m.prospect_name ? '#6B7280' : '#1D4ED8'
-                const badgeBg = m.prospect_name ? '#F3F4F6' : '#EFF6FF'
-                const dateObj = new Date(m.meeting_date)
-                const dateLabel = `${dateObj.getMonth()+1}/${dateObj.getDate()}(${['일','월','화','수','목','금','토'][dateObj.getDay()]})`
-                const timeLabel = m.meeting_time ? ` ${m.meeting_time}` : ''
-                return (
-                  <div key={i+3} className={styles.mobileTodoRow} onClick={() => router.push(`/sales?meetingId=${m.id}`)} style={{cursor:'pointer'}}>
-                    <span className={styles.mobileTodoIcon}>🤝</span>
-                    <div style={{flex:1,minWidth:0}}>
-                      <span className={styles.mobileTodoText}>{name}고객</span>
-                      <span style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:badgeBg,color:badgeColor,marginLeft:4,fontWeight:600}}>{badgeText}</span>
-                    </div>
-                    <span className={styles.mobileBadge} style={{color:'#374151',background:'#F3F4F6',fontSize:11,whiteSpace:'nowrap'}}>{dateLabel}{timeLabel}</span>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-          {meetings.length > 3 && (
-            <div onClick={() => setMeetingExpanded(v => !v)} style={{textAlign:'center',padding:'6px 0',cursor:'pointer',color:'#9CA3AF',fontSize:16}}>
-              ﹀
+            <div onClick={() => setMeetingExpanded(v => !v)} style={{textAlign:'center',padding:'6px 0',cursor:'pointer',color:'#9CA3AF',fontSize:18}}>
+              {meetingExpanded ? '︿' : '﹀'}
             </div>
           )}
           </div>
