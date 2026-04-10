@@ -268,7 +268,7 @@ export default function Sales() {
               {todayMeetings.map(m => {
                 const badge = getMeetingBadge(m)
                 return (
-                  <div key={m.id} className={[styles.meetingCard, highlightId === m.id ? styles.highlight : ''].join(' ')} ref={highlightId === m.id ? highlightRef : null}>
+                  <div key={m.id} className={[styles.meetingCard, highlightId === m.id ? styles.highlight : ''].join(' ')} ref={null}>
                     <div className={styles.meetingTop}>
                       <span className={styles.meetingName}>{getMeetingName(m)}</span>
                       <span className={styles.statusBadge} style={{background:badge.bg,color:badge.color}}>{badge.text}</span>
