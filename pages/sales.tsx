@@ -52,18 +52,18 @@ export default function Sales() {
 
   useEffect(() => {
     const { meetingId, tab } = router.query
-    if (tab === 'today') setActiveTab('today')
+    if (tab === 'week') setActiveTab('week')
     if (meetingId) {
-      setActiveTab('today')
+      setActiveTab('week')
       setHighlightId(meetingId as string)
     }
   }, [router.query])
 
   useEffect(() => {
     const { meetingId, tab } = router.query
-    if (tab === 'today') setActiveTab('today')
+    if (tab === 'week') setActiveTab('week')
     if (meetingId) {
-      setActiveTab('today')
+      setActiveTab('week')
       setHighlightId(meetingId as string)
     }
   }, [router.query])
