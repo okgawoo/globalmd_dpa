@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-const SLACK_BOT_TOKEN = 'xoxb-8679762004994-10724994099346-fiswHyILwQajyvtPKNVRqWWV'
+const SLACK_BOT_TOKEN = 'xoxb-8679762004994-10885592720434-P3GMN22U4RPCSAb46mTUj7zP'
 const SLACK_CHANNEL_ID = 'C0ASED4L16V' // dpa-admin
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
