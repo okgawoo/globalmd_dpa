@@ -215,22 +215,18 @@ export default function Dashboard() {
             </div>
           ))}
           {todoItems.length > 3 && (
-            <div style={{
-              overflow: 'hidden',
-              maxHeight: todoExpanded ? `${(todoItems.length - 3) * 48}px` : '0px',
-              transition: 'max-height 0.35s ease'
-            }}>
+            <div style={{overflow:'hidden', maxHeight: todoExpanded ? `${(todoItems.length-3)*48}px` : '0px', transition:'max-height 0.35s ease'}}>
               {todoItems.slice(3).map((item, i) => (
-                <div key={i+3} className={styles.mobileTodoRow} onClick={() => router.push(`/customers?sort=${item.sort}`)} style={{ cursor: 'pointer' }}>
+                <div key={i+3} className={styles.mobileTodoRow} onClick={() => router.push(`/customers?sort=${item.sort}`)} style={{cursor:'pointer'}}>
                   <span className={styles.mobileTodoIcon}>{item.icon}</span>
                   <span className={styles.mobileTodoText}>{item.text}</span>
-                  <span className={styles.mobileBadge} style={{ color: item.badgeColor, background: item.badgeBg }}>{item.badge}</span>
+                  <span className={styles.mobileBadge} style={{color:item.badgeColor,background:item.badgeBg}}>{item.badge}</span>
                 </div>
               ))}
             </div>
           )}
           {todoItems.length > 3 && (
-            <div onClick={() => setTodoExpanded(v => !v)} style={{textAlign:'center',padding:'6px 0',cursor:'pointer',color:'#9CA3AF',fontSize:18,transition:'transform 0.3s ease',transform: todoExpanded ? 'rotate(180deg)' : 'rotate(0deg)'}}>
+            <div onClick={() => setTodoExpanded(v => !v)} style={{textAlign:'center',padding:'6px 0',cursor:'pointer',color:'#9CA3AF',fontSize:16}}>
               ﹀
             </div>
           )}
@@ -267,11 +263,7 @@ export default function Dashboard() {
             )
           })}
           {meetings.length > 3 && (
-            <div style={{
-              overflow: 'hidden',
-              maxHeight: meetingExpanded ? `${(meetings.length - 3) * 56}px` : '0px',
-              transition: 'max-height 0.35s ease'
-            }}>
+            <div style={{overflow:'hidden', maxHeight: meetingExpanded ? `${(meetings.length-3)*56}px` : '0px', transition:'max-height 0.35s ease'}}>
               {meetings.slice(3).map((m, i) => {
                 const customer = customers.find(c => c.id === m.customer_id)
                 const name = m.prospect_name || customer?.name || '이름 없음'
@@ -282,20 +274,20 @@ export default function Dashboard() {
                 const dateLabel = `${dateObj.getMonth()+1}/${dateObj.getDate()}(${['일','월','화','수','목','금','토'][dateObj.getDay()]})`
                 const timeLabel = m.meeting_time ? ` ${m.meeting_time}` : ''
                 return (
-                  <div key={i+3} className={styles.mobileTodoRow} onClick={() => router.push(`/sales?meetingId=${m.id}`)} style={{ cursor: 'pointer' }}>
+                  <div key={i+3} className={styles.mobileTodoRow} onClick={() => router.push(`/sales?meetingId=${m.id}`)} style={{cursor:'pointer'}}>
                     <span className={styles.mobileTodoIcon}>🤝</span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{flex:1,minWidth:0}}>
                       <span className={styles.mobileTodoText}>{name}고객</span>
-                      <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 10, background: badgeBg, color: badgeColor, marginLeft: 4, fontWeight: 600 }}>{badgeText}</span>
+                      <span style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:badgeBg,color:badgeColor,marginLeft:4,fontWeight:600}}>{badgeText}</span>
                     </div>
-                    <span className={styles.mobileBadge} style={{ color: '#374151', background: '#F3F4F6', fontSize: 11, whiteSpace: 'nowrap' }}>{dateLabel}{timeLabel}</span>
+                    <span className={styles.mobileBadge} style={{color:'#374151',background:'#F3F4F6',fontSize:11,whiteSpace:'nowrap'}}>{dateLabel}{timeLabel}</span>
                   </div>
                 )
               })}
             </div>
           )}
           {meetings.length > 3 && (
-            <div onClick={() => setMeetingExpanded(v => !v)} style={{textAlign:'center',padding:'6px 0',cursor:'pointer',color:'#9CA3AF',fontSize:18,transition:'transform 0.3s ease',transform: meetingExpanded ? 'rotate(180deg)' : 'rotate(0deg)'}}>
+            <div onClick={() => setMeetingExpanded(v => !v)} style={{textAlign:'center',padding:'6px 0',cursor:'pointer',color:'#9CA3AF',fontSize:16}}>
               ﹀
             </div>
           )}
