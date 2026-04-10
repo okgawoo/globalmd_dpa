@@ -57,7 +57,7 @@ function FlowPanel({ onClose, title, children }: { onClose: () => void; title: s
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        style={{width:'100%',background:'white',borderRadius:'20px 20px 0 0',maxHeight:'85vh',display:'flex',flexDirection:'column',animation:'slideUp 0.3s ease',boxSizing:'border-box',overflowX:'hidden'}}
+        style={{width:'100%',background:'white',borderRadius:'20px 20px 0 0',maxHeight:'85vh',display:'flex',flexDirection:'column',animation:'slideUp 0.3s ease'}}
       >
         {/* 핸들 */}
         <div
@@ -94,6 +94,7 @@ export default function Sales() {
   const [sortAsc, setSortAsc] = useState(false) // false = 최신순(내림차순)
   const [showForm, setShowForm] = useState(false)
   const [showFlow, setShowFlow] = useState(false)
+  const [customerSearch, setCustomerSearch] = useState('')
   const [highlightId, setHighlightId] = useState<string|null>(null)
   const [editId, setEditId] = useState<string|null>(null)
   const [editForm, setEditForm] = useState<any>({})
@@ -126,10 +127,11 @@ export default function Sales() {
   }, [])
 
   useEffect(() => {
-    const { meetingId, tab, sub } = router.query
+    const { meetingId, tab, sub, showForm: showFormParam } = router.query
     if (tab === 'meeting') { setActiveTab('meeting'); if (sub) setMeetingSubTab(sub as any) }
     else if (tab === 'flow') setActiveTab('flow')
     else if (tab === 'contact') setActiveTab('contact')
+    if (showFormParam === 'true') setShowForm(true)
     if (meetingId) {
       setActiveTab('meeting')
       setMeetingSubTab('today')
@@ -326,7 +328,7 @@ export default function Sales() {
             <button
               onClick={() => { const next = !sortAsc; setSortAsc(next); localStorage.setItem('dpa_sort_asc', String(next)) }}
               style={{padding:'5px 10px',borderRadius:16,fontSize:13,border:'1px solid #E5E7EB',background:'white',cursor:'pointer',color:'#6B7280',flexShrink:0}}>
-              {sortAsc ? '↑' : '↓'}
+              {sortAsc ? '↑ 오래된순' : '↓ 최신순'}
             </button>
           </div>
 
@@ -395,7 +397,7 @@ export default function Sales() {
                               }).map(t=>(
                                 <button key={t} className={styles.actionBtn} style={{fontSize:11,color:'#6B7280'}}
                                   onClick={()=>supabase.from('dpa_customers').update({customer_type:t}).eq('id',m.customer_id).then(()=>fetchAll(agentId))}>
-                                  {t==='existing'?'마이고객으로 이동':t==='prospect'?'관심고객으로 이동':'신규고객으로 이동'}
+                                  {t==='existing'?'마이고객으로':t==='prospect'?'관심고객으로':'신규로'}
                                 </button>
                               ))}
                             </div>
@@ -556,7 +558,7 @@ export default function Sales() {
             if (currentStageIdx < 0) return null
             const currentStage = FLOW_STAGES[currentStageIdx]
             return (
-              <div key={c.id} className={styles.meetingCard} onClick={() => { setSelectedCustomer(c); setShowFlow(true) }}>
+              <div key={c.id} className={styles.meetingCard} style={{cursor:'pointer',overflow:'hidden'}} onClick={() => { setSelectedCustomer(c); setShowFlow(true) }}>
                 <div className={styles.meetingTop}>
                   <span className={styles.meetingName}>
                     {c.name}고객
@@ -612,7 +614,7 @@ export default function Sales() {
               <div style={{flex:1}}>
                 <div className={styles.contactName}>
                   {c.name}고객
-                  <span style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:'#F3E8FF',color:'#7C3AED',marginLeft:6,fontWeight:700}}>AI추천</span>
+                  <span style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:'#EFF6FF',color:'#1D4ED8',marginLeft:6,fontWeight:700}}>AI 추천</span>
                 </div>
                 <div className={styles.contactReason}>완납 임박 → 재설계 제안</div>
               </div>
@@ -626,7 +628,7 @@ export default function Sales() {
               <div style={{flex:1}}>
                 <div className={styles.contactName}>
                   {c.name}고객
-                  <span style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:'#F3E8FF',color:'#7C3AED',marginLeft:6,fontWeight:700}}>AI추천</span>
+                  <span style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:'#EFF6FF',color:'#1D4ED8',marginLeft:6,fontWeight:700}}>AI 추천</span>
                 </div>
                 <div className={styles.contactReason}>생일 → 안부 연락</div>
               </div>
@@ -734,7 +736,7 @@ export default function Sales() {
         <div className={styles.formOverlay} onClick={() => setShowForm(false)}>
           <div className={styles.formPanel} onClick={e => e.stopPropagation()}>
             <button className={styles.formClose} onClick={() => setShowForm(false)}>✕</button>
-            <div className={styles.formTitle}>미팅 / 접촉 추가</div>
+            <div className={styles.formTitle}>일정 등록</div>
 
             <div className={styles.toggleRow}>
               <button className={[styles.toggleBtn, !isNewProspect ? styles.on : ''].join(' ')} onClick={() => setIsNewProspect(false)}>기존 고객</button>
@@ -744,9 +746,15 @@ export default function Sales() {
             {!isNewProspect && (
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>고객 선택</label>
-                <select className={styles.formSelect} value={form.customer_id} onChange={e => setForm(f => ({ ...f, customer_id: e.target.value }))}>
+                <input
+                  className={styles.formInput}
+                  placeholder="이름으로 검색..."
+                  value={customerSearch}
+                  onChange={e => { setCustomerSearch(e.target.value); setForm(f => ({ ...f, customer_id: '' })) }}
+                />
+                <select className={styles.formSelect} value={form.customer_id} onChange={e => setForm(f => ({ ...f, customer_id: e.target.value }))} style={{marginTop:4}}>
                   <option value="">고객 선택</option>
-                  {customers.map(c => <option key={c.id} value={c.id}>{c.name} ({c.age}세)</option>)}
+                  {customers.filter(c => !customerSearch || c.name.toLowerCase().includes(customerSearch.toLowerCase())).map(c => <option key={c.id} value={c.id}>{c.name} ({c.age}세)</option>)}
                 </select>
               </div>
             )}
