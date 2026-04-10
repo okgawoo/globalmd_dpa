@@ -94,7 +94,7 @@ export default function Sales() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'contact' | 'meeting' | 'flow'>('contact')
   const [meetingSubTab, setMeetingSubTab] = useState<'today' | 'week' | 'next' | 'past'>('today')
-  const [sortAsc, setSortAsc] = useState(false) // false = 최신순(내림차순)
+  const [sortAsc, setSortAsc] = useState(true) // true = 오름차순(오늘 가까운 순)
   const [showForm, setShowForm] = useState(false)
   const [showFlow, setShowFlow] = useState(false)
   const [customerSearch, setCustomerSearch] = useState('')
@@ -314,7 +314,7 @@ export default function Sales() {
 
       {/* 탭 */}
       <div className={styles.tabs}>
-        <button className={[styles.tab, activeTab === 'contact' ? styles.active : ''].join(' ')} onClick={() => { setActiveTab('contact'); router.push('/sales?tab=contact', undefined, {shallow:true}) }}>🤖 AI추천 일정</button>
+        <button className={[styles.tab, activeTab === 'contact' ? styles.active : ''].join(' ')} onClick={() => { setActiveTab('contact'); router.push('/sales?tab=contact', undefined, {shallow:true}) }}>✨ AI추천 일정</button>
         <button className={[styles.tab, activeTab === 'meeting' ? styles.active : ''].join(' ')} onClick={() => { setActiveTab('meeting'); router.push('/sales?tab=meeting', undefined, {shallow:true}) }}>📅 미팅 일정</button>
         <button className={[styles.tab, activeTab === 'flow' ? styles.active : ''].join(' ')} onClick={() => { setActiveTab('flow'); router.push('/sales?tab=flow', undefined, {shallow:true}) }}>📊 영업 이력</button>
       </div>
@@ -410,7 +410,7 @@ export default function Sales() {
                               }).map(t=>(
                                 <button key={t} className={styles.actionBtn} style={{fontSize:11,color:'#6B7280'}}
                                   onClick={()=>supabase.from('dpa_customers').update({customer_type:t}).eq('id',m.customer_id).then(()=>fetchAll(agentId))}>
-                                  {t==='existing'?'마이고객으로':t==='prospect'?'관심고객으로':'신규로'}
+                                  {t==='existing'?'마이고객으로 이동':t==='prospect'?'관심고객으로 이동':'신규고객으로 이동'}
                                 </button>
                               ))}
                             </div>
@@ -427,9 +427,10 @@ export default function Sales() {
           {/* 이번 주 */}
           {meetingSubTab === 'week' && (
             <div>
-              {weekDays.map(day => {
+              {(sortAsc ? weekDays : [...weekDays].reverse()).map(day => {
                 const raw = weekMeetings.filter(m => m.meeting_date === day)
-                const dayMeetings = sortAsc ? [...raw].sort((a,b)=>(a.meeting_time||'').localeCompare(b.meeting_time||'')) : [...raw].sort((a,b)=>(b.meeting_time||'').localeCompare(a.meeting_time||''))
+                if (raw.length === 0) return null
+                const dayMeetings = [...raw].sort((a,b) => (a.meeting_time||'').localeCompare(b.meeting_time||''))
                 const dateObj = new Date(day + 'T00:00:00')
                 const isToday = day === todayStr
                 const dayLabel = ['일','월','화','수','목','금','토'][dateObj.getDay()]
@@ -441,9 +442,7 @@ export default function Sales() {
                       {isToday && <span style={{fontSize:10,background:'#1D9E75',color:'white',borderRadius:10,padding:'1px 6px'}}>오늘</span>}
                       <span style={{fontSize:11,color:'#9CA3AF',marginLeft:'auto'}}>{dayMeetings.length}건</span>
                     </div>
-                    {dayMeetings.length === 0 ? (
-                      <div style={{fontSize:11,color:'#D1D5DB',textAlign:'center',padding:'4px 0'}}>미팅 없음</div>
-                    ) : dayMeetings.map(m => {
+                    {dayMeetings.map(m => {
                       const badge = getMeetingBadge(m)
                       return (
                         <div key={m.id} className={styles.meetingCard} style={{marginBottom:6}}>
@@ -471,9 +470,10 @@ export default function Sales() {
           {/* 다음 주 */}
           {meetingSubTab === 'next' && (
             <div>
-              {nextWeekDays.map(day => {
+              {(sortAsc ? nextWeekDays : [...nextWeekDays].reverse()).map(day => {
                 const raw = nextWeekMeetings.filter(m => m.meeting_date === day)
-                const dayMeetings = sortAsc ? [...raw].sort((a,b)=>(a.meeting_time||'').localeCompare(b.meeting_time||'')) : [...raw].sort((a,b)=>(b.meeting_time||'').localeCompare(a.meeting_time||''))
+                if (raw.length === 0) return null
+                const dayMeetings = [...raw].sort((a,b) => (a.meeting_time||'').localeCompare(b.meeting_time||''))
                 const dateObj = new Date(day + 'T00:00:00')
                 const dayLabel = ['일','월','화','수','목','금','토'][dateObj.getDay()]
                 const monthDay = `${dateObj.getMonth()+1}/${dateObj.getDate()}`
@@ -483,9 +483,7 @@ export default function Sales() {
                       <span style={{fontWeight:700,fontSize:13,color:'#374151'}}>{monthDay}({dayLabel})</span>
                       <span style={{fontSize:11,color:'#9CA3AF',marginLeft:'auto'}}>{dayMeetings.length}건</span>
                     </div>
-                    {dayMeetings.length === 0 ? (
-                      <div style={{fontSize:11,color:'#D1D5DB',textAlign:'center',padding:'4px 0'}}>미팅 없음</div>
-                    ) : dayMeetings.map(m => {
+                    {dayMeetings.map(m => {
                       const badge = getMeetingBadge(m)
                       return (
                         <div key={m.id} className={styles.meetingCard} style={{marginBottom:6}}>
@@ -707,7 +705,7 @@ export default function Sales() {
             {(() => {
               const { currentStageIdx, customerMeetings } = getCustomerFlow(selectedCustomer.id)
               return (
-                <div style={{padding:"16px 20px"}}>
+                <div style={{padding:"16px 20px 16px 36px"}}>
                   {FLOW_STAGES.map((stage, i) => {
                     const isDone = i < currentStageIdx
                     const isCurrent = i === currentStageIdx

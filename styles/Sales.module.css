@@ -37,13 +37,13 @@
 
 /* ── 영업 흐름 팝업 ── */
 .flowOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 300; display: flex; align-items: flex-end; }
-.flowPanel { background: white; border-radius: 20px 20px 0 0; padding: 0; width: 100%; box-sizing: border-box; overflow-x: hidden; animation: slideUp 0.3s ease; }
+.flowPanel { background: white; border-radius: 20px 20px 0 0; padding: 0; width: 100%; max-width: 100vw; box-sizing: border-box; overflow: hidden; animation: slideUp 0.3s ease; }
 .flowPanelHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 .flowPanelTitle { font-size: 16px; font-weight: 600; color: #111827; }
 .flowClose { background: none; border: none; font-size: 20px; color: #9CA3AF; cursor: pointer; }
 
 /* 영업 플로우 세로 도식 */
-.flowStages { position: relative; padding-left: 20px; }
+.flowStages { position: relative; padding-left: 36px; }
 .flowStage { position: relative; margin-bottom: 0; }
 .flowLine { position: absolute; left: -12px; top: 24px; bottom: -4px; width: 2px; background: #EDEBE4; }
 .flowLine.done { background: #1D9E75; }
