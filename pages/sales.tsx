@@ -100,6 +100,7 @@ export default function Sales() {
   const weekEndStr = weekEnd.toISOString().slice(0,10)
   const weekMeetings = meetings.filter(m => m.meeting_date >= weekStartStr && m.meeting_date <= weekEndStr).sort((a,b) => a.meeting_date.localeCompare(b.meeting_date))
   const weekDays = Array.from({length:7}, (_,i) => { const d = new Date(weekStart); d.setDate(d.getDate()+i); return d.toISOString().slice(0,10) })
+  const nextWeekDays = Array.from({length:7}, (_,i) => { const d = new Date(nextWeekStart); d.setDate(d.getDate()+i); return d.toISOString().slice(0,10) })
 
   // 오늘 연락할 고객
   const nearDone = customers.filter(c => {
