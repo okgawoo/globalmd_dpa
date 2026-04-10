@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
 import styles from '../styles/Sales.module.css'
@@ -14,6 +14,73 @@ const FLOW_STAGES = [
 
 const TYPE_OPTIONS = ['첫접촉', '통화', '문자', '미팅', '방문']
 const STATUS_OPTIONS = ['대기', '확정', '취소', '완료']
+
+// ── 드래그로 닫히는 슬라이드업 패널 컴포넌트 ──
+function FlowPanel({ onClose, title, children }: { onClose: () => void; title: string; children: React.ReactNode }) {
+  const panelRef = useRef<HTMLDivElement>(null)
+  const startYRef = useRef(0)
+  const currentYRef = useRef(0)
+  const isDraggingRef = useRef(false)
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    startYRef.current = e.touches[0].clientY
+    isDraggingRef.current = true
+    if (panelRef.current) panelRef.current.style.transition = 'none'
+  }, [])
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!isDraggingRef.current) return
+    const dy = e.touches[0].clientY - startYRef.current
+    currentYRef.current = dy
+    if (dy > 0 && panelRef.current) {
+      panelRef.current.style.transform = `translateY(${dy}px)`
+    }
+  }, [])
+
+  const handleTouchEnd = useCallback(() => {
+    isDraggingRef.current = false
+    if (panelRef.current) panelRef.current.style.transition = 'transform 0.3s ease'
+    if (currentYRef.current > 100) {
+      if (panelRef.current) panelRef.current.style.transform = 'translateY(100%)'
+      setTimeout(onClose, 280)
+    } else {
+      if (panelRef.current) panelRef.current.style.transform = 'translateY(0)'
+    }
+    currentYRef.current = 0
+  }, [onClose])
+
+  return (
+    <div onClick={onClose} style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.45)',zIndex:300,display:'flex',alignItems:'flex-end'}}>
+      <div
+        ref={panelRef}
+        onClick={e => e.stopPropagation()}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        style={{width:'100%',background:'white',borderRadius:'20px 20px 0 0',maxHeight:'85vh',display:'flex',flexDirection:'column',animation:'slideUp 0.3s ease'}}
+      >
+        {/* 핸들 */}
+        <div
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          style={{display:'flex',justifyContent:'center',padding:'12px 0 4px',cursor:'grab',flexShrink:0}}
+        >
+          <div style={{width:40,height:4,borderRadius:2,background:'#D1D5DB'}} />
+        </div>
+        {/* 헤더 */}
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'8px 20px 12px',borderBottom:'1px solid #F3F4F6',flexShrink:0}}>
+          <span style={{fontSize:16,fontWeight:700,color:'#111827'}}>{title}</span>
+          <button onClick={onClose} style={{background:'none',border:'none',fontSize:18,color:'#9CA3AF',cursor:'pointer',padding:4}}>✕</button>
+        </div>
+        {/* 내용 (스크롤 가능) */}
+        <div style={{overflowY:'auto',flex:1,paddingBottom:32}}>
+          {children}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default function Sales() {
   const router = useRouter()
@@ -143,9 +210,9 @@ export default function Sales() {
   }
 
   const getMeetingName = (m: any) => {
-    if (m.prospect_name) return m.prospect_name + '고객'
+    if (m.prospect_name) return m.prospect_name
     const c = customers.find(c => c.id === m.customer_id)
-    return c ? c.name + '고객' : '이름 없음'
+    return c ? c.name : '이름 없음'
   }
 
   const getStatusClass = (s: string) => {
@@ -242,23 +309,24 @@ export default function Sales() {
         <div style={{paddingTop:12}}>
 
           {/* 하위 탭 + 정렬 아이콘 */}
-          <div style={{display:'flex',alignItems:'center',gap:4,marginBottom:16,borderBottom:'1px solid #F3F4F6',paddingBottom:8,flexWrap:'nowrap',overflow:'hidden'}}>
-            {(['today','week','next','past'] as const).map(t => (
-              <button key={t}
-                onClick={() => { setMeetingSubTab(t); router.push(`/sales?tab=meeting&sub=${t}`, undefined, {shallow:true}) }}
-                style={{
-                  padding:'5px 10px', borderRadius:16, fontSize:11, fontWeight:600, border:'none', cursor:'pointer',
-                  background: meetingSubTab === t ? '#1D9E75' : '#F3F4F6',
-                  color: meetingSubTab === t ? 'white' : '#6B7280',
-                  whiteSpace:'nowrap', flexShrink:0
-                }}>
-                {t==='today'?'오늘':t==='week'?'이번주':t==='next'?'다음주':'지난미팅'}
-              </button>
-            ))}
+          <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:16,borderBottom:'1px solid #F3F4F6',paddingBottom:8}}>
+            <div style={{display:'flex',gap:6,flex:1,flexWrap:'wrap'}}>
+              {(['today','week','next','past'] as const).map(t => (
+                <button key={t}
+                  onClick={() => { setMeetingSubTab(t); router.push(`/sales?tab=meeting&sub=${t}`, undefined, {shallow:true}) }}
+                  style={{
+                    padding:'5px 12px', borderRadius:16, fontSize:12, fontWeight:600, border:'none', cursor:'pointer',
+                    background: meetingSubTab === t ? '#1D9E75' : '#F3F4F6',
+                    color: meetingSubTab === t ? 'white' : '#6B7280'
+                  }}>
+                  {t==='today'?'오늘':t==='week'?'이번 주':t==='next'?'다음 주':'지난 미팅'}
+                </button>
+              ))}
+            </div>
             <button
               onClick={() => { const next = !sortAsc; setSortAsc(next); localStorage.setItem('dpa_sort_asc', String(next)) }}
-              style={{padding:'5px 8px',borderRadius:16,fontSize:14,border:'1px solid #E5E7EB',background:'white',cursor:'pointer',color:'#6B7280',flexShrink:0,marginLeft:'auto', lineHeight:1}}>
-              ⇅
+              style={{padding:'5px 10px',borderRadius:16,fontSize:13,border:'1px solid #E5E7EB',background:'white',cursor:'pointer',color:'#6B7280',flexShrink:0}}>
+              {sortAsc ? '↑ 오래된순' : '↓ 최신순'}
             </button>
           </div>
 
@@ -327,7 +395,7 @@ export default function Sales() {
                               }).map(t=>(
                                 <button key={t} className={styles.actionBtn} style={{fontSize:11,color:'#6B7280'}}
                                   onClick={()=>supabase.from('dpa_customers').update({customer_type:t}).eq('id',m.customer_id).then(()=>fetchAll(agentId))}>
-                                  {t==='existing'?'마이고객으로 이동':t==='prospect'?'관심고객으로 이동':'신규고객으로 이동'}
+                                  {t==='existing'?'마이고객으로':t==='prospect'?'관심고객으로':'신규로'}
                                 </button>
                               ))}
                             </div>
@@ -587,7 +655,7 @@ export default function Sales() {
                 <span className={styles.contactIcon}>{m.type === '문자' ? '💬' : '📞'}</span>
                 <div style={{flex:1}}>
                   <div className={styles.contactName}>
-                    {getMeetingName(m)}
+                    {getMeetingName(m)}고객
                     <span style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:badge.bg,color:badge.color,marginLeft:6,fontWeight:600}}>{badge.text}</span>
                   </div>
                   <div className={styles.contactReason}>{dateLabel} {m.meeting_time || ''} · {m.type} {m.memo ? `· ${m.memo}` : ''}</div>
@@ -600,19 +668,17 @@ export default function Sales() {
         </div>
       )}
 
-      {/* ── 영업 흐름 팝업 (퀘스트 스타일) ── */}
+      {/* ── 영업 흐름 팝업 (슬라이드업 + 드래그 닫기) ── */}
       {showFlow && selectedCustomer && (
-        <div className={styles.flowOverlay} onClick={() => setShowFlow(false)}>
-          <div className={styles.flowPanel} onClick={e => e.stopPropagation()}>
-            <div className={styles.flowPanelHeader}>
-              <span className={styles.flowPanelTitle}>{selectedCustomer.name} 영업 흐름</span>
-              <button className={styles.flowClose} onClick={() => setShowFlow(false)}>✕</button>
-            </div>
+        <FlowPanel
+          onClose={() => setShowFlow(false)}
+          title={`${selectedCustomer.name}고객 영업 흐름`}
+        >
 
             {(() => {
               const { currentStageIdx, customerMeetings } = getCustomerFlow(selectedCustomer.id)
               return (
-                <div className={styles.flowStages}>
+                <div style={{padding:"16px 20px"}}>
                   {FLOW_STAGES.map((stage, i) => {
                     const isDone = i < currentStageIdx
                     const isCurrent = i === currentStageIdx
@@ -654,14 +720,13 @@ export default function Sales() {
               )
             })()}
 
-            <button className={styles.submitBtn} style={{ marginTop: 20 }} onClick={() => {
+            <button style={{margin:"0 20px",padding:"12px",background:"#1D9E75",color:"white",border:"none",borderRadius:10,fontSize:14,fontWeight:600,cursor:"pointer",width:"calc(100% - 40px)"}} onClick={() => {
               setShowFlow(false)
               setForm(f => ({ ...f, customer_id: selectedCustomer.id }))
               setIsNewProspect(false)
               setShowForm(true)
             }}>+ 다음 단계 추가</button>
-          </div>
-        </div>
+        </FlowPanel>
       )}
 
       {/* ── 미팅 추가 폼 (슬라이드업) ── */}
