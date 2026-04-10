@@ -143,9 +143,9 @@ export default function Sales() {
   }
 
   const getMeetingName = (m: any) => {
-    if (m.prospect_name) return m.prospect_name
+    if (m.prospect_name) return m.prospect_name + '고객'
     const c = customers.find(c => c.id === m.customer_id)
-    return c ? c.name : '이름 없음'
+    return c ? c.name + '고객' : '이름 없음'
   }
 
   const getStatusClass = (s: string) => {
@@ -242,24 +242,23 @@ export default function Sales() {
         <div style={{paddingTop:12}}>
 
           {/* 하위 탭 + 정렬 아이콘 */}
-          <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:16,borderBottom:'1px solid #F3F4F6',paddingBottom:8}}>
-            <div style={{display:'flex',gap:6,flex:1,flexWrap:'wrap'}}>
-              {(['today','week','next','past'] as const).map(t => (
-                <button key={t}
-                  onClick={() => { setMeetingSubTab(t); router.push(`/sales?tab=meeting&sub=${t}`, undefined, {shallow:true}) }}
-                  style={{
-                    padding:'5px 12px', borderRadius:16, fontSize:12, fontWeight:600, border:'none', cursor:'pointer',
-                    background: meetingSubTab === t ? '#1D9E75' : '#F3F4F6',
-                    color: meetingSubTab === t ? 'white' : '#6B7280'
-                  }}>
-                  {t==='today'?'오늘':t==='week'?'이번 주':t==='next'?'다음 주':'지난 미팅'}
-                </button>
-              ))}
-            </div>
+          <div style={{display:'flex',alignItems:'center',gap:4,marginBottom:16,borderBottom:'1px solid #F3F4F6',paddingBottom:8,flexWrap:'nowrap',overflow:'hidden'}}>
+            {(['today','week','next','past'] as const).map(t => (
+              <button key={t}
+                onClick={() => { setMeetingSubTab(t); router.push(`/sales?tab=meeting&sub=${t}`, undefined, {shallow:true}) }}
+                style={{
+                  padding:'5px 10px', borderRadius:16, fontSize:11, fontWeight:600, border:'none', cursor:'pointer',
+                  background: meetingSubTab === t ? '#1D9E75' : '#F3F4F6',
+                  color: meetingSubTab === t ? 'white' : '#6B7280',
+                  whiteSpace:'nowrap', flexShrink:0
+                }}>
+                {t==='today'?'오늘':t==='week'?'이번주':t==='next'?'다음주':'지난미팅'}
+              </button>
+            ))}
             <button
               onClick={() => { const next = !sortAsc; setSortAsc(next); localStorage.setItem('dpa_sort_asc', String(next)) }}
-              style={{padding:'5px 10px',borderRadius:16,fontSize:13,border:'1px solid #E5E7EB',background:'white',cursor:'pointer',color:'#6B7280',flexShrink:0}}>
-              {sortAsc ? '↑ 오래된순' : '↓ 최신순'}
+              style={{padding:'5px 8px',borderRadius:16,fontSize:14,border:'1px solid #E5E7EB',background:'white',cursor:'pointer',color:'#6B7280',flexShrink:0,marginLeft:'auto', lineHeight:1}}>
+              ⇅
             </button>
           </div>
 
@@ -328,7 +327,7 @@ export default function Sales() {
                               }).map(t=>(
                                 <button key={t} className={styles.actionBtn} style={{fontSize:11,color:'#6B7280'}}
                                   onClick={()=>supabase.from('dpa_customers').update({customer_type:t}).eq('id',m.customer_id).then(()=>fetchAll(agentId))}>
-                                  {t==='existing'?'마이고객으로':t==='prospect'?'관심고객으로':'신규로'}
+                                  {t==='existing'?'마이고객으로 이동':t==='prospect'?'관심고객으로 이동':'신규고객으로 이동'}
                                 </button>
                               ))}
                             </div>
@@ -588,7 +587,7 @@ export default function Sales() {
                 <span className={styles.contactIcon}>{m.type === '문자' ? '💬' : '📞'}</span>
                 <div style={{flex:1}}>
                   <div className={styles.contactName}>
-                    {getMeetingName(m)}고객
+                    {getMeetingName(m)}
                     <span style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:badge.bg,color:badge.color,marginLeft:6,fontWeight:600}}>{badge.text}</span>
                   </div>
                   <div className={styles.contactReason}>{dateLabel} {m.meeting_time || ''} · {m.type} {m.memo ? `· ${m.memo}` : ''}</div>
