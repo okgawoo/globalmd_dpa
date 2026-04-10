@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-const WEBHOOK_URL = 'https://hooks.slack.com/services/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'
+const WEBHOOK_URL = 'https://hooks.slack.com/services/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'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end()
