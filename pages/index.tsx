@@ -199,13 +199,13 @@ export default function Dashboard() {
         <div className={styles.mobileCard} style={{ marginTop: 8 }}>
           <div className={styles.mobileCardHeader}>
             <span className={styles.mobileCardTitle} style={{ color: '#1D9E75' }}>AI추천 일정</span>
-            <span className={styles.mobileCardLink} onClick={() => router.push('/customers?sort=AI추천')}>전체보기</span>
+            <span className={styles.mobileCardLink} onClick={(e) => { e.preventDefault(); router.push('/customers?sort=AI추천') }}>전체보기</span>
           </div>
           <div className={styles.mobileCardBody}>
           {todoItems.length === 0 ? (
             <p className={styles.mobileEmpty}>오늘 할 일 없음 🎉</p>
           ) : todoItems.slice(0,3).map((item, i) => (
-            <div key={i} className={styles.mobileTodoRow} onClick={() => router.push(`/customers?id=${item.id}`)} style={{ cursor: 'pointer' }}>
+            <div key={i} className={styles.mobileTodoRow} onClick={(e) => { e.preventDefault(); router.push(`/customers?id=${item.id}`) }} style={{ cursor: 'pointer' }}>
               <span className={styles.mobileTodoIcon}>{item.icon}</span>
               <div style={{flex:1,minWidth:0}}>
                 <span className={styles.mobileTodoText}>{item.text}</span>
@@ -217,7 +217,7 @@ export default function Dashboard() {
           {todoItems.length > 3 && (
             <div style={{overflow:'hidden',maxHeight:todoExpanded?`${(todoItems.length-3)*48}px`:'0px',transition:'max-height 0.35s ease'}}>
               {todoItems.slice(3).map((item, i) => (
-                <div key={i+3} className={styles.mobileTodoRow} onClick={() => router.push(`/customers?id=${item.id}`)} style={{cursor:'pointer'}}>
+                <div key={i+3} className={styles.mobileTodoRow} onClick={(e) => { e.preventDefault(); router.push(`/customers?id=${item.id}`) }} style={{cursor:'pointer'}}>
                   <span className={styles.mobileTodoIcon}>{item.icon}</span>
                   <div style={{flex:1,minWidth:0}}>
                     <span className={styles.mobileTodoText}>{item.text}</span>
@@ -241,8 +241,8 @@ export default function Dashboard() {
           <div className={styles.mobileCardHeader}>
             <span className={styles.mobileCardTitle}>영업 일정</span>
             <div style={{display:'flex',alignItems:'center',gap:8}}>
-              <span style={{fontSize:12,color:'#1D9E75',cursor:'pointer',padding:'2px 8px',borderRadius:6,border:'1px solid #1D9E75'}} onClick={() => router.push('/sales?tab=meeting&showForm=true')}>+ 직접추가</span>
-              <span className={styles.mobileCardLink} onClick={() => router.push('/sales?tab=meeting&sub=week')}>전체보기</span>
+              <span style={{fontSize:12,color:'#1D9E75',cursor:'pointer',padding:'2px 8px',borderRadius:6,border:'1px solid #1D9E75'}} onClick={(e) => { e.preventDefault(); router.push('/sales?tab=meeting&showForm=true') }}>+ 직접추가</span>
+              <span className={styles.mobileCardLink} onClick={(e) => { e.preventDefault(); router.push('/sales?tab=meeting&sub=week') }}>전체보기</span>
             </div>
           </div>
           <div className={styles.mobileCardBody}>
@@ -258,7 +258,7 @@ export default function Dashboard() {
             const dateLabel = `${dateObj.getMonth()+1}/${dateObj.getDate()}(${['일','월','화','수','목','금','토'][dateObj.getDay()]})`
             const timeLabel = m.meeting_time ? ` ${m.meeting_time}` : ''
             return (
-              <div key={i} className={styles.mobileTodoRow} onClick={() => router.push(`/sales?meetingId=${m.id}`)} style={{ cursor: 'pointer' }}>
+              <div key={i} className={styles.mobileTodoRow} onClick={(e) => { e.preventDefault(); router.push(`/sales?meetingId=${m.id}`) }} style={{ cursor: 'pointer' }}>
                 <span className={styles.mobileTodoIcon}>🤝</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <span className={styles.mobileTodoText}>{name}고객</span>
@@ -280,7 +280,7 @@ export default function Dashboard() {
                 const dateLabel = `${dateObj.getMonth()+1}/${dateObj.getDate()}(${['일','월','화','수','목','금','토'][dateObj.getDay()]})`
                 const timeLabel = m.meeting_time ? ` ${m.meeting_time}` : ''
                 return (
-                  <div key={i+3} className={styles.mobileTodoRow} onClick={() => router.push(`/sales?meetingId=${m.id}`)} style={{cursor:'pointer'}}>
+                  <div key={i+3} className={styles.mobileTodoRow} onClick={(e) => { e.preventDefault(); router.push(`/sales?meetingId=${m.id}`) }} style={{cursor:'pointer'}}>
                     <span className={styles.mobileTodoIcon}>🤝</span>
                     <div style={{flex:1,minWidth:0}}>
                       <span className={styles.mobileTodoText}>{name}고객</span>
@@ -302,28 +302,28 @@ export default function Dashboard() {
 
         {/* 메뉴 2x2 */}
         <div className={styles.mobileGrid2}>
-          <button className={styles.mobileMenuBtn} onClick={() => router.push('/customers')}>
+          <button className={styles.mobileMenuBtn} onClick={(e) => { e.preventDefault(); router.push('/customers') }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             <div>
               <p className={styles.mobileMenuName}>고객 관리</p>
               <p className={styles.mobileMenuSub}>{customers.length}명</p>
             </div>
           </button>
-          <button className={styles.mobileMenuBtn} onClick={() => router.push('/sales')}>
+          <button className={styles.mobileMenuBtn} onClick={(e) => { e.preventDefault(); router.push('/sales') }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="1.8"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
             <div>
               <p className={styles.mobileMenuName}>영업 관리</p>
               <p className={styles.mobileMenuSub}>미팅 3건</p>
             </div>
           </button>
-          <button className={styles.mobileMenuBtn} onClick={() => router.push('/input')}>
+          <button className={styles.mobileMenuBtn} onClick={(e) => { e.preventDefault(); router.push('/input') }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
             <div>
               <p className={styles.mobileMenuName}>데이터 입력</p>
               <p className={styles.mobileMenuSub}>AI 파싱</p>
             </div>
           </button>
-          <button className={styles.mobileMenuBtn} onClick={() => router.push('/notifications')}>
+          <button className={styles.mobileMenuBtn} onClick={(e) => { e.preventDefault(); router.push('/notifications') }}>
             <div style={{ position: 'relative', flexShrink: 0 }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
               {(nearDoneCustomers.length + gapCustomers.length + birthdayCustomers.length) > 0 && (
@@ -357,19 +357,19 @@ export default function Dashboard() {
 
         {/* 하단 아이콘 4개 */}
         <div className={styles.mobileBottomIcons}>
-          <button className={styles.mobileIconBtn} onClick={() => router.push('/sales?tab=flow')}>
+          <button className={styles.mobileIconBtn} onClick={(e) => { e.preventDefault(); router.push('/sales?tab=flow') }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
             <span className={styles.mobileIconLabel}>이력추적</span>
           </button>
-          <button className={styles.mobileIconBtn} onClick={() => router.push('/analysis')}>
+          <button className={styles.mobileIconBtn} onClick={(e) => { e.preventDefault(); router.push('/analysis') }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
             <span className={styles.mobileIconLabel}>보장분석</span>
           </button>
-          <button className={styles.mobileIconBtn} onClick={() => router.push('/newsletter')}>
+          <button className={styles.mobileIconBtn} onClick={(e) => { e.preventDefault(); router.push('/newsletter') }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
             <span className={styles.mobileIconLabel}>뉴스레터</span>
           </button>
-          <button className={styles.mobileIconBtn} onClick={() => router.push('/settings')}>
+          <button className={styles.mobileIconBtn} onClick={(e) => { e.preventDefault(); router.push('/settings') }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
             <span className={styles.mobileIconLabel}>설정</span>
           </button>
@@ -454,12 +454,12 @@ export default function Dashboard() {
         </div>
 
         <div className={styles.metrics}>
-          <div className={styles.metric} onClick={() => router.push('/customers')}>
+          <div className={styles.metric} onClick={(e) => { e.preventDefault(); router.push('/customers') }}>
             <div className={styles.mlabel}>총 고객</div>
             <div className={styles.mvalue}>{customers.length}</div>
             <div className={styles.msub}>기존 고객 ↗</div>
           </div>
-          <div className={styles.metric} onClick={() => router.push('/customers')}>
+          <div className={styles.metric} onClick={(e) => { e.preventDefault(); router.push('/customers') }}>
             <div className={styles.mlabel}>보험 계약</div>
             <div className={styles.mvalue}>{contracts.length}</div>
             <div className={styles.msub}>총 계약 건수 ↗</div>

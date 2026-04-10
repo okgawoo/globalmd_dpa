@@ -37,7 +37,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
-    const pagePaths = ['/', '/customers', '/input', '/analysis', '/report', '/sales', '/notifications', '/newsletter', '/settings']
     let startX = 0
     let startY = 0
     const onStart = (e: TouchEvent) => {
@@ -48,19 +47,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       const dx = e.changedTouches[0].clientX - startX
       const dy = e.changedTouches[0].clientY - startY
       if (Math.abs(dy) > Math.abs(dx)) return
+      // 좌→우 스와이프: 왼쪽 30px 안에서만 사이드바 열기
       if (dx > 60 && startX < 30) { setSidebarOpen(true); return }
+      // 우→좌 스와이프: 사이드바 닫기만
       if (dx < -60 && sidebarOpen) { setSidebarOpen(false); return }
-      if (Math.abs(dx) > 80 && !sidebarOpen) {
-        const currentIdx = pagePaths.indexOf(router.pathname)
-        if (currentIdx === -1) return
-        if (dx < 0) {
-          const nextIdx = (currentIdx + 1) % pagePaths.length
-          router.push(pagePaths[nextIdx])
-        } else {
-          const prevIdx = (currentIdx - 1 + pagePaths.length) % pagePaths.length
-          router.push(pagePaths[prevIdx])
-        }
-      }
+      // 페이지 이동 스와이프 완전 제거
     }
     document.addEventListener('touchstart', onStart)
     document.addEventListener('touchend', onEnd)

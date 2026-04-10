@@ -18,60 +18,63 @@ const STATUS_OPTIONS = ['대기', '확정', '취소', '완료']
 // ── 드래그로 닫히는 슬라이드업 패널 컴포넌트 ──
 function FlowPanel({ onClose, title, children }: { onClose: () => void; title: string; children: React.ReactNode }) {
   const panelRef = useRef<HTMLDivElement>(null)
-  const startYRef = useRef(0)
-  const currentYRef = useRef(0)
-  const isDraggingRef = useRef(false)
+  const overlayRef = useRef<HTMLDivElement>(null)
 
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    startYRef.current = e.touches[0].clientY
-    isDraggingRef.current = true
-    if (panelRef.current) panelRef.current.style.transition = 'none'
-  }, [])
+  useEffect(() => {
+    const panel = panelRef.current
+    if (!panel) return
+    let startY = 0, curY = 0, dragging = false
 
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (!isDraggingRef.current) return
-    const dy = e.touches[0].clientY - startYRef.current
-    currentYRef.current = dy
-    if (dy > 0 && panelRef.current) {
-      panelRef.current.style.transform = `translateY(${dy}px)`
+    const onStart = (e: TouchEvent) => {
+      startY = e.touches[0].clientY
+      dragging = true
+      panel.style.transition = 'none'
+      e.stopPropagation()
     }
-  }, [])
-
-  const handleTouchEnd = useCallback(() => {
-    isDraggingRef.current = false
-    if (panelRef.current) panelRef.current.style.transition = 'transform 0.3s ease'
-    if (currentYRef.current > 100) {
-      if (panelRef.current) panelRef.current.style.transform = 'translateY(100%)'
-      setTimeout(onClose, 280)
-    } else {
-      if (panelRef.current) panelRef.current.style.transform = 'translateY(0)'
+    const onMove = (e: TouchEvent) => {
+      if (!dragging) return
+      e.stopPropagation()
+      e.preventDefault()
+      curY = e.touches[0].clientY - startY
+      if (curY > 0) panel.style.transform = `translateY(${curY}px)`
     }
-    currentYRef.current = 0
+    const onEnd = (e: TouchEvent) => {
+      if (!dragging) return
+      dragging = false
+      e.stopPropagation()
+      panel.style.transition = 'transform 0.3s ease'
+      if (curY > 100) {
+        panel.style.transform = 'translateY(100%)'
+        setTimeout(onClose, 280)
+      } else {
+        panel.style.transform = 'translateY(0)'
+      }
+      curY = 0
+    }
+
+    panel.addEventListener('touchstart', onStart, { passive: true })
+    panel.addEventListener('touchmove', onMove, { passive: false })
+    panel.addEventListener('touchend', onEnd, { passive: true })
+    return () => {
+      panel.removeEventListener('touchstart', onStart)
+      panel.removeEventListener('touchmove', onMove)
+      panel.removeEventListener('touchend', onEnd)
+    }
   }, [onClose])
 
   return (
-    <div onClick={onClose} style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.45)',zIndex:300,display:'flex',alignItems:'flex-end'}}>
+    <div ref={overlayRef} onClick={onClose} style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.45)',zIndex:300,display:'flex',alignItems:'flex-end'}}>
       <div
         ref={panelRef}
         onClick={e => e.stopPropagation()}
         style={{width:'100%',maxWidth:'100vw',boxSizing:'border-box',background:'white',borderRadius:'20px 20px 0 0',maxHeight:'85vh',display:'flex',flexDirection:'column',animation:'slideUp 0.3s ease'}}
       >
         {/* 핸들 */}
-        <div
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-          style={{display:'flex',justifyContent:'center',padding:'12px 0 4px',cursor:'grab',flexShrink:0}}
-        >
+        <div style={{display:'flex',justifyContent:'center',padding:'12px 0 4px',cursor:'grab',flexShrink:0}}>
           <div style={{width:40,height:4,borderRadius:2,background:'#D1D5DB'}} />
         </div>
         {/* 헤더 */}
-        <div
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-          style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'8px 20px 12px',borderBottom:'1px solid #F3F4F6',flexShrink:0,cursor:'grab'}}
-        >
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'8px 20px 12px',borderBottom:'1px solid #F3F4F6',flexShrink:0}}>
           <span style={{fontSize:16,fontWeight:700,color:'#111827'}}>{title}</span>
           <button onClick={e => { e.stopPropagation(); onClose() }} style={{background:'none',border:'none',fontSize:18,color:'#9CA3AF',cursor:'pointer',padding:4}}>✕</button>
         </div>
@@ -740,12 +743,12 @@ export default function Sales() {
                                 </span>
                                 {isCurrent && <span className={styles.flowCurrentBadge}>진행중</span>}
                               </div>
-                              {(isDone || isCurrent) && lastMeeting && (
+                              {(isDone || isCurrent) && (
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation()
                                     if (editingMemoStage === stage.key) { setEditingMemoStage(null) }
-                                    else { setEditingMemoStage(stage.key); setEditingMemoText(lastMeeting.memo || '') }
+                                    else { setEditingMemoStage(stage.key); setEditingMemoText(lastMeeting?.memo || '') }
                                   }}
                                   style={{background:'none',border:'none',fontSize:13,cursor:'pointer',color:'#9CA3AF',padding:'2px 4px'}}
                                 >✏️</button>
@@ -809,9 +812,12 @@ export default function Sales() {
             ref={(el) => {
               if (!el) return
               let startY = 0, curY = 0, dragging = false
-              el.ontouchstart = (e) => { startY = e.touches[0].clientY; dragging = true; el.style.transition = 'none'; e.stopPropagation() }
-              el.ontouchmove = (e) => { if (!dragging) return; e.stopPropagation(); curY = e.touches[0].clientY - startY; if (curY > 0) el.style.transform = `translateY(${curY}px)` }
-              el.ontouchend = (e) => { e.stopPropagation(); dragging = false; el.style.transition = 'transform 0.3s ease'; if (curY > 100) { el.style.transform = 'translateY(100%)'; setTimeout(() => setShowForm(false), 280) } else { el.style.transform = 'translateY(0)' }; curY = 0 }
+              const onStart = (e: TouchEvent) => { startY = e.touches[0].clientY; dragging = true; el.style.transition = 'none'; e.stopPropagation() }
+              const onMove = (e: TouchEvent) => { if (!dragging) return; e.stopPropagation(); e.preventDefault(); curY = e.touches[0].clientY - startY; if (curY > 0) el.style.transform = `translateY(${curY}px)` }
+              const onEnd = (e: TouchEvent) => { if (!dragging) return; dragging = false; e.stopPropagation(); el.style.transition = 'transform 0.3s ease'; if (curY > 100) { el.style.transform = 'translateY(100%)'; setTimeout(() => setShowForm(false), 280) } else { el.style.transform = 'translateY(0)' }; curY = 0 }
+              el.addEventListener('touchstart', onStart, { passive: true })
+              el.addEventListener('touchmove', onMove, { passive: false })
+              el.addEventListener('touchend', onEnd, { passive: true })
             }}
           >
             {/* 핸들 */}
