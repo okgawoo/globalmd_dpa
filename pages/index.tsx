@@ -200,7 +200,7 @@ export default function Dashboard() {
           <div className={styles.mobileCardHeader}>
             <span className={styles.mobileCardTitle} style={{ color: '#1D9E75' }}>오늘 할일</span>
             <span className={styles.mobileCardLink} onClick={() => {
-              const sorts = [...new Set(todoItems.map(i => i.sort))]
+              const sorts = todoItems.map(i => i.sort).filter((v, i, a) => a.indexOf(v) === i)
               router.push(`/customers?filter=todo&sorts=${sorts.join(',')}`)
             }}>전체보기 →</span>
           </div>
