@@ -127,9 +127,15 @@ export default function Login() {
         </div>
 
         {error && <div className={styles.errorMsg}>{error}</div>}
-        {success && <div className={styles.successMsg}>{success}</div>}
 
-        {mode === 'login' ? (
+        {success ? (
+          <div style={{textAlign:'center', padding:'32px 16px'}}>
+            <div style={{fontSize:48, marginBottom:16}}>✅</div>
+            <div style={{fontSize:20, fontWeight:700, color:'#1D9E75', marginBottom:8}}>가입 신청이 완료됐어요!</div>
+            <div style={{fontSize:14, color:'#6B7280', lineHeight:1.6}}>승인까지 잠시만 기다려주세요<br/>승인 완료 후 로그인 가능해요 😊</div>
+            <button className={styles.submitBtn} style={{marginTop:24}} onClick={() => { setSuccess(''); setMode('login'); setForm(emptyRegForm) }}>로그인 화면으로</button>
+          </div>
+        ) : mode === 'login' ? (
           <div className={styles.form}>
             <div className={styles.field}>
               <label>아이디</label>
