@@ -614,7 +614,7 @@ export default function Customers() {
       )}
 
       {/* 데스크탑: 좌우 분할 / 모바일: 단일 컬럼 */}
-      <div className={isMobile ? '' : (selected ? styles.desktopGrid : '')}>
+      <div className={(!isMobile && selected) ? styles.desktopGrid : ''}>
       <div className={styles.listPanel}>
         {loading ? <div className={styles.empty}>불러오는 중...</div> : filteredCustomers.length === 0 ? (
           <div className={styles.empty}>해당 고객이 없어요</div>
