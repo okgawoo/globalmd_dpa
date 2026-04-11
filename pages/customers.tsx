@@ -640,7 +640,7 @@ export default function Customers() {
                 {/* 2행: 메타 + 수정/삭제 */}
                 <div className={styles.custRow2}>
                   <div className={styles.custMeta}>{c.age}세 · {c.gender} · {c.job} · {cCount}건<span className={styles.custFee}><span className={styles.feeDot}> · </span>{cMonthly.toLocaleString()}원</span></div>
-                  <div className={styles.custActions}>
+                  <div className={styles.btnGroup}>
                     <button className={styles.editBtn} onClick={e => { e.stopPropagation(); selectCustomer(c); setEditMode(true); setEditForm(c); setAddMode(false) }}>수정</button>
                     <button className={styles.deleteBtn} onClick={e => deleteCustomer(c, e)}>삭제</button>
                   </div>
@@ -651,7 +651,9 @@ export default function Customers() {
                     <div className={styles.badgeRow}>
                       {badges.map((b, i) => <span key={i} className={b.cls}>{b.label}</span>)}
                     </div>
-                    <button className={styles.smsBtn} onClick={e => { e.stopPropagation(); setSmsCustomer(c); setSmsOpen(true) }}>문자발송</button>
+                    <div className={styles.btnGroup}>
+                      <button className={styles.smsBtn} onClick={e => { e.stopPropagation(); setSmsCustomer(c); setSmsOpen(true) }}>문자발송</button>
+                    </div>
                   </div>
                 )}
               </div>
