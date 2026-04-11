@@ -139,6 +139,24 @@ export default function Sales() {
     const weekEnd = (() => { const d = new Date(); d.setDate(d.getDate() - d.getDay() + 7); return d.toISOString().split('T')[0] })()
     const nextWeekStart = (() => { const d = new Date(); d.setDate(d.getDate() - d.getDay() + 8); return d.toISOString().split('T')[0] })()
     const nextWeekEnd = (() => { const d = new Date(); d.setDate(d.getDate() - d.getDay() + 14); return d.toISOString().split('T')[0] })()
+    setActiveTab('meeting')
+    if (target.meeting_date === today) setMeetingSubTab('today')
+    else if (target.meeting_date >= weekStart && target.meeting_date <= weekEnd) setMeetingSubTab('week')
+    else if (target.meeting_date >= nextWeekStart && target.meeting_date <= nextWeekEnd) setMeetingSubTab('next')
+    else setMeetingSubTab('past')
+  }, [meetings, router.query])
+
+  // meetingId에 해당하는 미팅 날짜 기준으로 탭 자동 전환
+  useEffect(() => {
+    const { meetingId } = router.query
+    if (!meetingId || meetings.length === 0) return
+    const target = meetings.find((m: any) => m.id === meetingId)
+    if (!target) return
+    const today = new Date().toISOString().split('T')[0]
+    const weekStart = (() => { const d = new Date(); d.setDate(d.getDate() - d.getDay() + 1); return d.toISOString().split('T')[0] })()
+    const weekEnd = (() => { const d = new Date(); d.setDate(d.getDate() - d.getDay() + 7); return d.toISOString().split('T')[0] })()
+    const nextWeekStart = (() => { const d = new Date(); d.setDate(d.getDate() - d.getDay() + 8); return d.toISOString().split('T')[0] })()
+    const nextWeekEnd = (() => { const d = new Date(); d.setDate(d.getDate() - d.getDay() + 14); return d.toISOString().split('T')[0] })()
     if (target.meeting_date === today) setMeetingSubTab('today')
     else if (target.meeting_date >= weekStart && target.meeting_date <= weekEnd) setMeetingSubTab('week')
     else if (target.meeting_date >= nextWeekStart && target.meeting_date <= nextWeekEnd) setMeetingSubTab('next')
@@ -249,6 +267,92 @@ export default function Sales() {
     if (m.prospect_name) return m.prospect_name
     const c = customers.find(c => c.id === m.customer_id)
     return c ? c.name : '이름 없음'
+  }
+
+  // 공통 미팅 카드 렌더러
+  const renderMeetingCard = (m: any, opts?: { showDate?: boolean, dateColor?: string, opacity?: number }) => {
+    const badge = getMeetingBadge(m)
+    const isToday = m.meeting_date === todayStr
+    const isHighlighted = highlightId === m.id
+    const dateObj = new Date(m.meeting_date + 'T00:00:00')
+    const dateLabel = isToday ? '오늘' : `${dateObj.getMonth()+1}/${dateObj.getDate()}(${['일','월','화','수','목','금','토'][dateObj.getDay()]})`
+    const dateColor = opts?.dateColor || (isToday ? '#1D9E75' : 'var(--text-secondary)')
+    const showDate = opts?.showDate !== false
+
+    return (
+      <div key={m.id}
+        ref={el => { if (el && isHighlighted) setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300) }}
+        className={styles.meetingCard}
+        style={{
+          borderLeft: isHighlighted ? '3px solid #1D9E75' : isToday ? '3px solid #1D9E75' : '3px solid transparent',
+          background: isHighlighted ? 'var(--green-light)' : 'var(--bg-card)',
+          opacity: opts?.opacity ?? 1,
+          transition: 'background 0.3s',
+          marginBottom: 6,
+        }}
+      >
+        <div className={styles.meetingTop}>
+          <span className={styles.meetingName}>{getMeetingName(m)}</span>
+          <span className={styles.statusBadge} style={{background:badge.bg,color:badge.color}}>{badge.text}</span>
+        </div>
+        {showDate && (
+          <div style={{fontSize:12,color:dateColor,marginTop:2,fontWeight:isToday?600:400}}>
+            📅 {dateLabel} {m.meeting_time||''}
+          </div>
+        )}
+        {!showDate && m.meeting_time && (
+          <div style={{fontSize:12,color:'var(--text-secondary)',marginTop:2}}>🕐 {m.meeting_time}</div>
+        )}
+        <div className={styles.meetingBottom}>
+          <span className={styles.meetingLocation}>📍 {m.location||'장소 미정'}</span>
+          <span className={styles.typeBadge}>{m.type||'미팅'}</span>
+          {m.cancel_count > 0 && <span className={styles.cancelWarn}>⚠ 취소 {m.cancel_count}회</span>}
+        </div>
+        {m.memo && <div style={{fontSize:12,color:'var(--text-muted)',marginTop:6}}>💬 {m.memo}</div>}
+        {editId === m.id ? (
+          <div style={{marginTop:10,background:'var(--bg)',borderRadius:8,padding:10}}>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:8}}>
+              <div><label style={{fontSize:11,color:'var(--text-secondary)'}}>날짜</label><input type="date" value={editForm.meeting_date||''} onChange={e=>setEditForm((f:any)=>({...f,meeting_date:e.target.value}))} style={{width:'100%',fontSize:13,padding:'6px 8px',border:'1px solid var(--border)',borderRadius:6,background:'var(--bg-card)',color:'var(--text-primary)'}} /></div>
+              <div><label style={{fontSize:11,color:'var(--text-secondary)'}}>시간</label><input type="time" value={editForm.meeting_time||''} onChange={e=>setEditForm((f:any)=>({...f,meeting_time:e.target.value}))} style={{width:'100%',fontSize:13,padding:'6px 8px',border:'1px solid var(--border)',borderRadius:6,background:'var(--bg-card)',color:'var(--text-primary)'}} /></div>
+            </div>
+            <div style={{marginBottom:8}}><label style={{fontSize:11,color:'var(--text-secondary)'}}>장소</label><input value={editForm.location||''} onChange={e=>setEditForm((f:any)=>({...f,location:e.target.value}))} placeholder="장소" style={{width:'100%',fontSize:13,padding:'6px 8px',border:'1px solid var(--border)',borderRadius:6,background:'var(--bg-card)',color:'var(--text-primary)'}} /></div>
+            <div style={{marginBottom:8}}><label style={{fontSize:11,color:'var(--text-secondary)'}}>메모</label><input value={editForm.memo||''} onChange={e=>setEditForm((f:any)=>({...f,memo:e.target.value}))} placeholder="메모" style={{width:'100%',fontSize:13,padding:'6px 8px',border:'1px solid var(--border)',borderRadius:6,background:'var(--bg-card)',color:'var(--text-primary)'}} /></div>
+            <div style={{display:'flex',gap:6}}>
+              <button onClick={()=>handleEdit(m.id)} style={{flex:1,padding:'7px',background:'#1D9E75',color:'white',border:'none',borderRadius:6,fontSize:13,cursor:'pointer'}}>저장</button>
+              <button onClick={()=>setEditId(null)} style={{flex:1,padding:'7px',background:'var(--bg)',color:'var(--text-secondary)',border:'none',borderRadius:6,fontSize:13,cursor:'pointer'}}>취소</button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className={styles.actionRow}>
+              <button className={styles.actionBtn} onClick={()=>{setEditId(m.id);setEditForm(m)}}>✏️ 수정</button>
+              {STATUS_OPTIONS.filter(s=>s!==m.status).map(s=>(
+                <button key={s} className={styles.actionBtn} onClick={()=>updateStatus(m.id,s)}>{s}</button>
+              ))}
+              {m.customer_id && (
+                <button className={styles.actionBtn} onClick={()=>{
+                  const c=customers.find((c:any)=>c.id===m.customer_id)
+                  setSelectedCustomer(c); setShowFlow(true)
+                }}>영업 이력</button>
+              )}
+            </div>
+            {m.customer_id && (
+              <div className={styles.actionRow} style={{marginTop:4}}>
+                {(['existing','prospect','new'] as const).filter(t=>{
+                  const c=customers.find((c:any)=>c.id===m.customer_id)
+                  return c?.customer_type!==t
+                }).map(t=>(
+                  <button key={t} className={styles.actionBtn} style={{fontSize:11,color:'var(--text-secondary)'}}
+                    onClick={()=>supabase.from('dpa_customers').update({customer_type:t}).eq('id',m.customer_id).then(()=>fetchAll(agentId))}>
+                    {t==='existing'?'마이고객으로 이동':t==='prospect'?'관심고객으로 이동':'신규고객으로 이동'}
+                  </button>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    )
   }
 
   const getStatusClass = (s: string) => {
@@ -370,7 +474,7 @@ export default function Sales() {
             </div>
             <button
               onClick={() => { const next = !sortAsc; setSortAsc(next); localStorage.setItem('dpa_sort_asc', String(next)) }}
-              style={{padding:'5px 10px',borderRadius:16,fontSize:13,border:'1px solid #E5E7EB',background:'white',cursor:'pointer',color:'#6B7280',flexShrink:0}}>
+              style={{padding:'5px 10px',borderRadius:16,fontSize:13,border:'1px solid var(--border)',background:'var(--bg-card)',cursor:'pointer',color:'var(--text-secondary)',flexShrink:0}}>
               {'⇅'}
             </button>
           </div>
@@ -387,74 +491,7 @@ export default function Sales() {
                   <button className={styles.addBtn} onClick={() => setShowForm(true)}>+ 미팅 추가</button>
                 </div>
                 {sorted.length === 0 && <div className={styles.empty}>미팅이 없어요 😊</div>}
-                {sorted.map(m => {
-                  const badge = getMeetingBadge(m)
-                  const isToday = m.meeting_date === todayStr
-                  const isHighlighted = highlightId === m.id
-                  const dateObj = new Date(m.meeting_date)
-                  const dateLabel = isToday ? '오늘' : `${dateObj.getMonth()+1}/${dateObj.getDate()}(${['일','월','화','수','목','금','토'][dateObj.getDay()]})`
-                  return (
-                    <div key={m.id}
-                      ref={el => { if (el && isHighlighted) setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300) }}
-                      className={styles.meetingCard}
-                      style={{borderLeft: isHighlighted ? '3px solid #1D9E75' : isToday ? '3px solid #1D9E75' : '3px solid transparent', background: isHighlighted ? '#F0FDF9' : 'white', transition:'background 0.3s'}}
-                    >
-                      <div className={styles.meetingTop}>
-                        <span className={styles.meetingName}>{getMeetingName(m)}</span>
-                        <span className={styles.statusBadge} style={{background:badge.bg,color:badge.color}}>{badge.text}</span>
-                      </div>
-                      <div style={{fontSize:12,color: isToday?'#1D9E75':'#6B7280',marginTop:2,fontWeight: isToday?600:400}}>📅 {dateLabel} {m.meeting_time||''}</div>
-                      <div className={styles.meetingBottom}>
-                        <span className={styles.meetingLocation}>📍 {m.location||'장소 미정'}</span>
-                        <span className={styles.typeBadge}>{m.type||'미팅'}</span>
-                        {m.cancel_count > 0 && <span className={styles.cancelWarn}>⚠ 취소 {m.cancel_count}회</span>}
-                      </div>
-                      {m.memo && <div style={{fontSize:12,color:'#9CA3AF',marginTop:6}}>💬 {m.memo}</div>}
-                      {editId === m.id ? (
-                        <div style={{marginTop:10,background:'#F9FAFB',borderRadius:8,padding:10}}>
-                          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:8}}>
-                            <div><label style={{fontSize:11,color:'#6B7280'}}>날짜</label><input type="date" value={editForm.meeting_date||''} onChange={e=>setEditForm((f:any)=>({...f,meeting_date:e.target.value}))} style={{width:'100%',fontSize:13,padding:'6px 8px',border:'1px solid #E5E7EB',borderRadius:6}} /></div>
-                            <div><label style={{fontSize:11,color:'#6B7280'}}>시간</label><input type="time" value={editForm.meeting_time||''} onChange={e=>setEditForm((f:any)=>({...f,meeting_time:e.target.value}))} style={{width:'100%',fontSize:13,padding:'6px 8px',border:'1px solid #E5E7EB',borderRadius:6}} /></div>
-                          </div>
-                          <div style={{marginBottom:8}}><label style={{fontSize:11,color:'#6B7280'}}>장소</label><input value={editForm.location||''} onChange={e=>setEditForm((f:any)=>({...f,location:e.target.value}))} placeholder="장소" style={{width:'100%',fontSize:13,padding:'6px 8px',border:'1px solid #E5E7EB',borderRadius:6}} /></div>
-                          <div style={{marginBottom:8}}><label style={{fontSize:11,color:'#6B7280'}}>메모</label><input value={editForm.memo||''} onChange={e=>setEditForm((f:any)=>({...f,memo:e.target.value}))} placeholder="메모" style={{width:'100%',fontSize:13,padding:'6px 8px',border:'1px solid #E5E7EB',borderRadius:6}} /></div>
-                          <div style={{display:'flex',gap:6}}>
-                            <button onClick={()=>handleEdit(m.id)} style={{flex:1,padding:'7px',background:'#1D9E75',color:'white',border:'none',borderRadius:6,fontSize:13,cursor:'pointer'}}>저장</button>
-                            <button onClick={()=>setEditId(null)} style={{flex:1,padding:'7px',background:'#F3F4F6',color:'#6B7280',border:'none',borderRadius:6,fontSize:13,cursor:'pointer'}}>취소</button>
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                          <div className={styles.actionRow}>
-                            <button className={styles.actionBtn} onClick={()=>{setEditId(m.id);setEditForm(m)}}>✏️ 수정</button>
-                            {STATUS_OPTIONS.filter(s=>s!==m.status).map(s=>(
-                              <button key={s} className={styles.actionBtn} onClick={()=>updateStatus(m.id,s)}>{s}</button>
-                            ))}
-                            {m.customer_id && (
-                              <button className={styles.actionBtn} onClick={()=>{
-                                const c=customers.find((c:any)=>c.id===m.customer_id)
-                                setSelectedCustomer(c); setShowFlow(true)
-                              }}>영업 이력</button>
-                            )}
-                          </div>
-                          {m.customer_id && (
-                            <div className={styles.actionRow} style={{marginTop:4}}>
-                              {(['existing','prospect','new'] as const).filter(t=>{
-                                const c=customers.find((c:any)=>c.id===m.customer_id)
-                                return c?.customer_type!==t
-                              }).map(t=>(
-                                <button key={t} className={styles.actionBtn} style={{fontSize:11,color:'#6B7280'}}
-                                  onClick={()=>supabase.from('dpa_customers').update({customer_type:t}).eq('id',m.customer_id).then(()=>fetchAll(agentId))}>
-                                  {t==='existing'?'마이고객으로 이동':t==='prospect'?'관심고객으로 이동':'신규고객으로 이동'}
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  )
-                })}
+                {sorted.map(m => renderMeetingCard(m, { showDate: true }))}
               </div>
             )
           })()}
@@ -477,22 +514,7 @@ export default function Sales() {
                       {isToday && <span style={{fontSize:10,background:'#1D9E75',color:'white',borderRadius:10,padding:'1px 6px'}}>오늘</span>}
                       <span style={{fontSize:11,color:'#9CA3AF',marginLeft:'auto'}}>{dayMeetings.length}건</span>
                     </div>
-                    {dayMeetings.map(m => {
-                      const badge = getMeetingBadge(m)
-                      return (
-                        <div key={m.id} className={styles.meetingCard} style={{marginBottom:6}}>
-                          <div className={styles.meetingTop}>
-                            <span className={styles.meetingName}>{getMeetingName(m)}</span>
-                            <span className={styles.statusBadge} style={{background:badge.bg,color:badge.color}}>{badge.text}</span>
-                          </div>
-                          {m.meeting_time && <div style={{fontSize:12,color:'#6B7280',marginTop:2}}>🕐 {m.meeting_time}</div>}
-                          <div className={styles.meetingBottom}>
-                            <span className={styles.meetingLocation}>📍 {m.location||'장소 미정'}</span>
-                            <span className={styles.typeBadge}>{m.type||'미팅'}</span>
-                          </div>
-                        </div>
-                      )
-                    })}
+                    {dayMeetings.map(m => renderMeetingCard(m, { showDate: false }))}
                   </div>
                 )
               })}
@@ -518,22 +540,7 @@ export default function Sales() {
                       <span style={{fontWeight:700,fontSize:13,color:'#374151'}}>{monthDay}({dayLabel})</span>
                       <span style={{fontSize:11,color:'#9CA3AF',marginLeft:'auto'}}>{dayMeetings.length}건</span>
                     </div>
-                    {dayMeetings.map(m => {
-                      const badge = getMeetingBadge(m)
-                      return (
-                        <div key={m.id} className={styles.meetingCard} style={{marginBottom:6}}>
-                          <div className={styles.meetingTop}>
-                            <span className={styles.meetingName}>{getMeetingName(m)}</span>
-                            <span className={styles.statusBadge} style={{background:badge.bg,color:badge.color}}>{badge.text}</span>
-                          </div>
-                          {m.meeting_time && <div style={{fontSize:12,color:'#6B7280',marginTop:2}}>🕐 {m.meeting_time}</div>}
-                          <div className={styles.meetingBottom}>
-                            <span className={styles.meetingLocation}>📍 {m.location||'장소 미정'}</span>
-                            <span className={styles.typeBadge}>{m.type||'미팅'}</span>
-                          </div>
-                        </div>
-                      )
-                    })}
+                    {dayMeetings.map(m => renderMeetingCard(m, { showDate: false }))}
                   </div>
                 )
               })}
@@ -557,28 +564,7 @@ export default function Sales() {
                   const badge = getMeetingBadge(m)
                   const dateObj = new Date(m.meeting_date + 'T00:00:00')
                   const dateLabel = `${dateObj.getMonth()+1}/${dateObj.getDate()}(${['일','월','화','수','목','금','토'][dateObj.getDay()]})`
-                  return (
-                    <div key={m.id} className={styles.meetingCard} style={{opacity:m.status==='취소'?0.6:1}}>
-                      <div className={styles.meetingTop}>
-                        <span className={styles.meetingName}>{getMeetingName(m)}</span>
-                        <span className={styles.statusBadge} style={{background:badge.bg,color:badge.color}}>{badge.text}</span>
-                      </div>
-                      <div style={{fontSize:12,color:'#9CA3AF',marginTop:2}}>📅 {dateLabel} {m.meeting_time||''}</div>
-                      <div className={styles.meetingBottom}>
-                        <span className={styles.meetingLocation}>📍 {m.location||'장소 미정'}</span>
-                        <span className={styles.typeBadge}>{m.type||'미팅'}</span>
-                      </div>
-                      {m.memo && <div style={{fontSize:12,color:'#9CA3AF',marginTop:6}}>💬 {m.memo}</div>}
-                      {m.customer_id && (
-                        <div className={styles.actionRow} style={{marginTop:8}}>
-                          <button className={styles.actionBtn} onClick={()=>{
-                            const c=customers.find((c:any)=>c.id===m.customer_id)
-                            setSelectedCustomer(c); setShowFlow(true)
-                          }}>영업 이력</button>
-                        </div>
-                      )}
-                    </div>
-                  )
+                  return renderMeetingCard(m, { showDate: true, dateColor: 'var(--text-muted)', opacity: m.status==='취소' ? 0.6 : 1 })
                 })
               })()}
             </div>
