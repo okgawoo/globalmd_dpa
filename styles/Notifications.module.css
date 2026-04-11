@@ -143,3 +143,51 @@
   .grid { grid-template-columns: 1fr; }
   .phoneCol { position: static; }
 }
+
+/* ─────────────────────────────
+   PC / 모바일 전환
+───────────────────────────── */
+.pcGrid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; align-items: stretch; }
+.mobileLayout { display: none; }
+
+@media (max-width: 768px) {
+  .pcGrid { display: none; }
+  .mobileLayout { display: block; }
+}
+
+/* ─────────────────────────────
+   모바일 툴바
+───────────────────────────── */
+.mobileToolbar { display: flex; align-items: center; justify-content: space-between; padding: 6px 0 10px; }
+.selectModeBtn { font-size: 12px; padding: 5px 12px; border-radius: 8px; border: 0.5px solid #1D9E75; color: #1D9E75; background: none; cursor: pointer; font-family: inherit; }
+
+/* ─────────────────────────────
+   선택 모드 배너
+───────────────────────────── */
+.selectBanner { display: flex; align-items: center; justify-content: space-between; background: #E1F5EE; border-radius: 10px; padding: 10px 14px; margin-bottom: 10px; }
+.bulkSendBtn { font-size: 12px; padding: 5px 14px; border-radius: 8px; border: none; background: #1D9E75; color: white; cursor: pointer; font-family: inherit; font-weight: 600; }
+.cancelSelectBtn { font-size: 12px; padding: 5px 12px; border-radius: 8px; border: 0.5px solid #D1D5DB; color: #6B7280; background: white; cursor: pointer; font-family: inherit; }
+
+/* ─────────────────────────────
+   모바일 섹션 라벨
+───────────────────────────── */
+.mobileSectionLabel { font-size: 11px; font-weight: 600; color: #6B7280; letter-spacing: 0.05em; margin-bottom: 8px; padding: 0 2px; }
+
+/* ─────────────────────────────
+   모바일 알림 카드
+───────────────────────────── */
+.mobileCard { background: white; border: 0.5px solid #EDEBE4; border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; cursor: pointer; transition: border-color 0.15s; }
+.mobileCard:active { background: #F9F9F7; }
+.mobileCardRow { display: flex; align-items: center; gap: 10px; }
+.mobileCheckbox { width: 20px; height: 20px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; transition: all 0.15s; }
+.mobileCardIcon { font-size: 20px; flex-shrink: 0; width: 32px; text-align: center; }
+.mobileCardBody { flex: 1; min-width: 0; }
+.mobileCardName { font-size: 14px; font-weight: 600; color: #111827; }
+.mobileCardDesc { font-size: 12px; color: #6B7280; margin-top: 2px; line-height: 1.4; }
+.mobileLastMsg { font-size: 10px; color: #9CA3AF; margin-top: 4px; }
+
+/* ─────────────────────────────
+   모바일 문자 버튼
+───────────────────────────── */
+.mobileSmsBtn { flex-shrink: 0; font-size: 12px; padding: 6px 14px; border-radius: 8px; border: 0.5px solid #1D9E75; color: #1D9E75; background: none; cursor: pointer; font-family: inherit; font-weight: 600; white-space: nowrap; }
+.mobileSmsBtn:active { background: #E1F5EE; }
