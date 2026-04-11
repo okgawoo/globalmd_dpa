@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import SmsSlidePanel from '../components/SmsSlide'
 import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
 import styles from '../styles/Dashboard.module.css'
@@ -27,6 +28,8 @@ export default function Dashboard() {
   const [coverages, setCoverages] = useState<any[]>([])
   const [meetings, setMeetings] = useState<any[]>([])
   const [todoExpanded, setTodoExpanded] = useState(false)
+  const [smsOpen, setSmsOpen] = useState(false)
+  const [smsCustomer, setSmsCustomer] = useState<any>(null)
   const [meetingExpanded, setMeetingExpanded] = useState(false)
   const [loading, setLoading] = useState(true)
   const [calOpen, setCalOpen] = useState(false)
@@ -172,6 +175,15 @@ export default function Dashboard() {
 
   return (
     <div className={styles.wrap}>
+      {smsOpen && smsCustomer && (
+        <SmsSlidePanel
+          isOpen={smsOpen}
+          onClose={() => { setSmsOpen(false); setSmsCustomer(null) }}
+          customer={smsCustomer}
+          scriptType="일반"
+          agentId={agentId}
+        />
+      )}
 
       {/* ── 모바일 전용 대시보드 ── */}
       <div className={styles.mobileDash} style={{ userSelect: 'none', WebkitUserSelect: 'none' }}>
@@ -212,6 +224,7 @@ export default function Dashboard() {
                 <span style={{fontSize:10,padding:'1px 6px',borderRadius:6,background:'#F3E8FF',color:'#7C3AED',fontWeight:700,marginLeft:4,whiteSpace:'nowrap'}}>AI추천</span>
               </div>
               <span className={styles.mobileBadge} style={{ color: item.badgeColor, background: item.badgeBg }}>{item.badge}</span>
+              <button onClick={e => { e.stopPropagation(); const c = customers.find((c:any) => c.id === item.id); setSmsCustomer(c); setSmsOpen(true) }} style={{fontSize:11,padding:'2px 7px',borderRadius:6,border:'1px solid var(--border)',background:'var(--bg-card)',color:'var(--text-secondary)',cursor:'pointer',whiteSpace:'nowrap',marginLeft:4}}>문자</button>
             </div>
           ))}
           {todoItems.length > 3 && (
@@ -224,6 +237,7 @@ export default function Dashboard() {
                     <span style={{fontSize:10,padding:'1px 6px',borderRadius:6,background:'#F3E8FF',color:'#7C3AED',fontWeight:700,marginLeft:4,whiteSpace:'nowrap'}}>AI추천</span>
                   </div>
                   <span className={styles.mobileBadge} style={{color:item.badgeColor,background:item.badgeBg}}>{item.badge}</span>
+                  <button onClick={e => { e.stopPropagation(); const c = customers.find((c:any) => c.id === item.id); setSmsCustomer(c); setSmsOpen(true) }} style={{fontSize:11,padding:'2px 7px',borderRadius:6,border:'1px solid var(--border)',background:'var(--bg-card)',color:'var(--text-secondary)',cursor:'pointer',whiteSpace:'nowrap',marginLeft:4}}>문자</button>
                 </div>
               ))}
             </div>
@@ -265,6 +279,7 @@ export default function Dashboard() {
                   <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 10, background: badgeBg, color: badgeColor, marginLeft: 4, fontWeight: 600 }}>{badgeText}</span>
                 </div>
                 <span className={styles.mobileBadge} style={{ color: 'var(--text-primary)', background: 'var(--bg-card)', fontSize: 11, whiteSpace: 'nowrap' }}>{dateLabel}{timeLabel}</span>
+                {customer && <button onClick={e => { e.stopPropagation(); setSmsCustomer(customer); setSmsOpen(true) }} style={{fontSize:11,padding:'2px 7px',borderRadius:6,border:'1px solid var(--border)',background:'var(--bg-card)',color:'var(--text-secondary)',cursor:'pointer',whiteSpace:'nowrap',marginLeft:4}}>문자</button>}
               </div>
             )
           })}
@@ -287,6 +302,7 @@ export default function Dashboard() {
                       <span style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:badgeBg,color:badgeColor,marginLeft:4,fontWeight:600}}>{badgeText}</span>
                     </div>
                     <span className={styles.mobileBadge} style={{color:'var(--text-primary)',background:'var(--bg-card)',fontSize:11,whiteSpace:'nowrap'}}>{dateLabel}{timeLabel}</span>
+                    {customer && <button onClick={e => { e.stopPropagation(); setSmsCustomer(customer); setSmsOpen(true) }} style={{fontSize:11,padding:'2px 7px',borderRadius:6,border:'1px solid var(--border)',background:'var(--bg-card)',color:'var(--text-secondary)',cursor:'pointer',whiteSpace:'nowrap',marginLeft:4}}>문자</button>}
                   </div>
                 )
               })}
@@ -534,5 +550,6 @@ export default function Dashboard() {
       </div>
 
     </div>
+     </>
   )
 }
