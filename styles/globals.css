@@ -54,23 +54,23 @@ a { text-decoration: none; color: inherit; }
   z-index: 9999;
 }
 .dpa-modal {
-  background: #fff; border-radius: 16px; padding: 28px 24px;
+  background: var(--bg-card); border-radius: 16px; padding: 28px 24px;
   width: 320px; box-shadow: 0 8px 32px rgba(0,0,0,0.15);
   text-align: center;
 }
 .dpa-modal-title {
-  font-size: 16px; font-weight: 700; color: #111827; margin-bottom: 8px;
+  font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;
 }
 .dpa-modal-msg {
-  font-size: 14px; color: #6B7280; line-height: 1.6; margin-bottom: 24px;
+  font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 24px;
 }
 .dpa-modal-btns {
   display: flex; gap: 10px; justify-content: center;
 }
 .dpa-modal-btn-cancel {
   flex: 1; padding: 10px; border-radius: 8px;
-  border: 1px solid #E5E7EB; background: #fff;
-  color: #6B7280; font-size: 14px; font-weight: 500; cursor: pointer;
+  border: 1px solid var(--border); background: var(--bg-card);
+  color: var(--text-secondary); font-size: 14px; font-weight: 500; cursor: pointer;
 }
 .dpa-modal-btn-confirm {
   flex: 1; padding: 10px; border-radius: 8px;

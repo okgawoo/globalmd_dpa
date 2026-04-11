@@ -229,7 +229,7 @@ export default function Dashboard() {
             </div>
           )}
           {todoItems.length > 3 && (
-            <div onClick={() => setTodoExpanded(v => !v)} style={{textAlign:'center',padding:'6px 0',cursor:'pointer',color:'#9CA3AF',fontSize:16}}>
+            <div onClick={() => setTodoExpanded(v => !v)} style={{textAlign:'center',padding:'6px 0',cursor:'pointer',color:'var(--text-muted)',fontSize:16}}>
               {todoExpanded ? '︿' : '﹀'}
             </div>
           )}
@@ -252,8 +252,8 @@ export default function Dashboard() {
             const customer = customers.find(c => c.id === m.customer_id)
             const name = m.prospect_name || customer?.name || '이름 없음'
             const badgeText = m.prospect_name ? '신규' : '마이고객'
-            const badgeColor = m.prospect_name ? '#6B7280' : '#1D4ED8'
-            const badgeBg = m.prospect_name ? '#F3F4F6' : '#EFF6FF'
+            const badgeColor = m.prospect_name ? 'var(--text-secondary)' : '#1D4ED8'
+            const badgeBg = m.prospect_name ? 'var(--bg-card)' : '#EFF6FF'
             const dateObj = new Date(m.meeting_date)
             const dateLabel = `${dateObj.getMonth()+1}/${dateObj.getDate()}(${['일','월','화','수','목','금','토'][dateObj.getDay()]})`
             const timeLabel = m.meeting_time ? ` ${m.meeting_time}` : ''
@@ -264,7 +264,7 @@ export default function Dashboard() {
                   <span className={styles.mobileTodoText}>{name}고객</span>
                   <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 10, background: badgeBg, color: badgeColor, marginLeft: 4, fontWeight: 600 }}>{badgeText}</span>
                 </div>
-                <span className={styles.mobileBadge} style={{ color: '#374151', background: '#F3F4F6', fontSize: 11, whiteSpace: 'nowrap' }}>{dateLabel}{timeLabel}</span>
+                <span className={styles.mobileBadge} style={{ color: 'var(--text-primary)', background: 'var(--bg-card)', fontSize: 11, whiteSpace: 'nowrap' }}>{dateLabel}{timeLabel}</span>
               </div>
             )
           })}
@@ -274,8 +274,8 @@ export default function Dashboard() {
                 const customer = customers.find(c => c.id === m.customer_id)
                 const name = m.prospect_name || customer?.name || '이름 없음'
                 const badgeText = m.prospect_name ? '신규' : '마이고객'
-                const badgeColor = m.prospect_name ? '#6B7280' : '#1D4ED8'
-                const badgeBg = m.prospect_name ? '#F3F4F6' : '#EFF6FF'
+                const badgeColor = m.prospect_name ? 'var(--text-secondary)' : '#1D4ED8'
+                const badgeBg = m.prospect_name ? 'var(--bg-card)' : '#EFF6FF'
                 const dateObj = new Date(m.meeting_date)
                 const dateLabel = `${dateObj.getMonth()+1}/${dateObj.getDate()}(${['일','월','화','수','목','금','토'][dateObj.getDay()]})`
                 const timeLabel = m.meeting_time ? ` ${m.meeting_time}` : ''
@@ -286,14 +286,14 @@ export default function Dashboard() {
                       <span className={styles.mobileTodoText}>{name}고객</span>
                       <span style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:badgeBg,color:badgeColor,marginLeft:4,fontWeight:600}}>{badgeText}</span>
                     </div>
-                    <span className={styles.mobileBadge} style={{color:'#374151',background:'#F3F4F6',fontSize:11,whiteSpace:'nowrap'}}>{dateLabel}{timeLabel}</span>
+                    <span className={styles.mobileBadge} style={{color:'var(--text-primary)',background:'var(--bg-card)',fontSize:11,whiteSpace:'nowrap'}}>{dateLabel}{timeLabel}</span>
                   </div>
                 )
               })}
             </div>
           )}
           {meetings.length > 3 && (
-            <div onClick={() => setMeetingExpanded(v => !v)} style={{textAlign:'center',padding:'6px 0',cursor:'pointer',color:'#9CA3AF',fontSize:16}}>
+            <div onClick={() => setMeetingExpanded(v => !v)} style={{textAlign:'center',padding:'6px 0',cursor:'pointer',color:'var(--text-muted)',fontSize:16}}>
               {meetingExpanded ? '︿' : '﹀'}
             </div>
           )}
@@ -358,19 +358,19 @@ export default function Dashboard() {
         {/* 하단 아이콘 4개 */}
         <div className={styles.mobileBottomIcons}>
           <button className={styles.mobileIconBtn} onClick={(e) => { e.preventDefault(); router.push('/sales?tab=flow') }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
             <span className={styles.mobileIconLabel}>이력추적</span>
           </button>
           <button className={styles.mobileIconBtn} onClick={(e) => { e.preventDefault(); router.push('/analysis') }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
             <span className={styles.mobileIconLabel}>보장분석</span>
           </button>
           <button className={styles.mobileIconBtn} onClick={(e) => { e.preventDefault(); router.push('/newsletter') }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
             <span className={styles.mobileIconLabel}>뉴스레터</span>
           </button>
           <button className={styles.mobileIconBtn} onClick={(e) => { e.preventDefault(); router.push('/settings') }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
             <span className={styles.mobileIconLabel}>설정</span>
           </button>
         </div>

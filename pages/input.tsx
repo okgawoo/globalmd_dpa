@@ -102,6 +102,8 @@ export default function InputPage() {
   const router = useRouter()
   const [done, setDone] = useState(false)
   const [pasteText, setPasteText] = useState('')
+  const [contractCount, setContractCount] = useState<number>(1)
+  const [contractTexts, setContractTexts] = useState<string[]>([''])
   const [parsing, setParsing] = useState(false)
   const [parsed, setParsed] = useState<any>(null)
   const [jobCustom, setJobCustom] = useState('')
@@ -121,6 +123,16 @@ export default function InputPage() {
   const [newCov, setNewCov] = useState<Coverage>({ category: '암진단', coverage_name: '', amount: '' })
 
   const setF = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }))
+
+  function handleContractCount(n: number) {
+    const count = Math.max(1, Math.min(20, n))
+    setContractCount(count)
+    setContractTexts(prev => {
+      const arr = [...prev]
+      while (arr.length < count) arr.push('')
+      return arr.slice(0, count)
+    })
+  }
 
   function handleRRN(v: string) {
     const formatted = formatRRN(v)
@@ -201,13 +213,16 @@ export default function InputPage() {
   }
 
   async function handleParse() {
-    if (!pasteText.trim()) return alert('텍스트를 붙여넣어 주세요!')
+    const combinedText = contractTexts.some(t => t.trim())
+      ? contractTexts.map((t, i) => t.trim() ? `[계약 ${i + 1}번]\n${t.trim()}` : '').filter(Boolean).join('\n\n')
+      : pasteText
+    if (!combinedText.trim()) return alert('텍스트를 붙여넣어 주세요!')
     setParsing(true)
     try {
       const res = await fetch('/api/parse', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: pasteText }),
+        body: JSON.stringify({ text: combinedText }),
       })
       const data = await res.json()
       setParsed(data)
@@ -299,7 +314,7 @@ export default function InputPage() {
     setDone(false)
     setForm({ name: '', rrn: '', age: '', gender: '여', job: '직장인 (회사원)', phone: '', grade: '일반', address: '', workplace: '', bank_name: '', bank_account: '', driver_license: '' })
     setContracts([emptyContract()])
-    setParsed(null); setPasteText(''); setJobCustom('')
+    setParsed(null); setPasteText(''); setContractTexts(['']); setContractCount(1); setJobCustom('')
   }
 
   if (done) return (
@@ -420,6 +435,7 @@ export default function InputPage() {
       {inputTab === 'paste' && (
         <div className={styles.formWrap}>
           {/* 가이드 아이콘 버튼 + 팝업 */}
+          {/* 가이드 + 계약 수 입력 */}
           <div className={styles.guideRow}>
             <span className={styles.guideLabel}>보장 내역 붙여넣기</span>
             <button className={styles.guideBtn} onClick={() => setGuideOpen(v => !v)} title="도움말">❓</button>
@@ -431,16 +447,51 @@ export default function InputPage() {
                     <span>📋 보장 내역 붙여넣기 방법</span>
                     <button onClick={() => setGuideOpen(false)} className={styles.guideCloseBtn}>✕</button>
                   </div>
-                  <div className={styles.pasteGuideStep}>① 보험사 프로그램에서 보장 내역 화면을 여세요</div>
-                  <div className={styles.pasteGuideStep}>② 마우스로 내용을 드래그하여 선택하세요</div>
-                  <div className={styles.pasteGuideStep}>③ 키보드에서 <b>Ctrl + C</b> 를 눌러 복사하세요</div>
-                  <div className={styles.pasteGuideStep}>④ 아래 빈 칸을 클릭한 뒤 <b>Ctrl + V</b> 를 눌러 붙여넣기 하세요!</div>
+                  <div className={styles.pasteGuideStep}>① 보험사 프로그램에서 계약 수를 확인하세요</div>
+                  <div className={styles.pasteGuideStep}>② 아래 계약 수를 입력하면 칸이 자동으로 생성돼요</div>
+                  <div className={styles.pasteGuideStep}>③ 각 계약별로 보장 내역을 긁어서 <b>Ctrl + C → Ctrl + V</b></div>
+                  <div className={styles.pasteGuideStep}>④ 모두 붙여넣기 완료 후 AI 분석하기 클릭!</div>
                 </div>
               </>
             )}
           </div>
-          <textarea className={styles.pasteArea} value={pasteText} onChange={e => setPasteText(e.target.value)}
-            placeholder={`예시:\n뇌혈관질환진단 뇌혈관질환진단비(건강고지형) 3,000만원 정상\n암진단 암진단비(유사암제외)(건강고지형) 5,000만원 정상\n...`} rows={10} />
+
+          {/* 계약 수 입력 */}
+          <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12,padding:'10px 14px',background:'var(--green-light)',borderRadius:10}}>
+            <span style={{fontSize:13,color:'var(--green)',fontWeight:600}}>📋 보험 계약 수</span>
+            <div style={{display:'flex',alignItems:'center',gap:6,marginLeft:'auto'}}>
+              <button onClick={() => handleContractCount(contractCount - 1)} style={{width:28,height:28,borderRadius:6,border:'1px solid var(--border)',background:'var(--bg-card)',fontSize:16,cursor:'pointer',color:'var(--text-primary)'}}>−</button>
+              <input
+                type="number" min={1} max={20}
+                value={contractCount}
+                onChange={e => handleContractCount(parseInt(e.target.value) || 1)}
+                style={{width:44,textAlign:'center',fontSize:14,fontWeight:700,border:'1px solid var(--border)',borderRadius:6,padding:'4px',background:'var(--bg-card)',color:'var(--text-primary)'}}
+              />
+              <button onClick={() => handleContractCount(contractCount + 1)} style={{width:28,height:28,borderRadius:6,border:'1px solid var(--border)',background:'var(--bg-card)',fontSize:16,cursor:'pointer',color:'var(--text-primary)'}}>+</button>
+              <span style={{fontSize:12,color:'var(--text-secondary)'}}>건</span>
+            </div>
+          </div>
+
+          {/* 계약별 textarea */}
+          {contractTexts.map((text, idx) => (
+            <div key={idx} style={{marginBottom:10}}>
+              <div style={{fontSize:12,fontWeight:600,color:'var(--text-secondary)',marginBottom:4}}>
+                {idx + 1}번 계약 붙여넣기
+              </div>
+              <textarea
+                className={styles.pasteArea}
+                value={text}
+                onChange={e => {
+                  const arr = [...contractTexts]
+                  arr[idx] = e.target.value
+                  setContractTexts(arr)
+                }}
+                placeholder={`${idx + 1}번 보험 보장내역을 여기에 붙여넣기 하세요 (Ctrl+V)`}
+                rows={5}
+                style={{marginBottom:0}}
+              />
+            </div>
+          ))}
 
           {/* 엑셀 업로드 */}
           <div className={styles.excelSection}>
@@ -459,7 +510,7 @@ export default function InputPage() {
             </div>
           </div>
 
-          <button className={styles.parseBtn} onClick={handleParse} disabled={parsing || !pasteText.trim()}>
+          <button className={styles.parseBtn} onClick={handleParse} disabled={parsing || !contractTexts.some(t => t.trim())}>
             {parsing ? 'AI 분석 중...' : '🤖 1단계: AI로 분석하기'}
           </button>
 
@@ -509,14 +560,14 @@ export default function InputPage() {
                   <div className={styles.parsedSection}>{ctIdx + 1}. {ct.company} · {ct.product_name}</div>
                   <div className={styles.parsedEditGrid}>
                     <div className={styles.field}><label>보험사</label>
-                      <select value={ct.company || ''} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].company = e.target.value; setParsed({...parsed, contracts: c}) }} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                      <select value={ct.company || ''} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].company = e.target.value; setParsed({...parsed, contracts: c}) }} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid var(--border)',background:'var(--bg-card)',color:'var(--text-primary)'}}>
                         {COMPANIES.map(c => <option key={c}>{c}</option>)}
                       </select>
                     </div>
                     <div className={styles.field}><label>상품명</label><input value={ct.product_name || ''} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].product_name = e.target.value; setParsed({...parsed, contracts: c}) }} /></div>
                     <div className={styles.field}><label>월보험료</label><input value={ct.monthly_fee ? Number(ct.monthly_fee).toLocaleString() : ''} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].monthly_fee = e.target.value.replace(/,/g, ''); setParsed({...parsed, contracts: c}) }} /></div>
                     <div className={styles.field}><label>납입상태</label>
-                      <select value={ct.payment_status || '유지'} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].payment_status = e.target.value; setParsed({...parsed, contracts: c}) }} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                      <select value={ct.payment_status || '유지'} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].payment_status = e.target.value; setParsed({...parsed, contracts: c}) }} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid var(--border)',background:'var(--bg-card)',color:'var(--text-primary)'}}>
                         {PAYMENT_STATUSES.map(s => <option key={s}>{s}</option>)}
                       </select>
                     </div>
@@ -533,13 +584,13 @@ export default function InputPage() {
                       </div>
                     </div>
                     <div className={styles.field}><label>납입기간</label>
-                      <select value={ct.payment_years||''} onChange={e=>{const c=[...parsed.contracts];c[ctIdx].payment_years=e.target.value;setParsed({...parsed,contracts:c})}} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                      <select value={ct.payment_years||''} onChange={e=>{const c=[...parsed.contracts];c[ctIdx].payment_years=e.target.value;setParsed({...parsed,contracts:c})}} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid var(--border)',background:'var(--bg-card)',color:'var(--text-primary)'}}>
                         <option value="">선택</option>
                         {PAYMENT_YEARS.map(p=><option key={p}>{p}</option>)}
                       </select>
                     </div>
                     <div className={styles.field}><label>만기</label>
-                      <select value={ct.expiry_age||''} onChange={e=>{const c=[...parsed.contracts];c[ctIdx].expiry_age=e.target.value;setParsed({...parsed,contracts:c})}} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                      <select value={ct.expiry_age||''} onChange={e=>{const c=[...parsed.contracts];c[ctIdx].expiry_age=e.target.value;setParsed({...parsed,contracts:c})}} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid var(--border)',background:'var(--bg-card)',color:'var(--text-primary)'}}>
                         <option value="">선택</option>
                         {EXPIRY_AGES.map(a=><option key={a}>{a}</option>)}
                       </select>
