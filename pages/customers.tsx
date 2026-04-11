@@ -637,25 +637,22 @@ export default function Customers() {
                   {c.name}
                   <span className={[styles.badge, c.grade === 'VIP' ? styles.badgeAmber : styles.badgeBlue].join(' ')}>{c.grade}</span>
                 </div>
-                {/* 2행: 메타 + 수정/삭제 */}
-                <div className={styles.custRow2}>
-                  <div className={styles.custMeta}>{c.age}세 · {c.gender} · {c.job} · {cCount}건<span className={styles.custFee}><span className={styles.feeDot}> · </span>{cMonthly.toLocaleString()}원</span></div>
-                  <div className={styles.btnGroup}>
-                    <button className={styles.editBtn} onClick={e => { e.stopPropagation(); selectCustomer(c); setEditMode(true); setEditForm(c); setAddMode(false) }}>수정</button>
-                    <button className={styles.deleteBtn} onClick={e => deleteCustomer(c, e)}>삭제</button>
-                  </div>
-                </div>
-                {/* 3행: 뱃지 + 문자발송 */}
-                {(badges.length > 0) && (
-                  <div className={styles.custRow3}>
-                    <div className={styles.badgeRow}>
-                      {badges.map((b, i) => <span key={i} className={b.cls}>{b.label}</span>)}
-                    </div>
-                    <div className={styles.btnGroup}>
-                      <button className={styles.smsBtn} onClick={e => { e.stopPropagation(); setSmsCustomer(c); setSmsOpen(true) }}>문자발송</button>
-                    </div>
+                {/* 2행: 나이·성별·직업·건수·월납입 */}
+                <div className={styles.custMeta}>{c.age}세 · {c.gender} · {c.job} · {cCount}건 · {cMonthly.toLocaleString()}원</div>
+                {/* 3행: 뱃지 */}
+                {badges.length > 0 && (
+                  <div className={styles.badgeRow}>
+                    {badges.map((b, i) => <span key={i} className={b.cls}>{b.label}</span>)}
                   </div>
                 )}
+              </div>
+              {/* 우측 버튼 그룹 - 세로 배치 */}
+              <div className={styles.btnCol}>
+                <div className={styles.btnGroup}>
+                  <button className={styles.editBtn} onClick={e => { e.stopPropagation(); selectCustomer(c); setEditMode(true); setEditForm(c); setAddMode(false) }}>수정</button>
+                  <button className={styles.deleteBtn} onClick={e => deleteCustomer(c, e)}>삭제</button>
+                </div>
+                <button className={styles.smsBtn} onClick={e => { e.stopPropagation(); setSmsCustomer(c); setSmsOpen(true) }}>문자발송</button>
               </div>
             </div>
           )

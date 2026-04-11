@@ -10,7 +10,7 @@
 .listPanel { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 8px; max-height: calc(100vh - 200px); overflow-y: auto; }
 .detailPanel { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; max-height: calc(100vh - 200px); overflow-y: auto; }
 
-.custRow { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-radius: 10px; cursor: pointer; transition: background 0.1s; }
+.custRow { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; cursor: pointer; transition: background 0.1s; }
 .custRow:hover { background: var(--bg-card); }
 .custRow.active { background: var(--green-light); border-left: 3px solid var(--green); }
 
@@ -21,7 +21,7 @@
 
 .custInfo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .custName { font-size: 14px; font-weight: 500; color: var(--text-primary); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.custMeta { font-size: 11px; color: var(--text-muted); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.custMeta { font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
 .custFee { display: inline; }
 
 .badge { font-size: 10px; padding: 2px 8px; border-radius: 999px; font-weight: 600; white-space: nowrap; }
@@ -324,9 +324,8 @@
 }
 
 /* 문자 버튼 */
-.custRow2 { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; }
-.custRow3 { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 2px; }
-.badgeRow { display: flex; flex-wrap: nowrap; gap: 4px; flex: 1; min-width: 0; overflow: hidden; }
-.btnGroup { display: flex; gap: 4px; flex-shrink: 0; }
-.smsBtn { font-size: 11px; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text-secondary); cursor: pointer; white-space: nowrap; width: 100%; }
+.badgeRow { display: flex; flex-wrap: nowrap; gap: 4px; margin-top: 3px; overflow: hidden; }
+.btnCol { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; align-items: stretch; }
+.btnGroup { display: flex; gap: 4px; }
+.smsBtn { font-size: 11px; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text-secondary); cursor: pointer; white-space: nowrap; text-align: center; }
 .smsBtn:hover { background: var(--green-light); color: var(--green); border-color: var(--green); }
