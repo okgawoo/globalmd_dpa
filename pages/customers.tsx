@@ -256,7 +256,7 @@ export default function Customers() {
     const agentId = user?.id
     const { data: custs, error: e1 } = await supabase.from('dpa_customers').select('*').eq('agent_id', agentId).order('created_at', { ascending: false })
     const { data: conts, error: e2 } = await supabase.from('dpa_contracts').select('*').eq('agent_id', agentId)
-    const { data: covs, error: e3 } = await supabase.from('dpa_coverages').select('*')
+    const { data: covs, error: e3 } = await supabase.from('dpa_coverages').select('*').order('section', { ascending: true }).order('sort_order', { ascending: true })
     if (e1) console.error('customers error:', e1)
     if (e2) console.error('contracts error:', e2)
     if (e3) console.error('coverages error:', e3)
@@ -1237,13 +1237,37 @@ export default function Customers() {
                       )}
                       {groups.length > 0 && (
                         <div className={styles.coverageList}>
-                          {groups.map(g => (
-                            <div key={g.key} className={styles.coverageRow}>
-                              <span className={styles.covIcon}>{g.icon}</span>
-                              <span className={styles.covLabel}>{g.label}</span>
-                              <span className={styles.covVal}>{g.items.map((cv: any) => `${cv.coverage_name} ${fmtAmount(cv.amount)}`).join(' / ')}</span>
-                            </div>
-                          ))}
+                          {(() => {
+                            // section 값이 있는지 확인
+                            const hasSections = groups.some((g: any) => g.items.some((cv: any) => cv.section && cv.section !== '정액형'))
+                            const sections = hasSections
+                              ? ['정액형', '실손형']
+                              : ['정액형']
+
+                            return sections.map(section => {
+                              const sectionGroups = hasSections
+                                ? groups.map((g: any) => ({ ...g, items: g.items.filter((cv: any) => (cv.section || '정액형') === section) })).filter((g: any) => g.items.length > 0)
+                                : groups
+
+                              if (sectionGroups.length === 0) return null
+                              return (
+                                <div key={section}>
+                                  {hasSections && (
+                                    <div style={{fontSize:11, fontWeight:600, color:'#9CA3AF', padding:'6px 0 2px', borderBottom:'1px solid #F3F4F6', marginBottom:4}}>
+                                      {section === '정액형' ? '📋 정액형 보장' : '🏥 실손형 보장'}
+                                    </div>
+                                  )}
+                                  {sectionGroups.map((g: any) => (
+                                    <div key={g.key} className={styles.coverageRow}>
+                                      <span className={styles.covIcon}>{g.icon}</span>
+                                      <span className={styles.covLabel}>{g.label}</span>
+                                      <span className={styles.covVal}>{g.items.map((cv: any) => `${cv.coverage_name} ${fmtAmount(cv.amount)}`).join(' / ')}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              )
+                            })
+                          })()}
                         </div>
                       )}
                     </div>
