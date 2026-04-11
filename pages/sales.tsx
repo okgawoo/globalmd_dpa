@@ -110,12 +110,9 @@ export default function Sales() {
   const [editId, setEditId] = useState<string|null>(null)
   const [editForm, setEditForm] = useState<any>({})
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null)
-  const [isNewProspect, setIsNewProspect] = useState(false)
 
   const [form, setForm] = useState({
     customer_id: '',
-    prospect_name: '',
-    prospect_phone: '',
     introducer: '',
     meeting_date: new Date().toISOString().split('T')[0],
     meeting_time: '',
@@ -259,15 +256,13 @@ export default function Sales() {
   })
 
   const getMeetingBadge = (m: any) => {
-    if (m.prospect_name) return { text: '신규', color: '#6B7280', bg: '#F3F4F6' }
     const c = customers.find((c: any) => c.id === m.customer_id)
-    if (!c) return { text: '신규', color: '#6B7280', bg: '#F3F4F6' }
+    if (!c) return { text: '알수없음', color: '#6B7280', bg: '#F3F4F6' }
     if (c.customer_type === 'prospect') return { text: '관심고객', color: '#B45309', bg: '#FEF3E2' }
     return { text: '마이고객', color: '#1D4ED8', bg: '#EFF6FF' }
   }
 
   const getMeetingName = (m: any) => {
-    if (m.prospect_name) return m.prospect_name
     const c = customers.find(c => c.id === m.customer_id)
     return c ? c.name : '이름 없음'
   }
@@ -353,7 +348,7 @@ export default function Sales() {
                 }).map(t=>(
                   <button key={t} className={styles.actionBtn} style={{fontSize:11,color:'var(--text-secondary)'}}
                     onClick={()=>supabase.from('dpa_customers').update({customer_type:t}).eq('id',m.customer_id).then(()=>fetchAll(agentId))}>
-                    {t==='existing'?'마이고객으로 이동':t==='prospect'?'관심고객으로 이동':'신규고객으로 이동'}
+                    {t==='existing'?'마이고객으로 이동':'관심고객으로 이동'}
                   </button>
                 ))}
               </div>
@@ -403,8 +398,7 @@ export default function Sales() {
 
   async function handleSubmit() {
     if (!form.meeting_date) return alert('날짜를 입력해주세요')
-    if (isNewProspect && !form.prospect_name) return alert('이름을 입력해주세요')
-    if (!isNewProspect && !form.customer_id) return alert('고객을 선택해주세요')
+    if (!form.customer_id) return alert('고객을 선택해주세요')
 
     const payload: any = {
       agent_id: agentId,
@@ -417,19 +411,15 @@ export default function Sales() {
       memo: form.memo,
     }
 
-    if (isNewProspect) {
-      payload.prospect_name = form.prospect_name
-      payload.prospect_phone = form.prospect_phone
-      payload.introducer = form.introducer
-    } else {
-      payload.customer_id = form.customer_id
-    }
+    payload.customer_id = form.customer_id
+    payload.introducer = form.introducer
 
     const { error } = await supabase.from('dpa_meetings').insert(payload)
     if (error) { alert('저장 실패: ' + error.message); return }
 
     setShowForm(false)
-    setForm({ customer_id: '', prospect_name: '', prospect_phone: '', introducer: '', meeting_date: todayStr, meeting_time: '', location: '', type: '미팅', status: '대기', pipeline_stage: '첫접촉', memo: '' })
+    setForm({ customer_id: '', introducer: '', meeting_date: todayStr, meeting_time: '', location: '', type: '미팅', status: '대기', pipeline_stage: '첫접촉', memo: '' })
+setCustomerSearch('')
     await fetchAll(agentId)
   }
 
@@ -856,45 +846,29 @@ export default function Sales() {
             <button className={styles.formClose} onClick={() => setShowForm(false)}>✕</button>
             <div className={styles.formTitle}>일정 등록</div>
 
-            <div className={styles.toggleRow}>
-              <button className={[styles.toggleBtn, !isNewProspect ? styles.on : ''].join(' ')} onClick={() => setIsNewProspect(false)}>기존 고객</button>
-              <button className={[styles.toggleBtn, isNewProspect ? styles.on : ''].join(' ')} onClick={() => setIsNewProspect(true)}>신규 (미등록)</button>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>고객 선택 *</label>
+              <input
+                className={styles.formInput}
+                placeholder="이름으로 검색..."
+                value={customerSearch}
+                onChange={e => { setCustomerSearch(e.target.value); setForm(f => ({ ...f, customer_id: '' })) }}
+              />
+              {customerSearch && (
+                <div className={styles.customerDropdown}>
+                  {customers.filter(c => c.name.toLowerCase().includes(customerSearch.toLowerCase())).length === 0
+                    ? <div className={styles.customerDropdownEmpty}>검색 결과 없음</div>
+                    : customers.filter(c => c.name.toLowerCase().includes(customerSearch.toLowerCase())).map(c => (
+                      <div key={c.id} className={styles.customerDropdownItem}
+                        onClick={() => { setForm(f => ({ ...f, customer_id: c.id })); setCustomerSearch(c.name) }}>
+                        <span>{c.name}고객</span>
+                        <span style={{ fontSize: 11, color: '#9CA3AF', marginLeft: 6 }}>{c.customer_type === 'existing' ? '마이' : '관심'} · {c.age}세</span>
+                      </div>
+                    ))
+                  }
+                </div>
+              )}
             </div>
-
-            {!isNewProspect && (
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>고객 선택</label>
-                <input
-                  className={styles.formInput}
-                  placeholder="이름으로 검색..."
-                  value={customerSearch}
-                  onChange={e => { setCustomerSearch(e.target.value); setForm(f => ({ ...f, customer_id: '' })) }}
-                />
-                <select className={styles.formSelect} value={form.customer_id} onChange={e => setForm(f => ({ ...f, customer_id: e.target.value }))} style={{marginTop:4}}>
-                  <option value="">고객 선택</option>
-                  {customers.filter(c => !customerSearch || c.name.toLowerCase().includes(customerSearch.toLowerCase())).map(c => <option key={c.id} value={c.id}>{c.name} ({c.age}세)</option>)}
-                </select>
-              </div>
-            )}
-
-            {isNewProspect && (
-              <>
-                <div className={styles.formRow}>
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>이름 *</label>
-                    <input className={styles.formInput} placeholder="홍길동" value={form.prospect_name} onChange={e => setForm(f => ({ ...f, prospect_name: e.target.value }))} />
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>연락처</label>
-                    <input className={styles.formInput} placeholder="010-0000-0000" value={form.prospect_phone} onChange={e => setForm(f => ({ ...f, prospect_phone: e.target.value }))} />
-                  </div>
-                </div>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>소개자</label>
-                  <input className={styles.formInput} placeholder="김OO 소개" value={form.introducer} onChange={e => setForm(f => ({ ...f, introducer: e.target.value }))} />
-                </div>
-              </>
-            )}
 
             <div className={styles.formRow}>
               <div className={styles.formGroup}>

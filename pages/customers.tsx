@@ -512,7 +512,7 @@ export default function Customers() {
 
   const filteredCustomers = getSortedCustomers(
     customers
-      .filter(c => (isTodoFilter || isAIFilter) ? true : c.customer_type === (tab === 'existing' ? 'existing' : 'prospect'))
+      .filter(c => searchQuery ? true : (isTodoFilter || isAIFilter) ? true : c.customer_type === (tab === 'existing' ? 'existing' : 'prospect'))
       .filter(c => ageFilter === '연령대전체' || getAgeGroup(c.age) === ageFilter)
       .filter(c => {
         if (!searchQuery) return true
@@ -632,7 +632,7 @@ export default function Customers() {
   color: c.customer_type === 'prospect' ? '#B45309' : c.customer_type === 'existing' ? '#1D4ED8' : '#6B7280',
   fontSize: 10, fontWeight: 700
 }}>
-  {c.customer_type === 'prospect' ? '관심' : c.customer_type === 'existing' ? '마이' : '신규'}
+  {c.customer_type === 'prospect' ? '관심' : '마이'}
 </div>
               <div className={styles.custInfo}>
                 {/* 1행: 이름 */}
@@ -818,7 +818,7 @@ export default function Customers() {
   color: selected.customer_type === 'prospect' ? '#B45309' : selected.customer_type === 'existing' ? '#1D4ED8' : '#6B7280',
   fontSize: 12, fontWeight: 700
 }}>
-  {selected.customer_type === 'prospect' ? '관심' : selected.customer_type === 'existing' ? '마이' : '신규'}
+  {selected.customer_type === 'prospect' ? '관심' : '마이'}
 </div>
                 <div style={{ flex: 1 }}>
                   <div className={styles.detailName}>{selected.name}</div>
@@ -1141,7 +1141,7 @@ export default function Customers() {
   color: selected.customer_type === 'prospect' ? '#B45309' : selected.customer_type === 'existing' ? '#1D4ED8' : '#6B7280',
   fontSize: 12, fontWeight: 700
 }}>
-  {selected.customer_type === 'prospect' ? '관심' : selected.customer_type === 'existing' ? '마이' : '신규'}
+  {selected.customer_type === 'prospect' ? '관심' : '마이'}
 </div>
                   <div style={{ flex: 1 }}>
                     <div className={styles.detailName}>{selected.name}</div>
