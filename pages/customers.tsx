@@ -232,6 +232,9 @@ export default function Customers() {
     if (id) {
       const target = customers.find(c => c.id === id)
       if (target) {
+        // 해당 고객 타입에 맞게 탭 자동 전환
+        if (target.customer_type === 'existing') setTab('existing')
+        else if (target.customer_type === 'prospect') setTab('prospect')
         selectCustomer(target)
         // 해당 고객 행을 리스트 맨 위로 스크롤
         setTimeout(() => {
