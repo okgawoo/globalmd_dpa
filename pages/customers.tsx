@@ -640,7 +640,7 @@ export default function Customers() {
                   <span className={[styles.badge, c.grade === 'VIP' ? styles.badgeAmber : styles.badgeBlue].join(' ')}>{c.grade}</span>
                 </div>
                 {/* 2행: 나이·성별·직업·건수·월납입 + 뱃지 (왼쪽 정렬) */}
-                <div className={styles.custMeta}>{c.age}세 · {c.gender} · {c.job} · {cCount}건 · {cMonthly.toLocaleString()}원</div>
+                <div className={styles.custMeta}>{c.age}세 · {c.gender} · {cCount}건 · {cMonthly.toLocaleString()}원</div>
                 {badges.length > 0 && (
                   <div className={styles.badgeRow}>
                     {badges.map((b, i) => <span key={i} className={b.cls}>{b.label}</span>)}
