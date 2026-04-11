@@ -342,7 +342,7 @@ export default function Sales() {
             </div>
             {m.customer_id && (
               <div className={styles.actionRow} style={{marginTop:4}}>
-                {(['existing','prospect','new'] as const).filter(t=>{
+                {(['existing','prospect'] as const).filter(t=>{
                   const c=customers.find((c:any)=>c.id===m.customer_id)
                   return c?.customer_type!==t
                 }).map(t=>(
@@ -609,7 +609,7 @@ setCustomerSearch('')
                       background: c.customer_type==='existing' ? '#EFF6FF' : c.customer_type==='prospect' ? '#FEF3C7' : '#F3F4F6',
                       color: c.customer_type==='existing' ? '#1D4ED8' : c.customer_type==='prospect' ? '#92400E' : '#6B7280'
                     }}>
-                      {c.customer_type==='existing'?'마이고객':c.customer_type==='prospect'?'관심고객':'신규'}
+                      {c.customer_type==='existing'?'마이고객':'관심고객'}
                     </span>
                   </span>
                   <span style={{ fontSize: 12, color: '#6B7280' }}>{c.age}세</span>

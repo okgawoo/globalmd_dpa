@@ -267,10 +267,10 @@ export default function Dashboard() {
             <p className={styles.mobileEmpty} style={{ padding: '8px 0' }}>오늘 미팅이 없어요 😊</p>
           ) : (meetingExpanded ? meetings : meetings.slice(0,3)).map((m, i) => {
             const customer = customers.find(c => c.id === m.customer_id)
-            const name = m.prospect_name || customer?.name || '이름 없음'
-            const badgeText = m.prospect_name ? '신규' : '마이고객'
-            const badgeColor = m.prospect_name ? 'var(--text-secondary)' : '#1D4ED8'
-            const badgeBg = m.prospect_name ? 'var(--bg-card)' : '#EFF6FF'
+            const name = customer?.name || '이름 없음'
+            const badgeText = customer?.customer_type === 'prospect' ? '관심고객' : '마이고객'
+            const badgeColor = '#1D4ED8'
+            const badgeBg = '#EFF6FF'
             const dateObj = new Date(m.meeting_date)
             const dateLabel = `${dateObj.getMonth()+1}/${dateObj.getDate()}(${['일','월','화','수','목','금','토'][dateObj.getDay()]})`
             const timeLabel = m.meeting_time ? ` ${m.meeting_time}` : ''
@@ -290,10 +290,10 @@ export default function Dashboard() {
             <div style={{overflow:'hidden',maxHeight:meetingExpanded?`${(meetings.length-3)*56}px`:'0px',transition:'max-height 0.35s ease'}}>
               {meetings.slice(3).map((m, i) => {
                 const customer = customers.find(c => c.id === m.customer_id)
-                const name = m.prospect_name || customer?.name || '이름 없음'
-                const badgeText = m.prospect_name ? '신규' : '마이고객'
-                const badgeColor = m.prospect_name ? 'var(--text-secondary)' : '#1D4ED8'
-                const badgeBg = m.prospect_name ? 'var(--bg-card)' : '#EFF6FF'
+                const name = customer?.name || '이름 없음'
+                const badgeText = customer?.customer_type === 'prospect' ? '관심고객' : '마이고객'
+                const badgeColor = '#1D4ED8'
+                const badgeBg = '#EFF6FF'
                 const dateObj = new Date(m.meeting_date)
                 const dateLabel = `${dateObj.getMonth()+1}/${dateObj.getDate()}(${['일','월','화','수','목','금','토'][dateObj.getDay()]})`
                 const timeLabel = m.meeting_time ? ` ${m.meeting_time}` : ''
