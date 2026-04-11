@@ -50,6 +50,12 @@ const SCRIPTS: Record<string, Record<ToneType, string>> = {
   expiry: { 정중: '안녕하세요 {name} 님,\n가입하신 보험이 곧 만기가 도래합니다.\n미리 안내드립니다.\n편하신 시간에 상담 부탁드립니다.\n- 담당 설계사 드림', 친근: '안녕하세요 {name} 님! 😊\n가입하신 보험이 곧 만기가 돼요!\n미리 알려드리려고 연락드렸어요.', 애교: '{name} 님~ 보험 만기가 다가오고 있어요! ⏰\n보장 공백 없이 잘 챙겨드리고 싶어서요 💚', 간결: '{name} 님, 보험 만기가 임박했습니다. 연락 주세요.' },
 }
 
+function fmtDate(dateStr: string): string {
+  const d = new Date(dateStr)
+  const days = ['일','월','화','수','목','금','토']
+  return `${d.getMonth()+1}/${d.getDate()}(${days[d.getDay()]})`
+}
+
 const ISSUE_CONFIG: Record<IssueType, { icon: string; label: string; desc: string; color: string; badgeBg: string; badgeColor: string; borderColor: string }> = {
   nearDone:    { icon: '🔥', label: '완납 임박',   desc: '납입률 90% 이상',     color: '#BA7517', badgeBg: '#FAEEDA', badgeColor: '#854F0B', borderColor: '#BA7517' },
   gap:         { icon: '⚠️', label: '보장 공백',  desc: '뇌혈관 미가입',        color: '#A32D2D', badgeBg: '#FCEBEB', badgeColor: '#A32D2D', borderColor: '#E24B4A' },
@@ -245,7 +251,7 @@ export default function NotificationsPage() {
           <div className={styles.cardRow}>
             <div className={styles.iconWrap}>{s.icon}</div>
             <div className={styles.cardBody}>
-              <div className={styles.cardTitle}>{n.customer.name} 님 {cfg?.label}</div>
+              <div className={styles.cardTitle}>{n.customer.name} 고객 {cfg?.label}</div>
               <div className={styles.cardDesc}>{n.notifType === 'nearDone' ? `납입률 ${n.rate}%` : n.notifType === 'gap' ? `${!n.hasBrain?'뇌혈관':''} ${!n.hasCare?'간병인':''} 보장 없음` : n.notifType === 'birthday' ? '생일 축하 문자를 보내보세요!' : n.contract?.company}</div>
               <div className={styles.cardMeta}><span className={styles.badge} style={{ background: cfg?.badgeBg, color: cfg?.badgeColor }}>{s.badge}</span></div>
             </div>
@@ -260,9 +266,9 @@ export default function NotificationsPage() {
               : custMsgs.map((m: any) => (
                 <div key={m.id} className={styles.inlineHistoryItem}>
                   <div className={styles.inlineHistoryRow}>
-                    <span className={[styles.badge, m.is_sent ? styles.badgeTeal : styles.badgeGray].join(' ')}>{m.is_sent ? '발송' : '복사'}</span>
+                    <span className={[styles.badge, m.is_sent ? styles.badgeTeal : styles.badgeGray].join(' ')}>{m.is_sent ? '발송' : '카카오/복사'}</span>
                     <span className={styles.inlineHistoryType}>{m.message_type}</span>
-                    <span className={styles.inlineHistoryDate}>{new Date(m.created_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}</span>
+                    <span className={styles.inlineHistoryDate}>{fmtDate(m.created_at)}</span>
                   </div>
                   <div className={styles.inlineHistoryScript}>{m.sent_script}</div>
                 </div>
@@ -371,13 +377,23 @@ export default function NotificationsPage() {
               <p className={styles.recentHistoryLabel}>최근 발송 이력</p>
               {messages.length === 0 ? (
                 <p className={styles.recentHistoryEmpty}>아직 발송 이력이 없어요 📭</p>
-              ) : messages.slice(0, 5).map((m: any) => (
-                <div key={m.id} className={styles.recentHistoryItem}>
-                  <span className={styles.recentHistoryName}>{m.dpa_customers?.name}</span>
-                  <span className={styles.recentHistoryBadge} style={{ background: m.is_sent ? '#E1F5EE' : '#F1EFE8', color: m.is_sent ? '#085041' : '#5F5E5A' }}>{m.is_sent ? '발송' : '복사'}</span>
-                  <span className={styles.recentHistoryDate}>{new Date(m.created_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}</span>
-                </div>
-              ))}
+              ) : messages.slice(0, 5).map((m: any) => {
+                const typeLabel: Record<string, string> = { nearDone: '완납임박', gap: '보장공백', birthday: '생일', expiry: '만기임박', longNoContact: '장기미연락', anniversary: '계약기념일', 최근미팅: '미팅후속', 최근계약: '계약감사', 일반: '일반' }
+                const typeCfg: Record<string, { bg: string; color: string }> = {
+                  nearDone: { bg: '#FAEEDA', color: '#854F0B' }, gap: { bg: '#FCEBEB', color: '#A32D2D' },
+                  birthday: { bg: '#E1F5EE', color: '#0F6E56' }, expiry: { bg: '#E6F1FB', color: '#185FA5' },
+                  longNoContact: { bg: '#F1EFE8', color: '#444441' }, anniversary: { bg: '#EEEDFE', color: '#3C3489' },
+                }
+                const tCfg = typeCfg[m.message_type] || { bg: '#F1EFE8', color: '#5F5E5A' }
+                return (
+                  <div key={m.id} className={styles.recentHistoryItem}>
+                    <span className={styles.recentHistoryName}>{m.dpa_customers?.name} 고객</span>
+                    <span className={styles.recentHistoryBadge} style={{ background: tCfg.bg, color: tCfg.color }}>{typeLabel[m.message_type] || m.message_type}</span>
+                    <span className={styles.recentHistoryBadge} style={{ background: m.is_sent ? '#E1F5EE' : '#F1EFE8', color: m.is_sent ? '#085041' : '#5F5E5A' }}>{m.is_sent ? '발송' : '카카오/복사'}</span>
+                    <span className={styles.recentHistoryDate}>{fmtDate(m.created_at)}</span>
+                  </div>
+                )
+              })}
             </div>
           </>
         )}
@@ -424,12 +440,12 @@ export default function NotificationsPage() {
                       {isChecked && <span style={{ color: 'white', fontSize: 10, fontWeight: 700, lineHeight: 1 }}>✓</span>}
                     </div>
                     <div className={styles.drillCardBody}>
-                      <span className={styles.drillCardName}>{n.customer.name}</span>
+                      <span className={styles.drillCardName}>{n.customer.name} 고객</span>
                       {n.customer.phone && <span className={styles.drillCardPhone}>{n.customer.phone}</span>}
                       {n.notifType === 'nearDone' && <p className={styles.drillCardSub}>{n.contracts?.[0]?.company}</p>}
                       {n.notifType === 'expiry' && <p className={styles.drillCardSub}>{n.contract?.company}</p>}
                       {n.notifType === 'anniversary' && <p className={styles.drillCardSub}>{n.contract?.company} · {n.years}주년</p>}
-                      {lastMsg && <p className={styles.drillCardHistory}>{lastMsg.is_sent ? '✉️' : '📋'} {new Date(lastMsg.created_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })} 발송됨</p>}
+                      {lastMsg && <p className={styles.drillCardHistory}>{lastMsg.is_sent ? '✉️' : '📋'} {fmtDate(lastMsg.created_at)} 발송됨</p>}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
                       <span className={styles.drillCardBadge} style={{ background: cfg.badgeBg, color: cfg.badgeColor }}>{n.badge}</span>
