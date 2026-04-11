@@ -440,8 +440,10 @@ export default function NotificationsPage() {
                       {isChecked && <span style={{ color: 'white', fontSize: 10, fontWeight: 700, lineHeight: 1 }}>✓</span>}
                     </div>
                     <div className={styles.drillCardBody}>
-                      <span className={styles.drillCardName}>{n.customer.name}고객</span>
-                      {n.customer.phone && <span className={styles.drillCardPhone}>{n.customer.phone}</span>}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
+                        <span className={styles.drillCardName}>{n.customer.name}고객</span>
+                      </div>
+                      {n.customer.phone && <p className={styles.drillCardPhone}>{n.customer.phone}</p>}
                       {n.notifType === 'nearDone' && <p className={styles.drillCardSub}>{n.contracts?.[0]?.company}</p>}
                       {n.notifType === 'expiry' && <p className={styles.drillCardSub}>{n.contract?.company}</p>}
                       {n.notifType === 'anniversary' && <p className={styles.drillCardSub}>{n.contract?.company} · {n.years}주년</p>}
