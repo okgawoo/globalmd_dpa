@@ -309,7 +309,7 @@
 }
 
 @media (max-width: 768px) {
-  .custFee { display: block !important; margin-top: 1px; }
+  .custFee { display: inline; }
 }
 
 /* 보장내역 줄바꿈 스타일 */
@@ -327,5 +327,5 @@
 .custRow2 { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; }
 .custRow3 { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 2px; }
 .badgeRow { display: flex; flex-wrap: nowrap; gap: 4px; flex: 1; min-width: 0; overflow: hidden; }
-.smsBtn { font-size: 11px; padding: 3px 0; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text-secondary); cursor: pointer; white-space: nowrap; flex-shrink: 0; width: 92px; text-align: center; }
+.smsBtn { font-size: 11px; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text-secondary); cursor: pointer; white-space: nowrap; flex-shrink: 0; }
 .smsBtn:hover { background: var(--green-light); color: var(--green); border-color: var(--green); }
