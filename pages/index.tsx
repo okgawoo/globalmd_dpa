@@ -182,7 +182,8 @@ export default function Dashboard() {
           isOpen={smsOpen}
           onClose={() => { setSmsOpen(false); setSmsCustomer(null) }}
           customer={smsCustomer}
-          scriptType="일반"
+          meetings={meetings}
+          contracts={contracts}
           agentId={agentId}
         />
       )}
@@ -349,7 +350,7 @@ export default function Dashboard() {
               )}
             </div>
             <div>
-              <p className={styles.mobileMenuName}>알림</p>
+              <p className={styles.mobileMenuName}>문자 발송</p>
               <p className={styles.mobileMenuSub} style={{ color: '#E24B4A' }}>{nearDoneCustomers.length + gapCustomers.length + birthdayCustomers.length}건 대기</p>
             </div>
           </button>

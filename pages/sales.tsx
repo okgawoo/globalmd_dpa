@@ -450,7 +450,9 @@ export default function Sales() {
           isOpen={smsOpen}
           onClose={() => { setSmsOpen(false); setSmsCustomer(null) }}
           customer={smsCustomer}
-          scriptType="일반"
+          meetings={meetings}
+          contracts={contracts}
+          coverages={coverages}
           agentId={agentId}
         />
       )}
