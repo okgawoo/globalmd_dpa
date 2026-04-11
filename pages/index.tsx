@@ -225,8 +225,8 @@ export default function Dashboard() {
                 <span className={styles.mobileTodoText}>{item.text}</span>
                 <span style={{fontSize:10,padding:'1px 6px',borderRadius:6,background:'#F3E8FF',color:'#7C3AED',fontWeight:700,marginLeft:4,whiteSpace:'nowrap'}}>AI추천</span>
               </div>
-              <span className={styles.mobileBadge} style={{ color: item.badgeColor, background: item.badgeBg }}>{item.badge}</span>
               <button onClick={e => { e.stopPropagation(); const c = customers.find((c:any) => c.id === item.id); setSmsCustomer(c); setSmsOpen(true) }} style={{fontSize:11,padding:'2px 7px',borderRadius:6,border:'1px solid var(--border)',background:'var(--bg-card)',color:'var(--text-secondary)',cursor:'pointer',whiteSpace:'nowrap',marginLeft:4}}>문자</button>
+              <span className={styles.mobileBadge} style={{ color: item.badgeColor, background: item.badgeBg }}>{item.badge}</span>
             </div>
           ))}
           {todoItems.length > 3 && (
@@ -238,8 +238,8 @@ export default function Dashboard() {
                     <span className={styles.mobileTodoText}>{item.text}</span>
                     <span style={{fontSize:10,padding:'1px 6px',borderRadius:6,background:'#F3E8FF',color:'#7C3AED',fontWeight:700,marginLeft:4,whiteSpace:'nowrap'}}>AI추천</span>
                   </div>
-                  <span className={styles.mobileBadge} style={{color:item.badgeColor,background:item.badgeBg}}>{item.badge}</span>
                   <button onClick={e => { e.stopPropagation(); const c = customers.find((c:any) => c.id === item.id); setSmsCustomer(c); setSmsOpen(true) }} style={{fontSize:11,padding:'2px 7px',borderRadius:6,border:'1px solid var(--border)',background:'var(--bg-card)',color:'var(--text-secondary)',cursor:'pointer',whiteSpace:'nowrap',marginLeft:4}}>문자</button>
+                  <span className={styles.mobileBadge} style={{color:item.badgeColor,background:item.badgeBg}}>{item.badge}</span>
                 </div>
               ))}
             </div>
@@ -280,8 +280,8 @@ export default function Dashboard() {
                   <span className={styles.mobileTodoText}>{name}고객</span>
                   <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 10, background: badgeBg, color: badgeColor, marginLeft: 4, fontWeight: 600 }}>{badgeText}</span>
                 </div>
-                <span className={styles.mobileBadge} style={{ color: 'var(--text-primary)', background: 'var(--bg-card)', fontSize: 11, whiteSpace: 'nowrap' }}>{dateLabel}{timeLabel}</span>
                 {customer && <button onClick={e => { e.stopPropagation(); setSmsCustomer(customer); setSmsOpen(true) }} style={{fontSize:11,padding:'2px 7px',borderRadius:6,border:'1px solid var(--border)',background:'var(--bg-card)',color:'var(--text-secondary)',cursor:'pointer',whiteSpace:'nowrap',marginLeft:4}}>문자</button>}
+                <span className={styles.mobileBadge} style={{ color: 'var(--text-primary)', background: 'var(--bg-card)', fontSize: 11, whiteSpace: 'nowrap' }}>{dateLabel}{timeLabel}</span>
               </div>
             )
           })}
@@ -303,8 +303,8 @@ export default function Dashboard() {
                       <span className={styles.mobileTodoText}>{name}고객</span>
                       <span style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:badgeBg,color:badgeColor,marginLeft:4,fontWeight:600}}>{badgeText}</span>
                     </div>
-                    <span className={styles.mobileBadge} style={{color:'var(--text-primary)',background:'var(--bg-card)',fontSize:11,whiteSpace:'nowrap'}}>{dateLabel}{timeLabel}</span>
                     {customer && <button onClick={e => { e.stopPropagation(); setSmsCustomer(customer); setSmsOpen(true) }} style={{fontSize:11,padding:'2px 7px',borderRadius:6,border:'1px solid var(--border)',background:'var(--bg-card)',color:'var(--text-secondary)',cursor:'pointer',whiteSpace:'nowrap',marginLeft:4}}>문자</button>}
+                    <span className={styles.mobileBadge} style={{color:'var(--text-primary)',background:'var(--bg-card)',fontSize:11,whiteSpace:'nowrap'}}>{dateLabel}{timeLabel}</span>
                   </div>
                 )
               })}
