@@ -128,6 +128,23 @@ export default function Sales() {
 
   useEffect(() => { init() }, [])
 
+  // meetingId에 해당하는 미팅 날짜 기준으로 탭 자동 전환
+  useEffect(() => {
+    const { meetingId } = router.query
+    if (!meetingId || meetings.length === 0) return
+    const target = meetings.find((m: any) => m.id === meetingId)
+    if (!target) return
+    const today = new Date().toISOString().split('T')[0]
+    const weekStart = (() => { const d = new Date(); d.setDate(d.getDate() - d.getDay() + 1); return d.toISOString().split('T')[0] })()
+    const weekEnd = (() => { const d = new Date(); d.setDate(d.getDate() - d.getDay() + 7); return d.toISOString().split('T')[0] })()
+    const nextWeekStart = (() => { const d = new Date(); d.setDate(d.getDate() - d.getDay() + 8); return d.toISOString().split('T')[0] })()
+    const nextWeekEnd = (() => { const d = new Date(); d.setDate(d.getDate() - d.getDay() + 14); return d.toISOString().split('T')[0] })()
+    if (target.meeting_date === today) setMeetingSubTab('today')
+    else if (target.meeting_date >= weekStart && target.meeting_date <= weekEnd) setMeetingSubTab('week')
+    else if (target.meeting_date >= nextWeekStart && target.meeting_date <= nextWeekEnd) setMeetingSubTab('next')
+    else setMeetingSubTab('past')
+  }, [meetings, router.query])
+
   useEffect(() => {
     // localStorage에서 정렬 설정 로드
     const saved = localStorage.getItem('dpa_sort_asc')
@@ -142,8 +159,8 @@ export default function Sales() {
     if (showFormParam === 'true') setShowForm(true)
     if (meetingId) {
       setActiveTab('meeting')
-      setMeetingSubTab('today')
       setHighlightId(meetingId as string)
+      // meetingId 날짜에 맞는 탭은 meetings 로드 후 처리 (아래 useEffect)
     }
   }, [router.query])
 
