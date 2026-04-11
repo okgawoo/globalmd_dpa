@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase'
 import styles from '../styles/Sales.module.css'
 
 const FLOW_STAGES = [
-  { key: '첫접촉', icon: '📞', label: '첫 접촉' },
+  { key: '첫 인사', icon: '📞', label: '첫 인사' },
   { key: '통화', icon: '💬', label: '통화 / 문자' },
   { key: '미팅확정', icon: '🤝', label: '미팅 확정' },
   { key: '미팅완료', icon: '✅', label: '미팅 완료' },
@@ -13,7 +13,7 @@ const FLOW_STAGES = [
   { key: '계약완료', icon: '🎉', label: '계약 완료' },
 ]
 
-const TYPE_OPTIONS = ['첫접촉', '통화', '문자', '미팅', '방문']
+const TYPE_OPTIONS = ['첫 인사', '통화', '문자', '미팅', '방문']
 const STATUS_OPTIONS = ['대기', '확정', '취소', '완료']
 
 // ── 드래그로 닫히는 슬라이드업 패널 컴포넌트 ──
@@ -119,7 +119,7 @@ export default function Sales() {
     location: '',
     type: '미팅',
     status: '대기',
-    pipeline_stage: '첫접촉',
+    pipeline_stage: '첫 인사',
     memo: '',
   })
 
@@ -418,7 +418,7 @@ export default function Sales() {
     if (error) { alert('저장 실패: ' + error.message); return }
 
     setShowForm(false)
-    setForm({ customer_id: '', introducer: '', meeting_date: todayStr, meeting_time: '', location: '', type: '미팅', status: '대기', pipeline_stage: '첫접촉', memo: '' })
+    setForm({ customer_id: '', introducer: '', meeting_date: todayStr, meeting_time: '', location: '', type: '미팅', status: '대기', pipeline_stage: '첫 인사', memo: '' })
 setCustomerSearch('')
     await fetchAll(agentId)
   }
@@ -818,7 +818,7 @@ setCustomerSearch('')
             <button style={{margin:"0 20px",padding:"12px",background:"#1D9E75",color:"white",border:"none",borderRadius:10,fontSize:14,fontWeight:600,cursor:"pointer",width:"calc(100% - 40px)"}} onClick={() => {
               setShowFlow(false)
               setForm(f => ({ ...f, customer_id: selectedCustomer.id }))
-              setIsNewProspect(false)
+
               setShowForm(true)
             }}>+ 다음 단계 추가</button>
         </FlowPanel>
