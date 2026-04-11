@@ -90,13 +90,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </svg>
                 <div>
                   <div className={styles.logoMainRow}>
-                    <span className={styles.logoText}>DPA</span>
-                    <span className={styles.logoVersion}>v1.0</span>
+                    <span className={styles.logoText} style={{color:'var(--text-primary)',fontWeight:700,fontSize:20}}>DPA</span>
+                    <span className={styles.logoVersion} style={{color:'var(--text-secondary)',fontSize:11,marginLeft:2}}>v1.0</span>
                   </div>
-                  <span className={styles.logoSub}>AI 보험 관리 자동화 플랫폼</span>
+                  <span className={styles.logoSub} style={{color:'var(--text-secondary)',fontSize:10}}>AI 보험 관리 자동화 플랫폼</span>
                 </div>
               </div>
-              <span className={styles.madeBy} style={{display:'block',marginTop:2,paddingLeft:54}}>made by okga</span>
+              <span className={styles.madeBy} style={{display:'block',marginTop:2,paddingLeft:54,color:'var(--text-muted)',fontSize:10}}>made by okga</span>
             </div>
           </a>
         </div>
@@ -136,7 +136,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             {menus.find(m => m.path === router.pathname)?.label || 'DPA'}
           </Link>
           {!isDashboardMobile && (
-            <Link href="/" style={{marginLeft:'auto',padding:'4px 8px',color:'#6B7280',display:'flex',alignItems:'center'}}>
+            <Link href="/" style={{marginLeft:'auto',padding:'4px 8px',color:'var(--text-secondary)',display:'flex',alignItems:'center'}}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             </Link>
           )}

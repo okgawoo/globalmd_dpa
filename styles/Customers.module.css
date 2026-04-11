@@ -34,7 +34,7 @@
 .detailName { font-size: 16px; font-weight: 600; color: var(--text-primary); }
 .detailMeta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 
-.section { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; margin: 16px 0 8px; }
+.section { font-size: 13px; font-weight: 700; color: var(--text-primary); letter-spacing: 0; margin: 16px 0 8px; }
 
 .gaugeRow { margin-bottom: 10px; }
 .gaugeLabel { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
@@ -177,8 +177,8 @@
 .saveBtn { font-size: 13px; padding: 7px 20px; border-radius: 8px; border: none; background: #1D9E75; color: #ffffff; cursor: pointer; font-weight: 600; }
 .cancelBtn { font-size: 13px; padding: 7px 20px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text-secondary); cursor: pointer; }
 
-.insCard { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
-.insCardWarn { background: var(--bg); border: 1.5px solid #E53E3E; border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; animation: warnPulse 1.8s ease-in-out infinite; }
+.insCard { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; overflow: visible; box-sizing: border-box; width: 100%; }
+.insCardWarn { background: var(--bg); border: 1.5px solid #E53E3E; border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; animation: warnPulse 1.8s ease-in-out infinite; overflow: visible; box-sizing: border-box; width: 100%; }
 @keyframes warnPulse {
   0%   { border-color: #E53E3E; box-shadow: 0 0 0 0 rgba(229, 62, 62, 0.6); }
   50%  { border-color: rgba(229, 62, 62, 0.15); box-shadow: 0 0 8px 4px rgba(229, 62, 62, 0.15); }
@@ -187,8 +187,8 @@
 .insCardHeader { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
 .insCardLeft { flex: 1; }
 .insCardTitle { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
-.insCardMeta { font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.insCardRight { display: flex; align-items: center; gap: 4px; flex-shrink: 0; margin-left: 8px; }
+.insCardMeta { font-size: 11px; color: var(--text-muted); }
+.insCardRight { display: flex; align-items: center; gap: 4px; flex-shrink: 0; margin-left: 4px; flex-wrap: wrap; justify-content: flex-end; }
 .insTypeBadge { font-size: 10px; background: var(--green-light); color: var(--green); padding: 2px 6px; border-radius: 999px; }
 
 .contractEditBox { background: var(--bg); border: 0.5px solid var(--border); border-radius: 8px; padding: 12px; margin: 8px 0; }
