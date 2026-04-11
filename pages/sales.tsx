@@ -303,8 +303,16 @@ export default function Sales() {
         )}
         <div className={styles.meetingBottom}>
           <span className={styles.meetingLocation}>📍 {m.location||'장소 미정'}</span>
-          <span className={styles.typeBadge}>{m.type||'미팅'}</span>
-          {m.cancel_count > 0 && <span className={styles.cancelWarn}>⚠ 취소 {m.cancel_count}회</span>}
+          <div style={{display:'flex',alignItems:'center',gap:6,marginLeft:'auto'}}>
+            {m.customer_id && (
+              <button className={styles.actionBtn} style={{background:'var(--green-light)',color:'var(--green)',fontWeight:600,padding:'3px 10px',fontSize:11}}
+                onClick={e=>{e.stopPropagation();const c=customers.find((c:any)=>c.id===m.customer_id);setSmsCustomer(c);setSmsOpen(true)}}>
+                📱 문자
+              </button>
+            )}
+            <span className={styles.typeBadge}>{m.type||'미팅'}</span>
+            {m.cancel_count > 0 && <span className={styles.cancelWarn}>⚠ 취소 {m.cancel_count}회</span>}
+          </div>
         </div>
         {m.memo && <div style={{fontSize:12,color:'var(--text-muted)',marginTop:6}}>💬 {m.memo}</div>}
         {editId === m.id ? (
@@ -332,12 +340,6 @@ export default function Sales() {
                   const c=customers.find((c:any)=>c.id===m.customer_id)
                   setSelectedCustomer(c); setShowFlow(true)
                 }}>영업 이력</button>
-              )}
-              {m.customer_id && (
-                <button className={styles.actionBtn} style={{background:'var(--green-light)',color:'var(--green)',fontWeight:600}} onClick={()=>{
-                  const c=customers.find((c:any)=>c.id===m.customer_id)
-                  setSmsCustomer(c); setSmsOpen(true)
-                }}>📱 문자</button>
               )}
             </div>
             {m.customer_id && (
