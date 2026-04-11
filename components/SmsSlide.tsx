@@ -55,8 +55,6 @@ export default function SmsSlidePanels({ isOpen, onClose, customer, scriptType =
   const [sending, setSending] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
-  const startY = useRef(0)
-  const isDragging = useRef(false)
 
   // 열릴 때 스크립트 자동 생성
   useEffect(() => {
@@ -131,37 +129,46 @@ export default function SmsSlidePanels({ isOpen, onClose, customer, scriptType =
     setSending(false)
   }
 
-  // 스와이프 다운으로 닫기
+  // 스와이프 다운으로 닫기 (네이티브 DOM 방식)
   useEffect(() => {
-    const el = panelRef.current
-    if (!el) return
+    const panel = panelRef.current
+    if (!panel) return
+    let startY = 0, curY = 0, dragging = false
 
-    const onTouchStart = (e: TouchEvent) => {
-      startY.current = e.touches[0].clientY
-      isDragging.current = true
+    const onStart = (e: TouchEvent) => {
+      startY = e.touches[0].clientY
+      dragging = true
+      panel.style.transition = 'none'
+      e.stopPropagation()
     }
-    const onTouchMove = (e: TouchEvent) => {
-      if (!isDragging.current) return
-      const dy = e.touches[0].clientY - startY.current
-      if (dy > 0) el.style.transform = `translateY(${dy}px)`
+    const onMove = (e: TouchEvent) => {
+      if (!dragging) return
+      e.stopPropagation()
+      e.preventDefault()
+      curY = e.touches[0].clientY - startY
+      if (curY > 0) panel.style.transform = `translateY(${curY}px)`
     }
-    const onTouchEnd = (e: TouchEvent) => {
-      if (!isDragging.current) return
-      isDragging.current = false
-      const dy = e.changedTouches[0].clientY - startY.current
-      el.style.transform = ''
-      el.style.transition = 'transform 0.3s ease'
-      if (dy > 80) onClose()
-      setTimeout(() => { el.style.transition = '' }, 300)
+    const onEnd = (e: TouchEvent) => {
+      if (!dragging) return
+      dragging = false
+      e.stopPropagation()
+      panel.style.transition = 'transform 0.3s ease'
+      if (curY > 100) {
+        panel.style.transform = 'translateY(100%)'
+        setTimeout(onClose, 280)
+      } else {
+        panel.style.transform = 'translateY(0)'
+      }
+      curY = 0
     }
 
-    el.addEventListener('touchstart', onTouchStart)
-    el.addEventListener('touchmove', onTouchMove)
-    el.addEventListener('touchend', onTouchEnd)
+    panel.addEventListener('touchstart', onStart, { passive: true })
+    panel.addEventListener('touchmove', onMove, { passive: false })
+    panel.addEventListener('touchend', onEnd, { passive: true })
     return () => {
-      el.removeEventListener('touchstart', onTouchStart)
-      el.removeEventListener('touchmove', onTouchMove)
-      el.removeEventListener('touchend', onTouchEnd)
+      panel.removeEventListener('touchstart', onStart)
+      panel.removeEventListener('touchmove', onMove)
+      panel.removeEventListener('touchend', onEnd)
     }
   }, [isOpen, onClose])
 
