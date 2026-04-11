@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react'
+import SmsSlidePanel from '../components/SmsSlide'
 import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
 import styles from '../styles/Sales.module.css'
@@ -104,6 +105,8 @@ export default function Sales() {
   const [editingMemoText, setEditingMemoText] = useState('')
   const [customerSearch, setCustomerSearch] = useState('')
   const [highlightId, setHighlightId] = useState<string|null>(null)
+  const [smsOpen, setSmsOpen] = useState(false)
+  const [smsCustomer, setSmsCustomer] = useState<any>(null)
   const [editId, setEditId] = useState<string|null>(null)
   const [editForm, setEditForm] = useState<any>({})
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null)
@@ -335,6 +338,12 @@ export default function Sales() {
                   setSelectedCustomer(c); setShowFlow(true)
                 }}>영업 이력</button>
               )}
+              {m.customer_id && (
+                <button className={styles.actionBtn} style={{background:'var(--green-light)',color:'var(--green)',fontWeight:600}} onClick={()=>{
+                  const c=customers.find((c:any)=>c.id===m.customer_id)
+                  setSmsCustomer(c); setSmsOpen(true)
+                }}>📱 문자</button>
+              )}
             </div>
             {m.customer_id && (
               <div className={styles.actionRow} style={{marginTop:4}}>
@@ -435,6 +444,16 @@ export default function Sales() {
   if (loading) return <div className={styles.loading}>불러오는 중...</div>
 
   return (
+    <>
+      {smsOpen && smsCustomer && (
+        <SmsSlidePanel
+          isOpen={smsOpen}
+          onClose={() => { setSmsOpen(false); setSmsCustomer(null) }}
+          customer={smsCustomer}
+          scriptType="일반"
+          agentId={agentId}
+        />
+      )}
     <div className={styles.wrap}
       onTouchStart={e => { (e.currentTarget as any)._touchStartX = e.touches[0].clientX }}
       onTouchMove={e => {
@@ -924,5 +943,7 @@ export default function Sales() {
       )}
 
     </div>
+    </div>
+    </>
   )
 }
