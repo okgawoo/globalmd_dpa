@@ -30,6 +30,7 @@ export default function Dashboard() {
   const [todoExpanded, setTodoExpanded] = useState(false)
   const [smsOpen, setSmsOpen] = useState(false)
   const [smsCustomer, setSmsCustomer] = useState<any>(null)
+  const [agentId, setAgentId] = useState<string>('')
   const [meetingExpanded, setMeetingExpanded] = useState(false)
   const [loading, setLoading] = useState(true)
   const [calOpen, setCalOpen] = useState(false)
@@ -94,6 +95,7 @@ export default function Dashboard() {
   async function fetchAll() {
     const { data: { user } } = await supabase.auth.getUser()
     const agentId = user?.id
+    if (agentId) setAgentId(agentId)
     const { data: custs } = await supabase.from('dpa_customers').select('*').eq('agent_id', agentId)
     const { data: conts } = await supabase.from('dpa_contracts').select('*').eq('agent_id', agentId)
     const { data: covs } = await supabase.from('dpa_coverages').select('*')
