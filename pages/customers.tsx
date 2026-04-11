@@ -63,10 +63,20 @@ function getBirthdayDays(birthDate: string): number | null {
 }
 
 function fmtAmount(n: number): string {
-  if (n >= 100000000) return `${(n / 100000000).toFixed(0)}억원`
-  if (n >= 10000000) return `${(n / 10000000).toFixed(0)}천만원`
-  if (n >= 10000) return `${(n / 10000).toFixed(0)}만원`
-  return `${n.toLocaleString()}원`
+  if (!n && n !== 0) return ''
+  if (n >= 100000000) {
+    const v = n / 100000000
+    return (v % 1 === 0 ? v.toFixed(0) : v.toFixed(1)) + '억원'
+  }
+  if (n >= 10000000) {
+    const v = n / 10000000
+    return (v % 1 === 0 ? v.toFixed(0) : v.toFixed(1)) + '천만원'
+  }
+  if (n >= 10000) {
+    const v = n / 10000
+    return (v % 1 === 0 ? v.toFixed(0) : v.toFixed(1)) + '만원'
+  }
+  return n.toLocaleString() + '원'
 }
 
 // 납입률 실시간 계산 함수
@@ -911,8 +921,14 @@ export default function Customers() {
                         {groups.map(g => (
                           <div key={g.key} className={styles.coverageRow}>
                             <span className={styles.covIcon}>{g.icon}</span>
-                            <span className={styles.covLabel}>{g.label}</span>
-                            <span className={styles.covVal}>{g.items.map((cv:any) => `${cv.coverage_name} ${cv.amount>=10000?`${(cv.amount/10000).toFixed(0)}만원`:cv.amount+'원'}`).join(' / ')}</span>
+                            <div className={styles.covRight}>
+                              <span className={styles.covLabel}>{g.label}</span>
+                              <div className={styles.covItems}>
+                                {g.items.map((cv:any, ci:number) => (
+                                  <span key={ci} className={styles.covItem}>{cv.coverage_name} <strong>{fmtAmount(cv.amount)}</strong></span>
+                                ))}
+                              </div>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -1260,8 +1276,14 @@ export default function Customers() {
                                   {sectionGroups.map((g: any) => (
                                     <div key={g.key} className={styles.coverageRow}>
                                       <span className={styles.covIcon}>{g.icon}</span>
-                                      <span className={styles.covLabel}>{g.label}</span>
-                                      <span className={styles.covVal}>{g.items.map((cv: any) => `${cv.coverage_name} ${fmtAmount(cv.amount)}`).join(' / ')}</span>
+                                      <div className={styles.covRight}>
+                                        <span className={styles.covLabel}>{g.label}</span>
+                                        <div className={styles.covItems}>
+                                          {g.items.map((cv: any, ci: number) => (
+                                            <span key={ci} className={styles.covItem}>{cv.coverage_name} <strong>{fmtAmount(cv.amount)}</strong></span>
+                                          ))}
+                                        </div>
+                                      </div>
                                     </div>
                                   ))}
                                 </div>

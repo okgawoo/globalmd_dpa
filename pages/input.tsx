@@ -495,7 +495,10 @@ export default function InputPage() {
                 <div className={styles.field}><label>고객명</label><input value={parsed.name || ''} onChange={e => setParsed({...parsed, name: e.target.value})} placeholder="고객명" /></div>
                 <div className={styles.field}><label>나이</label><input value={parsed.age || ''} onChange={e => setParsed({...parsed, age: e.target.value})} placeholder="나이" /></div>
                 <div className={styles.field}><label>성별</label><input value={parsed.gender || ''} onChange={e => setParsed({...parsed, gender: e.target.value})} placeholder="남/여" /></div>
-                <div className={styles.field}><label>주민번호</label><input value={parsed.rrn || ''} onChange={e => setParsed({...parsed, rrn: e.target.value})} placeholder="000000-0000000" /></div>
+                <div className={styles.field}><label>주민번호</label><input value={parsed.rrn || ''} onChange={e => {
+                  const formatted = formatRRN(e.target.value)
+                  setParsed({...parsed, rrn: formatted, gender: getGenderFromRRN(formatted), age: getAgeFromRRN(formatted)})
+                }} placeholder="000000-0000000" maxLength={14} /></div>
                 <div className={styles.field}><label>연락처</label><input value={parsed.phone || ''} onChange={e => setParsed({...parsed, phone: e.target.value})} placeholder="010-0000-0000" /></div>
                 <div className={styles.field}><label>직업</label><input value={parsed.job || ''} onChange={e => setParsed({...parsed, job: e.target.value})} placeholder="공무원" /></div>
               </div>

@@ -311,3 +311,14 @@
 @media (max-width: 768px) {
   .custFee { display: block !important; margin-top: 1px; }
 }
+
+/* 보장내역 줄바꿈 스타일 */
+.covRight { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.covItems { display: flex; flex-direction: column; gap: 2px; }
+.covItem { font-size: 12px; color: var(--text-primary); line-height: 1.5; }
+.covItem strong { color: var(--text-primary); font-weight: 600; }
+
+@media (min-width: 769px) {
+  .covItem { font-size: 13px; }
+  .covLabel { font-size: 13px; }
+}
