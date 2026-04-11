@@ -7,10 +7,10 @@
 .addBtn { margin-left: auto; background: var(--green); color: white; border: none; padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; }
 
 .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.listPanel { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 8px; max-height: calc(100vh - 200px); overflow-y: auto; }
+.listPanel { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 8px; max-height: calc(100vh - 200px); overflow-y: auto; overflow-x: hidden; }
 .detailPanel { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; max-height: calc(100vh - 200px); overflow-y: auto; }
 
-.custRow { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; cursor: pointer; transition: background 0.1s; }
+.custRow { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; cursor: pointer; transition: background 0.1s; overflow: hidden; }
 .custRow:hover { background: var(--bg-card); }
 .custRow.active { background: var(--green-light); border-left: 3px solid var(--green); }
 
@@ -238,7 +238,7 @@
 .slideCloseBtn:hover { background: var(--bg-card); }
 
 /* 리스트 패널 */
-.listPanel { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 8px; max-height: calc(100vh - 200px); overflow-y: auto; }
+.listPanel { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 8px; max-height: calc(100vh - 200px); overflow-y: auto; overflow-x: hidden; }
 
 /* 데스크탑 좌우 분할 */
 .desktopGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
