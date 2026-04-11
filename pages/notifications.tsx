@@ -251,7 +251,7 @@ export default function NotificationsPage() {
           <div className={styles.cardRow}>
             <div className={styles.iconWrap}>{s.icon}</div>
             <div className={styles.cardBody}>
-              <div className={styles.cardTitle}>{n.customer.name} 고객 {cfg?.label}</div>
+              <div className={styles.cardTitle}>{n.customer.name}고객 {cfg?.label}</div>
               <div className={styles.cardDesc}>{n.notifType === 'nearDone' ? `납입률 ${n.rate}%` : n.notifType === 'gap' ? `${!n.hasBrain?'뇌혈관':''} ${!n.hasCare?'간병인':''} 보장 없음` : n.notifType === 'birthday' ? '생일 축하 문자를 보내보세요!' : n.contract?.company}</div>
               <div className={styles.cardMeta}><span className={styles.badge} style={{ background: cfg?.badgeBg, color: cfg?.badgeColor }}>{s.badge}</span></div>
             </div>
@@ -387,7 +387,7 @@ export default function NotificationsPage() {
                 const tCfg = typeCfg[m.message_type] || { bg: '#F1EFE8', color: '#5F5E5A' }
                 return (
                   <div key={m.id} className={styles.recentHistoryItem}>
-                    <span className={styles.recentHistoryName}>{m.dpa_customers?.name} 고객</span>
+                    <span className={styles.recentHistoryName}>{m.dpa_customers?.name}고객</span>
                     <span className={styles.recentHistoryBadge} style={{ background: tCfg.bg, color: tCfg.color }}>{typeLabel[m.message_type] || m.message_type}</span>
                     <span className={styles.recentHistoryBadge} style={{ background: m.is_sent ? '#E1F5EE' : '#F1EFE8', color: m.is_sent ? '#085041' : '#5F5E5A' }}>{m.is_sent ? '발송' : '카카오/복사'}</span>
                     <span className={styles.recentHistoryDate}>{fmtDate(m.created_at)}</span>
@@ -440,7 +440,7 @@ export default function NotificationsPage() {
                       {isChecked && <span style={{ color: 'white', fontSize: 10, fontWeight: 700, lineHeight: 1 }}>✓</span>}
                     </div>
                     <div className={styles.drillCardBody}>
-                      <span className={styles.drillCardName}>{n.customer.name} 고객</span>
+                      <span className={styles.drillCardName}>{n.customer.name}고객</span>
                       {n.customer.phone && <span className={styles.drillCardPhone}>{n.customer.phone}</span>}
                       {n.notifType === 'nearDone' && <p className={styles.drillCardSub}>{n.contracts?.[0]?.company}</p>}
                       {n.notifType === 'expiry' && <p className={styles.drillCardSub}>{n.contract?.company}</p>}
