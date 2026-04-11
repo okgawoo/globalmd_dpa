@@ -257,3 +257,13 @@
 /* ── 단체발송 하단 고정 버튼 ── */
 .bulkSendFullBtn { width: 100%; font-size: 13px; padding: 12px; border-radius: 12px; border: none; background: #1D9E75; color: white; font-weight: 600; margin-top: 10px; cursor: pointer; font-family: inherit; }
 .bulkSendFullBtn:active { background: #0F6E56; }
+
+/* ── 드릴다운 심플 헤더 ── */
+.drillSimpleHeader { display: flex; align-items: center; gap: 10px; padding: 0 0 14px; border-bottom: 0.5px solid #EDEBE4; margin-bottom: 12px; }
+.drillSimpleTitle { font-size: 15px; font-weight: 600; color: #111827; flex: 1; }
+
+/* ── 전화번호 ── */
+.drillCardPhone { font-size: 11px; color: #9CA3AF; margin-left: 6px; }
+
+/* ── 이력 없음 ── */
+.recentHistoryEmpty { font-size: 12px; color: #9CA3AF; text-align: center; padding: 12px 0; }

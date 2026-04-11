@@ -4,7 +4,7 @@ import styles from '../styles/Notifications.module.css'
 import SmsSlidePanel from '../components/SmsSlide'
 
 type ToneType = '정중' | '친근' | '애교' | '간결'
-type IssueType = 'nearDone' | 'gap' | 'birthday' | 'expiry'
+type IssueType = 'nearDone' | 'gap' | 'birthday' | 'expiry' | 'longNoContact' | 'anniversary'
 
 const TONES: ToneType[] = ['정중', '친근', '애교', '간결']
 const EMOJIS = ['😊','😄','🎂','🎉','🎊','💚','📞','🙏','👍','✅','🔥','💪','⭐','🌟','❤️']
@@ -51,10 +51,12 @@ const SCRIPTS: Record<string, Record<ToneType, string>> = {
 }
 
 const ISSUE_CONFIG: Record<IssueType, { icon: string; label: string; desc: string; color: string; badgeBg: string; badgeColor: string; borderColor: string }> = {
-  nearDone: { icon: '🔥', label: '완납 임박', desc: '납입률 90% 이상', color: '#BA7517', badgeBg: '#FAEEDA', badgeColor: '#854F0B', borderColor: '#BA7517' },
-  gap:      { icon: '⚠️', label: '보장 공백', desc: '뇌혈관 미가입',    color: '#A32D2D', badgeBg: '#FCEBEB', badgeColor: '#A32D2D', borderColor: '#E24B4A' },
-  birthday: { icon: '🎂', label: '생일',      desc: '7일 이내',          color: '#0F6E56', badgeBg: '#E1F5EE', badgeColor: '#0F6E56', borderColor: '#1D9E75' },
-  expiry:   { icon: '📋', label: '만기 임박', desc: '30일 이내',          color: '#185FA5', badgeBg: '#E6F1FB', badgeColor: '#185FA5', borderColor: '#378ADD' },
+  nearDone:    { icon: '🔥', label: '완납 임박',   desc: '납입률 90% 이상',     color: '#BA7517', badgeBg: '#FAEEDA', badgeColor: '#854F0B', borderColor: '#BA7517' },
+  gap:         { icon: '⚠️', label: '보장 공백',  desc: '뇌혈관 미가입',        color: '#A32D2D', badgeBg: '#FCEBEB', badgeColor: '#A32D2D', borderColor: '#E24B4A' },
+  birthday:    { icon: '🎂', label: '생일',        desc: '7일 이내',              color: '#0F6E56', badgeBg: '#E1F5EE', badgeColor: '#0F6E56', borderColor: '#1D9E75' },
+  expiry:      { icon: '📋', label: '만기 임박',   desc: '30일 이내',             color: '#185FA5', badgeBg: '#E6F1FB', badgeColor: '#185FA5', borderColor: '#378ADD' },
+  longNoContact: { icon: '📞', label: '장기 미연락', desc: '마지막 미팅 90일 이상', color: '#5F5E5A', badgeBg: '#F1EFE8', badgeColor: '#444441', borderColor: '#888780' },
+  anniversary: { icon: '🎉', label: '계약 기념일', desc: '1/3/5년 주기 7일 이내', color: '#534AB7', badgeBg: '#EEEDFE', badgeColor: '#3C3489', borderColor: '#7F77DD' },
 }
 
 export default function NotificationsPage() {
@@ -64,6 +66,7 @@ export default function NotificationsPage() {
   const [messages, setMessages] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [agentId, setAgentId] = useState('')
+  const [meetings, setMeetings] = useState<any[]>([])
 
   // 모바일: 이슈 드릴다운
   const [activeIssue, setActiveIssue] = useState<IssueType | null>(null)
@@ -93,15 +96,17 @@ export default function NotificationsPage() {
     const { data: conts } = await supabase.from('dpa_contracts').select('*').eq('agent_id', aid)
     const { data: covs } = await supabase.from('dpa_coverages').select('*').in('contract_id', (conts || []).map((c: any) => c.id))
     const { data: msgs } = await supabase.from('dpa_messages').select('*, dpa_customers(name)').eq('agent_id', aid).order('created_at', { ascending: false }).limit(100)
+    const { data: meets } = await supabase.from('dpa_meetings').select('*').eq('agent_id', aid).eq('status', '완료')
     setCustomers(custs || [])
     setContracts(conts || [])
     setCoverages(covs || [])
     setMessages(msgs || [])
+    setMeetings(meets || [])
     setLoading(false)
   }
 
   // ─── 알림 데이터 계산 ───
-  const notifMap: Record<IssueType, any[]> = { nearDone: [], gap: [], birthday: [], expiry: [] }
+  const notifMap: Record<IssueType, any[]> = { nearDone: [], gap: [], birthday: [], expiry: [], longNoContact: [], anniversary: [] }
 
   customers.forEach(c => {
     const cts = contracts.filter(ct => ct.customer_id === c.id)
@@ -135,6 +140,41 @@ export default function NotificationsPage() {
     if (days === 0) badge = '생일 당일'
     else if (days === 1) badge = 'D-1'
     notifMap.birthday.push({ id: `birth-${c.id}`, customer: c, days, notifType: 'birthday', badge })
+  })
+
+  // 장기 미연락 (마지막 미팅 90일 이상)
+  const today = new Date()
+  customers.forEach(c => {
+    const cMeetings = meetings.filter((m: any) => m.customer_id === c.id)
+    if (cMeetings.length === 0) return
+    const last = cMeetings.sort((a: any, b: any) => b.meeting_date.localeCompare(a.meeting_date))[0]
+    const diff = (today.getTime() - new Date(last.meeting_date).getTime()) / 86400000
+    if (diff >= 90) {
+      notifMap.longNoContact.push({ id: `longno-${c.id}`, customer: c, days: Math.floor(diff), notifType: 'longNoContact', badge: `${Math.floor(diff)}일` })
+    }
+  })
+
+  // 계약 기념일 (1/3/5년 주기 7일 이내)
+  customers.forEach(c => {
+    const cts = contracts.filter(ct => ct.customer_id === c.id && ct.contract_start)
+    cts.forEach(ct => {
+      const parts = ct.contract_start.split('.')
+      if (parts.length < 2) return
+      const startYear = parseInt(parts[0])
+      const startMonth = parseInt(parts[1]) - 1
+      const startDay = parts[2] ? parseInt(parts[2]) : 1
+      const years = today.getFullYear() - startYear
+      if (years <= 0) return
+      if (![1,2,3,4,5,7,10].includes(years)) return
+      const anniversary = new Date(today.getFullYear(), startMonth, startDay)
+      const diffDays = Math.ceil((anniversary.getTime() - today.getTime()) / 86400000)
+      if (diffDays >= 0 && diffDays <= 7) {
+        const existing = notifMap.anniversary.find((n: any) => n.customer.id === c.id)
+        if (!existing) {
+          notifMap.anniversary.push({ id: `anniv-${ct.id}`, customer: c, contract: ct, years, diffDays, notifType: 'anniversary', badge: `${years}주년 D-${diffDays || '당일'}` })
+        }
+      }
+    })
   })
 
   const activeNotifs = activeIssue ? notifMap[activeIssue] : []
@@ -307,9 +347,7 @@ export default function NotificationsPage() {
         {/* ── 메인: 이슈 카드 목록 ── */}
         {!activeIssue && (
           <>
-            <div className={styles.mobileHeader}>문자 발송</div>
-
-            {/* 이슈 카드 4개 */}
+            {/* 이슈 카드 */}
             <div className={styles.issueList}>
               {(Object.keys(ISSUE_CONFIG) as IssueType[]).map(type => {
                 const cfg = ISSUE_CONFIG[type]
@@ -328,44 +366,42 @@ export default function NotificationsPage() {
               })}
             </div>
 
-            {/* 최근 발송 이력 */}
-            {messages.length > 0 && (
-              <div className={styles.recentHistory}>
-                <p className={styles.recentHistoryLabel}>최근 발송 이력</p>
-                {messages.slice(0, 5).map((m: any) => (
-                  <div key={m.id} className={styles.recentHistoryItem}>
-                    <span className={styles.recentHistoryName}>{m.dpa_customers?.name}</span>
-                    <span className={styles.recentHistoryBadge} style={{ background: m.is_sent ? '#E1F5EE' : '#F1EFE8', color: m.is_sent ? '#085041' : '#5F5E5A' }}>{m.is_sent ? '발송' : '복사'}</span>
-                    <span className={styles.recentHistoryDate}>{new Date(m.created_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}</span>
-                  </div>
-                ))}
-              </div>
-            )}
+            {/* 최근 발송 이력 - 항상 표시 */}
+            <div className={styles.recentHistory}>
+              <p className={styles.recentHistoryLabel}>최근 발송 이력</p>
+              {messages.length === 0 ? (
+                <p className={styles.recentHistoryEmpty}>아직 발송 이력이 없어요 📭</p>
+              ) : messages.slice(0, 5).map((m: any) => (
+                <div key={m.id} className={styles.recentHistoryItem}>
+                  <span className={styles.recentHistoryName}>{m.dpa_customers?.name}</span>
+                  <span className={styles.recentHistoryBadge} style={{ background: m.is_sent ? '#E1F5EE' : '#F1EFE8', color: m.is_sent ? '#085041' : '#5F5E5A' }}>{m.is_sent ? '발송' : '복사'}</span>
+                  <span className={styles.recentHistoryDate}>{new Date(m.created_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}</span>
+                </div>
+              ))}
+            </div>
           </>
         )}
 
         {/* ── 드릴다운: 이슈별 고객 리스트 ── */}
         {activeIssue && (
           <>
-            {/* 헤더 (뒤로가기) - 초록 헤더 */}
-            <div className={styles.drillGreenHeader}>
+            {/* 헤더 (뒤로가기) - 심플 */}
+            <div className={styles.drillSimpleHeader}>
               <button className={styles.backBtn} onClick={() => { setActiveIssue(null); setSelectMode(false); setSelectedIds([]) }}>
-                <div className={styles.backChevronWhite} />
+                <div className={styles.backChevron} />
               </button>
-              <span className={styles.drillGreenTitle}>{ISSUE_CONFIG[activeIssue].icon} {ISSUE_CONFIG[activeIssue].label} {activeNotifs.length}명</span>
-              <button className={styles.selectToggleBtnWhite} onClick={() => { setSelectMode(s => !s); setSelectedIds([]) }}>
-                {selectMode ? '취소' : '선택'}
-              </button>
+              <span className={styles.drillSimpleTitle}>{ISSUE_CONFIG[activeIssue].icon} {ISSUE_CONFIG[activeIssue].label} {activeNotifs.length}명</span>
             </div>
 
-            {/* 선택 모드 배너 */}
-            {selectMode && (
+            {/* 선택된 고객 있을 때만 단체발송 배너 표시 */}
+            {selectedIds.length > 0 && (
               <div className={styles.selectBanner}>
                 <span className={styles.selectBannerText}>{selectedIds.length}명 선택됨</span>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <button className={styles.selectAllBtn} onClick={() => setSelectedIds(selectedIds.length === activeNotifs.length ? [] : activeNotifs.map(n => n.id))}>
                     {selectedIds.length === activeNotifs.length ? '전체 해제' : '전체 선택'}
                   </button>
+                  <button className={styles.bulkSendBtn} onClick={startBulkSend}>단체 발송</button>
                 </div>
               </div>
             )}
@@ -379,37 +415,31 @@ export default function NotificationsPage() {
               const lastMsg = messages.filter((m: any) => m.customer_id === n.customer.id)[0]
               return (
                 <div key={n.id} className={styles.drillCard}
-                  style={{ borderLeft: `2.5px solid ${cfg.borderColor}`, border: isChecked ? `1.5px solid #1D9E75` : undefined }}
-                  onClick={() => selectMode && toggleSelect(n.id)}>
+                  style={{ borderLeft: isChecked ? undefined : `2.5px solid ${cfg.borderColor}`, border: isChecked ? `1.5px solid #1D9E75` : undefined }}
+                  onClick={() => toggleSelect(n.id)}>
                   <div className={styles.drillCardRow}>
-                    {selectMode && (
-                      <div className={styles.checkbox}
-                        style={{ background: isChecked ? '#1D9E75' : 'transparent', border: isChecked ? 'none' : '1.5px solid #D1D5DB' }}
-                        onClick={e => { e.stopPropagation(); toggleSelect(n.id) }}>
-                        {isChecked && <span style={{ color: 'white', fontSize: 10, fontWeight: 700, lineHeight: 1 }}>✓</span>}
-                      </div>
-                    )}
+                    <div className={styles.checkbox}
+                      style={{ background: isChecked ? '#1D9E75' : 'transparent', border: isChecked ? 'none' : '1.5px solid #D1D5DB' }}
+                      onClick={e => { e.stopPropagation(); toggleSelect(n.id) }}>
+                      {isChecked && <span style={{ color: 'white', fontSize: 10, fontWeight: 700, lineHeight: 1 }}>✓</span>}
+                    </div>
                     <div className={styles.drillCardBody}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-                        <span className={styles.drillCardName}>{n.customer.name}</span>
-                        <span className={styles.drillCardBadge} style={{ background: cfg.badgeBg, color: cfg.badgeColor }}>{n.badge}</span>
-                      </div>
-                      {n.notifType === 'nearDone' && <p className={styles.drillCardSub}>{n.contracts?.[0]?.company} {n.contracts?.[0]?.insurance_type}</p>}
-                      {n.notifType === 'expiry' && <p className={styles.drillCardSub}>{n.contract?.company} {n.contract?.insurance_type}</p>}
+                      <span className={styles.drillCardName}>{n.customer.name}</span>
+                      {n.customer.phone && <span className={styles.drillCardPhone}>{n.customer.phone}</span>}
+                      {n.notifType === 'nearDone' && <p className={styles.drillCardSub}>{n.contracts?.[0]?.company}</p>}
+                      {n.notifType === 'expiry' && <p className={styles.drillCardSub}>{n.contract?.company}</p>}
+                      {n.notifType === 'anniversary' && <p className={styles.drillCardSub}>{n.contract?.company} · {n.years}주년</p>}
                       {lastMsg && <p className={styles.drillCardHistory}>{lastMsg.is_sent ? '✉️' : '📋'} {new Date(lastMsg.created_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })} 발송됨</p>}
                     </div>
-                    {!selectMode && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                      <span className={styles.drillCardBadge} style={{ background: cfg.badgeBg, color: cfg.badgeColor }}>{n.badge}</span>
                       <button className={styles.smsBtn} onClick={e => { e.stopPropagation(); openSms(n.customer) }}>문자</button>
-                    )}
+                    </div>
                   </div>
                 </div>
               )
             })}
-            {selectMode && selectedIds.length > 0 && (
-              <button className={styles.bulkSendFullBtn} onClick={startBulkSend}>
-                {selectedIds.length}명에게 단체 발송
-              </button>
-            )}
+
           </>
         )}
       </div>
@@ -422,6 +452,7 @@ export default function NotificationsPage() {
           isOpen={smsOpen}
           onClose={() => { setSmsOpen(false); setSmsCustomer(null); fetchAll() }}
           customer={smsCustomer}
+          meetings={meetings}
           contracts={contracts}
           coverages={coverages}
           agentId={agentId}

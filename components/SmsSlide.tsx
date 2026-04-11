@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 
 type ToneType = '정중' | '친근' | '애교' | '간결'
-type SituationType = '최근미팅' | '최근계약' | '생일임박' | '완납임박' | '보장공백' | '만기임박' | '장기미연락' | '첫인사' | '일반'
+type SituationType = '최근미팅' | '최근계약' | '생일임박' | '완납임박' | '보장공백' | '만기임박' | '장기미연락' | '첫인사' | '계약기념일' | '일반'
 
 const TONES: ToneType[] = ['정중', '친근', '애교', '간결']
 const EMOJIS = ['😊','😄','🎂','🎉','🎊','💚','📞','🙏','👍','✅','🔥','💪','⭐','🌟','❤️']
@@ -185,6 +185,28 @@ const SCRIPTS: Record<SituationType, Record<ToneType, string[]>> = {
       `{name} 님, 안녕하세요. 담당 설계사입니다. 잘 부탁드립니다.`,
     ],
   },
+  계약기념일: {
+    정중: [
+      `안녕하세요 {name} 님,\n{name} 님과 인연을 맺은 지 벌써 시간이 많이 흘렀습니다.\n그동안 변함없이 믿고 맡겨 주셔서 진심으로 감사드립니다.\n앞으로도 {name} 님의 소중한 보험을 최선을 다해 관리해 드리겠습니다.\n항상 곁에서 든든한 버팀목이 되겠습니다.\n- 담당 설계사 드림`,
+      `안녕하세요 {name} 님,\n{name} 님의 보험 계약 기념일을 맞이하여 연락드립니다.\n오랜 시간 함께해 주신 덕분에 저도 많이 성장할 수 있었습니다.\n앞으로도 더 나은 서비스로 보답하겠습니다.\n편하신 시간에 연락 주시면 보험 현황을 점검해 드리겠습니다.\n- 담당 설계사 드림`,
+      `안녕하세요 {name} 님,\n보험 가입 기념일을 축하드립니다! 🎉\n그동안 성실하게 보험을 유지해 주셔서 감사합니다.\n{name} 님의 보장이 더욱 탄탄해질 수 있도록 지속적으로 점검해 드리겠습니다.\n- 담당 설계사 드림`,
+    ],
+    친근: [
+      `안녕하세요 {name} 님! 😊\n오늘이 보험 가입 기념일이에요! 🎉\n시간이 정말 빠르죠?\n그동안 함께해 주셔서 정말 감사해요!\n앞으로도 {name} 님 곁에서 든든하게 챙겨드릴게요 💚`,
+      `안녕하세요 {name} 님! 🎉\n보험 가입하신 지 벌써 이렇게 됐네요!\n그동안 잘 지내고 계셨죠?\n오랜 인연에 감사드리고 앞으로도 잘 부탁드려요!\n혹시 보험 관련해서 변경이 필요하신 거 있으시면 언제든지 연락주세요 💚`,
+      `안녕하세요 {name} 님! 😄\n오늘 {name} 님 보험 기념일이에요! 🎊\n정말 오랫동안 함께해 주셔서 감사해요!\n앞으로도 더 잘 챙겨드릴게요 💚`,
+    ],
+    애교: [
+      `{name} 님~ 오늘 보험 기념일이에요! 🎉🎊\n시간이 정말 빠르죠? 저는 {name} 님과의 인연이 너무 소중해요 💚\n앞으로도 오래오래 함께해요!`,
+      `{name} 님~! 기념일 축하드려요! 🎉\n그동안 믿어주셔서 너무 감사해요 😊\n앞으로도 더더욱 잘 챙겨드릴게요 💚`,
+      `{name} 님~ 보험 가입 기념일이에요! 🎊\n{name} 님 덕분에 저도 행복하게 일하고 있어요 💚\n오래오래 함께해요~!`,
+    ],
+    간결: [
+      `{name} 님, 보험 가입 기념일을 축하드립니다! 🎉\n그동안 함께해 주셔서 감사합니다.`,
+      `{name} 님, 기념일 축하드립니다! 앞으로도 잘 부탁드립니다 😊`,
+      `{name} 님, 보험 기념일입니다. 감사합니다. 앞으로도 잘 챙겨드릴게요.`,
+    ],
+  },
   일반: {
     정중: [
       `안녕하세요 {name} 님,\n담당 설계사입니다.\n{name} 님의 보험이 잘 유지되고 있는지 확인차 연락드렸습니다.\n혹시 보험 관련하여 궁금하신 점이 있거나 변경 사항이 있으시면,\n언제든지 편하게 말씀해 주시기 바랍니다.\n항상 {name} 님 곁에서 도움이 되겠습니다.\n- 담당 설계사 드림`,
@@ -271,7 +293,23 @@ function detectSituation(customer: any, meetings: any[], contracts: any[], cover
     if (diff > 90) return { type: '장기미연락', label: '💬 장기 미연락' }
   }
 
-  // 8. 첫 인사
+  // 8. 계약 기념일 (7일 이내)
+  const annivContract = cContracts.find(ct => {
+    if (!ct.contract_start) return false
+    const parts = ct.contract_start.split('.')
+    if (parts.length < 2) return false
+    const startYear = parseInt(parts[0])
+    const startMonth = parseInt(parts[1]) - 1
+    const startDay = parts[2] ? parseInt(parts[2]) : 1
+    const years = today.getFullYear() - startYear
+    if (years <= 0) return false
+    const anniv = new Date(today.getFullYear(), startMonth, startDay)
+    const diff = Math.ceil((anniv.getTime() - today.getTime()) / 86400000)
+    return diff >= 0 && diff <= 7
+  })
+  if (annivContract) return { type: '계약기념일', label: '🎉 계약 기념일' }
+
+  // 9. 첫 인사
   if (cMeetings.length === 0 && cContracts.length === 0) return { type: '첫인사', label: '👋 첫 인사' }
 
   return { type: '일반', label: '📱 일반' }
