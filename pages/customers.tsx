@@ -183,7 +183,7 @@ function formatPhone(val: string): string {
 }
 
 function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(true)
+  const [isMobile, setIsMobile] = useState(false)
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= 768)
     check()
@@ -240,6 +240,8 @@ export default function Customers() {
         if (target.customer_type === 'existing') setTab('existing')
         else if (target.customer_type === 'prospect') setTab('prospect')
         selectCustomer(target)
+        // URL에서 id 파라미터 제거 (desktopGrid 깜빡임 방지)
+        router.replace('/customers', undefined, { shallow: true })
         // 해당 고객 행을 리스트 맨 위로 스크롤
         setTimeout(() => {
           const el = document.getElementById(`customer-row-${id}`)
@@ -614,7 +616,7 @@ export default function Customers() {
       )}
 
       {/* 데스크탑: 좌우 분할 / 모바일: 단일 컬럼 */}
-      <div className={(!isMobile && selected) ? styles.desktopGrid : ''}>
+      <div className={isMobile ? '' : (selected ? styles.desktopGrid : '')}>
       <div className={styles.listPanel}>
         {loading ? <div className={styles.empty}>불러오는 중...</div> : filteredCustomers.length === 0 ? (
           <div className={styles.empty}>해당 고객이 없어요</div>
