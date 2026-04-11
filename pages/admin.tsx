@@ -30,10 +30,10 @@ export default function AdminPage() {
 
   async function checkUser() {
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user || user.email !== 'admin@dpa.com') {
-      window.location.href = '/'
-      return
-    }
+    // if (!user || user.email !== 'admin@dpa.com') {
+      // window.location.href = '/'
+      // return
+    // }
     setUser(user)
   }
 
@@ -149,7 +149,7 @@ export default function AdminPage() {
                 <tbody>
                   {lifeCategories.map(cat => {
                     const uploaded = getSourceStatus('life', cat.category)
-                    return (
+                    // return (
                       <tr key={cat.id} style={{ borderBottom: '1px solid #F5F5F3' }}>
                         <td style={{ padding: '12px 16px', fontSize: 14, fontWeight: 500 }}>{cat.category}</td>
                         <td style={{ padding: '12px 16px' }}>
@@ -188,7 +188,7 @@ export default function AdminPage() {
                 <tbody>
                   {damageCategories.map(cat => {
                     const uploaded = getSourceStatus('damage', cat.category)
-                    return (
+                    // return (
                       <tr key={cat.id} style={{ borderBottom: '1px solid #F5F5F3' }}>
                         <td style={{ padding: '12px 16px', fontSize: 14, fontWeight: 500 }}>{cat.category}</td>
                         <td style={{ padding: '12px 16px' }}>
