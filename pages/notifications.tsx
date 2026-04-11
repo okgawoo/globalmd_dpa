@@ -347,13 +347,13 @@ export default function NotificationsPage() {
         {/* ── 드릴다운: 이슈별 고객 리스트 ── */}
         {activeIssue && (
           <>
-            {/* 헤더 (뒤로가기) */}
-            <div className={styles.drillHeader}>
+            {/* 헤더 (뒤로가기) - 초록 헤더 */}
+            <div className={styles.drillGreenHeader}>
               <button className={styles.backBtn} onClick={() => { setActiveIssue(null); setSelectMode(false); setSelectedIds([]) }}>
-                <div className={styles.backChevron} />
+                <div className={styles.backChevronWhite} />
               </button>
-              <span className={styles.drillTitle}>{ISSUE_CONFIG[activeIssue].icon} {ISSUE_CONFIG[activeIssue].label} {activeNotifs.length}명</span>
-              <button className={styles.selectToggleBtn} onClick={() => { setSelectMode(s => !s); setSelectedIds([]) }}>
+              <span className={styles.drillGreenTitle}>{ISSUE_CONFIG[activeIssue].icon} {ISSUE_CONFIG[activeIssue].label} {activeNotifs.length}명</span>
+              <button className={styles.selectToggleBtnWhite} onClick={() => { setSelectMode(s => !s); setSelectedIds([]) }}>
                 {selectMode ? '취소' : '선택'}
               </button>
             </div>
@@ -366,9 +366,6 @@ export default function NotificationsPage() {
                   <button className={styles.selectAllBtn} onClick={() => setSelectedIds(selectedIds.length === activeNotifs.length ? [] : activeNotifs.map(n => n.id))}>
                     {selectedIds.length === activeNotifs.length ? '전체 해제' : '전체 선택'}
                   </button>
-                  {selectedIds.length > 0 && (
-                    <button className={styles.bulkSendBtn} onClick={startBulkSend}>{selectedIds.length}명 단체 발송</button>
-                  )}
                 </div>
               </div>
             )}
@@ -408,6 +405,11 @@ export default function NotificationsPage() {
                 </div>
               )
             })}
+            {selectMode && selectedIds.length > 0 && (
+              <button className={styles.bulkSendFullBtn} onClick={startBulkSend}>
+                {selectedIds.length}명에게 단체 발송
+              </button>
+            )}
           </>
         )}
       </div>

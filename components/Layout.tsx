@@ -27,7 +27,7 @@ const menus = [
   { label: '보장 분석', path: '/analysis' },
   { label: '영업 관리', path: '/sales' },
   { label: '영업 성과 리포트', path: '/report', dividerAfter: true },
-  { label: '알림', path: '/notifications' },
+  { label: '문자 발송', path: '/notifications' },
   { label: '뉴스레터', path: '/newsletter' },
   { label: '설정', path: '/settings' },
 ]

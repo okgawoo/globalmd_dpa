@@ -354,6 +354,21 @@ export default function SmsSlidePanel({ isOpen, onClose, customer, meetings = []
     onClose()
   }
 
+  // 카카오톡 딥링크
+  async function handleKakao() {
+    await navigator.clipboard.writeText(scriptText)
+    if (agentId && customer?.id) {
+      await supabase.from('dpa_messages').insert({
+        agent_id: agentId, customer_id: customer.id,
+        message_type: situation.type, is_sent: false, sent_script: scriptText,
+      })
+    }
+    const encoded = encodeURIComponent(scriptText)
+    window.location.href = `kakaolink://send?text=${encoded}`
+    setTimeout(() => { alert('카카오톡이 열리지 않으면 복사된 내용을 붙여넣으세요 😊') }, 500)
+    onClose()
+  }
+
   async function handleSend() {
     if (!scriptText) return
     setSending(true)
@@ -431,9 +446,14 @@ export default function SmsSlidePanel({ isOpen, onClose, customer, meetings = []
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: 10, padding: '12px 16px 24px', borderTop: '1px solid var(--border)', flexShrink: 0 }}>
-          <button onClick={handleCopy} style={{ flex: 1, padding: '13px', borderRadius: 12, border: '1px solid #1D9E75', background: 'var(--bg-card)', color: '#1D9E75', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>📋 복사</button>
-          <button onClick={handleSend} disabled={sending || !scriptText} style={{ flex: 2, padding: '13px', borderRadius: 12, border: 'none', background: '#1D9E75', color: 'white', fontSize: 15, fontWeight: 700, cursor: 'pointer', opacity: sending ? 0.7 : 1 }}>{sending ? '발송 중...' : '📱 발송하기'}</button>
+        <div style={{ padding: '12px 16px 4px', borderTop: '1px solid var(--border)', flexShrink: 0 }}>
+          <button onClick={handleKakao} style={{ width: '100%', padding: '13px', borderRadius: 12, border: 'none', background: '#FEE500', color: '#3A1D1D', fontSize: 15, fontWeight: 700, cursor: 'pointer', marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            <span style={{ fontSize: 18 }}>💬</span> 카카오톡으로 보내기
+          </button>
+          <div style={{ display: 'flex', gap: 8, paddingBottom: 24 }}>
+            <button onClick={handleCopy} style={{ flex: 1, padding: '11px', borderRadius: 12, border: '1px solid #1D9E75', background: 'var(--bg-card)', color: '#1D9E75', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>📋 복사</button>
+            <button onClick={handleSend} disabled={sending || !scriptText} style={{ flex: 2, padding: '11px', borderRadius: 12, border: 'none', background: '#1D9E75', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer', opacity: sending ? 0.7 : 1 }}>{sending ? '발송 중...' : '📱 발송하기'}</button>
+          </div>
         </div>
       </div>
       <style>{`
