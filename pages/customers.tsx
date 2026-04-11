@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
+import SmsSlidePanel from '../components/SmsSlide'
 import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
 import { useConfirm } from '../lib/useConfirm'
@@ -199,6 +200,9 @@ export default function Customers() {
   const [coverages, setCoverages] = useState<any[]>([])
   const router = useRouter()
   const [selected, setSelected] = useState<any>(null)
+  const [smsOpen, setSmsOpen] = useState(false)
+  const [smsCustomer, setSmsCustomer] = useState<any>(null)
+  const [agentId, setAgentId] = useState<string>('')
   const [selectedContracts, setSelectedContracts] = useState<any[]>([])
   const [selectedCoverages, setSelectedCoverages] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -274,6 +278,7 @@ export default function Customers() {
     setLoading(true)
     const { data: { user } } = await supabase.auth.getUser()
     const agentId = user?.id
+    if (agentId) setAgentId(agentId)
     const { data: custs, error: e1 } = await supabase.from('dpa_customers').select('*').eq('agent_id', agentId).order('created_at', { ascending: false })
     const { data: conts, error: e2 } = await supabase.from('dpa_contracts').select('*').eq('agent_id', agentId)
     const { data: covs, error: e3 } = await supabase.from('dpa_coverages').select('*').order('section', { ascending: true }).order('sort_order', { ascending: true })
@@ -346,6 +351,7 @@ export default function Customers() {
     if (!addForm.name) return alert('고객명은 필수예요!')
     const { data: { user } } = await supabase.auth.getUser()
     const agentId = user?.id
+    if (agentId) setAgentId(agentId)
     const { gender, age, birthDate } = parseResident(addForm.resident_number)
     const { data: cust } = await supabase.from('dpa_customers').insert({
       ...addForm,
@@ -541,6 +547,15 @@ export default function Customers() {
 
   return (
     <div className={styles.wrap}>
+      {smsOpen && smsCustomer && (
+        <SmsSlidePanel
+          isOpen={smsOpen}
+          onClose={() => { setSmsOpen(false); setSmsCustomer(null) }}
+          customer={smsCustomer}
+          scriptType="일반"
+          agentId={agentId}
+        />
+      )}
       {/* 탭바 */}
       <div className={styles.tabBar}>
         <button
@@ -629,6 +644,7 @@ export default function Customers() {
                 )}
               </div>
               <div className={styles.custActions}>
+                <button className={styles.smsBtn} onClick={e => { e.stopPropagation(); setSmsCustomer(c); setSmsOpen(true) }}>📱</button>
                 <button className={styles.editBtn} onClick={e => { e.stopPropagation(); selectCustomer(c); setEditMode(true); setEditForm(c); setAddMode(false) }}>수정</button>
                 <button className={styles.deleteBtn} onClick={e => deleteCustomer(c, e)}>삭제</button>
               </div>
@@ -800,7 +816,12 @@ export default function Customers() {
                   <div className={styles.detailName}>{selected.name}</div>
                   <div className={styles.detailMeta}>{selected.age}세 · {selected.gender} · {selected.job} · {selected.phone}</div>
                 </div>
-                {!editMode && <button className={styles.editBtn} onClick={() => { setEditMode(true); setEditForm(selected) }}>수정</button>}
+                {!editMode && (
+                  <>
+                    <button className={styles.smsBtn} style={{marginRight:4}} onClick={() => { setSmsCustomer(selected); setSmsOpen(true) }}>📱 문자</button>
+                    <button className={styles.editBtn} onClick={() => { setEditMode(true); setEditForm(selected) }}>수정</button>
+                  </>
+                )}
               </div>
               {editMode && (
                 <div className={styles.editBox}>
@@ -1119,7 +1140,12 @@ export default function Customers() {
                     <div className={styles.detailMeta}>{selected.age}세 · {selected.gender} · {selected.job} · {selected.phone}</div>
                   </div>
                   <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                    {!editMode && <button className={styles.editBtn} onClick={() => { setEditMode(true); setEditForm(selected) }}>수정</button>}
+                    {!editMode && (
+                  <>
+                    <button className={styles.smsBtn} style={{marginRight:4}} onClick={() => { setSmsCustomer(selected); setSmsOpen(true) }}>📱 문자</button>
+                    <button className={styles.editBtn} onClick={() => { setEditMode(true); setEditForm(selected) }}>수정</button>
+                  </>
+                )}
                     <button className={styles.slideCloseBtn} onClick={closeSlide}>✕</button>
                   </div>
                 </div>

@@ -322,3 +322,7 @@
   .covItem { font-size: 13px; }
   .covLabel { font-size: 13px; }
 }
+
+/* 문자 버튼 */
+.smsBtn { font-size: 13px; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--green-light); color: var(--green); cursor: pointer; white-space: nowrap; font-weight: 600; }
+.smsBtn:hover { background: var(--green); color: #ffffff; }
