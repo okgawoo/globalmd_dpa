@@ -10,56 +10,63 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
-const SKIP_WORDS = ['주계약', '특약', '구분', '급부명칭', '지급사유', '지급금액', '보험료', '선택', '회사명', '상품명', '담보명', 'NaN', '', 'null', 'undefined']
+function cleanNum(val: any): number | null {
+  const n = parseInt(String(val || '').replace(/[^0-9]/g, ''))
+  return isNaN(n) || n === 0 ? null : n
+}
 
-// 생명보험 파일 파싱 (HTML 위장 XLS)
+function cleanStr(val: any): string {
+  return String(val || '').trim().replace(/\s+/g, ' ')
+}
+
+function isEmpty(val: any): boolean {
+  const s = cleanStr(val)
+  return !s || s === 'nan' || s === 'null' || s === 'undefined' || s === 'NaN'
+}
+
+// 생명보험 파싱
+// 구조: 0행부터 바로 데이터
+// col0:보험회사명 col1:상품명 col2:구분 col3:급부명칭 col4:지급사유 col5:지급금액 col6:가입금액 col7:남자보험료 col8:여자보험료
 function parseLifeFile(rows: any[][], category: string) {
   const products: any[] = []
   const warnings: string[] = []
   const companies = new Set<string>()
 
-  // 데이터 시작 행 찾기
-  let dataStart = 4
-  for (let i = 0; i < Math.min(10, rows.length); i++) {
-    const rowStr = rows[i].map((c: any) => String(c || '')).join('')
-    if (rowStr.includes('보험회사명') || rowStr.includes('보험회사')) {
-      dataStart = i + 4
-      break
-    }
-  }
-
   let currentCompany = ''
   let currentProduct = ''
 
-  for (let i = dataStart; i < rows.length; i++) {
+  for (let i = 0; i < rows.length; i++) {
     const row = rows[i]
     if (!row) continue
 
-    const col0 = String(row[0] || '').trim()
-    const col1 = String(row[1] || '').trim()
-    const col2 = String(row[2] || '').trim()
-    const col3 = String(row[3] || '').trim()
-    const col4 = String(row[4] || '').trim()
-    const col5 = String(row[5] || '').trim()
+    const col0 = cleanStr(row[0]) // 보험회사명
+    const col1 = cleanStr(row[1]) // 상품명
+    const col2 = cleanStr(row[2]) // 구분
+    const col3 = cleanStr(row[3]) // 급부명칭
+    const col4 = cleanStr(row[4]) // 지급사유
+    const col5 = cleanStr(row[5]) // 지급금액
+    const col7 = row[7]           // 보험료(남)
+    const col8 = row[8]           // 보험료(여)
 
-    // 보험회사명 업데이트 (스킵 단어 제외)
-    if (col0 && !SKIP_WORDS.includes(col0) && col0.length < 50 && !col0.match(/^[0-9,.\s%]+$/)) {
+    // 보험회사명 업데이트
+    if (!isEmpty(col0) && col0.length < 50) {
       currentCompany = col0
       companies.add(col0)
     }
-    if (col1 && !SKIP_WORDS.includes(col1) && col1.length < 200) {
+    // 상품명 업데이트
+    if (!isEmpty(col1) && col1.length < 300) {
       currentProduct = col1
     }
 
     // 급부명칭 없으면 스킵
-    if (!col3 || SKIP_WORDS.includes(col3) || col3.match(/^[0-9,.\s%]+$/)) continue
+    if (isEmpty(col3)) continue
     if (!currentCompany) continue
 
-    const premiumMale = parseInt(String(row[6] || '').replace(/[^0-9]/g, '')) || null
-    const premiumFemale = parseInt(String(row[7] || '').replace(/[^0-9]/g, '')) || null
+    const premiumMale = cleanNum(col7)
+    const premiumFemale = cleanNum(col8)
 
-    if (!premiumMale && !premiumFemale) {
-      if (warnings.length < 50) warnings.push(`${currentCompany} - ${col3}: 보험료 누락 (${i + 1}행)`)
+    if (!premiumMale && !premiumFemale && warnings.length < 50) {
+      warnings.push(`${currentCompany} - ${col3}: 보험료 누락 (${i + 1}행)`)
     }
 
     products.push({
@@ -67,10 +74,10 @@ function parseLifeFile(rows: any[][], category: string) {
       category,
       company: currentCompany,
       product_name: currentProduct || null,
-      division: col2 || null,
+      division: !isEmpty(col2) ? col2 : null,
       coverage_name: col3,
-      payment_reason: col4 || null,
-      payment_amount: col5 || null,
+      payment_reason: !isEmpty(col4) ? col4 : null,
+      payment_amount: !isEmpty(col5) ? col5 : null,
       premium_male: premiumMale,
       premium_female: premiumFemale,
     })
@@ -79,17 +86,19 @@ function parseLifeFile(rows: any[][], category: string) {
   return { products, companies: Array.from(companies), warnings }
 }
 
-// 손해보험 파일 파싱 (진짜 XLS)
+// 손해보험 파싱
+// 구조: 5행 헤더상단, 6행 헤더하단, 7행부터 데이터
+// col1:회사명 col2:상품명 col3:담보명 col4:지급사유 col5:지급액 col6:남자보험료 col7:여자보험료
 function parseDamageFile(rows: any[][], category: string) {
   const products: any[] = []
   const warnings: string[] = []
   const companies = new Set<string>()
 
-  // 헤더 행 찾기
+  // 데이터 시작 행 찾기 (담보명 + 지급사유가 있는 행의 다음)
   let dataStart = 7
   for (let i = 0; i < Math.min(15, rows.length); i++) {
     const rowStr = rows[i].map((c: any) => String(c || '')).join('')
-    if (rowStr.includes('회사명') && rowStr.includes('담보명')) {
+    if (rowStr.includes('담보명') && rowStr.includes('지급사유')) {
       dataStart = i + 1
       break
     }
@@ -102,33 +111,34 @@ function parseDamageFile(rows: any[][], category: string) {
     const row = rows[i]
     if (!row) continue
 
-    const col1 = String(row[1] || '').trim() // 회사명
-    const col2 = String(row[2] || '').trim() // 상품명
-    const col3 = String(row[3] || '').trim() // 담보명
-    const col4 = String(row[4] || '').trim() // 지급사유
-    const col5 = String(row[5] || '').trim() // 지급액
+    const col1 = cleanStr(row[1]) // 회사명
+    const col2 = cleanStr(row[2]) // 상품명
+    const col3 = cleanStr(row[3]) // 담보명
+    const col4 = cleanStr(row[4]) // 지급사유
+    const col5 = cleanStr(row[5]) // 지급액
+    const col6 = row[6]           // 보험료(남)
+    const col7 = row[7]           // 보험료(여)
 
     // 회사명 업데이트
-    if (col1 && !SKIP_WORDS.includes(col1) && col1.length < 50 && !col1.match(/^[0-9,.\s%]+$/)) {
+    if (!isEmpty(col1) && col1.length < 50) {
       currentCompany = col1
       companies.add(col1)
     }
-    if (col2 && !SKIP_WORDS.includes(col2) && col2.length < 300) {
+    // 상품명 업데이트
+    if (!isEmpty(col2) && col2.length < 300) {
       currentProduct = col2
     }
 
     // 담보명 없으면 스킵
-    if (!col3 || SKIP_WORDS.includes(col3) || col3.match(/^[0-9,.\s%]+$/)) continue
+    if (isEmpty(col3)) continue
     if (!currentCompany) continue
 
-    const premiumMale = parseInt(String(row[6] || '').replace(/[^0-9]/g, '')) || null
-    const premiumFemale = parseInt(String(row[7] || '').replace(/[^0-9]/g, '')) || null
+    const premiumMale = cleanNum(col6)
+    const premiumFemale = cleanNum(col7)
 
-    if (!premiumMale && !premiumFemale) {
-      if (warnings.length < 50) warnings.push(`${currentCompany} - ${col3}: 보험료 누락 (${i + 1}행)`)
+    if (!premiumMale && !premiumFemale && warnings.length < 50) {
+      warnings.push(`${currentCompany} - ${col3}: 보험료 누락 (${i + 1}행)`)
     }
-
-    if (!currentCompany) continue
 
     products.push({
       source: 'damage',
@@ -137,8 +147,8 @@ function parseDamageFile(rows: any[][], category: string) {
       product_name: currentProduct || null,
       division: null,
       coverage_name: col3,
-      payment_reason: col4 || null,
-      payment_amount: col5 || null,
+      payment_reason: !isEmpty(col4) ? col4 : null,
+      payment_amount: !isEmpty(col5) ? col5 : null,
       premium_male: premiumMale,
       premium_female: premiumFemale,
     })
@@ -148,20 +158,19 @@ function parseDamageFile(rows: any[][], category: string) {
 }
 
 // 파일 자동 판별
-function detectFileType(rows: any[][]): { source: string, category: string } {
-  const allText = rows.slice(0, 20).flat().filter(Boolean).map((c: any) => String(c)).join(' ')
-  const isLife = ['급부명칭', '공시이율', '보험가격지수'].some(k => allText.includes(k))
+function detectFileType(allText: string): { source: string, category: string } {
+  const isLife = ['급부명칭', '공시이율', '보험가격지수', '가입금액'].some(k => allText.includes(k))
   const source = isLife ? 'life' : 'damage'
 
   const categoryMap: { [key: string]: string[] } = {
-    '암보험': ['암진단', '암수술', '암입원', '암종별'],
+    '암보험': ['암진단', '암수술', '암입원', '암종별', '암보험'],
     '질병보험': ['뇌혈관', '심혈관', '뇌졸중', '급성심근경색'],
-    '종신보험': ['사망보험금', '종신'],
+    '종신보험': ['사망보험금', '종신보험'],
     '간병/치매보험': ['간병', '치매', '장기요양'],
     '어린이보험': ['어린이', '태아'],
     '치아보험': ['치아', '임플란트'],
     '정기보험': ['정기보험'],
-    '상해보험': ['상해보험', '재해'],
+    '상해보험': ['상해보험'],
   }
 
   let category = '기타'
@@ -193,11 +202,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       let rows: any[][] = []
 
       if (isRealXls) {
+        // 손해보험 형식 (진짜 XLS)
         const XLSX = require('xlsx')
         const wb = XLSX.read(fileContent, { type: 'buffer' })
         const ws = wb.Sheets[wb.SheetNames[0]]
         rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null })
       } else {
+        // 생명보험 형식 (HTML 위장 XLS)
         const { parse } = require('node-html-parser')
         const html = fileContent.toString('utf-8')
         const root = parse(html)
@@ -205,8 +216,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         rows = trs.map((tr: any) => tr.querySelectorAll('td,th').map((td: any) => td.text.trim() || null))
       }
 
-      const { source, category } = detectFileType(rows)
+      // 자동 판별
+      const allText = rows.slice(0, 30).flat().filter(Boolean).map((c: any) => String(c)).join(' ')
+      const { source, category } = detectFileType(allText)
 
+      // 파싱
       const result = isRealXls
         ? parseDamageFile(rows, category)
         : parseLifeFile(rows, category)
@@ -217,7 +231,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(400).json({ success: false, error: '파싱 가능한 데이터가 없어요.' })
       }
 
-      // 기존 데이터 superseded 처리
+      // 기존 active 데이터 superseded 처리
       await supabase
         .from('dpa_insurance_sources')
         .update({ status: 'superseded' })
