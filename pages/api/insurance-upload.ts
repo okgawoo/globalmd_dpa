@@ -241,7 +241,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const { products, companies, warnings } = result
 
       if (products.length === 0) {
-        return res.status(400).json({ success: false, error: '파싱 가능한 데이터가 없어요.' })
+        return res.status(400).json({ 
+          success: false, 
+          error: '파싱 가능한 데이터가 없어요.',
+          debug: {
+            source,
+            category,
+            rowCount: rows.length,
+            dataStart: rows.slice(0,10).map((r: any[]) => r ? r.slice(0,4).map((c:any) => String(c||'').slice(0,20)) : []),
+          }
+        })
       }
 
       // 기존 active 데이터 superseded 처리
