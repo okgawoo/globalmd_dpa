@@ -85,21 +85,32 @@ export default function AdminPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', fontFamily: 'Apple SD Gothic Neo, sans-serif' }}>
-      {/* 서브바 - 기본배경 + 탭 + 보험 공시 관리 */}
-      <div style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', gap: 0 }}>
-          {[
-            { key: 'dashboard', label: '📊 현황 대시보드' },
-            { key: 'upload', label: '📁 파일 업로드' },
-            { key: 'urls', label: '🔗 URL 목록' },
-          ].map(tab => (
-            <button key={tab.key} onClick={() => setActiveTab(tab.key as any)}
-              style={{ padding: '14px 20px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 14, fontWeight: activeTab === tab.key ? 700 : 400, color: activeTab === tab.key ? '#1D9E75' : 'var(--text-secondary)', borderBottom: activeTab === tab.key ? '2px solid #1D9E75' : '2px solid transparent' }}>
-              {tab.label}
-            </button>
-          ))}
-        </div>
-        <span style={{ fontSize: 13, color: 'var(--text-secondary)', paddingRight: 8 }}>보험 공시 관리</span>
+      {/* 상위 메뉴 탭 - 관리 영역 분류 */}
+      <div style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', padding: '0 24px', display: 'flex', gap: 0 }}>
+        {[
+          { key: '보험공시', label: '보험 공시 관리' },
+          { key: '공지사항', label: '공지사항 관리' },
+          { key: '설계사', label: '설계사 관리' },
+        ].map(menu => (
+          <button key={menu.key}
+            style={{ padding: '14px 20px', border: 'none', background: 'transparent', cursor: menu.key === '보험공시' ? 'pointer' : 'default', fontSize: 14, fontWeight: menu.key === '보험공시' ? 700 : 400, color: menu.key === '보험공시' ? '#1D9E75' : 'var(--text-muted)', borderBottom: menu.key === '보험공시' ? '2px solid #1D9E75' : '2px solid transparent', opacity: menu.key !== '보험공시' ? 0.5 : 1 }}>
+            {menu.label}
+          </button>
+        ))}
+      </div>
+
+      {/* 서브 탭 */}
+      <div style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', padding: '0 24px', display: 'flex', gap: 0 }}>
+        {[
+          { key: 'dashboard', label: '📊 현황 대시보드' },
+          { key: 'upload', label: '📁 파일 업로드' },
+          { key: 'urls', label: '🔗 URL 목록' },
+        ].map(tab => (
+          <button key={tab.key} onClick={() => setActiveTab(tab.key as any)}
+            style={{ padding: '12px 20px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 13, fontWeight: activeTab === tab.key ? 700 : 400, color: activeTab === tab.key ? '#1D9E75' : 'var(--text-secondary)', borderBottom: activeTab === tab.key ? '2px solid #1D9E75' : '2px solid transparent' }}>
+            {tab.label}
+          </button>
+        ))}
       </div>
 
       <div style={{ padding: 24, maxWidth: 1000, margin: '0 auto' }}>
