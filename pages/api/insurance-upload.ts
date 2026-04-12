@@ -315,7 +315,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           upsert: true,
         })
 
-      if (!storageError) {
+      if (storageError) {
+        console.error('Storage 업로드 실패:', storageError)
+      } else {
         // file_url 업데이트
         await supabase
           .from('dpa_insurance_sources')
@@ -353,6 +355,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         warningDetails: warnings.slice(0, 5),
         fileUrl: storagePath,
         fileName: storageFileName,
+        storageError: storageError ? storageError.message : null,
       })
     } catch (e: any) {
       console.error('Upload error:', e)
