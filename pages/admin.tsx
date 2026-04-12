@@ -20,6 +20,7 @@ export default function AdminPage() {
   const [validations, setValidations] = useState<any[]>([])
   const [uploading, setUploading] = useState(false)
   const [uploadResult, setUploadResult] = useState<any>(null)
+  const [dragOver, setDragOver] = useState(false)
   const [activeTab, setActiveTab] = useState<'dashboard' | 'upload' | 'urls'>('dashboard')
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -52,8 +53,6 @@ export default function AdminPage() {
     return sources.find(s => s.source === source && s.category === category)
   }
 
-  const [dragOver, setDragOver] = useState(false)
-
   async function uploadFile(file: File) {
     setUploading(true)
     setUploadResult(null)
@@ -75,9 +74,7 @@ export default function AdminPage() {
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files || [])
     if (files.length === 0) return
-    for (const file of files) {
-      await uploadFile(file)
-    }
+    for (const file of files) { await uploadFile(file) }
   }
 
   async function handleDrop(e: React.DragEvent) {
@@ -85,9 +82,7 @@ export default function AdminPage() {
     setDragOver(false)
     const files = Array.from(e.dataTransfer.files || [])
     if (files.length === 0) return
-    for (const file of files) {
-      await uploadFile(file)
-    }
+    for (const file of files) { await uploadFile(file) }
   }
 
   const lifeCategories = categories.filter(c => c.source === 'life')
@@ -124,7 +119,7 @@ export default function AdminPage() {
           { key: 'urls', label: '🔗 URL 목록' },
         ].map(tab => (
           <button key={tab.key} onClick={() => setActiveTab(tab.key as any)}
-            style={{ padding: '12px 20px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 13, fontWeight: activeTab === tab.key ? 700 : 400, color: activeTab === tab.key ? '#1D9E75' : 'var(--text-secondary)', borderBottom: activeTab === tab.key ? '2px solid #1D9E75' : '2px solid transparent' }}>
+            style={{ padding: '12px 20px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 13, fontWeight: activeTab === tab.key ? 700 : 400, color: activeTab === tab.key ? '#1D9E75' : 'var(--text-secondary)' }}>
             {tab.label}
           </button>
         ))}
@@ -269,7 +264,7 @@ export default function AdminPage() {
               onMouseLeave={e => { if (!dragOver) e.currentTarget.style.borderColor = '#EDEBE4' }}
             >
               <div style={{ fontSize: 40, marginBottom: 12 }}>📊</div>
-              <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>클릭해서 파일 선택</div>
+              <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>{dragOver ? '파일을 놓으세요!' : '클릭 또는 드래그로 파일 선택'}</div>
               <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>생명보험협회 또는 손해보험협회 공시 엑셀(.xls) 파일</div>
               <input ref={fileRef} type="file" accept=".xls,.xlsx" multiple onChange={handleFileUpload} style={{ display: 'none' }} />
             </div>
