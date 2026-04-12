@@ -85,12 +85,7 @@ export default function AdminPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', fontFamily: 'Apple SD Gothic Neo, sans-serif' }}>
-      {/* 앱 상단바 - 초록배경 */}
-      <div style={{ background: '#1D9E75', color: 'white', padding: '12px 24px' }}>
-        <span style={{ fontSize: 17, fontWeight: 700 }}>관리자 페이지</span>
-      </div>
-
-      {/* 서브바 - 기본배경 + 탭 + 대시보드로 버튼 */}
+      {/* 서브바 - 기본배경 + 탭 + 보험 공시 관리 */}
       <div style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', gap: 0 }}>
           {[
@@ -104,12 +99,7 @@ export default function AdminPage() {
             </button>
           ))}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>보험 공시 관리</span>
-          <button onClick={() => window.location.href = '/'} style={{ background: '#1D9E75', border: 'none', color: 'white', padding: '6px 14px', borderRadius: 8, cursor: 'pointer', fontSize: 13 }}>
-            대시보드로
-          </button>
-        </div>
+        <span style={{ fontSize: 13, color: 'var(--text-secondary)', paddingRight: 8 }}>보험 공시 관리</span>
       </div>
 
       <div style={{ padding: 24, maxWidth: 1000, margin: '0 auto' }}>
@@ -135,7 +125,7 @@ export default function AdminPage() {
 
             {/* 생명보험 현황 */}
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border)', marginBottom: 16, overflow: 'hidden' }}>
-              <div style={{ padding: '14px 20px', background: 'var(--bg-secondary, #F0FDF9)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ padding: '14px 20px', background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#1D9E75', display: 'inline-block' }} />
                 <span style={{ fontWeight: 700, fontSize: 15 }}>생명보험협회 공시</span>
                 <span style={{ fontSize: 12, color: 'var(--text-muted)', marginLeft: 'auto' }}>pub.insure.or.kr</span>
@@ -174,7 +164,7 @@ export default function AdminPage() {
 
             {/* 손해보험 현황 */}
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border)', marginBottom: 16, overflow: 'hidden' }}>
-              <div style={{ padding: '14px 20px', background: 'var(--bg-secondary, #EFF6FF)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ padding: '14px 20px', background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#2563EB', display: 'inline-block' }} />
                 <span style={{ fontWeight: 700, fontSize: 15 }}>손해보험협회 공시</span>
                 <span style={{ fontSize: 12, color: 'var(--text-muted)', marginLeft: 'auto' }}>pub.knia.or.kr</span>
@@ -304,13 +294,13 @@ export default function AdminPage() {
           <>
             {['life', 'damage'].map(src => (
               <div key={src} style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border)', marginBottom: 16, overflow: 'hidden' }}>
-                <div style={{ padding: '14px 20px', background: 'var(--bg-secondary, #F5F5F3)', borderBottom: '1px solid var(--border)', fontWeight: 700, fontSize: 15 }}>
+                <div style={{ padding: '14px 20px', background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', fontWeight: 700, fontSize: 15 }}>
                   {src === 'life' ? '🟢 생명보험협회 공시 URL' : '🔵 손해보험협회 공시 URL'}
                 </div>
                 <div style={{ padding: 16 }}>
                   {categories.filter(c => c.source === src).map(cat => (
                     <div key={cat.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '1px solid var(--border)' }}>
-                      <div style={{ width: 80, fontSize: 13, fontWeight: 600, flexShrink: 0 }}>
+                      <div style={{ width: 110, fontSize: 13, fontWeight: 600, flexShrink: 0, whiteSpace: 'nowrap' as const }}>
                         {cat.category}
                         {cat.is_priority && <span style={{ fontSize: 10, background: '#FEF3C7', color: '#D97706', padding: '1px 6px', borderRadius: 20, marginLeft: 4 }}>핵심</span>}
                       </div>

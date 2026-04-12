@@ -128,12 +128,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </aside>
 
       <div className={styles.main}>
-        <header className={[styles.header, isDashboardMobile ? styles.headerHiddenMobile : ''].join(' ')}>
+        <header className={[styles.header, isDashboardMobile ? styles.headerHiddenMobile : ''].join(' ')}
+          style={router.pathname === '/admin' ? {background:'#1D9E75'} : {}}>
           <button className={styles.hamburger} onClick={() => setSidebarOpen(!sidebarOpen)}>
             <span /><span /><span />
           </button>
-          <Link href={menus.find(m => m.path === router.pathname)?.path || '/'} className={styles.headerTitle}>
-            {menus.find(m => m.path === router.pathname)?.label || 'DPA'}
+          <Link href={menus.find(m => m.path === router.pathname)?.path || '/'} className={styles.headerTitle}
+            style={router.pathname === '/admin' ? {color:'white'} : {}}>
+            {router.pathname === '/admin' ? '관리자 페이지' : (menus.find(m => m.path === router.pathname)?.label || 'DPA')}
           </Link>
           {!isDashboardMobile && (
             <Link href="/" style={{marginLeft:'auto',padding:'4px 8px',color:'var(--text-secondary)',display:'flex',alignItems:'center'}}>
