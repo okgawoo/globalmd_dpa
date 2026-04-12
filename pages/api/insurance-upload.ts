@@ -303,9 +303,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // 원본 파일 Supabase Storage에 업로드
       const now = new Date()
       const yyyyMM = `${now.getFullYear()}_${String(now.getMonth() + 1).padStart(2, '0')}`
-      const folder = source === 'damage' ? '손해보험협회' : '생명보험협회'
-      const safeCategory = category.replace('/', '_')
-      const storageFileName = `${folder}_${safeCategory}_${yyyyMM}.${file.originalFilename?.split('.').pop() || 'xls'}`
+      const folder = source === 'damage' ? 'damage' : 'life'
+      const categoryMap: { [key: string]: string } = {
+        '암보험': 'cancer', '질병보험': 'disease', '종신보험': 'whole-life',
+        '간병/치매보험': 'care', '어린이보험': 'children', '치아보험': 'dental',
+        '정기보험': 'term', '상해보험': 'accident', '종합보험': 'comprehensive',
+        '운전자보험': 'driver', '화재보험': 'fire', '비용보험': 'expense',
+        '기타보험': 'etc', '반려동물보험': 'pet', 'CI보험': 'ci',
+      }
+      const safeCategory = categoryMap[category] || category.replace(/[^a-zA-Z0-9]/g, '-')
+      const ext = file.originalFilename?.split('.').pop() || 'xls'
+      const storageFileName = `${folder}_${safeCategory}_${yyyyMM}.${ext}`
       const storagePath = `${folder}/${yyyyMM}/${storageFileName}`
 
       const { error: storageError } = await supabase.storage
