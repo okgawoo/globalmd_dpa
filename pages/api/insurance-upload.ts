@@ -170,10 +170,8 @@ function parseDamageFile(rows: any[][], category: string) {
   return { products, companies: Array.from(companies), warnings }
 }
 
-// 파일 자동 판별
-function detectFileType(allText: string): { source: string, category: string } {
-  const isLife = ['급부명칭', '공시이율', '보험가격지수', '가입금액'].some(k => allText.includes(k))
-  const source = isLife ? 'life' : 'damage'
+// 카테고리 자동 판별
+function detectFileType(allText: string): { category: string } {
 
   const categoryMap: { [key: string]: string[] } = {
     '암보험': ['암진단', '암수술', '암입원', '암종별', '암보험'],
@@ -193,7 +191,7 @@ function detectFileType(allText: string): { source: string, category: string } {
     if (score > maxScore) { maxScore = score; category = cat }
   }
 
-  return { source, category }
+  return { category }
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -231,7 +229,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       // 자동 판별
       const allText = rows.slice(0, 30).flat().filter(Boolean).map((c: any) => String(c)).join(' ')
-      const { source, category } = detectFileType(allText)
+      // source는 파일 형식으로 확실하게 판별 (진짜 XLS = 손해보험, HTML XLS = 생명보험)
+      const source = isRealXls ? 'damage' : 'life'
+      const { category } = detectFileType(allText)
 
       // 파싱
       const result = isRealXls
