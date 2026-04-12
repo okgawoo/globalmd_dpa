@@ -38,7 +38,11 @@ const HEADER_WORDS = new Set([
 ])
 
 function isHeaderWord(val: string): boolean {
-  return HEADER_WORDS.has(val) || val.match(/^[0-9,.\s%]+$/) !== null
+  if (HEADER_WORDS.has(val)) return true
+  if (val.match(/^[0-9,.\s%]+$/) !== null) return true
+  // 조회 조건 행 패턴 필터 (예: "[보험회사] : 전체 [채널] : 전체")
+  if (val.includes('[보험회사]') || val.includes('[채널]') || val.includes('조회 조건')) return true
+  return false
 }
 
 // 생명보험 파싱
