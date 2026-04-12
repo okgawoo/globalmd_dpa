@@ -24,6 +24,19 @@ function isEmpty(val: any): boolean {
   return !s || s === 'nan' || s === 'null' || s === 'undefined' || s === 'NaN'
 }
 
+const HEADER_WORDS = new Set([
+  '보험회사명', '보험회사', '상품명', '구분', '급부명칭', '지급사유', '지급금액',
+  '가입금액', '보험료', '확정이율', '공시이율', '최저보증이율', '보험가격지수',
+  '부가보험료지수', '계약체결비용지수', '상품특징', '해약환급금', '갱신주기',
+  '유니버셜', '판매채널', '판매일자', '특이사항', '대표번호',
+  '주계약', '특약', '선택', '회사명', '담보명', '남자', '여자',
+  '금리확정형', '금리연동형', '자산연계형',
+])
+
+function isHeaderWord(val: string): boolean {
+  return HEADER_WORDS.has(val) || val.match(/^[0-9,.\s%]+$/) !== null
+}
+
 // 생명보험 파싱
 // 구조: 0행부터 바로 데이터
 // col0:보험회사명 col1:상품명 col2:구분 col3:급부명칭 col4:지급사유 col5:지급금액 col6:가입금액 col7:남자보험료 col8:여자보험료
@@ -49,17 +62,17 @@ function parseLifeFile(rows: any[][], category: string) {
     const col8 = row[8]           // 보험료(여)
 
     // 보험회사명 업데이트
-    if (!isEmpty(col0) && col0.length < 50) {
+    if (!isEmpty(col0) && !isHeaderWord(col0) && col0.length < 50) {
       currentCompany = col0
       companies.add(col0)
     }
     // 상품명 업데이트
-    if (!isEmpty(col1) && col1.length < 300) {
+    if (!isEmpty(col1) && !isHeaderWord(col1) && col1.length < 300) {
       currentProduct = col1
     }
 
-    // 급부명칭 없으면 스킵
-    if (isEmpty(col3)) continue
+    // 급부명칭 없으면 스킵 (헤더 단어도 스킵)
+    if (isEmpty(col3) || isHeaderWord(col3)) continue
     if (!currentCompany) continue
 
     const premiumMale = cleanNum(col7)
@@ -120,17 +133,17 @@ function parseDamageFile(rows: any[][], category: string) {
     const col7 = row[7]           // 보험료(여)
 
     // 회사명 업데이트
-    if (!isEmpty(col1) && col1.length < 50) {
+    if (!isEmpty(col1) && !isHeaderWord(col1) && col1.length < 50) {
       currentCompany = col1
       companies.add(col1)
     }
     // 상품명 업데이트
-    if (!isEmpty(col2) && col2.length < 300) {
+    if (!isEmpty(col2) && !isHeaderWord(col2) && col2.length < 300) {
       currentProduct = col2
     }
 
-    // 담보명 없으면 스킵
-    if (isEmpty(col3)) continue
+    // 담보명 없으면 스킵 (헤더 단어도 스킵)
+    if (isEmpty(col3) || isHeaderWord(col3)) continue
     if (!currentCompany) continue
 
     const premiumMale = cleanNum(col6)
