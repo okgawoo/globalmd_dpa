@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
@@ -22,7 +22,6 @@ export default function AdminPage() {
   const [uploadResult, setUploadResult] = useState<any>(null)
   const [activeTab, setActiveTab] = useState<'dashboard' | 'upload' | 'urls'>('dashboard')
   const fileRef = useRef<HTMLInputElement>(null)
-  const [dragOver, setDragOver] = useState(false)
 
   useEffect(() => {
     checkUser()
@@ -53,9 +52,12 @@ export default function AdminPage() {
     return sources.find(s => s.source === source && s.category === category)
   }
 
-  async function uploadFile(file: File) {
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
     setUploading(true)
     setUploadResult(null)
+
     try {
       const formData = new FormData()
       formData.append('file', file)
@@ -71,20 +73,6 @@ export default function AdminPage() {
     }
   }
 
-  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    uploadFile(file)
-  }
-
-  function handleDrop(e: React.DragEvent) {
-    e.preventDefault()
-    setDragOver(false)
-    const file = e.dataTransfer.files?.[0]
-    if (!file) return
-    uploadFile(file)
-  }
-
   const lifeCategories = categories.filter(c => c.source === 'life')
   const damageCategories = categories.filter(c => c.source === 'damage')
 
@@ -97,29 +85,31 @@ export default function AdminPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', fontFamily: 'Apple SD Gothic Neo, sans-serif' }}>
-      {/* 헤더 */}
-      <div style={{ background: '#1D9E75', color: 'white', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ fontSize: 20, fontWeight: 700 }}>관리자 페이지</span>
-          <span style={{ fontSize: 12, background: 'rgba(255,255,255,0.2)', padding: '2px 8px', borderRadius: 20 }}>보험 공시 관리</span>
-        </div>
-        <button onClick={() => window.location.href = '/'} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '6px 14px', borderRadius: 8, cursor: 'pointer', fontSize: 13 }}>
-          대시보드로
-        </button>
+      {/* 앱 상단바 - 초록배경 */}
+      <div style={{ background: '#1D9E75', color: 'white', padding: '12px 24px' }}>
+        <span style={{ fontSize: 17, fontWeight: 700 }}>관리자 페이지</span>
       </div>
 
-      {/* 탭 */}
-      <div style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', padding: '0 24px', display: 'flex', gap: 0 }}>
-        {[
-          { key: 'dashboard', label: '📊 현황 대시보드' },
-          { key: 'upload', label: '📁 파일 업로드' },
-          { key: 'urls', label: '🔗 URL 목록' },
-        ].map(tab => (
-          <button key={tab.key} onClick={() => setActiveTab(tab.key as any)}
-            style={{ padding: '14px 20px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 14, fontWeight: activeTab === tab.key ? 700 : 400, color: activeTab === tab.key ? '#1D9E75' : 'var(--text-secondary)', borderBottom: activeTab === tab.key ? '2px solid #1D9E75' : '2px solid transparent' }}>
-            {tab.label}
+      {/* 서브바 - 기본배경 + 탭 + 대시보드로 버튼 */}
+      <div style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', gap: 0 }}>
+          {[
+            { key: 'dashboard', label: '📊 현황 대시보드' },
+            { key: 'upload', label: '📁 파일 업로드' },
+            { key: 'urls', label: '🔗 URL 목록' },
+          ].map(tab => (
+            <button key={tab.key} onClick={() => setActiveTab(tab.key as any)}
+              style={{ padding: '14px 20px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 14, fontWeight: activeTab === tab.key ? 700 : 400, color: activeTab === tab.key ? '#1D9E75' : 'var(--text-secondary)', borderBottom: activeTab === tab.key ? '2px solid #1D9E75' : '2px solid transparent' }}>
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>보험 공시 관리</span>
+          <button onClick={() => window.location.href = '/'} style={{ background: '#1D9E75', border: 'none', color: 'white', padding: '6px 14px', borderRadius: 8, cursor: 'pointer', fontSize: 13 }}>
+            대시보드로
           </button>
-        ))}
+        </div>
       </div>
 
       <div style={{ padding: 24, maxWidth: 1000, margin: '0 auto' }}>
@@ -145,7 +135,7 @@ export default function AdminPage() {
 
             {/* 생명보험 현황 */}
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border)', marginBottom: 16, overflow: 'hidden' }}>
-              <div style={{ padding: '14px 20px', background: '#F0FDF9', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ padding: '14px 20px', background: 'var(--bg-secondary, #F0FDF9)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#1D9E75', display: 'inline-block' }} />
                 <span style={{ fontWeight: 700, fontSize: 15 }}>생명보험협회 공시</span>
                 <span style={{ fontSize: 12, color: 'var(--text-muted)', marginLeft: 'auto' }}>pub.insure.or.kr</span>
@@ -253,21 +243,18 @@ export default function AdminPage() {
 
             <div
               onClick={() => fileRef.current?.click()}
-              onDragOver={e => { e.preventDefault(); setDragOver(true) }}
-              onDragLeave={() => setDragOver(false)}
-              onDrop={handleDrop}
-              style={{ border: `2px dashed ${dragOver ? '#1D9E75' : '#EDEBE4'}`, borderRadius: 12, padding: 48, textAlign: 'center', cursor: 'pointer', background: dragOver ? '#F0FDF9' : 'var(--bg)', transition: 'all 0.2s' }}
+              style={{ border: '2px dashed #EDEBE4', borderRadius: 12, padding: 48, textAlign: 'center', cursor: 'pointer', background: 'var(--bg)', transition: 'all 0.2s' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#1D9E75')}
-              onMouseLeave={e => { if (!dragOver) e.currentTarget.style.borderColor = '#EDEBE4' }}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = '#EDEBE4')}
             >
               <div style={{ fontSize: 40, marginBottom: 12 }}>📊</div>
-              <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>{dragOver ? '파일을 놓으세요!' : '클릭 또는 드래그로 파일 선택'}</div>
-              <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>생명보험협회 또는 손해보험협회 공시 엑셀(.xls, .xlsx) 파일</div>
-              <input ref={fileRef} type="file" accept=".xls,.xlsx" onChange={handleFileUpload} style={{ display: 'none' }} />
+              <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>클릭해서 파일 선택</div>
+              <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>생명보험협회 또는 손해보험협회 공시 엑셀(.xls) 파일</div>
+              <input ref={fileRef} type="file" accept=".xls,.xlsx" multiple onChange={handleFileUpload} style={{ display: 'none' }} />
             </div>
 
             {uploading && (
-              <div style={{ marginTop: 24, padding: 20, background: '#F0FDF9', borderRadius: 12, textAlign: 'center' }}>
+              <div style={{ marginTop: 24, padding: 20, background: 'var(--green-light, #F0FDF9)', borderRadius: 12, textAlign: 'center' }}>
                 <div style={{ fontSize: 24, marginBottom: 8 }}>⏳</div>
                 <div style={{ fontWeight: 600 }}>파일 분석 중...</div>
                 <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 }}>자동으로 보험 종류와 카테고리를 판별하고 있어요</div>
@@ -317,7 +304,7 @@ export default function AdminPage() {
           <>
             {['life', 'damage'].map(src => (
               <div key={src} style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border)', marginBottom: 16, overflow: 'hidden' }}>
-                <div style={{ padding: '14px 20px', background: src === 'life' ? '#F0FDF9' : '#EFF6FF', borderBottom: '1px solid var(--border)', fontWeight: 700, fontSize: 15 }}>
+                <div style={{ padding: '14px 20px', background: 'var(--bg-secondary, #F5F5F3)', borderBottom: '1px solid var(--border)', fontWeight: 700, fontSize: 15 }}>
                   {src === 'life' ? '🟢 생명보험협회 공시 URL' : '🔵 손해보험협회 공시 URL'}
                 </div>
                 <div style={{ padding: 16 }}>
