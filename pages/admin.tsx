@@ -271,6 +271,12 @@ export default function AdminPage() {
                       <div><span style={{ color: 'var(--text-secondary)' }}>총 행 수:</span> <strong>{uploadResult.rowCount?.toLocaleString()}행</strong></div>
                       <div><span style={{ color: 'var(--text-secondary)' }}>검증 경고:</span> <strong style={{ color: uploadResult.warnings > 0 ? '#D97706' : '#1D9E75' }}>{uploadResult.warnings}건</strong></div>
                     </div>
+                    {uploadResult.fileName && (
+                      <div style={{ marginTop: 10, padding: '8px 12px', background: '#E8F5F1', borderRadius: 8, fontSize: 13 }}>
+                        <span style={{ color: 'var(--text-secondary)' }}>💾 저장 경로:</span>{' '}
+                        <strong style={{ color: '#1D9E75', wordBreak: 'break-all' }}>{uploadResult.fileUrl}</strong>
+                      </div>
+                    )}
                     {uploadResult.warningDetails?.length > 0 && (
                       <div style={{ marginTop: 12, padding: 12, background: '#FEF3C7', borderRadius: 8 }}>
                         <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 6 }}>⚠️ 검증 경고</div>

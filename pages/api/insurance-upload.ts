@@ -300,6 +300,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       if (sourceError) throw sourceError
 
+      // 원본 파일 Supabase Storage에 업로드
+      const now = new Date()
+      const yyyyMM = `${now.getFullYear()}_${String(now.getMonth() + 1).padStart(2, '0')}`
+      const folder = source === 'damage' ? '손해보험협회' : '생명보험협회'
+      const safeCategory = category.replace('/', '_')
+      const storageFileName = `${folder}_${safeCategory}_${yyyyMM}.${file.originalFilename?.split('.').pop() || 'xls'}`
+      const storagePath = `${folder}/${yyyyMM}/${storageFileName}`
+
+      const { error: storageError } = await supabase.storage
+        .from('insurance-files')
+        .upload(storagePath, fileContent, {
+          contentType: 'application/vnd.ms-excel',
+          upsert: true,
+        })
+
+      if (!storageError) {
+        // file_url 업데이트
+        await supabase
+          .from('dpa_insurance_sources')
+          .update({ file_url: storagePath })
+          .eq('id', sourceRecord.id)
+      }
+
       // 배치 삽입
       const batchSize = 500
       for (let i = 0; i < products.length; i += batchSize) {
@@ -328,6 +351,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         companies: companies.slice(0, 10),
         warnings: warnings.length,
         warningDetails: warnings.slice(0, 5),
+        fileUrl: storagePath,
+        fileName: storageFileName,
       })
     } catch (e: any) {
       console.error('Upload error:', e)
