@@ -132,6 +132,10 @@ function parseDamageFile(rows: any[][], category: string) {
     const col6 = row[6]           // 보험료(남)
     const col7 = row[7]           // 보험료(여)
 
+    // 전체 행이 비어있으면 스킵 (손해보험 파일 특성상 짝수행이 빈행)
+    const rowValues = [col1, col2, col3, col4].filter(v => !isEmpty(v))
+    if (rowValues.length === 0) continue
+
     // 회사명 업데이트
     if (!isEmpty(col1) && !isHeaderWord(col1) && col1.length < 50) {
       currentCompany = col1
@@ -149,8 +153,11 @@ function parseDamageFile(rows: any[][], category: string) {
     const premiumMale = cleanNum(col6)
     const premiumFemale = cleanNum(col7)
 
-    if (!premiumMale && !premiumFemale && warnings.length < 50) {
-      warnings.push(`${currentCompany} - ${col3}: 보험료 누락 (${i + 1}행)`)
+    // 보험료 없는 서브 담보(세부 항목)는 경고 없이 저장
+    // (손해보험은 주계약 보험료만 있고 세부 담보는 보험료 없는 경우 많음)
+    if (!premiumMale && !premiumFemale) {
+      // 지급액도 없으면 의미없는 행 → 스킵
+      if (isEmpty(col5)) continue
     }
 
     products.push({
