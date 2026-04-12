@@ -18,7 +18,8 @@ function cleanNum(val: any): number | null {
 }
 
 function cleanStr(val: any): string {
-  return String(val || '').trim().replace(/\s+/g, ' ')
+  if (val === null || val === undefined) return ''
+  return String(val).trim().replace(/\s+/g, ' ').replace(/^'+|'+$/g, '').replace(/^"+|"+$/g, '')
 }
 
 function isEmpty(val: any): boolean {
@@ -136,7 +137,11 @@ function parseDamageFile(rows: any[][], category: string) {
     const col7 = row[7]           // 보험료(여)
 
     // 회사명 업데이트 (null/빈값이면 이전 회사명 유지)
-    if (!isEmpty(col1) && !isHeaderWord(col1) && col1.length < 50 && col1 !== 'null' && col1 !== 'None') {
+    // [보험회사] : 전체 같은 조건 행 필터링
+    if (!isEmpty(col1) && !isHeaderWord(col1) && col1.length < 50 
+        && col1 !== 'null' && col1 !== 'None'
+        && !col1.includes('[보험회사]') && !col1.includes('[채널]')
+        && !col1.includes('전체') ) {
       currentCompany = col1
       companies.add(col1)
     }
