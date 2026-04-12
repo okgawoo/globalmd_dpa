@@ -210,12 +210,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
       const fileContent = fs.readFileSync(file.filepath)
       const magic = fileContent.slice(0, 4).toString('hex')
-      const isRealXls = magic === 'd0cf11e0'
+      const isRealXls = magic === 'd0cf11e0'           // 진짜 XLS (원본 손해보험)
+      const isXlsx = fileContent.slice(0, 2).toString('hex') === '504b' // PK = xlsx (구글 드라이브 변환본)
 
       let rows: any[][] = []
 
-      if (isRealXls) {
-        // 손해보험 형식 (진짜 XLS)
+      if (isRealXls || isXlsx) {
+        // 진짜 XLS 또는 xlsx (구글 드라이브 변환본) → SheetJS로 파싱
         const wb = XLSX.read(fileContent, { type: 'buffer' })
         const ws = wb.Sheets[wb.SheetNames[0]]
         rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null })
@@ -227,10 +228,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         rows = trs.map((tr: any) => tr.querySelectorAll('td,th').map((td: any) => td.text.trim() || null))
       }
 
-      // 자동 판별
+      // 자동 판별: 파일 형식 + 내용으로 source 결정
       const allText = rows.slice(0, 30).flat().filter(Boolean).map((c: any) => String(c)).join(' ')
-      // source는 파일 형식으로 확실하게 판별 (진짜 XLS = 손해보험, HTML XLS = 생명보험)
-      const source = isRealXls ? 'damage' : 'life'
+      
+      // source 판별: 진짜XLS/xlsx → 컬럼 구조로 생명/손해 구분
+      // 손해보험: '장기보장성 비교 공시', '담보명', '회사명' 등
+      // 생명보험: '보험회사명', '급부명칭' 등
+      let source: string
+      if (isRealXls || isXlsx) {
+        // xlsx/xls는 내용으로 판별
+        const isDamage = allText.includes('장기보장성') || allText.includes('담보명') || 
+                         (allText.includes('회사명') && !allText.includes('보험회사명'))
+        source = isDamage ? 'damage' : 'life'
+      } else {
+        source = 'life' // HTML XLS는 항상 생명보험
+      }
       const { category } = detectFileType(allText)
 
       // 파싱
