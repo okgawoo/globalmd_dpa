@@ -2,6 +2,8 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { createClient } from '@supabase/supabase-js'
 import formidable from 'formidable'
 import fs from 'fs'
+import * as XLSX from 'xlsx'
+import { parse as parseHtml } from 'node-html-parser'
 
 export const config = { api: { bodyParser: false } }
 
@@ -214,15 +216,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       if (isRealXls) {
         // 손해보험 형식 (진짜 XLS)
-        const XLSX = require('xlsx')
         const wb = XLSX.read(fileContent, { type: 'buffer' })
         const ws = wb.Sheets[wb.SheetNames[0]]
         rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null })
       } else {
         // 생명보험 형식 (HTML 위장 XLS)
-        const { parse } = require('node-html-parser')
         const html = fileContent.toString('utf-8')
-        const root = parse(html)
+        const root = parseHtml(html)
         const trs = root.querySelectorAll('tr')
         rows = trs.map((tr: any) => tr.querySelectorAll('td,th').map((td: any) => td.text.trim() || null))
       }
