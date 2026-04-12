@@ -22,8 +22,9 @@ function cleanStr(val: any): string {
 }
 
 function isEmpty(val: any): boolean {
+  if (val === null || val === undefined) return true
   const s = cleanStr(val)
-  return !s || s === 'nan' || s === 'null' || s === 'undefined' || s === 'NaN'
+  return !s || s === 'nan' || s === 'null' || s === 'undefined' || s === 'NaN' || s === 'None'
 }
 
 const HEADER_WORDS = new Set([
@@ -134,13 +135,13 @@ function parseDamageFile(rows: any[][], category: string) {
     const col6 = row[6]           // 보험료(남)
     const col7 = row[7]           // 보험료(여)
 
-    // 회사명 업데이트
-    if (!isEmpty(col1) && !isHeaderWord(col1) && col1.length < 50) {
+    // 회사명 업데이트 (null/빈값이면 이전 회사명 유지)
+    if (!isEmpty(col1) && !isHeaderWord(col1) && col1.length < 50 && col1 !== 'null' && col1 !== 'None') {
       currentCompany = col1
       companies.add(col1)
     }
-    // 상품명 업데이트
-    if (!isEmpty(col2) && !isHeaderWord(col2) && col2.length < 300) {
+    // 상품명 업데이트 (null/빈값이면 이전 상품명 유지)
+    if (!isEmpty(col2) && !isHeaderWord(col2) && col2.length < 300 && col2 !== 'null' && col2 !== 'None') {
       currentProduct = col2
     }
 
