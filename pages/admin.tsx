@@ -57,14 +57,25 @@ export default function AdminPage() {
     setUploading(true)
     setUploadResult(null)
     try {
-      const formData = new FormData()
-      formData.append('file', file)
-      const res = await fetch('/api/insurance-upload', { method: 'POST', body: formData })
-      const result = await res.json()
-      setUploadResult(result)
-      if (result.success) fetchData()
-    } catch (err) {
-      setUploadResult({ success: false, error: '업로드 실패' })
+      // PDF면 보험사 요약서 업로드 처리
+      if (file.name.endsWith('.pdf')) {
+        const fileName = `guides/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`
+        const { error: storageError } = await supabase.storage
+          .from('insurance-files')
+          .upload(fileName, file, { contentType: 'application/pdf' })
+        if (storageError) throw new Error(storageError.message)
+        setUploadResult({ success: true, isPdf: true, fileName: file.name, filePath: fileName })
+      } else {
+        // XLS는 기존 로직
+        const formData = new FormData()
+        formData.append('file', file)
+        const res = await fetch('/api/insurance-upload', { method: 'POST', body: formData })
+        const result = await res.json()
+        setUploadResult(result)
+        if (result.success) fetchData()
+      }
+    } catch (err: any) {
+      setUploadResult({ success: false, error: err.message || '업로드 실패' })
     } finally {
       setUploading(false)
       if (fileRef.current) fileRef.current.value = ''
@@ -265,8 +276,8 @@ export default function AdminPage() {
             >
               <div style={{ fontSize: 40, marginBottom: 12 }}>📊</div>
               <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>{dragOver ? '파일을 놓으세요!' : '클릭 또는 드래그로 파일 선택'}</div>
-              <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>생명보험협회 또는 손해보험협회 공시 엑셀(.xls) 파일</div>
-              <input ref={fileRef} type="file" accept=".xls,.xlsx" multiple onChange={handleFileUpload} style={{ display: 'none' }} />
+              <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>공시 엑셀(.xls) 또는 보험사 요약서(.pdf) 파일</div>
+              <input ref={fileRef} type="file" accept=".xls,.xlsx,.pdf" multiple onChange={handleFileUpload} style={{ display: 'none' }} />
             </div>
 
             {uploading && (
@@ -280,8 +291,15 @@ export default function AdminPage() {
             {uploadResult && (
               <div style={{ marginTop: 24, padding: 20, background: uploadResult.success ? '#F0FDF9' : '#FEF2F2', borderRadius: 12 }}>
                 <div style={{ fontSize: 20, marginBottom: 8 }}>{uploadResult.success ? '✅' : '❌'}</div>
-                {uploadResult.success ? (
+                {uploadResult.isPdf ? (
                   <>
+                    <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 12 }}>PDF 업로드 완료!</div>
+                    <div style={{ fontSize: 14 }}><span style={{ color: 'var(--text-secondary)' }}>파일명:</span> <strong>{uploadResult.fileName}</strong></div>
+                    <div style={{ marginTop: 10, padding: '8px 12px', background: '#E8F5F1', borderRadius: 8, fontSize: 13 }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>💾 저장 경로:</span> <strong style={{ color: '#1D9E75' }}>{uploadResult.filePath}</strong>
+                    </div>
+                  </>
+                ) : (
                     <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 12 }}>업로드 완료!</div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 14 }}>
                       <div><span style={{ color: 'var(--text-secondary)' }}>판별 결과:</span> <strong>{uploadResult.source === 'life' ? '생명보험협회' : '손해보험협회'} {uploadResult.category}</strong></div>
@@ -304,6 +322,7 @@ export default function AdminPage() {
                       </div>
                     )}
                   </>
+                )}
                 ) : (
                   <div>
                     <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 8 }}>업로드 실패</div>
