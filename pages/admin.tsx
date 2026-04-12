@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
@@ -22,6 +22,7 @@ export default function AdminPage() {
   const [uploadResult, setUploadResult] = useState<any>(null)
   const [activeTab, setActiveTab] = useState<'dashboard' | 'upload' | 'urls'>('dashboard')
   const fileRef = useRef<HTMLInputElement>(null)
+  const [dragOver, setDragOver] = useState(false)
 
   useEffect(() => {
     checkUser()
@@ -52,12 +53,9 @@ export default function AdminPage() {
     return sources.find(s => s.source === source && s.category === category)
   }
 
-  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
+  async function uploadFile(file: File) {
     setUploading(true)
     setUploadResult(null)
-
     try {
       const formData = new FormData()
       formData.append('file', file)
@@ -71,6 +69,20 @@ export default function AdminPage() {
       setUploading(false)
       if (fileRef.current) fileRef.current.value = ''
     }
+  }
+
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    uploadFile(file)
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault()
+    setDragOver(false)
+    const file = e.dataTransfer.files?.[0]
+    if (!file) return
+    uploadFile(file)
   }
 
   const lifeCategories = categories.filter(c => c.source === 'life')
@@ -88,7 +100,7 @@ export default function AdminPage() {
       {/* 헤더 */}
       <div style={{ background: '#1D9E75', color: 'white', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ fontSize: 20, fontWeight: 700 }}>DPA 관리자</span>
+          <span style={{ fontSize: 20, fontWeight: 700 }}>관리자 페이지</span>
           <span style={{ fontSize: 12, background: 'rgba(255,255,255,0.2)', padding: '2px 8px', borderRadius: 20 }}>보험 공시 관리</span>
         </div>
         <button onClick={() => window.location.href = '/'} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '6px 14px', borderRadius: 8, cursor: 'pointer', fontSize: 13 }}>
@@ -133,7 +145,7 @@ export default function AdminPage() {
 
             {/* 생명보험 현황 */}
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border)', marginBottom: 16, overflow: 'hidden' }}>
-              <div style={{ padding: '14px 20px', background: 'var(--green-light, #F0FDF9)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ padding: '14px 20px', background: '#F0FDF9', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#1D9E75', display: 'inline-block' }} />
                 <span style={{ fontWeight: 700, fontSize: 15 }}>생명보험협회 공시</span>
                 <span style={{ fontSize: 12, color: 'var(--text-muted)', marginLeft: 'auto' }}>pub.insure.or.kr</span>
@@ -241,18 +253,21 @@ export default function AdminPage() {
 
             <div
               onClick={() => fileRef.current?.click()}
-              style={{ border: '2px dashed #EDEBE4', borderRadius: 12, padding: 48, textAlign: 'center', cursor: 'pointer', background: 'var(--bg)', transition: 'all 0.2s' }}
+              onDragOver={e => { e.preventDefault(); setDragOver(true) }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={handleDrop}
+              style={{ border: `2px dashed ${dragOver ? '#1D9E75' : '#EDEBE4'}`, borderRadius: 12, padding: 48, textAlign: 'center', cursor: 'pointer', background: dragOver ? '#F0FDF9' : 'var(--bg)', transition: 'all 0.2s' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#1D9E75')}
-              onMouseLeave={e => (e.currentTarget.style.borderColor = '#EDEBE4')}
+              onMouseLeave={e => { if (!dragOver) e.currentTarget.style.borderColor = '#EDEBE4' }}
             >
               <div style={{ fontSize: 40, marginBottom: 12 }}>📊</div>
-              <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>클릭해서 파일 선택</div>
-              <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>생명보험협회 또는 손해보험협회 공시 엑셀(.xls) 파일</div>
+              <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>{dragOver ? '파일을 놓으세요!' : '클릭 또는 드래그로 파일 선택'}</div>
+              <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>생명보험협회 또는 손해보험협회 공시 엑셀(.xls, .xlsx) 파일</div>
               <input ref={fileRef} type="file" accept=".xls,.xlsx" onChange={handleFileUpload} style={{ display: 'none' }} />
             </div>
 
             {uploading && (
-              <div style={{ marginTop: 24, padding: 20, background: 'var(--green-light, #F0FDF9)', borderRadius: 12, textAlign: 'center' }}>
+              <div style={{ marginTop: 24, padding: 20, background: '#F0FDF9', borderRadius: 12, textAlign: 'center' }}>
                 <div style={{ fontSize: 24, marginBottom: 8 }}>⏳</div>
                 <div style={{ fontWeight: 600 }}>파일 분석 중...</div>
                 <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 }}>자동으로 보험 종류와 카테고리를 판별하고 있어요</div>
@@ -312,7 +327,7 @@ export default function AdminPage() {
                         {cat.category}
                         {cat.is_priority && <span style={{ fontSize: 10, background: '#FEF3C7', color: '#D97706', padding: '1px 6px', borderRadius: 20, marginLeft: 4 }}>핵심</span>}
                       </div>
-                      <div style={{ flex: 1, fontSize: 12, color: 'var(--text-secondary)', wordBreak: 'break-all', background: '#F8F8F6', padding: '6px 10px', borderRadius: 6 }}>
+                      <div style={{ flex: 1, fontSize: 12, color: 'var(--text-secondary)', wordBreak: 'break-all', background: 'var(--bg)', padding: '6px 10px', borderRadius: 6 }}>
                         {cat.site_url}
                       </div>
                       <button
@@ -321,7 +336,7 @@ export default function AdminPage() {
                         복사
                       </button>
                       <a href={cat.site_url} target="_blank" rel="noreferrer"
-                        style={{ flexShrink: 0, padding: '6px 12px', background: '#F0F0EE', color: 'var(--text-primary)', border: 'none', borderRadius: 6, fontSize: 12, cursor: 'pointer', textDecoration: 'none' }}>
+                        style={{ flexShrink: 0, padding: '6px 12px', background: 'var(--bg)', color: 'var(--text-primary)', border: 'none', borderRadius: 6, fontSize: 12, cursor: 'pointer', textDecoration: 'none' }}>
                         열기
                       </a>
                     </div>
