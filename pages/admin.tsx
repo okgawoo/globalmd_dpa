@@ -52,12 +52,11 @@ export default function AdminPage() {
     return sources.find(s => s.source === source && s.category === category)
   }
 
-  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
+  const [dragOver, setDragOver] = useState(false)
+
+  async function uploadFile(file: File) {
     setUploading(true)
     setUploadResult(null)
-
     try {
       const formData = new FormData()
       formData.append('file', file)
@@ -70,6 +69,24 @@ export default function AdminPage() {
     } finally {
       setUploading(false)
       if (fileRef.current) fileRef.current.value = ''
+    }
+  }
+
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files || [])
+    if (files.length === 0) return
+    for (const file of files) {
+      await uploadFile(file)
+    }
+  }
+
+  async function handleDrop(e: React.DragEvent) {
+    e.preventDefault()
+    setDragOver(false)
+    const files = Array.from(e.dataTransfer.files || [])
+    if (files.length === 0) return
+    for (const file of files) {
+      await uploadFile(file)
     }
   }
 
@@ -107,7 +124,7 @@ export default function AdminPage() {
           { key: 'urls', label: '🔗 URL 목록' },
         ].map(tab => (
           <button key={tab.key} onClick={() => setActiveTab(tab.key as any)}
-            style={{ padding: '12px 20px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 13, fontWeight: activeTab === tab.key ? 700 : 400, color: activeTab === tab.key ? '#1D9E75' : 'var(--text-secondary)' }}>
+            style={{ padding: '12px 20px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 13, fontWeight: activeTab === tab.key ? 700 : 400, color: activeTab === tab.key ? '#1D9E75' : 'var(--text-secondary)', borderBottom: activeTab === tab.key ? '2px solid #1D9E75' : '2px solid transparent' }}>
             {tab.label}
           </button>
         ))}
@@ -244,9 +261,12 @@ export default function AdminPage() {
 
             <div
               onClick={() => fileRef.current?.click()}
-              style={{ border: '2px dashed #EDEBE4', borderRadius: 12, padding: 48, textAlign: 'center', cursor: 'pointer', background: 'var(--bg)', transition: 'all 0.2s' }}
-              onMouseEnter={e => (e.currentTarget.style.borderColor = '#1D9E75')}
-              onMouseLeave={e => (e.currentTarget.style.borderColor = '#EDEBE4')}
+              onDragOver={e => { e.preventDefault(); setDragOver(true) }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={handleDrop}
+              style={{ border: `2px dashed ${dragOver ? '#1D9E75' : '#EDEBE4'}`, borderRadius: 12, padding: 48, textAlign: 'center', cursor: 'pointer', background: dragOver ? '#F0FDF9' : 'var(--bg)', transition: 'all 0.2s' }}
+              onMouseEnter={e => { if (!dragOver) e.currentTarget.style.borderColor = '#1D9E75' }}
+              onMouseLeave={e => { if (!dragOver) e.currentTarget.style.borderColor = '#EDEBE4' }}
             >
               <div style={{ fontSize: 40, marginBottom: 12 }}>📊</div>
               <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>클릭해서 파일 선택</div>
