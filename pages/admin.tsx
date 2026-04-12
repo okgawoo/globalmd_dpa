@@ -100,7 +100,7 @@ export default function AdminPage() {
       </div>
 
       {/* 서브 탭 */}
-      <div style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', padding: '0 24px', display: 'flex', gap: 0 }}>
+      <div style={{ background: 'var(--bg)', borderBottom: '1px solid var(--border)', padding: '0 24px 0 8px', display: 'flex', gap: 0 }}>
         {[
           { key: 'dashboard', label: '📊 현황 대시보드' },
           { key: 'upload', label: '📁 파일 업로드' },
