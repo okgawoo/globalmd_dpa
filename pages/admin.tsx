@@ -299,7 +299,8 @@ export default function AdminPage() {
                       <span style={{ color: 'var(--text-secondary)' }}>💾 저장 경로:</span> <strong style={{ color: '#1D9E75' }}>{uploadResult.filePath}</strong>
                     </div>
                   </>
-                ) : (
+                ) : uploadResult.success ? (
+                  <>
                     <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 12 }}>업로드 완료!</div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 14 }}>
                       <div><span style={{ color: 'var(--text-secondary)' }}>판별 결과:</span> <strong>{uploadResult.source === 'life' ? '생명보험협회' : '손해보험협회'} {uploadResult.category}</strong></div>
@@ -322,7 +323,6 @@ export default function AdminPage() {
                       </div>
                     )}
                   </>
-                )}
                 ) : (
                   <div>
                     <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 8 }}>업로드 실패</div>
