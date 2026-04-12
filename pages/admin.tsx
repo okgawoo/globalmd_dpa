@@ -107,7 +107,7 @@ export default function AdminPage() {
           { key: 'urls', label: '🔗 URL 목록' },
         ].map(tab => (
           <button key={tab.key} onClick={() => setActiveTab(tab.key as any)}
-            style={{ padding: '12px 20px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 13, fontWeight: activeTab === tab.key ? 700 : 400, color: activeTab === tab.key ? '#1D9E75' : 'var(--text-secondary)', borderBottom: activeTab === tab.key ? '2px solid #1D9E75' : '2px solid transparent' }}>
+            style={{ padding: '12px 20px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 13, fontWeight: activeTab === tab.key ? 700 : 400, color: activeTab === tab.key ? '#1D9E75' : 'var(--text-secondary)' }}>
             {tab.label}
           </button>
         ))}
