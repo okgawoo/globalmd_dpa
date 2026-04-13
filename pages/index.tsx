@@ -213,13 +213,13 @@ export default function Dashboard() {
     <div className={styles.wrap}>
       {/* 공지사항 팝업 */}
       {unreadNotice && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(255,255,255,0.55)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <div style={{ background: 'rgba(255,255,255,0.92)', borderRadius: 16, maxWidth: 260, width: '100%', overflow: 'hidden', textAlign: 'center', border: '0.5px solid rgba(0,0,0,0.08)' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.45)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderRadius: 16, maxWidth: 260, width: '100%', overflow: 'hidden', textAlign: 'center', border: '0.5px solid rgba(255,255,255,0.6)' }}>
             <div style={{ padding: '22px 20px 0' }}>
               <img src="/icons/icon-192x192.png" style={{ width: 44, height: 44, borderRadius: 12, margin: '0 auto 14px', display: 'block' }} />
               <div style={{ fontSize: 15, fontWeight: 500, color: '#1a1a1a', marginBottom: 6, letterSpacing: '-0.3px' }}>{unreadNotice.title}</div>
-              <div style={{ fontSize: 13, color: '#666', lineHeight: 1.5 }}>{unreadNotice.body}</div>
-              <div style={{ fontSize: 11, color: '#aaa', marginTop: 10 }}>
+              <div style={{ fontSize: 13, color: '#555', lineHeight: 1.5 }}>{unreadNotice.body}</div>
+              <div style={{ fontSize: 11, color: '#999', marginTop: 10 }}>
                 {new Date(unreadNotice.created_at).toLocaleString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
               </div>
             </div>
