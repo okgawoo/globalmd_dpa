@@ -41,6 +41,7 @@ export default function Dashboard() {
   const [seenNearDone, setSeenNearDone] = useState<string[]>([])
   const [seenBirthday, setSeenBirthday] = useState<string[]>([])
   const [seenGap, setSeenGap] = useState<string[]>([])
+  const [unreadNotice, setUnreadNotice] = useState<any>(null)
 
   const now = new Date()
   const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })
@@ -51,14 +52,47 @@ export default function Dashboard() {
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) {
         setAgentEmail(data.user.email || '')
-        supabase.from('dpa_agents').select('name').eq('user_id', data.user.id).single()
-          .then(({ data: agent }) => { if (agent) setAgentName(agent.name) })
+        supabase.from('dpa_agents').select('id, name').eq('user_id', data.user.id).single()
+          .then(({ data: agent }) => {
+            if (agent) {
+              setAgentName(agent.name)
+              fetchUnreadNotice(agent.id)
+            }
+          })
       }
     })
     setSeenNearDone(JSON.parse(localStorage.getItem('dpa_seen_nearDone') || '[]'))
     setSeenBirthday(JSON.parse(localStorage.getItem('dpa_seen_birthday') || '[]'))
     setSeenGap(JSON.parse(localStorage.getItem('dpa_seen_gap') || '[]'))
   }, [])
+
+  async function fetchUnreadNotice(myAgentId: string) {
+    const { data: notices } = await supabase
+      .from('push_notifications')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(1)
+    if (!notices || notices.length === 0) return
+    const latest = notices[0]
+    const { data: readRecord } = await supabase
+      .from('push_notification_reads')
+      .select('id')
+      .eq('notification_id', latest.id)
+      .eq('agent_id', myAgentId)
+      .maybeSingle()
+    if (!readRecord) {
+      setUnreadNotice({ ...latest, _agentId: myAgentId })
+    }
+  }
+
+  async function markNoticeRead() {
+    if (!unreadNotice) return
+    await supabase.from('push_notification_reads').insert({
+      notification_id: unreadNotice.id,
+      agent_id: unreadNotice._agentId,
+    })
+    setUnreadNotice(null)
+  }
 
   const isNewNearDone = (customerId: string) => !seenNearDone.includes(customerId)
   const isNewBirthday = (customerId: string) => !seenBirthday.includes(customerId)
@@ -177,6 +211,32 @@ export default function Dashboard() {
 
   return (
     <div className={styles.wrap}>
+      {/* 공지사항 팝업 */}
+      {unreadNotice && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ background: '#fff', borderRadius: 16, maxWidth: 340, width: '100%', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+            <div style={{ background: '#1D9E75', padding: '20px 24px', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 24 }}>🔔</span>
+              <span style={{ color: '#fff', fontSize: 16, fontWeight: 700 }}>공지사항</span>
+            </div>
+            <div style={{ padding: '24px' }}>
+              <div style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a', marginBottom: 12 }}>{unreadNotice.title}</div>
+              <div style={{ fontSize: 14, color: '#555', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{unreadNotice.body}</div>
+              <div style={{ fontSize: 12, color: '#aaa', marginTop: 16 }}>
+                {new Date(unreadNotice.created_at).toLocaleString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+              </div>
+            </div>
+            <div style={{ padding: '0 24px 24px' }}>
+              <button
+                onClick={markNoticeRead}
+                style={{ width: '100%', padding: '14px 0', background: '#1D9E75', color: '#fff', border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
+                확인
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {smsOpen && smsCustomer && (
         <SmsSlidePanel
           isOpen={smsOpen}
