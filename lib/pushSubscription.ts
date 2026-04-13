@@ -31,11 +31,14 @@ export async function subscribeToPush(agentId: string): Promise<boolean> {
       return false
     }
 
-    const registration = await navigator.serviceWorker.ready
-    let subscription = await registration.pushManager.getSubscription()
+    // push-sw.js 별도 등록
+    const pushReg = await navigator.serviceWorker.register('/push-sw.js', { scope: '/' })
+    await navigator.serviceWorker.ready
+
+    let subscription = await pushReg.pushManager.getSubscription()
 
     if (!subscription) {
-      subscription = await registration.pushManager.subscribe({
+      subscription = await pushReg.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
       })
