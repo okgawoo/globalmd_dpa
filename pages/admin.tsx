@@ -24,9 +24,20 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'upload' | 'urls'>('dashboard')
   const fileRef = useRef<HTMLInputElement>(null)
 
+  // 공지사항 관리 상태
+  const [topMenu, setTopMenu] = useState<'보험공시' | '공지사항' | '설계사'>('보험공시')
+  const [pushTitle, setPushTitle] = useState('')
+  const [pushBody, setPushBody] = useState('')
+  const [pushUrl, setPushUrl] = useState('')
+  const [pushSending, setPushSending] = useState(false)
+  const [pushResult, setPushResult] = useState<any>(null)
+  const [pushHistory, setPushHistory] = useState<any[]>([])
+  const [subCount, setSubCount] = useState(0)
+
   useEffect(() => {
     checkUser()
     fetchData()
+    fetchPushData()
   }, [])
 
   async function checkUser() {
@@ -47,6 +58,43 @@ export default function AdminPage() {
     setSources(src || [])
     setCategories(cats || [])
     setValidations(vals || [])
+  }
+
+  async function fetchPushData() {
+    const [{ data: history }, { count }] = await Promise.all([
+      supabase.from('push_notifications').select('*').order('created_at', { ascending: false }).limit(20),
+      supabase.from('push_subscriptions').select('*', { count: 'exact', head: true })
+    ])
+    setPushHistory(history || [])
+    setSubCount(count || 0)
+  }
+
+  async function sendPush() {
+    if (!pushTitle.trim() || !pushBody.trim()) {
+      alert('제목과 내용을 입력해주세요')
+      return
+    }
+    if (!confirm(`${subCount}명에게 공지를 발송하시겠습니까?`)) return
+    setPushSending(true)
+    setPushResult(null)
+    try {
+      const res = await fetch('/api/push-send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: pushTitle, body: pushBody, url: pushUrl || null }),
+      })
+      const data = await res.json()
+      setPushResult(data)
+      if (data.success) {
+        setPushTitle('')
+        setPushBody('')
+        setPushUrl('')
+        fetchPushData()
+      }
+    } catch (err: any) {
+      setPushResult({ error: err.message })
+    }
+    setPushSending(false)
   }
 
   function getSourceStatus(source: string, category: string) {
@@ -111,18 +159,19 @@ export default function AdminPage() {
       {/* 상위 메뉴 탭 - 관리 영역 분류 */}
       <div style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', padding: '0 24px', display: 'flex', gap: 0 }}>
         {[
-          { key: '보험공시', label: '보험 공시 관리' },
-          { key: '공지사항', label: '공지사항 관리' },
-          { key: '설계사', label: '설계사 관리' },
+          { key: '보험공시' as const, label: '보험 공시 관리' },
+          { key: '공지사항' as const, label: '공지사항 관리' },
+          { key: '설계사' as const, label: '설계사 관리' },
         ].map(menu => (
-          <button key={menu.key}
-            style={{ padding: '14px 20px', border: 'none', background: 'transparent', cursor: menu.key === '보험공시' ? 'pointer' : 'default', fontSize: 14, fontWeight: menu.key === '보험공시' ? 700 : 400, color: menu.key === '보험공시' ? '#1D9E75' : 'var(--text-muted)', borderBottom: menu.key === '보험공시' ? '2px solid #1D9E75' : '2px solid transparent', opacity: menu.key !== '보험공시' ? 0.5 : 1 }}>
+          <button key={menu.key} onClick={() => menu.key !== '설계사' && setTopMenu(menu.key)}
+            style={{ padding: '14px 20px', border: 'none', background: 'transparent', cursor: menu.key !== '설계사' ? 'pointer' : 'default', fontSize: 14, fontWeight: topMenu === menu.key ? 700 : 400, color: topMenu === menu.key ? '#1D9E75' : 'var(--text-muted)', borderBottom: topMenu === menu.key ? '2px solid #1D9E75' : '2px solid transparent', opacity: menu.key === '설계사' ? 0.5 : 1 }}>
             {menu.label}
           </button>
         ))}
       </div>
 
-      {/* 서브 탭 */}
+      {/* 보험 공시 관리 서브 탭 */}
+      {topMenu === '보험공시' && (
       <div style={{ background: 'var(--bg)', borderBottom: '1px solid var(--border)', padding: '0 24px 0 8px', display: 'flex', gap: 0 }}>
         {[
           { key: 'dashboard', label: '📊 현황 대시보드' },
@@ -135,8 +184,12 @@ export default function AdminPage() {
           </button>
         ))}
       </div>
+      )}
 
       <div style={{ padding: 24, maxWidth: 1000, margin: '0 auto' }}>
+
+        {/* ===== 보험 공시 관리 ===== */}
+        {topMenu === '보험공시' && (<>
 
         {/* 현황 대시보드 */}
         {activeTab === 'dashboard' && (
@@ -368,6 +421,110 @@ export default function AdminPage() {
             ))}
           </>
         )}
+
+        </>)}
+
+        {/* ===== 공지사항 관리 ===== */}
+        {topMenu === '공지사항' && (
+          <>
+            {/* 구독자 현황 */}
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border)', padding: 20, marginBottom: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                <span style={{ fontSize: 22 }}>🔔</span>
+                <div>
+                  <div style={{ fontSize: 16, fontWeight: 700 }}>푸시 알림 발송</div>
+                  <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 2 }}>현재 구독자: <strong style={{ color: '#1D9E75' }}>{subCount}명</strong></div>
+                </div>
+              </div>
+
+              {/* 공지 작성 폼 */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>제목</label>
+                  <input
+                    type="text"
+                    value={pushTitle}
+                    onChange={e => setPushTitle(e.target.value)}
+                    placeholder="공지사항 제목을 입력하세요"
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border)', fontSize: 14, background: 'var(--bg)', color: 'var(--text-primary)', boxSizing: 'border-box' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>내용</label>
+                  <textarea
+                    value={pushBody}
+                    onChange={e => setPushBody(e.target.value)}
+                    placeholder="공지사항 내용을 입력하세요"
+                    rows={4}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border)', fontSize: 14, background: 'var(--bg)', color: 'var(--text-primary)', resize: 'vertical', boxSizing: 'border-box' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>클릭 시 이동 URL <span style={{ fontWeight: 400, color: 'var(--text-muted)' }}>(선택)</span></label>
+                  <input
+                    type="text"
+                    value={pushUrl}
+                    onChange={e => setPushUrl(e.target.value)}
+                    placeholder="예: /notifications 또는 비워두면 홈으로 이동"
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border)', fontSize: 14, background: 'var(--bg)', color: 'var(--text-primary)', boxSizing: 'border-box' }}
+                  />
+                </div>
+
+                <button
+                  onClick={sendPush}
+                  disabled={pushSending || !pushTitle.trim() || !pushBody.trim()}
+                  style={{ padding: '12px 0', background: pushSending || !pushTitle.trim() || !pushBody.trim() ? '#ccc' : '#1D9E75', color: 'white', border: 'none', borderRadius: 8, fontSize: 15, fontWeight: 700, cursor: pushSending ? 'not-allowed' : 'pointer', marginTop: 4 }}>
+                  {pushSending ? '발송 중...' : `${subCount}명에게 푸시 발송`}
+                </button>
+
+                {pushResult && (
+                  <div style={{ padding: 12, borderRadius: 8, background: pushResult.success ? '#D1FAE5' : '#FEE2E2', color: pushResult.success ? '#065F46' : '#991B1B', fontSize: 13, marginTop: 4 }}>
+                    {pushResult.success
+                      ? `발송 완료! ${pushResult.sent}/${pushResult.total}명 성공${pushResult.expired > 0 ? ` (만료 ${pushResult.expired}건 정리)` : ''}`
+                      : `발송 실패: ${pushResult.error}`}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* 발송 이력 */}
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
+              <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', fontWeight: 700, fontSize: 15 }}>
+                📋 발송 이력
+              </div>
+              {pushHistory.length === 0 ? (
+                <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)', fontSize: 14 }}>
+                  아직 발송 이력이 없습니다
+                </div>
+              ) : (
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ background: 'var(--bg)' }}>
+                      {['발송일', '제목', '내용', '발송 수'].map(h => (
+                        <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontSize: 12, color: 'var(--text-muted)', fontWeight: 600, borderBottom: '1px solid var(--border)' }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pushHistory.map(n => (
+                      <tr key={n.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                        <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
+                          {new Date(n.created_at).toLocaleString('ko-KR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        </td>
+                        <td style={{ padding: '12px 16px', fontSize: 14, fontWeight: 500 }}>{n.title}</td>
+                        <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-secondary)', maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{n.body}</td>
+                        <td style={{ padding: '12px 16px', fontSize: 13 }}>
+                          <span style={{ background: '#D1FAE5', color: '#065F46', padding: '2px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{n.sent_count}명</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </>
+        )}
+
       </div>
     </div>
   )
