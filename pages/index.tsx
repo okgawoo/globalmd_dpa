@@ -459,15 +459,17 @@ export default function Dashboard() {
             안녕하세요, <strong>{agentName || 'admin'} 설계사님</strong> 👋 오늘도 좋은 하루 되세요!
           </div>
           <div className={styles.dateRow}>
-            <span className={styles.dateStr}>{dateStr}</span>
-            {agentPlan && (
-              <span style={{
-                display: 'inline-block', marginTop: 4, padding: '2px 10px', borderRadius: 10,
-                fontSize: 11, fontWeight: 700, letterSpacing: 0.5,
-                background: agentPlan === 'pro' ? '#1D9E75' : agentPlan === 'standard' ? '#378ADD' : '#888',
-                color: 'white',
-              }}>{agentPlan.toUpperCase()}</span>
-            )}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+              <span className={styles.dateStr}>{dateStr}</span>
+              {agentPlan && (
+                <span style={{
+                  display: 'inline-block', padding: '2px 10px', borderRadius: 10,
+                  fontSize: 11, fontWeight: 700, letterSpacing: 0.5,
+                  background: agentPlan === 'pro' ? '#1D9E75' : agentPlan === 'standard' ? '#378ADD' : '#888',
+                  color: 'white',
+                }}>{agentPlan.toUpperCase()}</span>
+              )}
+            </div>
             <div style={{ position: 'relative' }}>
               <button className={styles.calBtn} onClick={() => setCalOpen(v => !v)}>📅 달력</button>
               {calOpen && (
