@@ -652,7 +652,7 @@ export default function Customers() {
                   <span className={[styles.badge, c.grade === 'VIP' ? styles.badgeAmber : styles.badgeBlue].join(' ')}>{c.grade}</span>
                 </div>
                 {/* 2행: 나이·성별·직업·건수·월납입 + 뱃지 (왼쪽 정렬) */}
-                <div className={styles.custMeta}>{c.age}세 · {c.gender} · {cCount}건 · {cMonthly.toLocaleString()}원</div>
+                <div className={styles.custMeta}>{c.age || (c.birth_date ? new Date().getFullYear() - new Date(c.birth_date).getFullYear() : '')}세 · {c.gender} · {cCount}건 · {cMonthly.toLocaleString()}원</div>
                 {badges.length > 0 && (
                   <div className={styles.badgeRow}>
                     {badges.map((b, i) => <span key={i} className={b.cls}>{b.label}</span>)}
@@ -833,7 +833,7 @@ export default function Customers() {
 </div>
                 <div style={{ flex: 1 }}>
                   <div className={styles.detailName}>{selected.name}</div>
-                  <div className={styles.detailMeta}>{selected.age}세 · {selected.gender} · {selected.job} · {selected.phone}</div>
+                  <div className={styles.detailMeta}>{selected.age || (selected.birth_date ? new Date().getFullYear() - new Date(selected.birth_date).getFullYear() : "")}세 · {selected.gender} · {selected.job} · {selected.phone}</div>
                 </div>
                 {!editMode && (
                   <>
@@ -881,7 +881,7 @@ export default function Customers() {
                 </div>
               )}
               <div className={styles.infoTable}>
-                {selected.age && <div className={styles.infoRow}><span className={styles.infoLabel}>나이</span><span className={styles.infoValue}>{selected.age}세</span></div>}
+                {selected.age && <div className={styles.infoRow}><span className={styles.infoLabel}>나이</span><span className={styles.infoValue}>{selected.age || (selected.birth_date ? new Date().getFullYear() - new Date(selected.birth_date).getFullYear() : "")}세</span></div>}
                 {selected.gender && <div className={styles.infoRow}><span className={styles.infoLabel}>성별</span><span className={styles.infoValue}>{selected.gender}</span></div>}
                 {selected.resident_number && <div className={styles.infoRow}><span className={styles.infoLabel}>주민번호</span><span className={styles.infoValue}>{selected.resident_number}</span></div>}
                 {selected.phone && <div className={styles.infoRow}><span className={styles.infoLabel}>연락처</span><span className={styles.infoValue}>{selected.phone}</span></div>}
@@ -1155,7 +1155,7 @@ export default function Customers() {
 </div>
                   <div style={{ flex: 1 }}>
                     <div className={styles.detailName}>{selected.name}</div>
-                    <div className={styles.detailMeta}>{selected.age}세 · {selected.gender} · {selected.job} · {selected.phone}</div>
+                    <div className={styles.detailMeta}>{selected.age || (selected.birth_date ? new Date().getFullYear() - new Date(selected.birth_date).getFullYear() : "")}세 · {selected.gender} · {selected.job} · {selected.phone}</div>
                   </div>
                   <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                     {!editMode && (
@@ -1209,7 +1209,7 @@ export default function Customers() {
 
                 <div className={styles.infoTable}>
                   <div className={styles.infoRowDouble}>
-                    <div className={styles.infoHalf}><span className={styles.infoLabel}>나이</span><span className={styles.infoValue}>{selected.age}세</span></div>
+                    <div className={styles.infoHalf}><span className={styles.infoLabel}>나이</span><span className={styles.infoValue}>{selected.age || (selected.birth_date ? new Date().getFullYear() - new Date(selected.birth_date).getFullYear() : "")}세</span></div>
                     <div className={styles.infoHalf}><span className={styles.infoLabel}>성별</span><span className={styles.infoValue}>{selected.gender}</span></div>
                   </div>
                   <div className={styles.infoRowDouble}>

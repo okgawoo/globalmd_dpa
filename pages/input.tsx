@@ -600,7 +600,7 @@ export default function InputPage() {
 
       {inputTab === 'manual' && (
         <div className={styles.formWrap}>
-          <div className={styles.formSection}>고객 기본 정보</div>
+          <div className={styles.formSection} style={{fontSize:16,fontWeight:600}}>고객 기본 정보</div>
           <div className={styles.formGrid}>
             <div className={styles.field}><label>고객명 *</label><input value={form.name} onChange={e => setF('name', e.target.value.replace(/[0-9]/g, ''))} placeholder="홍길동" /></div>
             <div className={styles.field}><label>연락처</label><input value={form.phone} onChange={e => setF('phone', e.target.value)} placeholder="010-0000-0000" /></div>
@@ -614,7 +614,6 @@ export default function InputPage() {
             <div className={styles.field}><label>직장/소속</label><input value={form.workplace} onChange={e => setF('workplace', e.target.value)} placeholder="서울시청" /></div>
             <div className={styles.field}><label>운전면허</label><input value={form.driver_license} onChange={e => setF('driver_license', e.target.value)} placeholder="26-06-009864-70" /></div>
             <div className={styles.field}><label>등급</label><select value={form.grade} onChange={e => setF('grade', e.target.value)}><option>일반</option><option>VIP</option></select></div>
-            <div className={styles.field}><label>나이 <span className={styles.autoTag}>자동</span></label><input value={form.age} onChange={e => setF('age', e.target.value)} placeholder="45" /></div>
           </div>
 
           {/* 보험 계약 */}
