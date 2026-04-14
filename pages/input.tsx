@@ -24,16 +24,18 @@ function ScanCardTab({ onComplete }: { onComplete: () => void }) {
 
   async function openCamera() {
     try {
+      setCameraOpen(true)
+      await new Promise(r => setTimeout(r, 100))
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } }
       })
       streamRef.current = stream
       if (videoRef.current) {
         videoRef.current.srcObject = stream
-        videoRef.current.play()
+        await videoRef.current.play()
       }
-      setCameraOpen(true)
     } catch (e) {
+      setCameraOpen(false)
       alert('카메라 접근이 거부되었어요. 설정에서 카메라 권한을 허용해주세요.')
     }
   }
@@ -99,33 +101,36 @@ function ScanCardTab({ onComplete }: { onComplete: () => void }) {
     setScanning(false)
   }
 
-  // 카메라 오버레이 UI
+  // 카메라 오버레이 UI (삼성페이 스타일)
   if (cameraOpen) {
     return (
-      <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',zIndex:9999,background:'#000'}}>
+      <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',zIndex:9999,background:'#000',animation:'slideInRight 0.3s ease-out'}}>
+        <style>{`@keyframes slideInRight{from{transform:translateX(100%)}to{transform:translateX(0)}}`}</style>
         <video ref={videoRef} style={{position:'absolute',top:0,left:0,width:'100%',height:'100%',objectFit:'cover'}} playsInline muted />
-        {/* 어두운 반투명 오버레이 + 라운드 사각형 명함 영역 */}
+        {/* 흰색 반투명 오버레이 + 명함 비율 라운드 사각형 */}
         <svg style={{position:'absolute',top:0,left:0,width:'100%',height:'100%',pointerEvents:'none'}}>
           <defs>
             <mask id="cardMask">
               <rect width="100%" height="100%" fill="white"/>
-              <rect x="10%" y="30%" width="80%" height="28%" rx="16" ry="16" fill="black"/>
+              <rect x="8%" y="35%" width="84%" height="22%" rx="14" ry="14" fill="black"/>
             </mask>
           </defs>
-          <rect width="100%" height="100%" fill="rgba(0,0,0,0.6)" mask="url(#cardMask)"/>
-          <rect x="10%" y="30%" width="80%" height="28%" rx="16" ry="16" fill="none" stroke="#1D9E75" strokeWidth="2.5"/>
+          <rect width="100%" height="100%" fill="rgba(255,255,255,0.7)" mask="url(#cardMask)"/>
+          {/* 코너 가이드 (삼성페이 스타일) */}
+          <rect x="8%" y="35%" width="84%" height="22%" rx="14" ry="14" fill="none" stroke="rgba(0,0,0,0.15)" strokeWidth="1"/>
         </svg>
+        {/* 뒤로가기 */}
+        <div style={{position:'absolute',top:16,left:16,zIndex:1}} onClick={() => { stopCamera(); setCameraOpen(false) }}>
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M18 4L8 14L18 24" stroke="#333" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </div>
         {/* 가이드 텍스트 */}
-        <div style={{position:'absolute',top:'23%',left:0,right:0,textAlign:'center',color:'#fff',fontSize:14,fontWeight:500}}>
+        <div style={{position:'absolute',top:'28%',left:0,right:0,textAlign:'center',color:'#333',fontSize:15,fontWeight:500}}>
           명함을 사각형 안에 맞춰주세요
         </div>
-        {/* 하단 버튼 */}
-        <div style={{position:'absolute',bottom:0,left:0,right:0,padding:'24px 0 40px',display:'flex',justifyContent:'center',gap:20,background:'linear-gradient(transparent, rgba(0,0,0,0.7))'}}>
-          <button onClick={() => { stopCamera(); setCameraOpen(false) }} style={{padding:'12px 28px',borderRadius:24,background:'rgba(255,255,255,0.2)',color:'#fff',border:'none',fontSize:15,fontWeight:500,cursor:'pointer'}}>
-            취소
-          </button>
-          <button onClick={capturePhoto} style={{padding:'14px 36px',borderRadius:28,background:'#1D9E75',color:'#fff',border:'none',fontSize:16,fontWeight:600,cursor:'pointer'}}>
-            촬영
+        {/* 하단 촬영 버튼 */}
+        <div style={{position:'absolute',bottom:0,left:0,right:0,padding:'32px 0 48px',display:'flex',justifyContent:'center'}}>
+          <button onClick={capturePhoto} style={{width:68,height:68,borderRadius:'50%',background:'#1D9E75',border:'4px solid rgba(29,158,117,0.3)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',boxShadow:'0 2px 12px rgba(29,158,117,0.3)'}}>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><circle cx="12" cy="13" r="4" stroke="#fff" strokeWidth="2"/></svg>
           </button>
         </div>
         <canvas ref={canvasRef} style={{display:'none'}} />
@@ -200,7 +205,7 @@ function ScanCardTab({ onComplete }: { onComplete: () => void }) {
         명함을 촬영하면 AI가 자동으로<br/>이름, 연락처, 이메일 등을 인식합니다
       </div>
       <button onClick={openCamera} style={{padding:'14px 36px',borderRadius:12,background:'#1D9E75',color:'#fff',border:'none',fontSize:15,fontWeight:600,cursor:'pointer'}}>
-        카메라 열기
+        명함촬영
       </button>
     </div>
   )
