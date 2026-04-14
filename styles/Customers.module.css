@@ -108,7 +108,7 @@
 .editGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
 .editField label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
 .editField input, .editField select { width: 100%; font-size: 14px; padding: 9px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text-primary); box-sizing: border-box; }
-.editActions { display: flex; gap: 8px; }
+.editActions { display: flex; gap: 8px; justify-content: flex-end; }
 .saveBtn { font-size: 13px; padding: 7px 20px; border-radius: 8px; border: none; background: var(--green); color: #ffffff; cursor: pointer; font-weight: 600; }
 .cancelBtn { font-size: 13px; padding: 7px 20px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text-secondary); cursor: pointer; }
 
@@ -142,7 +142,7 @@
 .editGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
 .editField label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
 .editField input, .editField select { width: 100%; font-size: 14px; padding: 9px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text-primary); box-sizing: border-box; }
-.editActions { display: flex; gap: 8px; }
+.editActions { display: flex; gap: 8px; justify-content: flex-end; }
 .saveBtn { font-size: 13px; padding: 7px 20px; border-radius: 8px; border: none; background: var(--green); color: #ffffff; cursor: pointer; font-weight: 600; }
 .cancelBtn { font-size: 13px; padding: 7px 20px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text-secondary); cursor: pointer; }
 
@@ -175,7 +175,7 @@
 .editGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
 .editField label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
 .editField input, .editField select { width: 100%; font-size: 14px; padding: 9px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text-primary); box-sizing: border-box; }
-.editActions { display: flex; gap: 8px; }
+.editActions { display: flex; gap: 8px; justify-content: flex-end; }
 .saveBtn { font-size: 13px; padding: 7px 20px; border-radius: 8px; border: none; background: #1D9E75; color: #ffffff; cursor: pointer; font-weight: 600; }
 .cancelBtn { font-size: 13px; padding: 7px 20px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text-secondary); cursor: pointer; }
 

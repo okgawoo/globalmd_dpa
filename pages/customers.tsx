@@ -681,14 +681,19 @@ export default function Customers() {
               <div className={styles.editGrid}>
                 <div className={styles.editField}><label>이름 *</label><input placeholder="홍길동" value={addForm.name} onChange={e => setAddForm({ ...addForm, name: e.target.value.replace(/[0-9]/g, '') })} /></div>
                 <div className={styles.editField}><label>연락처</label><input placeholder="010-0000-0000" inputMode="numeric" value={addForm.phone} onChange={e => setAddForm({ ...addForm, phone: formatPhone(e.target.value) })} /></div>
-                <div className={styles.editField} style={{gridColumn:'span 2'}}><label>주민등록번호 *</label>
+                <div className={styles.editField}><label>주민등록번호 *</label>
                   <input placeholder="000000-0000000" inputMode="numeric" value={addForm.resident_number}
                     onChange={e => {
                       const rn = formatResident(e.target.value)
                       const parsed = parseResident(rn)
                       setAddForm({ ...addForm, resident_number: rn, gender: parsed.gender, age: String(parsed.age) })
                     }} />
-                  {addForm.resident_number.length >= 8 && <span style={{fontSize:11,color:'#1D9E75',marginTop:3}}>✓ {addForm.gender} · 만 {addForm.age}세</span>}
+                  {addForm.resident_number.length >= 8 && <span style={{fontSize:11,color:'#1D9E75',marginTop:3}}>✓ 만 {addForm.age}세</span>}
+                </div>
+                <div className={styles.editField}><label>성별</label>
+                  <select value={addForm.gender||'남'} onChange={e => setAddForm({ ...addForm, gender: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                    <option>남</option><option>여</option>
+                  </select>
                 </div>
                 <div className={styles.editField}><label>은행명</label><input placeholder="우리은행" value={addForm.bank_name||''} onChange={e => setAddForm({ ...addForm, bank_name: e.target.value })} /></div>
                 <div className={styles.editField}><label>계좌번호</label><input placeholder="1002-3628-09746" inputMode="numeric" value={addForm.bank_account||''} onChange={e => setAddForm({ ...addForm, bank_account: e.target.value.replace(/[^0-9-]/g,'') })} /></div>
@@ -1112,27 +1117,30 @@ export default function Customers() {
                 <div className={styles.editGrid}>
                   <div className={styles.editField}><label>이름 *</label><input placeholder="홍길동" value={addForm.name} onChange={e => setAddForm({ ...addForm, name: e.target.value.replace(/[0-9]/g, '') })} /></div>
                   <div className={styles.editField}><label>연락처</label><input placeholder="010-0000-0000" inputMode="numeric" value={addForm.phone} onChange={e => setAddForm({ ...addForm, phone: formatPhone(e.target.value) })} /></div>
-                  <div className={styles.editField} style={{gridColumn:'span 2'}}><label>주민등록번호 *</label>
+                  <div className={styles.editField}><label>주민등록번호 *</label>
                     <input placeholder="000000-0000000" inputMode="numeric" value={addForm.resident_number}
                       onChange={e => { const v = formatResident(e.target.value); const parsed = parseResident(v); setAddForm({ ...addForm, resident_number: v, gender: parsed.gender || addForm.gender, age: parsed.age ? String(parsed.age) : addForm.age }) }} />
                   </div>
-                  <div className={styles.editField}><label>성별</label><input value={addForm.gender} readOnly style={{background:'#f9f9f9'}} /></div>
-                  <div className={styles.editField}><label>나이</label><input value={addForm.age ? addForm.age + '세' : ''} readOnly style={{background:'#f9f9f9'}} /></div>
+                  <div className={styles.editField}><label>성별</label>
+                    <select value={addForm.gender||'남'} onChange={e => setAddForm({ ...addForm, gender: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                      <option>남</option><option>여</option>
+                    </select>
+                  </div>
+                  <div className={styles.editField}><label>은행명</label><input placeholder="우리은행" value={addForm.bank_name||''} onChange={e => setAddForm({ ...addForm, bank_name: e.target.value })} /></div>
+                  <div className={styles.editField}><label>계좌번호</label><input placeholder="1002-3628-09746" inputMode="numeric" value={addForm.bank_account||''} onChange={e => setAddForm({ ...addForm, bank_account: e.target.value.replace(/[^0-9-]/g,'') })} /></div>
+                  <div className={styles.editField} style={{gridColumn:'span 2'}}><label>주소</label><input value={addForm.address||''} onChange={e => setAddForm({ ...addForm, address: e.target.value })} /></div>
                   <div className={styles.editField}><label>직업</label>
                     <select value={addForm.job} onChange={e => setAddForm({ ...addForm, job: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
                       {['직장인','자영업자','공무원','교사/교직원','의료인','전문직','주부','학생','농업/어업','프리랜서','은퇴/무직','기타'].map(j=><option key={j}>{j}</option>)}
                     </select>
                   </div>
+                  <div className={styles.editField}><label>직장/소속</label><input value={addForm.workplace||''} onChange={e => setAddForm({ ...addForm, workplace: e.target.value })} /></div>
+                  <div className={styles.editField}><label>운전면허</label><input placeholder="26-06-009864-70" value={addForm.driver_license||''} onChange={e => setAddForm({ ...addForm, driver_license: e.target.value })} /></div>
                   <div className={styles.editField}><label>등급</label>
                     <select value={addForm.grade} onChange={e => setAddForm({ ...addForm, grade: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
                       {['일반','우수','VIP'].map(g=><option key={g}>{g}</option>)}
                     </select>
                   </div>
-                  <div className={styles.editField} style={{gridColumn:'span 2'}}><label>주소</label><input value={addForm.address||''} onChange={e => setAddForm({ ...addForm, address: e.target.value })} /></div>
-                  <div className={styles.editField} style={{gridColumn:'span 2'}}><label>직장/소속</label><input value={addForm.workplace||''} onChange={e => setAddForm({ ...addForm, workplace: e.target.value })} /></div>
-                  <div className={styles.editField}><label>은행명</label><input placeholder="우리은행" value={addForm.bank_name||''} onChange={e => setAddForm({ ...addForm, bank_name: e.target.value })} /></div>
-                  <div className={styles.editField}><label>계좌번호</label><input placeholder="1002-3628-09746" inputMode="numeric" value={addForm.bank_account||''} onChange={e => setAddForm({ ...addForm, bank_account: e.target.value.replace(/[^0-9-]/g,'') })} /></div>
-                  <div className={styles.editField} style={{gridColumn:'span 2'}}><label>운전면허</label><input placeholder="26-06-009864-70" value={addForm.driver_license||''} onChange={e => setAddForm({ ...addForm, driver_license: e.target.value })} /></div>
                 </div>
                 <div className={styles.editActions} style={{display:'flex',justifyContent:'flex-end',gap:8}}>
                   <button className={styles.saveBtn} onClick={saveAddCustomer}>저장</button>
