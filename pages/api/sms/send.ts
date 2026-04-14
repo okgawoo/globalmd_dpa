@@ -74,11 +74,29 @@ export default async function handler(
     }
 
     // 1. 설계사 정보 조회 (발신번호 + 플랜)
-    const { data: agent, error: agentError } = await supabase
+    // agent_id가 agents.id일 수도, auth.uid(user_id)일 수도 있음
+    let agent = null;
+    let agentError = null;
+
+    // 먼저 agents.id로 조회
+    const { data: agentById, error: errById } = await supabase
       .from('dpa_agents')
-      .select('phone, name, settings')
+      .select('id, phone, name, settings')
       .eq('id', agent_id)
       .single();
+
+    if (agentById) {
+      agent = agentById;
+    } else {
+      // agents.user_id로 조회
+      const { data: agentByUid, error: errByUid } = await supabase
+        .from('dpa_agents')
+        .select('id, phone, name, settings')
+        .eq('user_id', agent_id)
+        .single();
+      agent = agentByUid;
+      agentError = errByUid;
+    }
 
     if (agentError || !agent) {
       return res.status(404).json({ error: '설계사 정보를 찾을 수 없습니다' });

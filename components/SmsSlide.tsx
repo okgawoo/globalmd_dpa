@@ -409,11 +409,27 @@ export default function SmsSlidePanel({ isOpen, onClose, customer, meetings = []
 
   async function handleSend() {
     if (!scriptText) return
+    if (!customer?.phone) { alert('고객 연락처가 없습니다.'); return }
     setSending(true)
     try {
-      if (agentId && customer?.id) await supabase.from('dpa_messages').insert({ agent_id: agentId, customer_id: customer.id, message_type: situation.type, is_sent: true, sent_script: scriptText })
-      alert(`${customer?.name} 님께 발송됐어요! 😊`)
-      onClose()
+      const res = await fetch('/api/sms/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: customer.phone,
+          text: scriptText,
+          agent_id: agentId,
+          customer_id: customer.id,
+          message_type: situation.type,
+        }),
+      })
+      const result = await res.json()
+      if (result.success) {
+        alert(`${customer?.name} 님께 문자가 발송됐어요! 😊 (남은 ${result.usage.remaining}건)`)
+        onClose()
+      } else {
+        alert(`발송 실패: ${result.error}`)
+      }
     } catch { alert('발송 중 오류가 발생했어요.') }
     setSending(false)
   }
