@@ -3,6 +3,14 @@ import { supabase } from '../lib/supabase'
 import { useConfirm } from '../lib/useConfirm'
 import styles from '../styles/Settings.module.css'
 
+// 전화번호 하이픈 자동 포맷
+function formatPhone(val: string): string {
+  const num = val.replace(/\D/g, '').slice(0, 11)
+  if (num.length <= 3) return num
+  if (num.length <= 7) return `${num.slice(0,3)}-${num.slice(3)}`
+  return `${num.slice(0,3)}-${num.slice(3,7)}-${num.slice(7)}`
+}
+
 type SettingsTab = 'profile' | 'sms' | 'notification' | 'data'
 
 const TABS: { key: SettingsTab; label: string; icon: string }[] = [
@@ -225,7 +233,7 @@ export default function SettingsPage() {
             <div className={styles.field}>
               <label className={styles.fieldLabel}>연락처</label>
               <input className={styles.fieldInput} value={editPhone}
-                onChange={e => setEditPhone(e.target.value)} placeholder="010-0000-0000" />
+                onChange={e => setEditPhone(formatPhone(e.target.value))} placeholder="010-0000-0000" />
             </div>
 
             <button className={styles.btnPrimary} onClick={saveProfile} disabled={savingProfile}>
@@ -252,7 +260,7 @@ export default function SettingsPage() {
 
               <div className={styles.fieldRow} style={{ marginTop: 12 }}>
                 <input className={styles.fieldInput} value={senderPhone}
-                  onChange={e => setSenderPhone(e.target.value)}
+                  onChange={e => setSenderPhone(formatPhone(e.target.value))}
                   placeholder="010-0000-0000"
                   disabled={senderStatus === 'verified'} />
                 {senderStatus !== 'verified' && (
