@@ -88,6 +88,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       parsed = { name: '', company: '', position: '', phone: '', phone2: '', email: '', address: '', fax: '', raw: text }
     }
 
+    // 이름 공백 제거 (명함에 글자 간격이 넓을 때 "홍 길 동" → "홍길동")
+    if (parsed.name) parsed.name = parsed.name.replace(/\s+/g, '').trim()
+    // 회사명 앞뒤 공백 정리
+    if (parsed.company) parsed.company = parsed.company.trim()
+
     console.log('[scan-card] 파싱 결과:', JSON.stringify(parsed).slice(0, 300))
     return res.status(200).json(parsed)
   } catch (e: any) {
