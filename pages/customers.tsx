@@ -814,11 +814,9 @@ export default function Customers() {
                 }}>+ 보험 추가</button>
 
               {/* 저장/취소 - 우측 정렬 */}
-              <div style={{marginTop:20,paddingTop:16,borderTop:'1px solid #E5E7EB'}}>
-                <button onClick={saveAddCustomer} style={{width:"100%",marginTop:12,padding:"7px",background:"#1D9E75",color:"#fff",border:"none",borderRadius:8,fontSize:13,fontWeight:600,cursor:"pointer",marginBottom:8}}>저장하기</button>
-                <div style={{display:'flex',justifyContent:'flex-end'}}>
-                  <button className={styles.cancelBtn} style={{borderColor:'#9CA3AF'}} onClick={() => { setAddMode(false); setAddContracts([{company:'삼성생명',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}]) }}>취소</button>
-                </div>
+              <div style={{marginTop:20,paddingTop:16,borderTop:'1px solid #E5E7EB',display:'flex',justifyContent:'flex-end',gap:8}}>
+                <button onClick={saveAddCustomer} style={{padding:'8px 24px',background:'#1D9E75',color:'#fff',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>저장</button>
+                <button className={styles.cancelBtn} style={{borderColor:'#9CA3AF'}} onClick={() => { setAddMode(false); setAddContracts([{company:'삼성생명',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}]) }}>취소</button>
               </div>
             </div>
           ) : selected ? (
@@ -874,11 +872,10 @@ export default function Customers() {
                       </select>
                     </div>
                   </div>
-                  <div className={styles.editActions}>
+                  <div className={styles.editActions} style={{display:'flex',justifyContent:'flex-end',gap:8}}>
                     <button className={styles.saveBtn} onClick={saveCustomerEdit}>저장</button>
                     <button className={styles.cancelBtn} onClick={() => setEditMode(false)}>취소</button>
                   </div>
-                </div>
               )}
               <div className={styles.infoTable}>
                 {selected.age && <div className={styles.infoRow}><span className={styles.infoLabel}>나이</span><span className={styles.infoValue}>{selected.age || (selected.birth_date ? new Date().getFullYear() - new Date(selected.birth_date).getFullYear() : "")}세</span></div>}
@@ -1137,7 +1134,7 @@ export default function Customers() {
                   <div className={styles.editField}><label>계좌번호</label><input placeholder="1002-3628-09746" inputMode="numeric" value={addForm.bank_account||''} onChange={e => setAddForm({ ...addForm, bank_account: e.target.value.replace(/[^0-9-]/g,'') })} /></div>
                   <div className={styles.editField} style={{gridColumn:'span 2'}}><label>운전면허</label><input placeholder="26-06-009864-70" value={addForm.driver_license||''} onChange={e => setAddForm({ ...addForm, driver_license: e.target.value })} /></div>
                 </div>
-                <div className={styles.editActions}>
+                <div className={styles.editActions} style={{display:'flex',justifyContent:'flex-end',gap:8}}>
                   <button className={styles.saveBtn} onClick={saveAddCustomer}>저장</button>
                   <button className={styles.cancelBtn} onClick={() => { setAddMode(false); closeSlide() }}>취소</button>
                 </div>
@@ -1200,7 +1197,7 @@ export default function Customers() {
                         </select>
                       </div>
                     </div>
-                    <div className={styles.editActions}>
+                    <div className={styles.editActions} style={{display:'flex',justifyContent:'flex-end',gap:8}}>
                       <button className={styles.saveBtn} onClick={saveCustomerEdit}>저장</button>
                       <button className={styles.cancelBtn} onClick={() => setEditMode(false)}>취소</button>
                     </div>
