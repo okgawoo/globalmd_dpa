@@ -264,6 +264,13 @@ export default function Dashboard() {
           </div>
           <div className={styles.mobileDateBadge} style={{ color: 'white', textAlign: 'center', userSelect: 'none', WebkitUserSelect: 'none', pointerEvents: 'none' }}>
             <p style={{ margin: 0, fontSize: 12, opacity: 0.85 }}>{mobileDateStr}</p>
+            {agentPlan && (
+              <span style={{
+                display: 'inline-block', marginTop: 4, padding: '1px 8px', borderRadius: 8,
+                fontSize: 10, fontWeight: 700, letterSpacing: 0.5,
+                background: 'rgba(255,255,255,0.25)', color: 'white',
+              }}>{agentPlan.toUpperCase()}</span>
+            )}
           </div>
         </div>
 
