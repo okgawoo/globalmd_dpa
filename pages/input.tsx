@@ -600,7 +600,7 @@ export default function InputPage() {
 
       {inputTab === 'manual' && (
         <div className={styles.formWrap}>
-          <div className={styles.formSection} style={{fontSize:16,fontWeight:600}}>고객 기본 정보</div>
+          <div className={styles.formSection} style={{fontSize:13,fontWeight:700}}>고객 기본 정보</div>
           <div className={styles.formGrid}>
             <div className={styles.field}><label>고객명 *</label><input value={form.name} onChange={e => setF('name', e.target.value.replace(/[0-9]/g, ''))} placeholder="홍길동" /></div>
             <div className={styles.field}><label>연락처</label><input value={form.phone} onChange={e => setF('phone', e.target.value)} placeholder="010-0000-0000" /></div>
@@ -620,7 +620,7 @@ export default function InputPage() {
           {contracts.map((ct, idx) => (
             <div key={idx} className={styles.contractBlock}>
               <div className={styles.contractBlockHeader}>
-                <div className={styles.formSection} style={{fontSize:16,fontWeight:600}}>보험 {idx + 1}</div>
+                <div className={styles.formSection} style={{fontSize:13,fontWeight:700}}>보험 {idx + 1}</div>
                 {contracts.length > 1 && <button className={styles.removeBtn} onClick={() => removeContract(idx)}>삭제</button>}
               </div>
               <div className={styles.formGrid}>
@@ -652,7 +652,7 @@ export default function InputPage() {
               {/* 보장 항목 */}
               <div className={styles.coverageSection}>
                 <div className={styles.coverageSectionHeader}>
-                  <span className={styles.coverageSectionTitle} style={{fontSize:15,fontWeight:600}}>보장 항목</span>
+                  <span className={styles.coverageSectionTitle} style={{fontSize:13,fontWeight:700}}>보장 항목</span>
                   <button className={styles.addCovBtn} onClick={() => setActiveCovModal(activeCovModal === idx ? null : idx)}>+ 보장 추가</button>
                 </div>
 

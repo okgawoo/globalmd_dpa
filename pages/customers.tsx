@@ -847,7 +847,7 @@ export default function Customers() {
               </div>
               {editMode && (
                 <div className={styles.editBox}>
-                  <div className={styles.editSectionTitle}>개인정보 수정</div>
+                  <div className={styles.editSectionTitle} style={{fontSize:13,fontWeight:700,color:'#111'}}>개인정보 수정</div>
                   <div className={styles.editGrid}>
                     <div className={styles.editField}><label>이름</label><input value={editForm.name||''} onChange={e=>setEditForm({...editForm,name:e.target.value})} /></div>
                     <div className={styles.editField}><label>연락처</label><input inputMode="numeric" value={editForm.phone||''} onChange={e=>setEditForm({...editForm,phone:formatPhone(e.target.value)})} /></div>
@@ -1176,7 +1176,7 @@ export default function Customers() {
 
                 {editMode && (
                   <div className={styles.editBox}>
-                    <div className={styles.editSectionTitle}>개인정보 수정</div>
+                    <div className={styles.editSectionTitle} style={{fontSize:13,fontWeight:700,color:'#111'}}>개인정보 수정</div>
                     <div className={styles.editGrid}>
                       <div className={styles.editField}><label>이름</label><input value={editForm.name||''} onChange={e=>setEditForm({...editForm,name:e.target.value})} /></div>
                       <div className={styles.editField}><label>연락처</label><input inputMode="numeric" value={editForm.phone||''} onChange={e=>setEditForm({...editForm,phone:formatPhone(e.target.value)})} /></div>
