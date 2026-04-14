@@ -25,6 +25,7 @@ function ScanCardTab({ onComplete }: { onComplete: () => void }) {
   async function openCamera() {
     try {
       setCameraOpen(true)
+      window.history.pushState({ camera: true }, '')
       await new Promise(r => setTimeout(r, 100))
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } }
@@ -39,6 +40,22 @@ function ScanCardTab({ onComplete }: { onComplete: () => void }) {
       alert('카메라 접근이 거부되었어요. 설정에서 카메라 권한을 허용해주세요.')
     }
   }
+
+  function closeCamera() {
+    stopCamera()
+    setCameraOpen(false)
+  }
+
+  useEffect(() => {
+    function handlePopState() {
+      if (cameraOpen) {
+        stopCamera()
+        setCameraOpen(false)
+      }
+    }
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [cameraOpen, stopCamera])
 
   function capturePhoto() {
     if (!videoRef.current || !canvasRef.current) return
@@ -65,6 +82,16 @@ function ScanCardTab({ onComplete }: { onComplete: () => void }) {
         body: JSON.stringify({ image: imageData }),
       })
       const data = await res.json()
+      if (data.error) {
+        alert('스캔 오류: ' + data.error)
+        setScanning(false)
+        return
+      }
+      if (!data.name && !data.phone && !data.email && !data.company) {
+        alert('명함 정보를 인식하지 못했어요. 다시 촬영해주세요.')
+        setScanning(false)
+        return
+      }
       setResult(data)
     } catch (e) {
       alert('명함 스캔 중 오류가 발생했어요!')
@@ -120,7 +147,7 @@ function ScanCardTab({ onComplete }: { onComplete: () => void }) {
           <rect x="8%" y="35%" width="84%" height="22%" rx="14" ry="14" fill="none" stroke="rgba(0,0,0,0.15)" strokeWidth="1"/>
         </svg>
         {/* 뒤로가기 */}
-        <div style={{position:'absolute',top:16,left:16,zIndex:1}} onClick={() => { stopCamera(); setCameraOpen(false) }}>
+        <div style={{position:'absolute',top:16,left:16,zIndex:1,cursor:'pointer'}} onClick={() => { window.history.back() }}>
           <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M18 4L8 14L18 24" stroke="#333" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
         </div>
         {/* 가이드 텍스트 */}
@@ -304,10 +331,11 @@ function emptyContract(): Contract {
 }
 
 export default function InputPage() {
+  const router = useRouter()
+  const queryTab = router.query.tab as string
   const [inputTab, setInputTab] = useState<InputTab>('paste')
   const [guideOpen, setGuideOpen] = useState(false)
   const [saving, setSaving] = useState(false)
-  const router = useRouter()
   const [done, setDone] = useState(false)
   const [pasteText, setPasteText] = useState('')
   const [contractCount, setContractCount] = useState<number>(1)
@@ -320,6 +348,17 @@ export default function InputPage() {
   const [saveMode, setSaveMode] = useState<'new' | 'existing'>('new')
   const [existingCustomers, setExistingCustomers] = useState<any[]>([])
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>('')
+
+  useEffect(() => {
+    if (queryTab === 'scan' || queryTab === 'manual' || queryTab === 'paste') {
+      setInputTab(queryTab as InputTab)
+    }
+  }, [queryTab])
+
+  function handleTabChange(tab: InputTab) {
+    setInputTab(tab)
+    router.replace({ pathname: '/input', query: { tab } }, undefined, { shallow: true })
+  }
 
   const [form, setForm] = useState({
     name: '', rrn: '', age: '', gender: '여', job: '직장인 (회사원)',
@@ -539,9 +578,9 @@ export default function InputPage() {
   return (
     <div className={styles.wrap}>
       <div className={styles.tabBar}>
-        <button className={[styles.tab, inputTab === 'paste' ? styles.activeTab : ''].join(' ')} onClick={() => setInputTab('paste')}>📋 텍스트 붙여넣기</button>
-        <button className={[styles.tab, inputTab === 'scan' ? styles.activeTab : ''].join(' ')} onClick={() => setInputTab('scan')}>📷 명함 입력</button>
-        <button className={[styles.tab, inputTab === 'manual' ? styles.activeTab : ''].join(' ')} onClick={() => setInputTab('manual')}>✏️ 수동 입력</button>
+        <button className={[styles.tab, inputTab === 'paste' ? styles.activeTab : ''].join(' ')} onClick={() => handleTabChange('paste')}>📋 텍스트 붙여넣기</button>
+        <button className={[styles.tab, inputTab === 'scan' ? styles.activeTab : ''].join(' ')} onClick={() => handleTabChange('scan')}>📷 명함 입력</button>
+        <button className={[styles.tab, inputTab === 'manual' ? styles.activeTab : ''].join(' ')} onClick={() => handleTabChange('manual')}>✏️ 수동 입력</button>
       </div>
 
       {inputTab === 'manual' && (
