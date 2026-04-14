@@ -439,11 +439,6 @@ export default function Customers() {
   const getBadges = (c: any) => {
     const badges = []
     const cContracts = contracts.filter((ct: any) => ct.customer_id === c.id)
-    // 이탈 고객 (모든 계약이 해지 또는 실효) → 이탈 배지만 표시
-    if (cContracts.length > 0 && cContracts.every((ct: any) => ct.payment_status === '해지' || ct.payment_status === '실효')) {
-      badges.push({ label: '🚪 이탈', cls: styles.badgeGray })
-      return badges
-    }
     if (cContracts.some((ct: any) => calcPaymentRate(ct) >= 90 && ct.payment_status !== '완납'))
       badges.push({ label: '🔥 완납임박', cls: styles.badgeWarn })
     const cCoverages = coverages.filter((cv: any) => cContracts.some((ct: any) => ct.id === cv.contract_id))
@@ -695,21 +690,21 @@ export default function Customers() {
                     }} />
                   {addForm.resident_number.length >= 8 && <span style={{fontSize:11,color:'#1D9E75',marginTop:3}}>✓ {addForm.gender} · 만 {addForm.age}세</span>}
                 </div>
+                <div className={styles.editField}><label>은행명</label><input placeholder="우리은행" value={addForm.bank_name||''} onChange={e => setAddForm({ ...addForm, bank_name: e.target.value })} /></div>
+                <div className={styles.editField}><label>계좌번호</label><input placeholder="1002-3628-09746" inputMode="numeric" value={addForm.bank_account||''} onChange={e => setAddForm({ ...addForm, bank_account: e.target.value.replace(/[^0-9-]/g,'') })} /></div>
+                <div className={styles.editField}><label>주소</label><input placeholder="서울시 강남구..." value={addForm.address} onChange={e => setAddForm({ ...addForm, address: e.target.value })} /></div>
                 <div className={styles.editField}><label>직업</label>
                   <select value={addForm.job} onChange={e => setAddForm({ ...addForm, job: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
                     {['직장인','자영업자','공무원','교사/교직원','의료인','전문직','주부','학생','농업/어업','프리랜서','은퇴/무직','기타'].map(j => <option key={j}>{j}</option>)}
                   </select>
                 </div>
+                <div className={styles.editField}><label>직장/소속</label><input placeholder="직장명" value={addForm.workplace} onChange={e => setAddForm({ ...addForm, workplace: e.target.value })} /></div>
+                <div className={styles.editField}><label>운전면허</label><input placeholder="26-06-009864-70" value={addForm.driver_license||''} onChange={e => setAddForm({ ...addForm, driver_license: e.target.value })} /></div>
                 <div className={styles.editField}><label>등급</label>
                   <select value={addForm.grade} onChange={e => setAddForm({ ...addForm, grade: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
                     <option>일반</option><option>VIP</option>
                   </select>
                 </div>
-                <div className={styles.editField}><label>주소</label><input placeholder="서울시 강남구..." value={addForm.address} onChange={e => setAddForm({ ...addForm, address: e.target.value })} /></div>
-                <div className={styles.editField}><label>직장/소속</label><input placeholder="직장명" value={addForm.workplace} onChange={e => setAddForm({ ...addForm, workplace: e.target.value })} /></div>
-                <div className={styles.editField}><label>은행명</label><input placeholder="우리은행" value={addForm.bank_name||''} onChange={e => setAddForm({ ...addForm, bank_name: e.target.value })} /></div>
-                <div className={styles.editField}><label>계좌번호</label><input placeholder="1002-3628-09746" inputMode="numeric" value={addForm.bank_account||''} onChange={e => setAddForm({ ...addForm, bank_account: e.target.value.replace(/[^0-9-]/g,'') })} /></div>
-                <div className={styles.editField} style={{gridColumn:'span 2'}}><label>운전면허</label><input placeholder="26-06-009864-70" value={addForm.driver_license||''} onChange={e => setAddForm({ ...addForm, driver_license: e.target.value })} /></div>
               </div>
               {/* 보험 폼들이 쌓이는 구조 */}
               {addContracts.map((ct:any, i:number) => (
