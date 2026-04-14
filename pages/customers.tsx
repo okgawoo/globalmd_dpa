@@ -881,6 +881,7 @@ export default function Customers() {
                     <button className={styles.saveBtn} onClick={saveCustomerEdit}>저장</button>
                     <button className={styles.cancelBtn} onClick={() => setEditMode(false)}>취소</button>
                   </div>
+                </div>
               )}
               <div className={styles.infoTable}>
                 {selected.age && <div className={styles.infoRow}><span className={styles.infoLabel}>나이</span><span className={styles.infoValue}>{selected.age || (selected.birth_date ? new Date().getFullYear() - new Date(selected.birth_date).getFullYear() : "")}세</span></div>}
