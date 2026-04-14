@@ -210,7 +210,6 @@ export default function Customers() {
   const [customers, setCustomers] = useState<any[]>([])
   const [contracts, setContracts] = useState<any[]>([])
   const [coverages, setCoverages] = useState<any[]>([])
-  const router = useRouter()
   const [selected, setSelected] = useState<any>(null)
   const [smsOpen, setSmsOpen] = useState(false)
   const [smsCustomer, setSmsCustomer] = useState<any>(null)
