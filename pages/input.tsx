@@ -13,6 +13,7 @@ function ScanCardTab({ onComplete }: { onComplete: () => void }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
+  const resultRef = useRef<HTMLDivElement>(null)
 
   const stopCamera = useCallback(() => {
     if (streamRef.current) {
@@ -177,8 +178,6 @@ function ScanCardTab({ onComplete }: { onComplete: () => void }) {
       </div>
     )
   }
-
-  const resultRef = useRef<HTMLDivElement>(null)
 
   // 스캔 결과 화면
   if (result) {
