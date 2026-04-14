@@ -48,8 +48,7 @@ export default async function handler(
         Authorization: authorization,
       },
       body: JSON.stringify({
-        phone: cleanPhone,
-        siteUrl: 'https://globalmd-dpa.vercel.app',
+        phoneNumber: cleanPhone,
       }),
     });
 
