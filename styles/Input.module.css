@@ -6,7 +6,7 @@
 .activeTab { color: var(--green); border-bottom-color: var(--green); font-weight: 600; }
 
 .formWrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; box-sizing: border-box; width: 100%; }
-.formSection { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 16px; margin-top: 24px; }
+.formSection { font-size: 13px; font-weight: 700; color: #111; text-transform: none; letter-spacing: 0; margin-bottom: 16px; margin-top: 24px; }
 .formSection:first-child { margin-top: 0; }
 
 .formGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 8px; }
@@ -67,7 +67,7 @@
 
 .coverageSection { margin-top: 12px; border-top: 0.5px solid var(--border); padding-top: 10px; }
 .coverageSectionHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-.coverageSectionTitle { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+.coverageSectionTitle { font-size: 13px; font-weight: 700; color: #111; }
 .addCovBtn { font-size: 11px; padding: 3px 10px; border-radius: 6px; border: 1px solid #1D9E75; background: #E1F5EE; color: #085041; cursor: pointer; }
 .covModal { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px; }
 .coverageList { display: flex; flex-direction: column; gap: 4px; }
