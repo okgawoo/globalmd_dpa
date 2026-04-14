@@ -1,9 +1,212 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
 import styles from '../styles/Input.module.css'
 
-type InputTab = 'manual' | 'paste' | 'capture'
+function ScanCardTab({ onComplete }: { onComplete: () => void }) {
+  const [cameraOpen, setCameraOpen] = useState(false)
+  const [scanning, setScanning] = useState(false)
+  const [result, setResult] = useState<any>(null)
+  const [saving, setSaving] = useState(false)
+  const [capturedImage, setCapturedImage] = useState<string | null>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const streamRef = useRef<MediaStream | null>(null)
+
+  const stopCamera = useCallback(() => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(t => t.stop())
+      streamRef.current = null
+    }
+  }, [])
+
+  useEffect(() => { return () => { stopCamera() } }, [stopCamera])
+
+  async function openCamera() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } }
+      })
+      streamRef.current = stream
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream
+        videoRef.current.play()
+      }
+      setCameraOpen(true)
+    } catch (e) {
+      alert('카메라 접근이 거부되었어요. 설정에서 카메라 권한을 허용해주세요.')
+    }
+  }
+
+  function capturePhoto() {
+    if (!videoRef.current || !canvasRef.current) return
+    const video = videoRef.current
+    const canvas = canvasRef.current
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+    ctx.drawImage(video, 0, 0)
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.9)
+    setCapturedImage(dataUrl)
+    stopCamera()
+    setCameraOpen(false)
+    handleScan(dataUrl)
+  }
+
+  async function handleScan(imageData: string) {
+    setScanning(true)
+    try {
+      const res = await fetch('/api/scan-card', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: imageData }),
+      })
+      const data = await res.json()
+      setResult(data)
+    } catch (e) {
+      alert('명함 스캔 중 오류가 발생했어요!')
+    }
+    setScanning(false)
+  }
+
+  async function handleSave() {
+    if (!result?.name) return alert('이름이 없어요! 직접 입력해주세요.')
+    setSaving(true)
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      await supabase.from('dpa_customers').insert({
+        name: result.name,
+        phone: result.phone || null,
+        email: result.email || null,
+        address: result.address || null,
+        workplace: result.company || null,
+        job: result.position || null,
+        grade: '일반',
+        customer_type: 'prospect',
+        agent_id: user?.id,
+      })
+      onComplete()
+    } catch (e) {
+      alert('저장 중 오류가 발생했어요!')
+    }
+    setSaving(false)
+  }
+
+  function resetScan() {
+    setResult(null)
+    setCapturedImage(null)
+    setScanning(false)
+  }
+
+  // 카메라 오버레이 UI
+  if (cameraOpen) {
+    return (
+      <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',zIndex:9999,background:'#000'}}>
+        <video ref={videoRef} style={{position:'absolute',top:0,left:0,width:'100%',height:'100%',objectFit:'cover'}} playsInline muted />
+        {/* 어두운 반투명 오버레이 + 라운드 사각형 명함 영역 */}
+        <svg style={{position:'absolute',top:0,left:0,width:'100%',height:'100%',pointerEvents:'none'}}>
+          <defs>
+            <mask id="cardMask">
+              <rect width="100%" height="100%" fill="white"/>
+              <rect x="10%" y="30%" width="80%" height="28%" rx="16" ry="16" fill="black"/>
+            </mask>
+          </defs>
+          <rect width="100%" height="100%" fill="rgba(0,0,0,0.6)" mask="url(#cardMask)"/>
+          <rect x="10%" y="30%" width="80%" height="28%" rx="16" ry="16" fill="none" stroke="#1D9E75" strokeWidth="2.5"/>
+        </svg>
+        {/* 가이드 텍스트 */}
+        <div style={{position:'absolute',top:'23%',left:0,right:0,textAlign:'center',color:'#fff',fontSize:14,fontWeight:500}}>
+          명함을 사각형 안에 맞춰주세요
+        </div>
+        {/* 하단 버튼 */}
+        <div style={{position:'absolute',bottom:0,left:0,right:0,padding:'24px 0 40px',display:'flex',justifyContent:'center',gap:20,background:'linear-gradient(transparent, rgba(0,0,0,0.7))'}}>
+          <button onClick={() => { stopCamera(); setCameraOpen(false) }} style={{padding:'12px 28px',borderRadius:24,background:'rgba(255,255,255,0.2)',color:'#fff',border:'none',fontSize:15,fontWeight:500,cursor:'pointer'}}>
+            취소
+          </button>
+          <button onClick={capturePhoto} style={{padding:'14px 36px',borderRadius:28,background:'#1D9E75',color:'#fff',border:'none',fontSize:16,fontWeight:600,cursor:'pointer'}}>
+            촬영
+          </button>
+        </div>
+        <canvas ref={canvasRef} style={{display:'none'}} />
+      </div>
+    )
+  }
+
+  // 스캔 결과 화면
+  if (result) {
+    return (
+      <div style={{padding:'16px 0'}}>
+        <div style={{textAlign:'center',marginBottom:16}}>
+          <div style={{fontSize:15,fontWeight:600,color:'#1D9E75',marginBottom:4}}>명함 스캔 완료!</div>
+          <div style={{fontSize:13,color:'#888'}}>내용을 확인하고 수정해주세요</div>
+        </div>
+        {capturedImage && (
+          <div style={{marginBottom:16,borderRadius:12,overflow:'hidden',border:'1px solid #e8e6e1'}}>
+            <img src={capturedImage} alt="명함" style={{width:'100%',display:'block'}} />
+          </div>
+        )}
+        <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:16}}>
+          {[
+            {label:'이름', key:'name'},
+            {label:'회사', key:'company'},
+            {label:'직함', key:'position'},
+            {label:'휴대폰', key:'phone'},
+            {label:'유선전화', key:'phone2'},
+            {label:'이메일', key:'email'},
+            {label:'주소', key:'address'},
+            {label:'팩스', key:'fax'},
+          ].map(f => (
+            <div key={f.key} style={{display:'flex',alignItems:'center',gap:8}}>
+              <label style={{fontSize:13,color:'#888',width:60,flexShrink:0,textAlign:'right'}}>{f.label}</label>
+              <input
+                value={result[f.key] || ''}
+                onChange={e => setResult({ ...result, [f.key]: e.target.value })}
+                style={{flex:1,fontSize:14,padding:'8px 12px',borderRadius:8,border:'1px solid #e8e6e1',background:'#FAF9F5'}}
+                placeholder={f.label}
+              />
+            </div>
+          ))}
+        </div>
+        <div style={{display:'flex',gap:8}}>
+          <button onClick={resetScan} style={{flex:1,padding:'12px 0',borderRadius:10,border:'1px solid #e8e6e1',background:'#fff',fontSize:14,fontWeight:500,cursor:'pointer',color:'#666'}}>
+            다시 촬영
+          </button>
+          <button onClick={handleSave} disabled={saving} style={{flex:1,padding:'12px 0',borderRadius:10,border:'none',background:'#1D9E75',color:'#fff',fontSize:14,fontWeight:600,cursor:'pointer',opacity:saving?0.6:1}}>
+            {saving ? '저장 중...' : '관심고객으로 저장'}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // 스캔 중
+  if (scanning) {
+    return (
+      <div style={{padding:'60px 0',textAlign:'center'}}>
+        <div style={{fontSize:32,marginBottom:12}}>🔍</div>
+        <div style={{fontSize:15,fontWeight:500,color:'#1D9E75'}}>AI가 명함을 분석하고 있어요...</div>
+        <div style={{fontSize:13,color:'#888',marginTop:4}}>잠시만 기다려주세요</div>
+      </div>
+    )
+  }
+
+  // 초기 화면
+  return (
+    <div style={{padding:'40px 0',textAlign:'center'}}>
+      <div style={{fontSize:48,marginBottom:16}}>📷</div>
+      <div style={{fontSize:16,fontWeight:600,marginBottom:6}}>명함을 촬영해서 고객을 등록하세요</div>
+      <div style={{fontSize:13,color:'#888',marginBottom:24,lineHeight:1.5}}>
+        명함을 촬영하면 AI가 자동으로<br/>이름, 연락처, 이메일 등을 인식합니다
+      </div>
+      <button onClick={openCamera} style={{padding:'14px 36px',borderRadius:12,background:'#1D9E75',color:'#fff',border:'none',fontSize:15,fontWeight:600,cursor:'pointer'}}>
+        카메라 열기
+      </button>
+    </div>
+  )
+}
+
+type InputTab = 'paste' | 'scan' | 'manual'
 
 
 const JOBS = ['직장인 (회사원)', '자영업자', '공무원', '교사 / 교직원', '의료인', '전문직', '주부', '학생', '농업 / 어업', '프리랜서', '은퇴 / 무직', '기타']
@@ -332,8 +535,8 @@ export default function InputPage() {
     <div className={styles.wrap}>
       <div className={styles.tabBar}>
         <button className={[styles.tab, inputTab === 'paste' ? styles.activeTab : ''].join(' ')} onClick={() => setInputTab('paste')}>📋 텍스트 붙여넣기</button>
+        <button className={[styles.tab, inputTab === 'scan' ? styles.activeTab : ''].join(' ')} onClick={() => setInputTab('scan')}>📷 명함 입력</button>
         <button className={[styles.tab, inputTab === 'manual' ? styles.activeTab : ''].join(' ')} onClick={() => setInputTab('manual')}>✏️ 수동 입력</button>
-        <button className={[styles.tab, inputTab === 'capture' ? styles.activeTab : ''].join(' ')} onClick={() => setInputTab('capture')}>📱 캡처 (준비중)</button>
       </div>
 
       {inputTab === 'manual' && (
@@ -617,11 +820,8 @@ export default function InputPage() {
         </div>
       )}
 
-      {inputTab === 'capture' && (
-        <div className={styles.captureWrap}>
-          <div className={styles.captureIcon}>📱</div>
-          <div className={styles.captureText}>캡처 런처 기능 준비 중이에요!</div>
-        </div>
+      {inputTab === 'scan' && (
+        <ScanCardTab onComplete={() => { setDone(true); setTimeout(() => router.push('/customers'), 1500) }} />
       )}
     </div>
   )
