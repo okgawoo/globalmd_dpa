@@ -194,7 +194,19 @@ function useIsMobile() {
 }
 
 export default function Customers() {
-  const [tab, setTab] = useState<Tab>('existing')
+  const router = useRouter()
+  const [tab, setTab] = useState<Tab>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const t = params.get('tab')
+      if (t === 'prospect') return 'prospect'
+    }
+    return 'existing'
+  })
+  const handleTabChange = (t: Tab) => {
+    setTab(t)
+    router.replace({ pathname: router.pathname, query: { ...router.query, tab: t } }, undefined, { shallow: true })
+  }
   const [customers, setCustomers] = useState<any[]>([])
   const [contracts, setContracts] = useState<any[]>([])
   const [coverages, setCoverages] = useState<any[]>([])
@@ -237,8 +249,8 @@ export default function Customers() {
       const target = customers.find(c => c.id === id)
       if (target) {
         // 해당 고객 타입에 맞게 탭 자동 전환
-        if (target.customer_type === 'existing') setTab('existing')
-        else if (target.customer_type === 'prospect') setTab('prospect')
+        if (target.customer_type === 'existing') handleTabChange('existing')
+        else if (target.customer_type === 'prospect') handleTabChange('prospect')
         selectCustomer(target)
         // URL에서 id 파라미터 제거 (desktopGrid 깜빡임 방지)
         router.replace('/customers', undefined, { shallow: true })
@@ -563,7 +575,7 @@ export default function Customers() {
       <div className={styles.tabBar}>
         <button
           className={[styles.iconTab, tab === 'existing' ? styles.activeIconTab : ''].join(' ')}
-          onClick={() => { setTab('existing'); setAddMode(false); setAddForm(emptyCustomerForm); setAddContracts([{company:'삼성생명',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}]); closeSlide() }}
+          onClick={() => { handleTabChange('existing'); setAddMode(false); setAddForm(emptyCustomerForm); setAddContracts([{company:'삼성생명',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}]); closeSlide() }}
           title="마이고객"
           >
           <span className={styles.tabIcon}><IconUsers active={tab === 'existing'} /></span>
@@ -571,7 +583,7 @@ export default function Customers() {
         </button>
         <button
           className={[styles.iconTab, tab === 'prospect' ? styles.activeIconTab : ''].join(' ')}
-          onClick={() => { setTab('prospect'); setAddMode(false); setAddForm(emptyCustomerForm); setAddContracts([{company:'삼성생명',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}]); closeSlide() }}
+          onClick={() => { handleTabChange('prospect'); setAddMode(false); setAddForm(emptyCustomerForm); setAddContracts([{company:'삼성생명',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}]); closeSlide() }}
           title="관심고객"
           >
           <span className={styles.tabIcon}><IconUser active={tab === 'prospect'} /></span>
