@@ -439,9 +439,11 @@ export default function Customers() {
   const getBadges = (c: any) => {
     const badges = []
     const cContracts = contracts.filter((ct: any) => ct.customer_id === c.id)
-    // 이탈 고객 (모든 계약이 해지 또는 실효)
-    if (cContracts.length > 0 && cContracts.every((ct: any) => ct.payment_status === '해지' || ct.payment_status === '실효'))
+    // 이탈 고객 (모든 계약이 해지 또는 실효) → 이탈 배지만 표시
+    if (cContracts.length > 0 && cContracts.every((ct: any) => ct.payment_status === '해지' || ct.payment_status === '실효')) {
       badges.push({ label: '🚪 이탈', cls: styles.badgeGray })
+      return badges
+    }
     if (cContracts.some((ct: any) => calcPaymentRate(ct) >= 90 && ct.payment_status !== '완납'))
       badges.push({ label: '🔥 완납임박', cls: styles.badgeWarn })
     const cCoverages = coverages.filter((cv: any) => cContracts.some((ct: any) => ct.id === cv.contract_id))
