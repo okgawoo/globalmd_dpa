@@ -14,11 +14,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const base64Data = image.replace(/^data:image\/\w+;base64,/, '')
     const mediaType = image.match(/^data:(image\/\w+);base64,/)?.[1] || 'image/jpeg'
 
+    const apiKey = process.env.ANTHROPIC_API_KEY
+    if (!apiKey) {
+      console.error('[scan-card] ANTHROPIC_API_KEY 환경변수가 없습니다')
+      return res.status(500).json({ error: 'API 키가 설정되지 않았습니다.' })
+    }
+
+    console.log('[scan-card] 이미지 크기:', Math.round(base64Data.length / 1024), 'KB')
+
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': process.env.CLAUDE_API_KEY || '',
+        'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
@@ -56,18 +64,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
 
     const data = await response.json()
+    console.log('[scan-card] Claude API 상태:', response.status)
+    console.log('[scan-card] Claude API 응답:', JSON.stringify(data).slice(0, 500))
+
+    if (!response.ok) {
+      console.error('[scan-card] Claude API 에러:', data)
+      return res.status(500).json({ error: data.error?.message || 'Claude API 오류가 발생했습니다.' })
+    }
+
     const text = data.content?.[0]?.text || ''
+    console.log('[scan-card] 추출된 텍스트:', text.slice(0, 300))
+
+    if (!text) {
+      return res.status(500).json({ error: 'Claude API에서 응답을 받지 못했습니다.' })
+    }
 
     let parsed
     try {
       const clean = text.replace(/```json|```/g, '').trim()
       parsed = JSON.parse(clean)
     } catch {
+      console.error('[scan-card] JSON 파싱 실패, raw:', text.slice(0, 200))
       parsed = { name: '', company: '', position: '', phone: '', phone2: '', email: '', address: '', fax: '', raw: text }
     }
 
+    console.log('[scan-card] 파싱 결과:', JSON.stringify(parsed).slice(0, 300))
     return res.status(200).json(parsed)
   } catch (e: any) {
+    console.error('[scan-card] 서버 에러:', e.message)
     return res.status(500).json({ error: e.message || '명함 스캔 중 오류가 발생했습니다.' })
   }
 }
