@@ -38,6 +38,7 @@ export default function Dashboard() {
   const [calMonth, setCalMonth] = useState(new Date().getMonth())
   const [agentName, setAgentName] = useState('')
   const [agentEmail, setAgentEmail] = useState('')
+  const [agentPlan, setAgentPlan] = useState('')
   const [seenNearDone, setSeenNearDone] = useState<string[]>([])
   const [seenBirthday, setSeenBirthday] = useState<string[]>([])
   const [seenGap, setSeenGap] = useState<string[]>([])
@@ -52,10 +53,11 @@ export default function Dashboard() {
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) {
         setAgentEmail(data.user.email || '')
-        supabase.from('dpa_agents').select('id, name').eq('user_id', data.user.id).single()
+        supabase.from('dpa_agents').select('id, name, settings').eq('user_id', data.user.id).single()
           .then(({ data: agent }) => {
             if (agent) {
               setAgentName(agent.name)
+              setAgentPlan(agent.settings?.plan || 'basic')
               fetchUnreadNotice(agent.id)
             }
           })
@@ -458,6 +460,14 @@ export default function Dashboard() {
           </div>
           <div className={styles.dateRow}>
             <span className={styles.dateStr}>{dateStr}</span>
+            {agentPlan && (
+              <span style={{
+                display: 'inline-block', marginTop: 4, padding: '2px 10px', borderRadius: 10,
+                fontSize: 11, fontWeight: 700, letterSpacing: 0.5,
+                background: agentPlan === 'pro' ? '#1D9E75' : agentPlan === 'standard' ? '#378ADD' : '#888',
+                color: 'white',
+              }}>{agentPlan.toUpperCase()}</span>
+            )}
             <div style={{ position: 'relative' }}>
               <button className={styles.calBtn} onClick={() => setCalOpen(v => !v)}>📅 달력</button>
               {calOpen && (

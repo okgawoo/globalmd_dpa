@@ -58,7 +58,7 @@ function fmtDate(dateStr: string): string {
 
 const ISSUE_CONFIG: Record<IssueType, { icon: string; label: string; desc: string; color: string; badgeBg: string; badgeColor: string; borderColor: string }> = {
   nearDone:    { icon: '🔥', label: '완납 임박',   desc: '납입률 90% 이상',     color: '#BA7517', badgeBg: '#FAEEDA', badgeColor: '#854F0B', borderColor: '#BA7517' },
-  gap:         { icon: '⚠️', label: '보장 공백',  desc: '뇌혈관 미가입',        color: '#A32D2D', badgeBg: '#FCEBEB', badgeColor: '#A32D2D', borderColor: '#E24B4A' },
+  gap:         { icon: '⚠️', label: '보장 공백',  desc: '뇌혈관·허혈성·간병 미가입', color: '#A32D2D', badgeBg: '#FCEBEB', badgeColor: '#A32D2D', borderColor: '#E24B4A' },
   birthday:    { icon: '🎂', label: '생일',        desc: '7일 이내',              color: '#0F6E56', badgeBg: '#E1F5EE', badgeColor: '#0F6E56', borderColor: '#1D9E75' },
   expiry:      { icon: '📋', label: '만기 임박',   desc: '30일 이내',             color: '#185FA5', badgeBg: '#E6F1FB', badgeColor: '#185FA5', borderColor: '#378ADD' },
   longNoContact: { icon: '📞', label: '장기 미연락', desc: '마지막 미팅 90일 이상', color: '#5F5E5A', badgeBg: '#F1EFE8', badgeColor: '#444441', borderColor: '#888780' },
@@ -133,13 +133,18 @@ export default function NotificationsPage() {
       const maxRate = Math.max(...nearDone.map(ct => calcPaymentRate(ct)))
       notifMap.nearDone.push({ id: `neardone-${c.id}`, customer: c, contracts: nearDone, rate: maxRate, notifType: 'nearDone', badge: `${maxRate}%` })
     }
-    // 보장 공백
+    // 보장 공백 (뇌혈관 + 심장(허혈성) + 간병 체크, 0원 보장도 공백 처리)
     if (cts.length > 0) {
       const cvs = coverages.filter(cv => cts.some(ct => ct.id === cv.contract_id))
-      const hasBrain = cvs.some(cv => cv.category === '뇌혈관')
-      const hasCare = cvs.some(cv => cv.category === '간병')
-      if (!hasBrain || !hasCare) {
-        notifMap.gap.push({ id: `gap-${c.id}`, customer: c, hasBrain, hasCare, notifType: 'gap', badge: '보장 공백' })
+      const hasBrain = cvs.some(cv => cv.category === '뇌혈관' && cv.amount > 0)
+      const hasHeart = cvs.some(cv => cv.category === '심장' && cv.amount > 0)
+      const hasCare = cvs.some(cv => cv.category === '간병' && cv.amount > 0)
+      const gaps: string[] = []
+      if (!hasBrain) gaps.push('뇌혈관')
+      if (!hasHeart) gaps.push('허혈성')
+      if (!hasCare) gaps.push('간병인')
+      if (gaps.length > 0) {
+        notifMap.gap.push({ id: `gap-${c.id}`, customer: c, hasBrain, hasHeart, hasCare, gaps, notifType: 'gap', badge: '보장 공백' })
       }
     }
     // 만기 임박
@@ -282,7 +287,7 @@ export default function NotificationsPage() {
             <div className={styles.iconWrap}>{s.icon}</div>
             <div className={styles.cardBody}>
               <div className={styles.cardTitle}>{n.customer.name}고객 {cfg?.label}</div>
-              <div className={styles.cardDesc}>{n.notifType === 'nearDone' ? `납입률 ${n.rate}%` : n.notifType === 'gap' ? `${!n.hasBrain?'뇌혈관':''} ${!n.hasCare?'간병인':''} 보장 없음` : n.notifType === 'birthday' ? '생일 축하 문자를 보내보세요!' : n.contract?.company}</div>
+              <div className={styles.cardDesc}>{n.notifType === 'nearDone' ? `납입률 ${n.rate}%` : n.notifType === 'gap' ? `${n.gaps?.join(' · ')} 보장 없음` : n.notifType === 'birthday' ? '생일 축하 문자를 보내보세요!' : n.contract?.company}</div>
               <div className={styles.cardMeta}><span className={styles.badge} style={{ background: cfg?.badgeBg, color: cfg?.badgeColor }}>{s.badge}</span></div>
             </div>
             <button className={styles.historyBtn} onClick={e => { e.stopPropagation(); setExpandedId(isExpanded ? null : n.id) }}>

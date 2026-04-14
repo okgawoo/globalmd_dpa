@@ -331,3 +331,4 @@
 .btnGroup { display: flex; gap: 4px; }
 .smsBtn { font-size: 11px; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text-secondary); cursor: pointer; white-space: nowrap; text-align: center; }
 .smsBtn:hover { background: var(--green-light); color: var(--green); border-color: var(--green); }
+.badgeGray { font-size: 10px; background: #F1EFE8; color: #5F5E5A; padding: 2px 6px; border-radius: 999px; font-weight: 600; }
