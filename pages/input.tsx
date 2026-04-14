@@ -5,6 +5,7 @@ import styles from '../styles/Input.module.css'
 
 function ScanCardTab({ onComplete }: { onComplete: () => void }) {
   const [cameraOpen, setCameraOpen] = useState(false)
+  const [cameraClosing, setCameraClosing] = useState(false)
   const [scanning, setScanning] = useState(false)
   const [result, setResult] = useState<any>(null)
   const [saving, setSaving] = useState(false)
@@ -42,30 +43,41 @@ function ScanCardTab({ onComplete }: { onComplete: () => void }) {
   }
 
   function closeCamera() {
-    stopCamera()
-    setCameraOpen(false)
+    setCameraClosing(true)
+    setTimeout(() => {
+      stopCamera()
+      setCameraOpen(false)
+      setCameraClosing(false)
+    }, 300)
   }
 
   useEffect(() => {
     function handlePopState() {
       if (cameraOpen) {
-        stopCamera()
-        setCameraOpen(false)
+        closeCamera()
+      } else if (result) {
+        setResult(null)
+        setCapturedImage(null)
       }
     }
     window.addEventListener('popstate', handlePopState)
     return () => window.removeEventListener('popstate', handlePopState)
-  }, [cameraOpen, stopCamera])
+  }, [cameraOpen, result, stopCamera])
 
   function capturePhoto() {
     if (!videoRef.current || !canvasRef.current) return
     const video = videoRef.current
     const canvas = canvasRef.current
-    canvas.width = video.videoWidth
-    canvas.height = video.videoHeight
+    // 명함 영역만 크롭 (SVG 마스크와 동일한 비율: x=8%, y=35%, w=84%, h=22%)
+    const sx = video.videoWidth * 0.08
+    const sy = video.videoHeight * 0.35
+    const sw = video.videoWidth * 0.84
+    const sh = video.videoHeight * 0.22
+    canvas.width = sw
+    canvas.height = sh
     const ctx = canvas.getContext('2d')
     if (!ctx) return
-    ctx.drawImage(video, 0, 0)
+    ctx.drawImage(video, sx, sy, sw, sh, 0, 0, sw, sh)
     const dataUrl = canvas.toDataURL('image/jpeg', 0.9)
     setCapturedImage(dataUrl)
     stopCamera()
@@ -93,6 +105,7 @@ function ScanCardTab({ onComplete }: { onComplete: () => void }) {
         return
       }
       setResult(data)
+      window.history.pushState({ scanResult: true }, '')
     } catch (e) {
       alert('명함 스캔 중 오류가 발생했어요!')
     }
@@ -131,8 +144,8 @@ function ScanCardTab({ onComplete }: { onComplete: () => void }) {
   // 카메라 오버레이 UI (삼성페이 스타일)
   if (cameraOpen) {
     return (
-      <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',zIndex:9999,background:'#000',animation:'slideInRight 0.3s ease-out'}}>
-        <style>{`@keyframes slideInRight{from{transform:translateX(100%)}to{transform:translateX(0)}}`}</style>
+      <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',zIndex:9999,background:'#000',animation:cameraClosing?'slideOutRight 0.3s ease-in forwards':'slideInRight 0.3s ease-out'}}>
+        <style>{`@keyframes slideInRight{from{transform:translateX(100%)}to{transform:translateX(0)}}@keyframes slideOutRight{from{transform:translateX(0)}to{transform:translateX(100%)}}`}</style>
         <video ref={videoRef} style={{position:'absolute',top:0,left:0,width:'100%',height:'100%',objectFit:'cover'}} playsInline muted />
         {/* 흰색 반투명 오버레이 + 명함 비율 라운드 사각형 */}
         <svg style={{position:'absolute',top:0,left:0,width:'100%',height:'100%',pointerEvents:'none'}}>
@@ -147,7 +160,7 @@ function ScanCardTab({ onComplete }: { onComplete: () => void }) {
           <rect x="8%" y="35%" width="84%" height="22%" rx="14" ry="14" fill="none" stroke="rgba(0,0,0,0.15)" strokeWidth="1"/>
         </svg>
         {/* 뒤로가기 */}
-        <div style={{position:'absolute',top:16,left:16,zIndex:1,cursor:'pointer'}} onClick={() => { window.history.back() }}>
+        <div style={{position:'absolute',top:16,left:16,zIndex:1,cursor:'pointer'}} onClick={closeCamera}>
           <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M18 4L8 14L18 24" stroke="#333" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
         </div>
         {/* 가이드 텍스트 */}
@@ -165,10 +178,13 @@ function ScanCardTab({ onComplete }: { onComplete: () => void }) {
     )
   }
 
+  const resultRef = useRef<HTMLDivElement>(null)
+
   // 스캔 결과 화면
   if (result) {
+    setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
     return (
-      <div style={{padding:'16px 0'}}>
+      <div ref={resultRef} style={{padding:'16px 0'}}>
         <div style={{textAlign:'center',marginBottom:16}}>
           <div style={{fontSize:15,fontWeight:600,color:'#1D9E75',marginBottom:4}}>명함 스캔 완료!</div>
           <div style={{fontSize:13,color:'#888'}}>내용을 확인하고 수정해주세요</div>
