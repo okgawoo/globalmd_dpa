@@ -388,7 +388,7 @@ export default function Dashboard() {
           <button className={styles.mobileMenuBtn} onClick={(e) => { e.preventDefault(); router.push('/input') }} style={{ justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <p className={styles.mobileMenuName}>데이터 입력</p>
-              <p className={styles.mobileMenuSub}>텍스트·명함·수동</p>
+              <p className={styles.mobileMenuSub}>복붙·명함·수동</p>
             </div>
             <p className={styles.mobileMenuName} style={{ margin: 0 }}>AI분석</p>
           </button>
@@ -402,24 +402,28 @@ export default function Dashboard() {
           <button className={styles.mobileMenuBtn} onClick={(e) => { e.preventDefault(); router.push('/notifications') }} style={{ justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <p className={styles.mobileMenuName}>문자 발송</p>
-              <p className={styles.mobileMenuSub}>AI관리·단체문자</p>
+              <p className={styles.mobileMenuSub}>AI추천·단체문자</p>
             </div>
             <p className={styles.mobileMenuName} style={{ margin: 0, color: '#E24B4A' }}>{nearDoneCustomers.length + gapCustomers.length + birthdayCustomers.length}건</p>
           </button>
           <button className={styles.mobileMenuBtn} onClick={(e) => { e.preventDefault(); router.push('/sales') }} style={{ justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <p className={styles.mobileMenuName}>영업 관리</p>
-              <p className={styles.mobileMenuSub}>AI·미팅·이력</p>
+              <p className={styles.mobileMenuSub}>AI추천·미팅·이력</p>
             </div>
             <p className={styles.mobileMenuName} style={{ margin: 0, color: '#E24B4A' }}>미팅{meetings.length}건</p>
           </button>
           <button className={styles.mobileMenuBtn} onClick={(e) => { e.preventDefault(); alert('준비중입니다 😊') }} style={{ justifyContent: 'space-between', opacity: 0.55 }}>
-            <p className={styles.mobileMenuName}>미팅 리포트</p>
-            <p className={styles.mobileMenuSub} style={{ color: '#999' }}>(준비중)</p>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <p className={styles.mobileMenuName}>미팅 리포트</p>
+            </div>
+            <p className={styles.mobileMenuSub} style={{ color: '#999', margin: 0 }}>(준비중)</p>
           </button>
           <button className={styles.mobileMenuBtn} onClick={(e) => { e.preventDefault(); alert('준비중입니다 😊') }} style={{ justifyContent: 'space-between', opacity: 0.55 }}>
-            <p className={styles.mobileMenuName}>보장 분석</p>
-            <p className={styles.mobileMenuSub} style={{ color: '#999' }}>(준비중)</p>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <p className={styles.mobileMenuName}>보장 분석</p>
+            </div>
+            <p className={styles.mobileMenuSub} style={{ color: '#999', margin: 0 }}>(준비중)</p>
           </button>
         </div>
 
