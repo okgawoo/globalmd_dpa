@@ -416,12 +416,14 @@ export default function Dashboard() {
           <button className={styles.mobileMenuBtn} onClick={(e) => { e.preventDefault(); alert('준비중입니다 😊') }} style={{ justifyContent: 'space-between', opacity: 0.55 }}>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <p className={styles.mobileMenuName}>미팅 리포트</p>
+              <p className={styles.mobileMenuSub}>&nbsp;</p>
             </div>
             <p className={styles.mobileMenuSub} style={{ color: '#999', margin: 0 }}>(준비중)</p>
           </button>
           <button className={styles.mobileMenuBtn} onClick={(e) => { e.preventDefault(); alert('준비중입니다 😊') }} style={{ justifyContent: 'space-between', opacity: 0.55 }}>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <p className={styles.mobileMenuName}>보장 분석</p>
+              <p className={styles.mobileMenuSub}>&nbsp;</p>
             </div>
             <p className={styles.mobileMenuSub} style={{ color: '#999', margin: 0 }}>(준비중)</p>
           </button>
