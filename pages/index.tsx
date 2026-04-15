@@ -383,40 +383,43 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* 메뉴 2x2 */}
+        {/* 메뉴 2x3 */}
         <div className={styles.mobileGrid2}>
-          <button className={styles.mobileMenuBtn} onClick={(e) => { e.preventDefault(); router.push('/customers') }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            <div>
-              <p className={styles.mobileMenuName}>고객 관리</p>
-              <p className={styles.mobileMenuSub}>{customers.length}명</p>
-            </div>
-          </button>
-          <button className={styles.mobileMenuBtn} onClick={(e) => { e.preventDefault(); router.push('/sales') }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="1.8"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-            <div>
-              <p className={styles.mobileMenuName}>영업 관리</p>
-              <p className={styles.mobileMenuSub}>미팅 3건</p>
-            </div>
-          </button>
-          <button className={styles.mobileMenuBtn} onClick={(e) => { e.preventDefault(); router.push('/input') }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-            <div>
+          <button className={styles.mobileMenuBtn} onClick={(e) => { e.preventDefault(); router.push('/input') }} style={{ justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
               <p className={styles.mobileMenuName}>데이터 입력</p>
-              <p className={styles.mobileMenuSub}>AI 파싱</p>
+              <p className={styles.mobileMenuSub}>텍스트·명함·수동</p>
             </div>
+            <p className={styles.mobileMenuName} style={{ margin: 0 }}>AI분석</p>
           </button>
-          <button className={styles.mobileMenuBtn} onClick={(e) => { e.preventDefault(); router.push('/notifications') }}>
-            <div style={{ position: 'relative', flexShrink: 0 }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-              {(nearDoneCustomers.length + gapCustomers.length + birthdayCustomers.length) > 0 && (
-                <div style={{ position: 'absolute', top: -2, right: -2, width: 6, height: 6, background: '#E24B4A', borderRadius: '50%' }} />
-              )}
+          <button className={styles.mobileMenuBtn} onClick={(e) => { e.preventDefault(); router.push('/customers') }} style={{ justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <p className={styles.mobileMenuName}>고객 관리</p>
+              <p className={styles.mobileMenuSub}>마이고객·관심고객</p>
             </div>
-            <div>
+            <p className={styles.mobileMenuName} style={{ margin: 0 }}>{customers.length}명</p>
+          </button>
+          <button className={styles.mobileMenuBtn} onClick={(e) => { e.preventDefault(); router.push('/notifications') }} style={{ justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
               <p className={styles.mobileMenuName}>문자 발송</p>
-              <p className={styles.mobileMenuSub} style={{ color: '#E24B4A' }}>{nearDoneCustomers.length + gapCustomers.length + birthdayCustomers.length}건 대기</p>
+              <p className={styles.mobileMenuSub}>AI관리·단체문자</p>
             </div>
+            <p className={styles.mobileMenuName} style={{ margin: 0, color: '#E24B4A' }}>{nearDoneCustomers.length + gapCustomers.length + birthdayCustomers.length}건</p>
+          </button>
+          <button className={styles.mobileMenuBtn} onClick={(e) => { e.preventDefault(); router.push('/sales') }} style={{ justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <p className={styles.mobileMenuName}>영업 관리</p>
+              <p className={styles.mobileMenuSub}>AI·미팅·이력</p>
+            </div>
+            <p className={styles.mobileMenuName} style={{ margin: 0, color: '#E24B4A' }}>미팅{meetings.length}건</p>
+          </button>
+          <button className={styles.mobileMenuBtn} onClick={(e) => { e.preventDefault(); alert('준비중입니다 😊') }} style={{ justifyContent: 'space-between', opacity: 0.55 }}>
+            <p className={styles.mobileMenuName}>미팅 리포트</p>
+            <p className={styles.mobileMenuSub} style={{ color: '#999' }}>(준비중)</p>
+          </button>
+          <button className={styles.mobileMenuBtn} onClick={(e) => { e.preventDefault(); alert('준비중입니다 😊') }} style={{ justifyContent: 'space-between', opacity: 0.55 }}>
+            <p className={styles.mobileMenuName}>보장 분석</p>
+            <p className={styles.mobileMenuSub} style={{ color: '#999' }}>(준비중)</p>
           </button>
         </div>
 
