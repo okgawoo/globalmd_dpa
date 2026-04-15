@@ -390,14 +390,14 @@ export default function Dashboard() {
               <p className={styles.mobileMenuName}>데이터 입력</p>
               <p className={styles.mobileMenuSub}>복붙·명함·수동</p>
             </div>
-            <p className={styles.mobileMenuName} style={{ margin: 0 }}>AI분석</p>
+            <p className={styles.mobileMenuName} style={{ margin: 0, color: '#E24B4A' }}>AI분석</p>
           </button>
           <button className={styles.mobileMenuBtn} onClick={(e) => { e.preventDefault(); router.push('/customers') }} style={{ justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <p className={styles.mobileMenuName}>고객 관리</p>
               <p className={styles.mobileMenuSub}>마이고객·관심고객</p>
             </div>
-            <p className={styles.mobileMenuName} style={{ margin: 0 }}>{customers.length}명</p>
+            <p className={styles.mobileMenuName} style={{ margin: 0, color: '#E24B4A' }}>{customers.length}명</p>
           </button>
           <button className={styles.mobileMenuBtn} onClick={(e) => { e.preventDefault(); router.push('/notifications') }} style={{ justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
