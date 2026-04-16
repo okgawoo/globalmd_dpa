@@ -6,11 +6,18 @@ const SLACK_CHANNEL_ID = 'C0ASED4L16V' // dpa-admin
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end()
 
-  const { type, name, phone, username, agent_number, message } = req.body
+  const { type, name, phone, username, agent_number, plan_type, telecom, message } = req.body
+
+  const PLAN_LABELS: Record<string, string> = {
+    demo: '🆓 7일 무료 체험 (데모)',
+    basic: '🥉 베이직 49,000원/월',
+    standard: '🥈 스탠다드 99,000원/월',
+    pro: '🥇 프로 149,000원/월',
+  }
 
   let text = ''
   if (type === 'signup') {
-    text = `🆕 *새 회원가입 신청!*\n\n👤 이름: ${name}\n📱 연락처: ${phone}\n🆔 아이디: ${username}\n📋 설계사 등록번호: ${agent_number || '미입력'}\n\n> Supabase › dpa_agents 에서 *status = active* 로 변경하면 승인 완료!`
+    text = `🆕 *새 회원가입 신청!*\n\n👤 이름: ${name}\n📱 연락처: ${phone}\n🆔 아이디: ${username}\n📋 설계사 등록번호: ${agent_number || '미입력'}\n📦 선택 플랜: ${PLAN_LABELS[plan_type] || plan_type || '미선택'}\n📡 통신사: ${telecom || '미입력'}\n\n> Supabase › dpa_agents 에서 *status = active* 로 변경하면 승인 완료!`
   } else {
     text = message || '알림이 도착했어요.'
   }

@@ -9,7 +9,17 @@ const emptyRegForm = {
   username: '', password: '', password2: '',
   name: '', phone: '', kakao_id: '', address: '',
   agent_number: '', license_photo: null as File | null,
+  telecom: '', resident_prefix: '', plan_type: 'demo',
 }
+
+const TELECOMS = ['SKT', 'KT', 'LGU+', '알뜰폰(SKT)', '알뜰폰(KT)', '알뜰폰(LGU+)']
+
+const PLANS = [
+  { value: 'demo', label: '🆓 7일 무료 체험', desc: '고객 5명, 기본 기능 체험' },
+  { value: 'basic', label: '🥉 베이직 49,000원/월', desc: '고객 100명, SMS 없음' },
+  { value: 'standard', label: '🥈 스탠다드 99,000원/월 ⭐', desc: '고객 300명, SMS 500건' },
+  { value: 'pro', label: '🥇 프로 149,000원/월', desc: '고객 무제한, SMS 1,000건' },
+]
 
 function formatPhone(val: string): string {
   const num = val.replace(/\D/g, '').slice(0, 11)
@@ -48,7 +58,7 @@ export default function Login() {
     if (!form.username || !form.password || !form.name || !form.phone)
       return setError('필수 항목을 모두 입력해주세요. (*)')
     if (form.password !== form.password2) return setError('비밀번호가 일치하지 않아요.')
-    if (form.password.length < 4) return setError('비밀번호는 4자 이상이어야 해요.')
+    if (form.password.length < 6) return setError('비밀번호는 6자리 이상이어야 합니다.')
     setLoading(true); setError('')
 
     const email = `${form.username}@dpa.com`
@@ -67,10 +77,18 @@ export default function Login() {
         const { data: urlData } = supabase.storage.from('agent-docs').getPublicUrl(path)
         license_photo_url = urlData?.publicUrl || null
       }
+      // 데모 만료일 계산 (7일)
+      const now = new Date()
+      const demoExpires = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
       await supabase.from('dpa_agents').insert({
         user_id: data.user.id, name: form.name, email,
         phone: form.phone, kakao_id: form.kakao_id, address: form.address,
-        agent_number: form.agent_number, license_photo_url, status: 'pending'
+        agent_number: form.agent_number, license_photo_url, status: 'pending',
+        plan_type: form.plan_type,
+        telecom: form.telecom || null,
+        resident_prefix: form.resident_prefix || null,
+        demo_started_at: form.plan_type === 'demo' ? now.toISOString() : null,
+        demo_expires_at: form.plan_type === 'demo' ? demoExpires.toISOString() : null,
       })
     }
     // 슬랙 알림 발송
@@ -82,7 +100,9 @@ export default function Login() {
         name: form.name,
         phone: form.phone,
         username: form.username,
-        agent_number: form.agent_number || '미입력'
+        agent_number: form.agent_number || '미입력',
+        plan_type: form.plan_type,
+        telecom: form.telecom || '미입력',
       })
     })
     setSuccess('회원가입 신청 완료! 관리자 승인 후 로그인 가능해요 😊')
@@ -187,6 +207,25 @@ export default function Login() {
 
             <div className={styles.sectionLabel}>설계사 인증</div>
             <div className={styles.field}>
+              <label>주민번호 앞 7자리 (선택)</label>
+              <input
+                placeholder="예) 8501011 (앞 6자리 + 뒷자리 첫글자)"
+                value={form.resident_prefix}
+                onChange={e => setForm({ ...form, resident_prefix: e.target.value.replace(/\D/g, '').slice(0, 7) })}
+                inputMode="numeric"
+                maxLength={7}
+              />
+              <span className={styles.fieldHint}>솔라피 본인인증에 사용됩니다</span>
+            </div>
+            <div className={styles.field}>
+              <label>통신사 (선택)</label>
+              <select value={form.telecom} onChange={e => setForm({ ...form, telecom: e.target.value })} style={{width:'100%',fontSize:14,padding:'10px 12px',borderRadius:8,border:'1px solid #E5E7EB',background:'#fff',color: form.telecom ? '#111' : '#9CA3AF'}}>
+                <option value="">통신사 선택</option>
+                {TELECOMS.map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
+              <span className={styles.fieldHint}>문자 발신번호 인증에 사용됩니다</span>
+            </div>
+            <div className={styles.field}>
               <label>설계사 등록번호 (선택)</label>
               <input placeholder="보험설계사 등록번호" value={form.agent_number} onChange={e => setForm({ ...form, agent_number: e.target.value })} />
               <span className={styles.fieldHint}>e-클린보험서비스에서 확인 가능해요</span>
@@ -209,6 +248,19 @@ export default function Login() {
 
             <div className={styles.agreeText}>
               * 회원가입 신청 후 관리자 승인이 완료되면 로그인 가능해요.
+            </div>
+
+            <div className={styles.sectionLabel}>요금제 선택</div>
+            <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:16}}>
+              {PLANS.map(p => (
+                <label key={p.value} onClick={() => setForm({...form, plan_type: p.value})} style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:8,border:`2px solid ${form.plan_type===p.value?'#1D9E75':'#E5E7EB'}`,background:form.plan_type===p.value?'#E8F8F2':'#fff',cursor:'pointer'}}>
+                  <input type="radio" name="plan" value={p.value} checked={form.plan_type===p.value} onChange={() => setForm({...form, plan_type: p.value})} style={{accentColor:'#1D9E75'}} />
+                  <div>
+                    <div style={{fontSize:13,fontWeight:600,color:form.plan_type===p.value?'#1D9E75':'#111'}}>{p.label}</div>
+                    <div style={{fontSize:11,color:'#6B7280'}}>{p.desc}</div>
+                  </div>
+                </label>
+              ))}
             </div>
             <button className={styles.submitBtn} onClick={handleRegister} disabled={loading}>
               {loading ? '신청 중...' : '회원가입 신청'}
