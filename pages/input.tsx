@@ -487,6 +487,21 @@ export default function InputPage() {
         body: JSON.stringify({ text: combinedText }),
       })
       const data = await res.json()
+      // ⚠️ 자동 검증 - 점검 필요 항목 추출
+      const warns: string[] = []
+      if (!data.name) warns.push('고객명이 인식되지 않았어요')
+      if (!data.age || !data.gender || data.gender === '미상') warns.push('나이/성별이 인식되지 않았어요 → 주민번호 확인 필요')
+      if (!data.phone) warns.push('연락처가 인식되지 않았어요')
+      if (data.contracts?.length > 0) {
+        data.contracts.forEach((ct: any, i: number) => {
+          const num = `${i + 1}번 계약 (${ct.company || '보험사 미상'})`
+          if (!ct.monthly_fee || ct.monthly_fee === 0) warns.push(`${num} → 월보험료 0원, 확인 필요`)
+          if (!ct.contract_start) warns.push(`${num} → 가입연월 없음`)
+          if (!ct.payment_years) warns.push(`${num} → 납입기간 없음`)
+          if (!ct.coverages || ct.coverages.length === 0) warns.push(`${num} → 보장내역 없음`)
+        })
+      }
+      data._warnings = warns
       setParsed(data)
       setSaveMode('new')
       setSelectedCustomerId('')
@@ -778,6 +793,18 @@ export default function InputPage() {
           {parsed && (
             <div className={styles.parsedResult}>
               <div className={styles.parsedResultTitle}>✅ 분석 완료! 내용을 확인하고 수정해주세요</div>
+
+              {/* ⚠️ 점검 필요 박스 */}
+              {parsed._warnings?.length > 0 && (
+                <div style={{background:'#FEF9E7',border:'1.5px solid #F5C518',borderRadius:10,padding:'10px 14px',marginBottom:14}}>
+                  <div style={{fontSize:13,fontWeight:700,color:'#B7791F',marginBottom:6}}>⚠️ 점검 필요 ({parsed._warnings.length}건)</div>
+                  {parsed._warnings.map((w: string, i: number) => (
+                    <div key={i} style={{fontSize:12,color:'#92600A',marginBottom:3,display:'flex',alignItems:'flex-start',gap:4}}>
+                      <span>•</span><span>{w}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {/* 저장 방식 선택 */}
               <div style={{display:'flex',gap:8,marginBottom:12}}>
