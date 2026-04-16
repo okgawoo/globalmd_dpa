@@ -554,7 +554,7 @@ export default function Customers() {
   const getCoveragesByContract = (ctId: string) => {
     const cvs = selectedCoverages.filter(cv => cv.contract_id === ctId)
     return COVERAGE_GROUPS
-      .map(g => ({ ...g, items: cvs.filter((cv: any) => cv.category === g.key) }))
+      .map(g => ({ ...g, items: cvs.filter((cv: any) => cv.category === g.key).sort((a: any, b: any) => a.coverage_name.localeCompare(b.coverage_name, 'ko', { numeric: true })) }))
       .filter(g => g.items.length > 0)
   }
 
@@ -902,7 +902,7 @@ export default function Customers() {
               <div className={styles.section}>보험 계약 현황</div>
               {selectedContracts.map((ct, idx) => {
                 const cvs = selectedCoverages.filter(cv => cv.contract_id === ct.id)
-                const groups = COVERAGE_GROUPS.map(g => ({ ...g, items: cvs.filter((cv:any) => cv.category === g.key) })).filter(g => g.items.length > 0)
+                const groups = COVERAGE_GROUPS.map(g => ({ ...g, items: cvs.filter((cv:any) => cv.category === g.key).sort((a:any, b:any) => a.coverage_name.localeCompare(b.coverage_name, 'ko', { numeric: true })) })).filter(g => g.items.length > 0)
                 return (
                   <div key={ct.id} className={calcPaymentRate(ct) >= 90 && ct.payment_status !== '완납' ? styles.insCardWarn : styles.insCard}>
                     <div className={styles.insCardHeader}>
