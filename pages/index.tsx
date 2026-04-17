@@ -136,16 +136,35 @@ export default function Dashboard() {
     const { data: { user } } = await supabase.auth.getUser()
     const agentId = user?.id
     if (agentId) setAgentId(agentId)
-    const { data: custs } = await supabase.from('dpa_customers').select('*').eq('agent_id', agentId)
-    const { data: conts } = await supabase.from('dpa_contracts').select('*').eq('agent_id', agentId)
-    const { data: covs } = await supabase.from('dpa_coverages').select('*')
+
     const todayStr = new Date().toISOString().split('T')[0]
     const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-    const { data: meets } = await supabase.from('dpa_meetings').select('*').eq('agent_id', agentId).gte('meeting_date', todayStr).lte('meeting_date', nextWeek).neq('status', '취소').order('meeting_date', { ascending: true })
-    setCustomers(custs || [])
-    setContracts(conts || [])
-    setCoverages(covs || [])
-    setMeetings(meets || [])
+
+    // 병렬로 한번에 불러오기
+    const [custsRes, contsRes, meetsRes] = await Promise.all([
+      supabase.from('dpa_customers').select('id, name, age, gender, birth_date, phone, customer_type, created_at').eq('agent_id', agentId),
+      supabase.from('dpa_contracts').select('id, customer_id, agent_id, company, product_name, insurance_type, monthly_fee, payment_status, payment_years, payment_rate, contract_start').eq('agent_id', agentId),
+      supabase.from('dpa_meetings').select('*').eq('agent_id', agentId).gte('meeting_date', todayStr).lte('meeting_date', nextWeek).neq('status', '취소').order('meeting_date', { ascending: true })
+    ])
+
+    const custs = custsRes.data || []
+    const conts = contsRes.data || []
+
+    // coverages는 계약 ID 기준으로 필터링 (전체 X)
+    let covs: any[] = []
+    if (conts.length > 0) {
+      const contractIds = conts.map((c: any) => c.id)
+      const { data: covsData } = await supabase
+        .from('dpa_coverages')
+        .select('id, contract_id, category, brain_coverage_type, amount')
+        .in('contract_id', contractIds)
+      covs = covsData || []
+    }
+
+    setCustomers(custs)
+    setContracts(conts)
+    setCoverages(covs)
+    setMeetings(meetsRes.data || [])
     setLoading(false)
   }
 
@@ -491,7 +510,7 @@ export default function Dashboard() {
 
         {/* 하단 아이콘 4개 */}
         <div className={styles.mobileBottomIcons}>
-          <button className={styles.mobileIconBtn} onClick={(e) => { e.preventDefault(); router.push(`/c/${agentSlug}`) }}>
+          <button className={styles.mobileIconBtn} onClick={(e) => { e.preventDefault(); if (agentSlug) router.push(`/c/${agentSlug}`) }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.8"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M8 10h8M8 14h5"/></svg>
             <span className={styles.mobileIconLabel}>전자명함</span>
           </button>
