@@ -211,8 +211,8 @@ export default function AdminPage() {
           { key: '공지사항' as const, label: '공지사항 관리' },
           { key: '설계사' as const, label: '설계사 관리' },
         ].map(menu => (
-          <button key={menu.key} onClick={() => menu.key !== '설계사' && setTopMenu(menu.key)}
-            style={{ padding: '14px 20px', border: 'none', background: 'transparent', cursor: menu.key !== '설계사' ? 'pointer' : 'default', fontSize: 14, fontWeight: topMenu === menu.key ? 700 : 400, color: topMenu === menu.key ? '#1D9E75' : 'var(--text-muted)', borderBottom: topMenu === menu.key ? '2px solid #1D9E75' : '2px solid transparent', opacity: menu.key === '설계사' ? 0.5 : 1 }}>
+          <button key={menu.key} onClick={() => setTopMenu(menu.key)}
+            style={{ padding: '14px 20px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 14, fontWeight: topMenu === menu.key ? 700 : 400, color: topMenu === menu.key ? '#1D9E75' : 'var(--text-muted)', borderBottom: topMenu === menu.key ? '2px solid #1D9E75' : '2px solid transparent' }}>
             {menu.label}
           </button>
         ))}
