@@ -1,8 +1,17 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { createClient } from '@supabase/supabase-js'
 import nodemailer from 'nodemailer'
-// @ts-ignore
-import htmlPdf from 'html-pdf-node'
+import chromium from '@sparticuz/chromium'
+import puppeteer from 'puppeteer-core'
+
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '10mb',
+    },
+  },
+  maxDuration: 60,
+}
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -28,18 +37,20 @@ function getTodayShort() {
 }
 
 const pdfStyle = `
-  body { font-family: 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', sans-serif; font-size: 13px; color: #111; line-height: 1.8; padding: 40px; }
-  h1 { font-size: 20px; text-align: center; font-weight: bold; margin-bottom: 30px; text-decoration: underline; }
-  h2 { font-size: 14px; font-weight: bold; margin-top: 20px; margin-bottom: 8px; }
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif; font-size: 13px; color: #111; line-height: 1.8; padding: 40px; }
+  h1 { font-size: 20px; text-align: center; font-weight: 700; margin-bottom: 30px; text-decoration: underline; }
+  h2 { font-size: 14px; font-weight: 700; margin-top: 20px; margin-bottom: 8px; }
   p { margin: 4px 0; }
-  .section { margin-bottom: 20px; padding: 14px 16px; border: 1px solid #ccc; border-radius: 4px; }
-  .label { font-weight: bold; }
+  .section { margin-bottom: 20px; padding: 14px 16px; border: 1px solid #ccc; }
+  .label { font-weight: 700; }
   .sign-box { border: 1px solid #999; padding: 10px; min-height: 80px; margin-top: 8px; text-align: center; }
   .sign-box img { max-height: 70px; }
   .date { text-align: center; margin-top: 30px; font-size: 14px; }
   table { width: 100%; border-collapse: collapse; margin-top: 8px; }
   td { padding: 6px 10px; border: 1px solid #ddd; font-size: 13px; }
-  td:first-child { background: #f5f5f5; font-weight: bold; width: 35%; }
+  td:first-child { background: #f5f5f5; font-weight: 700; width: 35%; }
 `
 
 function generateAgreementHTML(data: any): string {
@@ -124,11 +135,11 @@ function generateContractHTML(data: any): string {
   <h2>제3조 (재위탁 제한)</h2>
   <p>"을"은 "갑"의 사전 승낙 없이 계약상 권리와 의무 전부 또는 일부를 제3자에게 양도하거나 재위탁할 수 없습니다.</p>
   <h2>제4조 (개인정보의 안전성 확보조치)</h2>
-  <p>"을"은 개인정보 보호법 제29조에 따라 개인정보의 안전성 확보에 필요한 기술적·관리적 조치를 취하여야 합니다.</p>
+  <p>"을"은 개인정보 보호법 제29조에 따라 안전성 확보에 필요한 기술적·관리적 조치를 취하여야 합니다.</p>
   <h2>제5조 (개인정보의 처리제한)</h2>
-  <p>"을"은 위탁업무 수행 목적 범위를 넘어 개인정보를 이용하거나 제3자에게 제공할 수 없습니다. 계약 종료 시 보유하고 있는 개인정보를 즉시 파기하거나 "갑"에게 반납하여야 합니다.</p>
+  <p>"을"은 위탁 목적 범위를 넘어 개인정보를 이용하거나 제3자에게 제공할 수 없습니다. 계약 종료 시 보유 개인정보를 즉시 파기하거나 "갑"에게 반납하여야 합니다.</p>
   <h2>제6조 (손해배상)</h2>
-  <p>"을" 또는 "을"의 임직원이 이 계약에 따른 의무를 위반하여 손해가 발생한 경우 "을"은 그 손해를 배상하여야 합니다.</p>
+  <p>"을"이 이 계약에 따른 의무를 위반하여 손해가 발생한 경우 "을"은 그 손해를 배상하여야 합니다.</p>
   <p class="date">${getToday()}</p>
   <table style="margin-top:20px">
     <tr>
@@ -148,9 +159,29 @@ function generateContractHTML(data: any): string {
 }
 
 async function generatePDF(html: string): Promise<Buffer> {
-  const file = { content: html }
-  const options = { format: 'A4', margin: { top: '15mm', bottom: '15mm', left: '15mm', right: '15mm' } }
-  return await htmlPdf.generatePdf(file, options)
+  let chromium: any
+  let puppeteer: any
+
+  try {
+    chromium = (await import('@sparticuz/chromium')).default
+    puppeteer = (await import('puppeteer-core')).default
+  } catch (e) {
+    puppeteer = (await import('puppeteer')).default
+    chromium = null
+  }
+
+  const browser = await puppeteer.launch({
+    args: chromium ? chromium.args : [],
+    defaultViewport: chromium ? chromium.defaultViewport : { width: 1280, height: 800 },
+    executablePath: chromium ? await chromium.executablePath() : undefined,
+    headless: true,
+  })
+
+  const page = await browser.newPage()
+  await page.setContent(html, { waitUntil: 'networkidle0' })
+  const pdf = await page.pdf({ format: 'A4', margin: { top: '15mm', bottom: '15mm', left: '15mm', right: '15mm' } })
+  await browser.close()
+  return Buffer.from(pdf)
 }
 
 async function sendSlackNotification(data: any) {
@@ -184,11 +215,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const pdfData = { agentName, birthDate, address, senderPhone, signatureData }
-    const [agreementPdf, delegationPdf, contractPdf] = await Promise.all([
-      generatePDF(generateAgreementHTML(pdfData)),
-      generatePDF(generateDelegationHTML(pdfData)),
-      generatePDF(generateContractHTML(pdfData)),
-    ])
+    const agreementPdf = await generatePDF(generateAgreementHTML(pdfData))
+    const delegationPdf = await generatePDF(generateDelegationHTML(pdfData))
+    const contractPdf = await generatePDF(generateContractHTML(pdfData))
 
     const prefix = `sms-auth/${agentId}/${Date.now()}`
     await Promise.all([
