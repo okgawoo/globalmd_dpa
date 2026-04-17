@@ -27,7 +27,7 @@ export default function BusinessCard() {
     const { data } = await supabase
       .from('dpa_agents')
       .select('name, phone, personal_email, kakao_id, address, profile_image_url')
-      .eq('id', agentId)
+      .eq('slug', agentId)
       .eq('status', 'approved')
       .single()
     setAgent(data)

@@ -39,6 +39,8 @@ export default function Dashboard() {
   const [agentName, setAgentName] = useState('')
   const [agentEmail, setAgentEmail] = useState('')
   const [agentPlan, setAgentPlan] = useState('')
+  const [agentDbId, setAgentDbId] = useState('')
+  const [agentSlug, setAgentSlug] = useState('')
   const [seenNearDone, setSeenNearDone] = useState<string[]>([])
   const [seenBirthday, setSeenBirthday] = useState<string[]>([])
   const [seenGap, setSeenGap] = useState<string[]>([])
@@ -53,10 +55,12 @@ export default function Dashboard() {
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) {
         setAgentEmail(data.user.email || '')
-        supabase.from('dpa_agents').select('id, name, settings').eq('user_id', data.user.id).single()
+        supabase.from('dpa_agents').select('id, name, settings, slug').eq('user_id', data.user.id).single()
           .then(({ data: agent }) => {
             if (agent) {
               setAgentName(agent.name)
+              setAgentDbId(agent.id)
+              setAgentSlug(agent.slug || agent.id)
               setAgentPlan(agent.settings?.plan || 'basic')
               fetchUnreadNotice(agent.id)
             }
@@ -487,7 +491,7 @@ export default function Dashboard() {
 
         {/* 하단 아이콘 4개 */}
         <div className={styles.mobileBottomIcons}>
-          <button className={styles.mobileIconBtn} onClick={(e) => { e.preventDefault(); router.push(`/c/${agentId}`) }}>
+          <button className={styles.mobileIconBtn} onClick={(e) => { e.preventDefault(); router.push(`/c/${agentSlug}`) }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.8"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M8 10h8M8 14h5"/></svg>
             <span className={styles.mobileIconLabel}>전자명함</span>
           </button>

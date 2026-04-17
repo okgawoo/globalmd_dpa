@@ -88,6 +88,7 @@ export default function Login() {
         telecom: form.telecom || null,
         resident_prefix: form.resident_front + form.resident_back1 || null,
         personal_email: form.personal_email || null,
+        slug: form.username,
         demo_started_at: form.plan_type === 'demo' ? now.toISOString() : null,
         demo_expires_at: form.plan_type === 'demo' ? demoExpires.toISOString() : null,
       })
