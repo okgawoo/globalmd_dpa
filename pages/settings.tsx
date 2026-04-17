@@ -64,6 +64,16 @@ export default function SettingsPage() {
   const [registeringPhone, setRegisteringPhone] = useState(false)
   const [registerError, setRegisterError] = useState('')
 
+  // 문자 인증 단계: 'intro' | 'form' | 'sign' | 'confirm' | 'done'
+  const [smsAuthStep, setSmsAuthStep] = useState<'intro' | 'form' | 'sign' | 'confirm' | 'done'>('intro')
+  const [smsAgreed, setSmsAgreed] = useState(false)
+  const [smsForm, setSmsForm] = useState({ birthDate: '', address: '', senderPhone: '' })
+  const [signatureData, setSignatureData] = useState('')
+  const [isDrawing, setIsDrawing] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
+  const canvasRef = { current: null as HTMLCanvasElement | null }
+
   // 알림 설정
   const [notifSettings, setNotifSettings] = useState<Record<string, boolean>>({
     longNoContact: false, anniversary: false, wedding: false,
@@ -245,51 +255,300 @@ export default function SettingsPage() {
         {/* ═══ 문자 설정 ═══ */}
         {tab === 'sms' && (
           <div className={styles.section}>
-            <h2 className={styles.sectionTitle}>📱 문자 발신번호</h2>
-            <p className={styles.sectionDesc}>고객에게 문자를 발송할 때 표시되는 발신번호입니다. 본인 명의 번호만 등록 가능합니다.</p>
 
-            <div className={styles.senderCard}>
-              <div className={styles.senderStatus}>
-                <span className={styles.senderDot} style={{
-                  background: senderStatus === 'verified' ? '#1D9E75' : senderStatus === 'pending' ? '#FCD34D' : '#D1D5DB'
-                }} />
-                <span style={{ fontSize: 13, color: senderStatus === 'verified' ? '#1D9E75' : '#666' }}>
-                  {senderStatus === 'verified' ? '인증 완료' : senderStatus === 'pending' ? '인증 대기 중' : '미등록'}
-                </span>
-              </div>
+            {/* 발신번호 인증 영역 */}
+            <h2 className={styles.sectionTitle}>📱 문자 발신번호 인증</h2>
 
-              <div className={styles.fieldRow} style={{ marginTop: 12 }}>
-                <input className={styles.fieldInput} value={senderPhone}
-                  onChange={e => setSenderPhone(formatPhone(e.target.value))}
-                  placeholder="010-0000-0000"
-                  disabled={senderStatus === 'verified'} />
-                {senderStatus !== 'verified' && (
-                  <button className={styles.btnPrimary} onClick={registerSender} disabled={registeringPhone}
-                    style={{ whiteSpace: 'nowrap' }}>
-                    {registeringPhone ? '요청 중...' : 'ARS 인증 요청'}
-                  </button>
-                )}
-              </div>
+            {/* STEP 1: 안내 */}
+            {senderStatus !== 'verified' && smsAuthStep === 'intro' && (
+              <div style={{ background: '#F0FDF4', border: '1px solid #6EE7B7', borderRadius: 12, padding: '20px 16px', marginBottom: 16 }}>
+                <p style={{ fontWeight: 700, fontSize: 15, color: '#065F46', marginBottom: 12 }}>📋 문자 발신 서비스 이용 안내</p>
+                <p style={{ fontSize: 13, color: '#374151', lineHeight: 1.7, marginBottom: 8 }}>
+                  「전기통신사업법」 제84조의2에 따라 문자 발송 시 발신번호를 사전 등록해야 하며,
+                  타인 명의 번호로의 무단 발신을 방지하기 위해 본인 확인 절차가 법적으로 요구됩니다.
+                </p>
+                <p style={{ fontSize: 13, color: '#374151', lineHeight: 1.7, marginBottom: 16 }}>
+                  아래 절차에 따라 본인 인증을 완료하시면 고객에게 본인 번호로 문자를 발송할 수 있습니다.
+                </p>
 
-              {registerError && <p className={styles.errorText}>{registerError}</p>}
-
-              {senderStatus === 'pending' && (
-                <div className={styles.arsGuide}>
-                  <p style={{ fontWeight: 600, marginBottom: 4 }}>📞 ARS 인증 절차</p>
-                  <p>1. 입력한 번호로 ARS 전화가 옵니다</p>
-                  <p>2. 안내에 따라 인증번호를 입력해주세요</p>
-                  <p>3. 인증 완료 후 문자 발송이 가능합니다</p>
+                <div style={{ background: '#fff', borderRadius: 8, padding: '12px 14px', marginBottom: 16, border: '1px solid #D1FAE5' }}>
+                  <p style={{ fontWeight: 600, fontSize: 13, color: '#065F46', marginBottom: 8 }}>📝 진행 절차</p>
+                  {['1단계 — 서비스 이용 동의', '2단계 — 본인 정보 입력 (이름/생년월일/주소/발신번호)', '3단계 — 본인 서명 (모바일에서 직접 서명)', '4단계 — 입력 내용 최종 확인', '5단계 — 제출 완료'].map((s, i) => (
+                    <p key={i} style={{ fontSize: 12, color: '#374151', marginBottom: 4 }}>✓ {s}</p>
+                  ))}
                 </div>
-              )}
 
-              {senderStatus === 'verified' && (
-                <button className={styles.btnText}
-                  onClick={() => { setSenderStatus('none') }}
-                  style={{ marginTop: 8 }}>
-                  발신번호 변경
+                <div style={{ background: '#FEF3C7', borderRadius: 8, padding: '10px 14px', marginBottom: 16, border: '1px solid #FDE68A' }}>
+                  <p style={{ fontSize: 12, color: '#92400E' }}>
+                    ⏱ 제출 후 <b>영업일 기준 1~3일</b> 이내 검토 후 활성화됩니다.<br/>
+                    🔒 입력하신 정보는 발신번호 등록 목적으로만 사용되며, 서비스 해지 즉시 파기됩니다.
+                  </p>
+                </div>
+
+                <div style={{ borderTop: '1px solid #D1FAE5', paddingTop: 14 }}>
+                  <p style={{ fontWeight: 600, fontSize: 13, color: '#065F46', marginBottom: 10 }}>서비스 이용에 동의하시겠습니까?</p>
+                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, cursor: 'pointer', marginBottom: 8 }}>
+                    <input type="checkbox" checked={smsAgreed} onChange={e => setSmsAgreed(e.target.checked)} style={{ marginTop: 2, accentColor: '#1D9E75' }} />
+                    <span style={{ fontSize: 12, color: '#374151', lineHeight: 1.6 }}>
+                      개인정보 수집·이용에 동의합니다. (수집항목: 이름, 생년월일, 주소, 전화번호 / 목적: 문자 발신번호 등록 대행 / 보유기간: 서비스 해지 시 즉시 파기)
+                    </span>
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, cursor: 'pointer', marginBottom: 14 }}>
+                    <input type="checkbox" checked={smsAgreed} onChange={e => setSmsAgreed(e.target.checked)} style={{ marginTop: 2, accentColor: '#1D9E75' }} />
+                    <span style={{ fontSize: 12, color: '#374151', lineHeight: 1.6 }}>
+                      발신번호 등록 위임에 동의합니다. (위임내용: 본인 명의 번호를 주식회사 글로벌엠디에 발신번호 등록 업무 위임)
+                    </span>
+                  </label>
+                  <button
+                    onClick={() => { if (smsAgreed) setSmsAuthStep('form') }}
+                    disabled={!smsAgreed}
+                    style={{ width: '100%', padding: '12px 0', borderRadius: 10, border: 'none', background: smsAgreed ? '#1D9E75' : '#D1D5DB', color: 'white', fontSize: 14, fontWeight: 600, cursor: smsAgreed ? 'pointer' : 'not-allowed' }}>
+                    인증 시작하기
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 2: 정보 입력 */}
+            {senderStatus !== 'verified' && smsAuthStep === 'form' && (
+              <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12, padding: '20px 16px', marginBottom: 16 }}>
+                <p style={{ fontWeight: 700, fontSize: 15, color: '#111827', marginBottom: 4 }}>2단계 — 본인 정보 입력</p>
+                <p style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 16 }}>서류에 사용될 정보를 정확하게 입력해주세요.</p>
+
+                <div className={styles.field}>
+                  <label className={styles.fieldLabel}>이름 *</label>
+                  <input className={styles.fieldInput} value={agent?.name || ''} disabled style={{ background: '#F5F5F5', color: '#999' }} />
+                  <p className={styles.fieldHint}>가입 시 등록된 이름이 자동 적용됩니다.</p>
+                </div>
+
+                <div className={styles.field}>
+                  <label className={styles.fieldLabel}>생년월일 *</label>
+                  <input className={styles.fieldInput}
+                    placeholder="예: 19850101"
+                    value={smsForm.birthDate}
+                    onChange={e => setSmsForm({ ...smsForm, birthDate: e.target.value.replace(/\D/g, '').slice(0, 8) })}
+                    inputMode="numeric" />
+                  <p className={styles.fieldHint}>8자리 숫자로 입력 (예: 19850101)</p>
+                </div>
+
+                <div className={styles.field}>
+                  <label className={styles.fieldLabel}>주소 *</label>
+                  <input className={styles.fieldInput}
+                    placeholder="도로명 주소 입력"
+                    value={smsForm.address}
+                    onChange={e => setSmsForm({ ...smsForm, address: e.target.value })} />
+                </div>
+
+                <div className={styles.field}>
+                  <label className={styles.fieldLabel}>문자 발신번호 *</label>
+                  <input className={styles.fieldInput}
+                    placeholder="010-0000-0000"
+                    value={smsForm.senderPhone}
+                    onChange={e => setSmsForm({ ...smsForm, senderPhone: formatPhone(e.target.value) })}
+                    inputMode="numeric" />
+                  <p className={styles.fieldHint}>본인 명의 휴대폰 번호를 입력해주세요.</p>
+                </div>
+
+                <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                  <button onClick={() => setSmsAuthStep('intro')}
+                    style={{ flex: 1, padding: '11px 0', borderRadius: 10, border: '1px solid #E5E7EB', background: '#fff', color: '#374151', fontSize: 14, cursor: 'pointer' }}>
+                    이전
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (!smsForm.birthDate || !smsForm.address || !smsForm.senderPhone) {
+                        alert('모든 항목을 입력해주세요.')
+                        return
+                      }
+                      setSmsAuthStep('sign')
+                    }}
+                    style={{ flex: 2, padding: '11px 0', borderRadius: 10, border: 'none', background: '#1D9E75', color: 'white', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+                    다음 — 서명하기
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 3: 서명 */}
+            {senderStatus !== 'verified' && smsAuthStep === 'sign' && (
+              <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12, padding: '20px 16px', marginBottom: 16 }}>
+                <p style={{ fontWeight: 700, fontSize: 15, color: '#111827', marginBottom: 4 }}>3단계 — 본인 서명</p>
+                <p style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 16 }}>아래 서명란에 손가락으로 직접 서명해주세요.</p>
+
+                <div style={{ border: '2px dashed #D1D5DB', borderRadius: 10, overflow: 'hidden', background: '#FAFAFA', marginBottom: 12 }}>
+                  <canvas
+                    ref={el => { canvasRef.current = el }}
+                    width={320} height={160}
+                    style={{ width: '100%', height: 160, touchAction: 'none', cursor: 'crosshair', display: 'block' }}
+                    onPointerDown={e => {
+                      const canvas = canvasRef.current
+                      if (!canvas) return
+                      setIsDrawing(true)
+                      const rect = canvas.getBoundingClientRect()
+                      const scaleX = canvas.width / rect.width
+                      const scaleY = canvas.height / rect.height
+                      const ctx = canvas.getContext('2d')!
+                      ctx.beginPath()
+                      ctx.moveTo((e.clientX - rect.left) * scaleX, (e.clientY - rect.top) * scaleY)
+                    }}
+                    onPointerMove={e => {
+                      if (!isDrawing) return
+                      const canvas = canvasRef.current
+                      if (!canvas) return
+                      const rect = canvas.getBoundingClientRect()
+                      const scaleX = canvas.width / rect.width
+                      const scaleY = canvas.height / rect.height
+                      const ctx = canvas.getContext('2d')!
+                      ctx.lineWidth = 2.5
+                      ctx.lineCap = 'round'
+                      ctx.strokeStyle = '#111827'
+                      ctx.lineTo((e.clientX - rect.left) * scaleX, (e.clientY - rect.top) * scaleY)
+                      ctx.stroke()
+                    }}
+                    onPointerUp={() => {
+                      setIsDrawing(false)
+                      const canvas = canvasRef.current
+                      if (canvas) setSignatureData(canvas.toDataURL('image/png'))
+                    }}
+                  />
+                </div>
+
+                <p style={{ fontSize: 11, color: '#9CA3AF', textAlign: 'center', marginBottom: 12 }}>서명란을 손가락으로 드래그하여 서명해주세요</p>
+
+                <button onClick={() => {
+                  const canvas = canvasRef.current
+                  if (!canvas) return
+                  const ctx = canvas.getContext('2d')!
+                  ctx.clearRect(0, 0, canvas.width, canvas.height)
+                  setSignatureData('')
+                }} style={{ width: '100%', padding: '8px 0', borderRadius: 8, border: '1px solid #E5E7EB', background: '#fff', color: '#6B7280', fontSize: 13, cursor: 'pointer', marginBottom: 8 }}>
+                  다시 서명하기
                 </button>
-              )}
-            </div>
+
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button onClick={() => setSmsAuthStep('form')}
+                    style={{ flex: 1, padding: '11px 0', borderRadius: 10, border: '1px solid #E5E7EB', background: '#fff', color: '#374151', fontSize: 14, cursor: 'pointer' }}>
+                    이전
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (!signatureData) { alert('서명을 먼저 완성해주세요.'); return }
+                      setSmsAuthStep('confirm')
+                    }}
+                    style={{ flex: 2, padding: '11px 0', borderRadius: 10, border: 'none', background: '#1D9E75', color: 'white', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+                    다음 — 내용 확인
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 4: 최종 확인 */}
+            {senderStatus !== 'verified' && smsAuthStep === 'confirm' && (
+              <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12, padding: '20px 16px', marginBottom: 16 }}>
+                <p style={{ fontWeight: 700, fontSize: 15, color: '#111827', marginBottom: 4 }}>4단계 — 최종 확인</p>
+                <p style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 16 }}>아래 내용이 정확한지 확인 후 제출해주세요.</p>
+
+                <div style={{ background: '#F9FAFB', borderRadius: 10, padding: '14px 16px', marginBottom: 16 }}>
+                  {[
+                    { label: '이름', value: agent?.name },
+                    { label: '생년월일', value: smsForm.birthDate },
+                    { label: '주소', value: smsForm.address },
+                    { label: '발신번호', value: smsForm.senderPhone },
+                  ].map(({ label, value }) => (
+                    <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #F3F4F6' }}>
+                      <span style={{ fontSize: 13, color: '#6B7280' }}>{label}</span>
+                      <span style={{ fontSize: 13, color: '#111827', fontWeight: 500 }}>{value}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {signatureData && (
+                  <div style={{ marginBottom: 16 }}>
+                    <p style={{ fontSize: 12, color: '#6B7280', marginBottom: 6 }}>서명</p>
+                    <div style={{ border: '1px solid #E5E7EB', borderRadius: 8, padding: 8, background: '#FAFAFA' }}>
+                      <img src={signatureData} alt="서명" style={{ width: '100%', maxHeight: 80, objectFit: 'contain' }} />
+                    </div>
+                  </div>
+                )}
+
+                {submitError && (
+                  <p style={{ color: '#EF4444', fontSize: 12, marginBottom: 10 }}>{submitError}</p>
+                )}
+
+                <div style={{ background: '#FEF3C7', borderRadius: 8, padding: '10px 14px', marginBottom: 14, border: '1px solid #FDE68A' }}>
+                  <p style={{ fontSize: 12, color: '#92400E' }}>
+                    제출 후 <b>영업일 1~3일</b> 이내 담당자 검토 후 문자 발송이 활성화됩니다.
+                  </p>
+                </div>
+
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button onClick={() => setSmsAuthStep('sign')}
+                    style={{ flex: 1, padding: '11px 0', borderRadius: 10, border: '1px solid #E5E7EB', background: '#fff', color: '#374151', fontSize: 14, cursor: 'pointer' }}>
+                    이전
+                  </button>
+                  <button
+                    disabled={submitting}
+                    onClick={async () => {
+                      setSubmitting(true)
+                      setSubmitError('')
+                      try {
+                        const { data: { user } } = await (await import('../lib/supabase')).supabase.auth.getUser()
+                        const { data: agentData } = await (await import('../lib/supabase')).supabase
+                          .from('dpa_agents').select('id').eq('user_id', user!.id).single()
+
+                        const res = await fetch('/api/sms-auth-submit', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            agentId: agentData?.id,
+                            agentName: agent?.name,
+                            birthDate: smsForm.birthDate,
+                            address: smsForm.address,
+                            senderPhone: smsForm.senderPhone,
+                            signatureData,
+                          })
+                        })
+                        if (!res.ok) throw new Error('제출 실패')
+                        setSmsAuthStep('done')
+                        setSenderStatus('pending')
+                      } catch (err: any) {
+                        setSubmitError('제출 중 오류가 발생했습니다. 다시 시도해주세요.')
+                      } finally {
+                        setSubmitting(false)
+                      }
+                    }}
+                    style={{ flex: 2, padding: '11px 0', borderRadius: 10, border: 'none', background: submitting ? '#9CA3AF' : '#1D9E75', color: 'white', fontSize: 14, fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer' }}>
+                    {submitting ? '제출 중...' : '제출하기'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 5: 완료 */}
+            {(smsAuthStep === 'done' || senderStatus === 'pending') && senderStatus !== 'verified' && (
+              <div style={{ background: '#F0FDF4', border: '1px solid #6EE7B7', borderRadius: 12, padding: '24px 16px', marginBottom: 16, textAlign: 'center' }}>
+                <p style={{ fontSize: 32, marginBottom: 8 }}>✅</p>
+                <p style={{ fontWeight: 700, fontSize: 16, color: '#065F46', marginBottom: 8 }}>신청이 완료됐습니다!</p>
+                <p style={{ fontSize: 13, color: '#374151', lineHeight: 1.7 }}>
+                  담당자 검토 후 <b>영업일 기준 1~3일</b> 이내<br/>
+                  문자 발송이 활성화됩니다.<br/>
+                  활성화 시 알림을 보내드립니다.
+                </p>
+              </div>
+            )}
+
+            {/* 인증 완료 상태 */}
+            {senderStatus === 'verified' && (
+              <div style={{ background: '#F0FDF4', border: '1px solid #6EE7B7', borderRadius: 12, padding: '16px', marginBottom: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#1D9E75', display: 'inline-block', flexShrink: 0 }} />
+                  <div>
+                    <p style={{ fontWeight: 600, fontSize: 14, color: '#065F46' }}>인증 완료</p>
+                    <p style={{ fontSize: 12, color: '#374151' }}>발신번호: {senderPhone || smsForm.senderPhone}</p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div style={{ height: 24 }} />
 
