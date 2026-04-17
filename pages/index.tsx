@@ -274,46 +274,84 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* 오늘 할일 */}
+        {/* 이슈 요약 카드 */}
         <div className={styles.mobileCard} style={{ marginTop: 8 }}>
           <div className={styles.mobileCardHeader}>
-            <span className={styles.mobileCardTitle} style={{ color: '#1D9E75' }}>AI추천 일정</span>
-            <span className={styles.mobileCardLink} onClick={(e) => { e.preventDefault(); router.push('/customers?sort=AI추천') }}>전체보기</span>
+            <span className={styles.mobileCardTitle} style={{ color: '#1D9E75' }}>이슈 요약</span>
+            <span className={styles.mobileCardLink} onClick={(e) => { e.preventDefault(); router.push('/customers') }}>전체보기</span>
           </div>
           <div className={styles.mobileCardBody}>
           {todoItems.length === 0 ? (
-            <p className={styles.mobileEmpty}>오늘 할 일 없음 🎉</p>
-          ) : todoItems.slice(0,3).map((item, i) => (
-            <div key={i} className={styles.mobileTodoRow} onClick={(e) => { e.preventDefault(); router.push(`/customers?id=${item.id}`) }} style={{ cursor: 'pointer' }}>
-              <span className={styles.mobileTodoIcon}>{item.icon}</span>
-              <div style={{flex:1,minWidth:0}}>
-                <span className={styles.mobileTodoText}>{item.text}</span>
-                <span style={{fontSize:10,padding:'1px 6px',borderRadius:6,background:'#F3E8FF',color:'#7C3AED',fontWeight:700,marginLeft:4,whiteSpace:'nowrap'}}>AI추천</span>
-              </div>
-              <button onClick={e => { e.stopPropagation(); const c = customers.find((c:any) => c.id === item.id); setSmsCustomer(c); setSmsOpen(true) }} style={{fontSize:11,padding:'2px 7px',borderRadius:6,border:'1px solid var(--border)',background:'var(--bg-card)',color:'var(--text-secondary)',cursor:'pointer',whiteSpace:'nowrap',marginLeft:4}}>문자</button>
-              <span className={styles.mobileBadge} style={{ color: item.badgeColor, background: item.badgeBg }}>{item.badge}</span>
-            </div>
-          ))}
-          {todoItems.length > 3 && (
-            <div style={{overflow:'hidden',maxHeight:todoExpanded?`${(todoItems.length-3)*48}px`:'0px',transition:'max-height 0.35s ease'}}>
-              {todoItems.slice(3).map((item, i) => (
-                <div key={i+3} className={styles.mobileTodoRow} onClick={(e) => { e.preventDefault(); router.push(`/customers?id=${item.id}`) }} style={{cursor:'pointer'}}>
-                  <span className={styles.mobileTodoIcon}>{item.icon}</span>
-                  <div style={{flex:1,minWidth:0}}>
-                    <span className={styles.mobileTodoText}>{item.text}</span>
-                    <span style={{fontSize:10,padding:'1px 6px',borderRadius:6,background:'#F3E8FF',color:'#7C3AED',fontWeight:700,marginLeft:4,whiteSpace:'nowrap'}}>AI추천</span>
+            <p className={styles.mobileEmpty}>오늘 이슈 없음 🎉</p>
+          ) : (() => {
+            // 이슈별로 그룹화
+            const issueGroups = [
+              {
+                sort: '생일임박',
+                icon: '🎂',
+                label: '생일 임박',
+                items: todoItems.filter(i => i.sort === '생일임박'),
+                badgeColor: '#EF9F27',
+                badgeBg: '#FEF3E2',
+              },
+              {
+                sort: '완납임박',
+                icon: '🔥',
+                label: '완납 임박',
+                items: todoItems.filter(i => i.sort === '완납임박'),
+                badgeColor: '#E24B4A',
+                badgeBg: '#FCEBEB',
+              },
+              {
+                sort: '보장공백',
+                icon: '⚠️',
+                label: '보장 공백',
+                items: todoItems.filter(i => i.sort === '보장공백'),
+                badgeColor: '#E24B4A',
+                badgeBg: '#FCEBEB',
+              },
+            ].filter(g => g.items.length > 0)
+
+            return (
+              <>
+                {issueGroups.slice(0, 3).map((group, i) => (
+                  <div key={i} className={styles.mobileTodoRow}
+                    onClick={(e) => { e.preventDefault(); router.push(`/customers?sort=${group.sort}`) }}
+                    style={{ cursor: 'pointer' }}>
+                    <span className={styles.mobileTodoIcon}>{group.icon}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <span className={styles.mobileTodoText}>{group.label}</span>
+                    </div>
+                    <span className={styles.mobileBadge} style={{ color: group.badgeColor, background: group.badgeBg, fontWeight: 700 }}>
+                      {group.items.length}명
+                    </span>
                   </div>
-                  <button onClick={e => { e.stopPropagation(); const c = customers.find((c:any) => c.id === item.id); setSmsCustomer(c); setSmsOpen(true) }} style={{fontSize:11,padding:'2px 7px',borderRadius:6,border:'1px solid var(--border)',background:'var(--bg-card)',color:'var(--text-secondary)',cursor:'pointer',whiteSpace:'nowrap',marginLeft:4}}>문자</button>
-                  <span className={styles.mobileBadge} style={{color:item.badgeColor,background:item.badgeBg}}>{item.badge}</span>
-                </div>
-              ))}
-            </div>
-          )}
-          {todoItems.length > 3 && (
-            <div onClick={() => setTodoExpanded(v => !v)} style={{textAlign:'center',padding:'6px 0',cursor:'pointer',color:'var(--text-muted)',fontSize:16}}>
-              {todoExpanded ? '︿' : '﹀'}
-            </div>
-          )}
+                ))}
+                {issueGroups.length > 3 && (
+                  <div style={{ overflow: 'hidden', maxHeight: todoExpanded ? `${(issueGroups.length - 3) * 48}px` : '0px', transition: 'max-height 0.35s ease' }}>
+                    {issueGroups.slice(3).map((group, i) => (
+                      <div key={i + 3} className={styles.mobileTodoRow}
+                        onClick={(e) => { e.preventDefault(); router.push(`/customers?sort=${group.sort}`) }}
+                        style={{ cursor: 'pointer' }}>
+                        <span className={styles.mobileTodoIcon}>{group.icon}</span>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <span className={styles.mobileTodoText}>{group.label}</span>
+                        </div>
+                        <span className={styles.mobileBadge} style={{ color: group.badgeColor, background: group.badgeBg, fontWeight: 700 }}>
+                          {group.items.length}명
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {issueGroups.length > 3 && (
+                  <div onClick={() => setTodoExpanded(v => !v)} style={{ textAlign: 'center', padding: '6px 0', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 16 }}>
+                    {todoExpanded ? '︿' : '﹀'}
+                  </div>
+                )}
+              </>
+            )
+          })()}
           </div>
         </div>
 
