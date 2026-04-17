@@ -292,16 +292,32 @@ export default function Customers() {
     const { data: { user } } = await supabase.auth.getUser()
     const agentId = user?.id
     if (agentId) setAgentId(agentId)
-    const { data: custs, error: e1 } = await supabase.from('dpa_customers').select('*').eq('agent_id', agentId).order('created_at', { ascending: false })
-    const { data: conts, error: e2 } = await supabase.from('dpa_contracts').select('*').eq('agent_id', agentId)
-    const { data: covs, error: e3 } = await supabase.from('dpa_coverages').select('*').order('section', { ascending: true }).order('sort_order', { ascending: true })
-    if (e1) console.error('customers error:', e1)
-    if (e2) console.error('contracts error:', e2)
-    if (e3) console.error('coverages error:', e3)
-    console.log('custs:', custs?.length, 'conts:', conts?.length)
-    setCustomers(custs || [])
-    setContracts(conts || [])
-    setCoverages(covs || [])
+
+    // customers + contracts 병렬로 불러오기
+    const [custsRes, contsRes] = await Promise.all([
+      supabase.from('dpa_customers').select('*').eq('agent_id', agentId).order('created_at', { ascending: false }),
+      supabase.from('dpa_contracts').select('*').eq('agent_id', agentId)
+    ])
+
+    const custs = custsRes.data || []
+    const conts = contsRes.data || []
+
+    // coverages는 계약 ID 기준으로 필터링 (전체 X)
+    let covs: any[] = []
+    if (conts.length > 0) {
+      const contractIds = conts.map((c: any) => c.id)
+      const { data: covsData } = await supabase
+        .from('dpa_coverages')
+        .select('*')
+        .in('contract_id', contractIds)
+        .order('section', { ascending: true })
+        .order('sort_order', { ascending: true })
+      covs = covsData || []
+    }
+
+    setCustomers(custs)
+    setContracts(conts)
+    setCoverages(covs)
     setLoading(false)
   }
 
