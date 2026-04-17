@@ -300,7 +300,7 @@ export default function Dashboard() {
         {/* 이슈 요약 카드 */}
         <div className={styles.mobileCard} style={{ marginTop: 8 }}>
           <div className={styles.mobileCardHeader}>
-            <span className={styles.mobileCardTitle} style={{ color: '#1D9E75' }}>이슈 요약</span>
+            <span className={styles.mobileCardTitle} style={{ color: '#1D9E75' }}>오늘의 할일</span>
             <span className={styles.mobileCardLink} onClick={(e) => { e.preventDefault(); router.push('/customers') }}>전체보기</span>
           </div>
           <div className={styles.mobileCardBody}>
