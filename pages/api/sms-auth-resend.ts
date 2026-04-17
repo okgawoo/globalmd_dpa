@@ -155,7 +155,7 @@ function generateContractHTML(data: any): string {
 async function generatePDF(html: string): Promise<Buffer> {
   const browser = await puppeteer.launch({
     args: chromium.args,
-    defaultViewport: chromium.defaultViewport,
+    defaultViewport: { width: 1280, height: 800 },
     executablePath: await chromium.executablePath(),
     headless: true,
   })
