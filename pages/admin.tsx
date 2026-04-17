@@ -34,10 +34,20 @@ export default function AdminPage() {
   const [pushHistory, setPushHistory] = useState<any[]>([])
   const [subCount, setSubCount] = useState(0)
 
+  // 발신번호 신청 목록
+  const [smsAuthList, setSmsAuthList] = useState<any[]>([])
+  const [resending, setResending] = useState<string | null>(null)
+  const [resendResult, setResendResult] = useState<Record<string, string>>({})
+
+  // 설계사 목록
+  const [agentList, setAgentList] = useState<any[]>([])
+
   useEffect(() => {
     checkUser()
     fetchData()
     fetchPushData()
+    fetchSmsAuthList()
+    fetchAgentList()
   }, [])
 
   async function checkUser() {
@@ -67,6 +77,44 @@ export default function AdminPage() {
     ])
     setPushHistory(history || [])
     setSubCount(count || 0)
+  }
+
+  async function fetchSmsAuthList() {
+    const { data } = await supabase
+      .from('dpa_sms_auth')
+      .select('*')
+      .order('submitted_at', { ascending: false })
+    setSmsAuthList(data || [])
+  }
+
+  async function fetchAgentList() {
+    const { data } = await supabase
+      .from('dpa_agents')
+      .select('id, name, email, phone, status, plan_type, slug, created_at')
+      .order('created_at', { ascending: false })
+    setAgentList(data || [])
+  }
+
+  async function resendSmsAuthDocs(auth: any) {
+    setResending(auth.id)
+    setResendResult(prev => ({ ...prev, [auth.id]: '' }))
+    try {
+      const res = await fetch('/api/sms-auth-resend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ authId: auth.id })
+      })
+      const data = await res.json()
+      if (data.success) {
+        setResendResult(prev => ({ ...prev, [auth.id]: '✅ 발송 완료!' }))
+      } else {
+        setResendResult(prev => ({ ...prev, [auth.id]: `❌ 실패: ${data.error}` }))
+      }
+    } catch (err: any) {
+      setResendResult(prev => ({ ...prev, [auth.id]: `❌ 오류: ${err.message}` }))
+    } finally {
+      setResending(null)
+    }
   }
 
   async function sendPush() {
@@ -515,6 +563,125 @@ export default function AdminPage() {
                         <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-secondary)', maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{n.body}</td>
                         <td style={{ padding: '12px 16px', fontSize: 13 }}>
                           <span style={{ background: '#D1FAE5', color: '#065F46', padding: '2px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{n.sent_count}명</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* ===== 설계사 관리 ===== */}
+        {topMenu === '설계사' && (
+          <>
+            {/* 설계사 목록 */}
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden', marginBottom: 20 }}>
+              <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontWeight: 700, fontSize: 15 }}>👥 설계사 목록 <span style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 400 }}>총 {agentList.length}명</span></span>
+                <button onClick={fetchAgentList}
+                  style={{ padding: '5px 12px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>
+                  새로고침
+                </button>
+              </div>
+              {agentList.length === 0 ? (
+                <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)', fontSize: 14 }}>설계사가 없습니다</div>
+              ) : (
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ background: 'var(--bg)' }}>
+                      {['이름', '이메일', '연락처', '요금제', '상태', '가입일'].map(h => (
+                        <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontSize: 12, color: 'var(--text-muted)', fontWeight: 600, borderBottom: '1px solid var(--border)' }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {agentList.map(agent => (
+                      <tr key={agent.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                        <td style={{ padding: '12px 16px', fontSize: 14, fontWeight: 600 }}>{agent.name}</td>
+                        <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-secondary)' }}>{agent.email}</td>
+                        <td style={{ padding: '12px 16px', fontSize: 13 }}>{agent.phone}</td>
+                        <td style={{ padding: '12px 16px' }}>
+                          <span style={{
+                            padding: '2px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700,
+                            background: agent.plan_type === 'pro' ? '#1D9E75' : agent.plan_type === 'standard' ? '#378ADD' : agent.plan_type === 'demo' ? '#F59E0B' : '#9CA3AF',
+                            color: 'white'
+                          }}>
+                            {agent.plan_type?.toUpperCase() || 'BASIC'}
+                          </span>
+                        </td>
+                        <td style={{ padding: '12px 16px' }}>
+                          <span style={{
+                            padding: '2px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600,
+                            background: agent.status === 'approved' ? '#D1FAE5' : agent.status === 'pending' ? '#FEF3C7' : '#FEE2E2',
+                            color: agent.status === 'approved' ? '#065F46' : agent.status === 'pending' ? '#92400E' : '#991B1B'
+                          }}>
+                            {agent.status === 'approved' ? '승인' : agent.status === 'pending' ? '대기' : '반려'}
+                          </span>
+                        </td>
+                        <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-secondary)', whiteSpace: 'nowrap' as const }}>
+                          {new Date(agent.created_at).toLocaleDateString('ko-KR', { year: '2-digit', month: 'short', day: 'numeric' })}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
+              <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontWeight: 700, fontSize: 15 }}>📱 발신번호 등록 신청 목록</span>
+                <button onClick={fetchSmsAuthList}
+                  style={{ padding: '5px 12px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>
+                  새로고침
+                </button>
+              </div>
+              {smsAuthList.length === 0 ? (
+                <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)', fontSize: 14 }}>
+                  신청 내역이 없습니다
+                </div>
+              ) : (
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ background: 'var(--bg)' }}>
+                      {['신청일', '이름', '발신번호', '생년월일', '상태', '서류 재발송'].map(h => (
+                        <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontSize: 12, color: 'var(--text-muted)', fontWeight: 600, borderBottom: '1px solid var(--border)' }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {smsAuthList.map(auth => (
+                      <tr key={auth.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                        <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-secondary)', whiteSpace: 'nowrap' as const }}>
+                          {new Date(auth.submitted_at).toLocaleString('ko-KR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        </td>
+                        <td style={{ padding: '12px 16px', fontSize: 14, fontWeight: 600 }}>{auth.agent_name}</td>
+                        <td style={{ padding: '12px 16px', fontSize: 13 }}>{auth.sender_phone}</td>
+                        <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-secondary)' }}>{auth.birth_date}</td>
+                        <td style={{ padding: '12px 16px' }}>
+                          <span style={{
+                            padding: '2px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600,
+                            background: auth.status === 'approved' ? '#D1FAE5' : auth.status === 'pending' ? '#FEF3C7' : '#FEE2E2',
+                            color: auth.status === 'approved' ? '#065F46' : auth.status === 'pending' ? '#92400E' : '#991B1B'
+                          }}>
+                            {auth.status === 'approved' ? '승인완료' : auth.status === 'pending' ? '검토중' : '반려'}
+                          </span>
+                        </td>
+                        <td style={{ padding: '12px 16px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <button
+                              onClick={() => resendSmsAuthDocs(auth)}
+                              disabled={resending === auth.id}
+                              style={{ padding: '6px 14px', background: '#1D9E75', color: 'white', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', opacity: resending === auth.id ? 0.6 : 1, whiteSpace: 'nowrap' as const }}>
+                              {resending === auth.id ? '발송 중...' : '📧 서류 재발송'}
+                            </button>
+                            {resendResult[auth.id] && (
+                              <span style={{ fontSize: 12, color: resendResult[auth.id].startsWith('✅') ? '#065F46' : '#991B1B' }}>
+                                {resendResult[auth.id]}
+                              </span>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))}
