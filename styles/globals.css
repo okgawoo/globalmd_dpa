@@ -41,6 +41,7 @@ body {
   color: var(--text-primary);
   font-size: 14px;
   line-height: 1.5;
+  overscroll-behavior-y: none;
 }
 
 button { cursor: pointer; font-family: inherit; }
