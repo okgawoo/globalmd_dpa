@@ -1,38 +1,34 @@
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
+import { useState, useEffect } from 'react'
 import Head from 'next/head'
-import { supabase } from '../../lib/supabase'
+import { GetServerSideProps } from 'next'
+import { createClient } from '@supabase/supabase-js'
 
-export default function BusinessCard() {
-  const router = useRouter()
-  const { agentId } = router.query
-  const [agent, setAgent] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+// 서버사이드에서 Supabase 직접 연결
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { agentId } = context.params!
+  const supabase = createClient(supabaseUrl, supabaseKey)
+  const { data: agent } = await supabase
+    .from('dpa_agents')
+    .select('name, phone, personal_email, kakao_id, profile_image_url')
+    .eq('slug', agentId)
+    .eq('status', 'approved')
+    .single()
+
+  if (!agent) return { props: { agent: null, slug: agentId } }
+  return { props: { agent, slug: agentId } }
+}
+
+export default function BusinessCard({ agent, slug }: { agent: any, slug: string }) {
   const [qrUrl, setQrUrl] = useState('')
-  const [copied, setCopied] = useState(false)
   const [kakaCopied, setKakaCopied] = useState(false)
 
   useEffect(() => {
-    if (!agentId) return
-    fetchAgent()
-  }, [agentId])
-
-  useEffect(() => {
-    if (!agentId) return
-    const cardUrl = `${window.location.origin}/c/${agentId}`
+    const cardUrl = `${window.location.origin}/c/${slug}`
     setQrUrl(`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(cardUrl)}&color=1D9E75&bgcolor=ffffff`)
-  }, [agentId])
-
-  async function fetchAgent() {
-    const { data } = await supabase
-      .from('dpa_agents')
-      .select('name, phone, personal_email, kakao_id, address, profile_image_url')
-      .eq('slug', agentId)
-      .eq('status', 'approved')
-      .single()
-    setAgent(data)
-    setLoading(false)
-  }
+  }, [slug])
 
   function downloadVCard() {
     if (!agent) return
@@ -43,7 +39,7 @@ export default function BusinessCard() {
       `TEL;TYPE=CELL:${agent.phone || ''}`,
       agent.personal_email ? `EMAIL:${agent.personal_email}` : '',
       'ORG:보험설계사',
-      `NOTE:DPA 보험관리 플랫폼`,
+      'NOTE:DPA 보험관리 플랫폼',
       'END:VCARD'
     ].filter(Boolean).join('\n')
     const blob = new Blob([vcard], { type: 'text/vcard' })
@@ -55,24 +51,12 @@ export default function BusinessCard() {
     URL.revokeObjectURL(url)
   }
 
-  async function copyLink() {
-    await navigator.clipboard.writeText(window.location.href)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-
   async function copyKakaoId() {
     if (!agent?.kakao_id) return
     await navigator.clipboard.writeText(agent.kakao_id)
     setKakaCopied(true)
     setTimeout(() => setKakaCopied(false), 2000)
   }
-
-  if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F9FAFB' }}>
-      <div style={{ color: '#9CA3AF', fontSize: 14 }}>불러오는 중...</div>
-    </div>
-  )
 
   if (!agent) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F9FAFB' }}>
@@ -84,17 +68,20 @@ export default function BusinessCard() {
   )
 
   const initials = agent.name?.slice(0, 1) || '?'
+  const ogImage = agent.profile_image_url || 'https://globalmd-dpa.vercel.app/icons/icon-512x512.png'
+  const cardUrl = `https://globalmd-dpa.vercel.app/c/${slug}`
 
   return (
     <>
       <Head>
         <title>{agent.name} 설계사 명함</title>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-        <meta name="description" content={`${agent.name} 보험설계사 전자명함`} />
+        <meta name="description" content={`${agent.name} 보험설계사 연락처를 저장하세요`} />
         <meta property="og:title" content={`${agent.name} 설계사 명함`} />
         <meta property="og:description" content={`${agent.name} 보험설계사 연락처를 저장하세요`} />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content={agent.profile_image_url || 'https://globalmd-dpa.vercel.app/icons/icon-512x512.png'} />
+        <meta property="og:url" content={cardUrl} />
+        <meta property="og:image" content={ogImage} />
         <meta property="og:image:width" content="512" />
         <meta property="og:image:height" content="512" />
         <meta name="twitter:card" content="summary" />
@@ -105,12 +92,8 @@ export default function BusinessCard() {
       <div style={{ minHeight: '100vh', background: '#F9FAFB', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '24px 20px' }}>
         <div style={{ width: '100%', maxWidth: 360, fontFamily: "-apple-system, 'Pretendard', sans-serif" }}>
 
-          {/* 명함 카드 */}
           <div style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
-
-            {/* 상단 헤더 */}
             <div style={{ background: '#1D9E75', padding: '28px 24px 24px', position: 'relative' }}>
-              {/* DPA 로고 */}
               <div style={{ position: 'absolute', top: 16, right: 16, display: 'flex', alignItems: 'center', gap: 4, background: 'rgba(255,255,255,0.2)', borderRadius: 6, padding: '3px 8px' }}>
                 <svg width="12" height="12" viewBox="0 0 40 40" fill="none">
                   <path d="M10 20C10 14.477 14.477 10 20 10C25.523 10 30 14.477 30 20C30 25.523 25.523 30 20 30" stroke="white" strokeWidth="3" strokeLinecap="round"/>
@@ -119,9 +102,7 @@ export default function BusinessCard() {
                 </svg>
                 <span style={{ color: 'white', fontSize: 11, fontWeight: 600 }}>DPA</span>
               </div>
-
               <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                {/* 프로필 사진 or 이니셜 */}
                 <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(255,255,255,0.25)', border: '2px solid rgba(255,255,255,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
                   {agent.profile_image_url ? (
                     <img src={agent.profile_image_url} alt={agent.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -136,7 +117,6 @@ export default function BusinessCard() {
               </div>
             </div>
 
-            {/* 연락처 정보 */}
             <div style={{ padding: '20px 24px 0' }}>
               {agent.phone && (
                 <a href={`tel:${agent.phone}`} style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none', marginBottom: 14 }}>
@@ -151,7 +131,6 @@ export default function BusinessCard() {
                   </div>
                 </a>
               )}
-
               {agent.personal_email && (
                 <a href={`mailto:${agent.personal_email}`} style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none', marginBottom: 14 }}>
                   <div style={{ width: 36, height: 36, borderRadius: 10, background: '#F0FDF4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -166,7 +145,6 @@ export default function BusinessCard() {
                   </div>
                 </a>
               )}
-
               {agent.kakao_id && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
                   <div style={{ width: 36, height: 36, borderRadius: 10, background: '#FEF9C3', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -180,9 +158,7 @@ export default function BusinessCard() {
               )}
             </div>
 
-            {/* QR 코드 + 버튼 */}
             <div style={{ padding: '16px 24px 24px', borderTop: '1px solid #F3F4F6', marginTop: 16, display: 'flex', alignItems: 'center', gap: 16 }}>
-              {/* QR 코드 */}
               {qrUrl && (
                 <div style={{ width: 80, height: 80, borderRadius: 10, border: '1px solid #E5E7EB', padding: 6, flexShrink: 0, background: '#fff' }}>
                   <img src={qrUrl} width={68} height={68} alt="QR코드" style={{ borderRadius: 6 }} />
@@ -204,14 +180,12 @@ export default function BusinessCard() {
             </div>
           </div>
 
-          {/* 하단 액션 버튼 */}
           <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
             <button onClick={async () => {
-              const url = window.location.href
               if (navigator.share) {
-                await navigator.share({ title: `${agent.name} 설계사 명함`, url })
+                await navigator.share({ title: `${agent.name} 설계사 명함`, url: cardUrl })
               } else {
-                await navigator.clipboard.writeText(url)
+                await navigator.clipboard.writeText(cardUrl)
                 alert('링크가 복사됐어요!')
               }
             }} style={{ flex: 1, padding: '12px 0', borderRadius: 12, background: '#fff', border: '1px solid #E5E7EB', color: '#374151', fontSize: 13, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
@@ -220,7 +194,6 @@ export default function BusinessCard() {
             </button>
           </div>
 
-          {/* 하단 */}
           <div style={{ textAlign: 'center', marginTop: 16, fontSize: 12, color: '#9CA3AF' }}>
             powered by DPA
           </div>
