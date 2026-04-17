@@ -191,7 +191,7 @@ async function sendSlackNotification(data: any) {
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SLACK_BOT_TOKEN}` },
     body: JSON.stringify({
       channel: SLACK_CHANNEL,
-      text: `📱 DPA 발신번호 등록 신청 | 설계사: ${data.agentName} | 번호: ${data.senderPhone} | 생년월일: ${data.birthDate} | 신청일: ${getTodayShort()} | ✅ Gmail로 서류 3개 발송 완료 → 솔라피(cs@solapi.com) 제출 필요`
+      text: `📱 DPA 발신번호 등록 신청 | 신청인: ${data.agentName} | 번호: ${data.senderPhone} | 생년월일: ${data.birthDate} | 신청일: ${getTodayShort()} | ✅ Gmail로 서류 3개 발송 완료 → 솔라피(cs@solapi.com) 제출 필요`
     })
   })
 }
@@ -233,14 +233,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await transporter.sendMail({
       from: process.env.GMAIL_USER,
       to: ADMIN_EMAIL,
-      subject: `[DPA 발신번호 신청] ${agentName} 설계사 - ${senderPhone} (${getTodayShort()})`,
+      subject: `[주식회사 글로벌엠디] 발신번호 등록 신청 - ${agentName} (${getTodayShort()})`,
       html: `
         <p>안녕하세요, 솔라피 담당자님.</p>
-        <p>주식회사 글로벌엠디에서 운영 중인 DPA 서비스의 설계사 발신번호 등록을 요청드립니다.</p>
+        <p>주식회사 글로벌엠디에서 운영 중인 DPA 서비스의 발신번호 등록을 요청드립니다.</p>
         <br/>
         <h3>📋 등록 요청 정보</h3>
         <table border="1" cellpadding="8" style="border-collapse:collapse">
-          <tr><td><b>신청 설계사</b></td><td>${agentName}</td></tr>
+          <tr><td><b>신청인</b></td><td>${agentName}</td></tr>
           <tr><td><b>등록 요청 발신번호</b></td><td>${senderPhone}</td></tr>
           <tr><td><b>생년월일</b></td><td>${birthDate}</td></tr>
           <tr><td><b>주소</b></td><td>${address}</td></tr>
