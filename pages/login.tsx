@@ -231,14 +231,6 @@ export default function Login() {
               <span className={styles.fieldHint}>솔라피 본인인증에 사용됩니다</span>
             </div>
             <div className={styles.field}>
-              <label>통신사 (선택)</label>
-              <select value={form.telecom} onChange={e => setForm({ ...form, telecom: e.target.value })} style={{width:'100%',fontSize:14,padding:'10px 12px',borderRadius:8,border:'1px solid #E5E7EB',background:'#fff',color: form.telecom ? '#111' : '#9CA3AF'}}>
-                <option value="">통신사 선택</option>
-                {TELECOMS.map(t => <option key={t} value={t}>{t}</option>)}
-              </select>
-              <span className={styles.fieldHint}>문자 발신번호 인증에 사용됩니다</span>
-            </div>
-            <div className={styles.field}>
               <label>설계사 등록번호 (선택)</label>
               <input placeholder="보험설계사 등록번호" value={form.agent_number} onChange={e => setForm({ ...form, agent_number: e.target.value })} />
               <span className={styles.fieldHint}>e-클린보험서비스에서 확인 가능해요</span>
