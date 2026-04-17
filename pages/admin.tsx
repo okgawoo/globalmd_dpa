@@ -46,9 +46,13 @@ export default function AdminPage() {
     checkUser()
     fetchData()
     fetchPushData()
-    fetchSmsAuthList()
-    fetchAgentList()
   }, [])
+
+  useEffect(() => {
+    if (topMenu === '설계사') {
+      fetchAgentList()
+    }
+  }, [topMenu])
 
   async function checkUser() {
     const { data: { user } } = await supabase.auth.getUser()
