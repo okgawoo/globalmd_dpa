@@ -360,7 +360,7 @@ export default function Dashboard() {
           <div className={styles.mobileCardHeader}>
             <span className={styles.mobileCardTitle}>영업 일정</span>
             <div style={{display:'flex',alignItems:'center',gap:8}}>
-              <span style={{fontSize:12,color:'#1D9E75',cursor:'pointer',padding:'2px 8px',borderRadius:6,border:'1px solid #1D9E75'}} onClick={(e) => { e.preventDefault(); router.push('/sales?tab=meeting&showForm=true') }}>+ 직접추가</span>
+              <span style={{fontSize:12,color:'#1D9E75',cursor:'pointer',padding:'2px 8px',borderRadius:6}} onClick={(e) => { e.preventDefault(); router.push('/sales?tab=meeting&showForm=true') }}>+ 직접추가</span>
               <span className={styles.mobileCardLink} onClick={(e) => { e.preventDefault(); router.push('/sales?tab=meeting&sub=week') }}>전체보기</span>
             </div>
           </div>
