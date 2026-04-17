@@ -9,16 +9,16 @@ const emptyRegForm = {
   username: '', password: '', password2: '',
   name: '', phone: '', kakao_id: '', address: '',
   agent_number: '', license_photo: null as File | null,
-  telecom: '', resident_prefix: '', plan_type: 'demo',
+  telecom: '', resident_front: '', resident_back1: '', plan_type: 'demo',
 }
 
 const TELECOMS = ['SKT', 'KT', 'LGU+', '알뜰폰(SKT)', '알뜰폰(KT)', '알뜰폰(LGU+)']
 
 const PLANS = [
   { value: 'demo', label: '🆓 7일 무료 체험', desc: '고객 5명, 기본 기능 체험' },
-  { value: 'basic', label: '🥉 베이직 49,000원/월', desc: '고객 100명, SMS 없음' },
-  { value: 'standard', label: '🥈 스탠다드 99,000원/월 ⭐', desc: '고객 300명, SMS 500건' },
-  { value: 'pro', label: '🥇 프로 149,000원/월', desc: '고객 무제한, SMS 1,000건' },
+  { value: 'basic', label: '🥉 베이직 00원/월', desc: '고객 100명, SMS 없음' },
+  { value: 'standard', label: '🥈 스탠다드 00원/월 ⭐', desc: '고객 300명, SMS 500건' },
+  { value: 'pro', label: '🥇 프로 00원/월', desc: '고객 무제한, SMS 1,000건' },
 ]
 
 function formatPhone(val: string): string {
@@ -55,7 +55,7 @@ export default function Login() {
   }
 
   async function handleRegister() {
-    if (!form.username || !form.password || !form.name || !form.phone)
+    if (!form.username || !form.password || !form.name || !form.phone || !form.resident_front || !form.resident_back1)
       return setError('필수 항목을 모두 입력해주세요. (*)')
     if (form.password !== form.password2) return setError('비밀번호가 일치하지 않아요.')
     if (form.password.length < 6) return setError('비밀번호는 6자리 이상이어야 합니다.')
@@ -86,7 +86,7 @@ export default function Login() {
         agent_number: form.agent_number, license_photo_url, status: 'pending',
         plan_type: form.plan_type,
         telecom: form.telecom || null,
-        resident_prefix: form.resident_prefix || null,
+        resident_prefix: form.resident_front + form.resident_back1 || null,
         demo_started_at: form.plan_type === 'demo' ? now.toISOString() : null,
         demo_expires_at: form.plan_type === 'demo' ? demoExpires.toISOString() : null,
       })
@@ -180,7 +180,7 @@ export default function Login() {
             </div>
             <div className={styles.field}>
               <label>비밀번호 *</label>
-              <input type="password" placeholder="4자 이상" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
+              <input type="password" placeholder="6자리 이상" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
             </div>
             <div className={styles.field}>
               <label>비밀번호 확인 *</label>
@@ -207,14 +207,27 @@ export default function Login() {
 
             <div className={styles.sectionLabel}>설계사 인증</div>
             <div className={styles.field}>
-              <label>주민번호 앞 7자리 (선택)</label>
-              <input
-                placeholder="예) 8501011 (앞 6자리 + 뒷자리 첫글자)"
-                value={form.resident_prefix}
-                onChange={e => setForm({ ...form, resident_prefix: e.target.value.replace(/\D/g, '').slice(0, 7) })}
-                inputMode="numeric"
-                maxLength={7}
-              />
+              <label>주민번호 앞 7자리 *</label>
+              <div style={{display:'flex', alignItems:'center', gap:6}}>
+                <input
+                  placeholder="850101"
+                  value={form.resident_front}
+                  onChange={e => setForm({ ...form, resident_front: e.target.value.replace(/\D/g, '').slice(0, 6) })}
+                  inputMode="numeric"
+                  maxLength={6}
+                  style={{flex:1}}
+                />
+                <span style={{fontSize:16, color:'#6B7280', fontWeight:600}}>-</span>
+                <input
+                  placeholder="1"
+                  value={form.resident_back1}
+                  onChange={e => setForm({ ...form, resident_back1: e.target.value.replace(/\D/g, '').slice(0, 1) })}
+                  inputMode="numeric"
+                  maxLength={1}
+                  style={{width:52}}
+                />
+                <span style={{fontSize:13, color:'#9CA3AF'}}>●●●●●●</span>
+              </div>
               <span className={styles.fieldHint}>솔라피 본인인증에 사용됩니다</span>
             </div>
             <div className={styles.field}>
