@@ -17,8 +17,10 @@ export default function App({ Component, pageProps }: AppProps) {
       if (!session && router.pathname !== '/login') {
         router.replace('/login')
       } else if (session?.user) {
-        // 플랜/데모 만료 체크
-        supabase.from('dpa_agents').select('id, plan_type, demo_expires_at, settings').eq('user_id', session.user.id).single()
+        supabase.from('dpa_agents')
+          .select('id, plan_type, demo_expires_at, settings')
+          .eq('user_id', session.user.id)
+          .single()
           .then(({ data: agent }) => {
             if (agent?.id) {
               subscribeToPush(agent.id)
@@ -27,11 +29,7 @@ export default function App({ Component, pageProps }: AppProps) {
                 const expires = new Date(agent.demo_expires_at)
                 const now = new Date()
                 const daysLeft = Math.max(0, Math.ceil((expires.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
-                if (expires < now) {
-                  setDemoStatus({ expired: true, daysLeft: 0 })
-                } else {
-                  setDemoStatus({ expired: false, daysLeft })
-                }
+                setDemoStatus(expires < now ? { expired: true, daysLeft: 0 } : { expired: false, daysLeft })
               }
             }
           })
@@ -47,18 +45,22 @@ export default function App({ Component, pageProps }: AppProps) {
     return () => subscription.unsubscribe()
   }, [router])
 
+  const headMeta = (
+    <>
+      <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+      <meta name="theme-color" content="#1D9E75" />
+      <meta name="apple-mobile-web-app-capable" content="yes" />
+      <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+      <meta name="apple-mobile-web-app-title" content="DPA" />
+      <link rel="manifest" href="/manifest.json" />
+      <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+    </>
+  )
+
   if (router.pathname === '/login') {
     return (
       <>
-        <Head>
-          <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-          <meta name="theme-color" content="#1D9E75" />
-          <meta name="apple-mobile-web-app-capable" content="yes" />
-          <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-          <meta name="apple-mobile-web-app-title" content="DPA" />
-          <link rel="manifest" href="/manifest.json" />
-          <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
-        </Head>
+        <Head>{headMeta}</Head>
         <Component {...pageProps} />
       </>
     )
@@ -66,15 +68,10 @@ export default function App({ Component, pageProps }: AppProps) {
 
   if (checking) return null
 
-  // 데모 만료 화면
   if (demoStatus.expired) {
     return (
       <>
-        <Head>
-          <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-          <meta name="theme-color" content="#1D9E75" />
-          <link rel="manifest" href="/manifest.json" />
-        </Head>
+        <Head>{headMeta}</Head>
         <div style={{ minHeight: '100vh', background: '#FAF9F5', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
           <div style={{ background: '#fff', borderRadius: 16, padding: 32, maxWidth: 360, width: '100%', textAlign: 'center', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
             <div style={{ fontSize: 48, marginBottom: 16 }}>⏰</div>
@@ -104,58 +101,12 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <>
-      <Head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-        <meta name="theme-color" content="#1D9E75" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="DPA" />
-        <link rel="manifest" href="/manifest.json" />
-        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
-      </Head>
-      {/* 데모 D-3, D-1 배너 */}
-      {demoStatus.daysLeft !== null && demoStatus.daysLeft <= 3 && !demoStatus.expired && (
+      <Head>{headMeta}</Head>
+      {demoStatus.daysLeft !== null && demoStatus.daysLeft <= 3 && (
         <div style={{ background: '#FEF9E7', borderBottom: '1px solid #F5C518', padding: '8px 16px', textAlign: 'center', fontSize: 13, color: '#B7791F', fontWeight: 600 }}>
           ⚠️ 무료 체험 {demoStatus.daysLeft === 0 ? '오늘 만료' : `D-${demoStatus.daysLeft}`} — 계속 사용하려면 요금제를 선택해주세요
         </div>
       )}
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
-    </>
-  )
-}
-
-  if (router.pathname === '/login') {
-    return (
-      <>
-        <Head>
-          <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-          <meta name="theme-color" content="#1D9E75" />
-          <meta name="apple-mobile-web-app-capable" content="yes" />
-          <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-          <meta name="apple-mobile-web-app-title" content="DPA" />
-          <link rel="manifest" href="/manifest.json" />
-          <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
-        </Head>
-        <Component {...pageProps} />
-      </>
-    )
-  }
-
-  if (checking) return null
-
-  return (
-    <>
-      <Head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-        <meta name="theme-color" content="#1D9E75" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="DPA" />
-        <link rel="manifest" href="/manifest.json" />
-        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
-      </Head>
       <Layout>
         <Component {...pageProps} />
       </Layout>
