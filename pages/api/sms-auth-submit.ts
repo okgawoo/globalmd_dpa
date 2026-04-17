@@ -40,17 +40,17 @@ function getTodayShort() {
 const pdfStyle = `
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif; font-size: 13px; color: #111; line-height: 1.5; padding: 15px 20px; }
-  h1 { font-size: 18px; text-align: center; font-weight: 700; margin-bottom: 12px; text-decoration: underline; }
-  h2 { font-size: 13px; font-weight: 700; margin-top: 10px; margin-bottom: 3px; }
-  p { margin: 2px 0; }
-  .section { margin-bottom: 8px; padding: 8px 12px; border: 1px solid #ccc; }
+  body { font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif; font-size: 13px; color: #111; line-height: 1.7; padding: 25px 30px; }
+  h1 { font-size: 18px; text-align: center; font-weight: 700; margin-bottom: 20px; text-decoration: underline; }
+  h2 { font-size: 13px; font-weight: 700; margin-top: 14px; margin-bottom: 5px; }
+  p { margin: 3px 0; }
+  .section { margin-bottom: 12px; padding: 10px 14px; border: 1px solid #ccc; }
   .label { font-weight: 700; }
-  .sign-box { border: 1px solid #999; padding: 4px; min-height: 60px; margin-top: 4px; text-align: center; }
-  .sign-box img { max-height: 55px; }
-  .date { text-align: center; margin-top: 12px; font-size: 13px; }
-  table { width: 100%; border-collapse: collapse; margin-top: 5px; }
-  td { padding: 4px 8px; border: 1px solid #ddd; font-size: 13px; }
+  .sign-box { border: 1px solid #999; padding: 6px; min-height: 65px; margin-top: 6px; text-align: center; }
+  .sign-box img { max-height: 58px; }
+  .date { text-align: center; margin-top: 16px; font-size: 13px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+  td { padding: 5px 10px; border: 1px solid #ddd; font-size: 13px; }
   td:first-child { background: #f5f5f5; font-weight: 700; width: 35%; }
 `
 
@@ -191,19 +191,7 @@ async function sendSlackNotification(data: any) {
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SLACK_BOT_TOKEN}` },
     body: JSON.stringify({
       channel: SLACK_CHANNEL,
-      blocks: [
-        { type: 'header', text: { type: 'plain_text', text: '📱 DPA 발신번호 등록 신청' } },
-        {
-          type: 'section',
-          fields: [
-            { type: 'mrkdwn', text: `*설계사:*\n${data.agentName}` },
-            { type: 'mrkdwn', text: `*발신번호:*\n${data.senderPhone}` },
-            { type: 'mrkdwn', text: `*생년월일:*\n${data.birthDate}` },
-            { type: 'mrkdwn', text: `*신청일:*\n${getTodayShort()}` },
-          ]
-        },
-        { type: 'section', text: { type: 'mrkdwn', text: '✅ 서류 3개가 Gmail로 발송됐습니다.\n솔라피(cs@solapi.com)에 이메일로 제출해주세요!' } }
-      ]
+      text: `📱 DPA 발신번호 등록 신청 | 설계사: ${data.agentName} | 번호: ${data.senderPhone} | 생년월일: ${data.birthDate} | 신청일: ${getTodayShort()} | ✅ Gmail로 서류 3개 발송 완료 → 솔라피(cs@solapi.com) 제출 필요`
     })
   })
 }
@@ -247,20 +235,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       to: ADMIN_EMAIL,
       subject: `[DPA 발신번호 신청] ${agentName} 설계사 - ${senderPhone} (${getTodayShort()})`,
       html: `
-        <h2>📱 DPA 발신번호 등록 신청</h2>
+        <p>안녕하세요, 솔라피 담당자님.</p>
+        <p>주식회사 글로벌엠디에서 운영 중인 DPA 서비스의 설계사 발신번호 등록을 요청드립니다.</p>
+        <br/>
+        <h3>📋 등록 요청 정보</h3>
         <table border="1" cellpadding="8" style="border-collapse:collapse">
-          <tr><td><b>설계사</b></td><td>${agentName}</td></tr>
-          <tr><td><b>발신번호</b></td><td>${senderPhone}</td></tr>
+          <tr><td><b>신청 설계사</b></td><td>${agentName}</td></tr>
+          <tr><td><b>등록 요청 발신번호</b></td><td>${senderPhone}</td></tr>
           <tr><td><b>생년월일</b></td><td>${birthDate}</td></tr>
           <tr><td><b>주소</b></td><td>${address}</td></tr>
           <tr><td><b>신청일</b></td><td>${getTodayShort()}</td></tr>
         </table>
-        <br/><p>📎 첨부 서류 3개를 솔라피(cs@solapi.com)로 제출해주세요.</p>
+        <br/>
+        <h3>📎 첨부 서류</h3>
+        <ul>
+          <li>발신번호 위임장</li>
+          <li>개인정보처리 위탁 계약서</li>
+          <li>DPA 서비스 이용 동의서</li>
+        </ul>
+        <br/>
+        <p>위 서류를 검토하시어 발신번호 등록 처리 부탁드립니다.</p>
+        <p>감사합니다.</p>
+        <br/>
+        <p>주식회사 글로벌엠디</p>
+        <p>사업자등록번호: 596-87-03305</p>
+        <p>주소: 부산광역시 중구 대청로 135, 3층 24-1호 (48931)</p>
       `,
       attachments: [
-        { filename: `[동의서]_${agentName}_${senderPhone}.pdf`, content: agreementPdf },
         { filename: `[위임장]_${agentName}_${senderPhone}.pdf`, content: delegationPdf },
         { filename: `[위임관계증명서]_${agentName}_${senderPhone}.pdf`, content: contractPdf },
+        { filename: `[동의서]_${agentName}_${senderPhone}.pdf`, content: agreementPdf },
       ]
     })
 
