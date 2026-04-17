@@ -26,6 +26,7 @@ const COMPANY = {
 
 const ADMIN_EMAIL = 'okgawoo@gmail.com'
 const SLACK_CHANNEL = 'C0ASED4L16V'
+const SLACK_BOT_TOKEN = 'xoxb-8679762004994-10885592720434-P3GMN22U4RPCSAb46mTUj7zP'
 
 function getToday() {
   const d = new Date()
@@ -39,17 +40,17 @@ function getTodayShort() {
 const pdfStyle = `
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif; font-size: 13px; color: #111; line-height: 1.8; padding: 40px; }
-  h1 { font-size: 20px; text-align: center; font-weight: 700; margin-bottom: 30px; text-decoration: underline; }
-  h2 { font-size: 14px; font-weight: 700; margin-top: 20px; margin-bottom: 8px; }
-  p { margin: 4px 0; }
-  .section { margin-bottom: 20px; padding: 14px 16px; border: 1px solid #ccc; }
+  body { font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif; font-size: 13px; color: #111; line-height: 1.5; padding: 15px 20px; }
+  h1 { font-size: 18px; text-align: center; font-weight: 700; margin-bottom: 12px; text-decoration: underline; }
+  h2 { font-size: 13px; font-weight: 700; margin-top: 10px; margin-bottom: 3px; }
+  p { margin: 2px 0; }
+  .section { margin-bottom: 8px; padding: 8px 12px; border: 1px solid #ccc; }
   .label { font-weight: 700; }
-  .sign-box { border: 1px solid #999; padding: 10px; min-height: 80px; margin-top: 8px; text-align: center; }
-  .sign-box img { max-height: 70px; }
-  .date { text-align: center; margin-top: 30px; font-size: 14px; }
-  table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-  td { padding: 6px 10px; border: 1px solid #ddd; font-size: 13px; }
+  .sign-box { border: 1px solid #999; padding: 4px; min-height: 60px; margin-top: 4px; text-align: center; }
+  .sign-box img { max-height: 55px; }
+  .date { text-align: center; margin-top: 12px; font-size: 13px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 5px; }
+  td { padding: 4px 8px; border: 1px solid #ddd; font-size: 13px; }
   td:first-child { background: #f5f5f5; font-weight: 700; width: 35%; }
 `
 
@@ -187,7 +188,7 @@ async function generatePDF(html: string): Promise<Buffer> {
 async function sendSlackNotification(data: any) {
   await fetch('https://slack.com/api/chat.postMessage', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.SLACK_BOT_TOKEN}` },
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SLACK_BOT_TOKEN}` },
     body: JSON.stringify({
       channel: SLACK_CHANNEL,
       blocks: [
