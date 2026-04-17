@@ -550,7 +550,7 @@ export default function InputPage() {
           const { data: contract } = await supabase.from('dpa_contracts').insert({
             customer_id: customerId, agent_id: agentId,
             company: ct.company || '', product_name: ct.product_name || '',
-            monthly_fee: ct.monthly_fee || 0, payment_status: ct.payment_status || '유지',
+            monthly_fee: parseInt(String(ct.monthly_fee || '').replace(/,/g, '')) || 0, payment_status: ct.payment_status || '유지',
             payment_rate: ct.payment_rate || 0, insurance_type: ct.insurance_type || '',
             contract_start: ct.contract_start || '', payment_years: ct.payment_years || '',
             expiry_age: ct.expiry_age || '', input_method: 'paste',
@@ -560,7 +560,7 @@ export default function InputPage() {
             for (const cv of ct.coverages) {
               await supabase.from('dpa_coverages').insert({
                 contract_id: contract.id, category: cv.category || '',
-                coverage_name: cv.name || '', amount: cv.amount || 0, status: '정상',
+                coverage_name: cv.name || '', amount: parseInt(String(cv.amount || '').replace(/,/g, '')) || 0, status: '정상',
               })
             }
           }
