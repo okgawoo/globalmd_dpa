@@ -91,6 +91,15 @@ export default function BusinessCard() {
         <title>{agent.name} 설계사 명함</title>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
         <meta name="description" content={`${agent.name} 보험설계사 전자명함`} />
+        <meta property="og:title" content={`${agent.name} 설계사 명함`} />
+        <meta property="og:description" content={`${agent.name} 보험설계사 연락처를 저장하세요`} />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content={agent.profile_image_url || 'https://globalmd-dpa.vercel.app/icons/icon-512x512.png'} />
+        <meta property="og:image:width" content="512" />
+        <meta property="og:image:height" content="512" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content={`${agent.name} 설계사 명함`} />
+        <meta name="twitter:description" content={`${agent.name} 보험설계사 연락처를 저장하세요`} />
       </Head>
 
       <div style={{ minHeight: '100vh', background: '#F9FAFB', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '24px 20px' }}>
