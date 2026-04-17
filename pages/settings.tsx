@@ -113,6 +113,22 @@ export default function SettingsPage() {
         setBirthdayAlerts(prev => ({ ...prev, ...s.birthday_alerts }))
       }
 
+      // 기존 발신번호 신청 여부 확인
+      const { data: smsAuth } = await supabase
+        .from('dpa_sms_auth')
+        .select('status, sender_phone')
+        .eq('agent_id', ag.id)
+        .single()
+      if (smsAuth) {
+        if (smsAuth.status === 'approved') {
+          setSenderStatus('verified')
+          setSenderPhone(smsAuth.sender_phone || '')
+        } else if (smsAuth.status === 'pending') {
+          setSmsAuthStep('done')
+          setSenderStatus('pending')
+        }
+      }
+
       // SMS 사용량 조회
       try {
         const res = await fetch(`/api/sms/usage?agent_id=${user.id}`)
