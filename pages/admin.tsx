@@ -80,19 +80,28 @@ export default function AdminPage() {
   }
 
   async function fetchSmsAuthList() {
-    const { data } = await supabase
-      .from('dpa_sms_auth')
-      .select('*')
-      .order('submitted_at', { ascending: false })
-    setSmsAuthList(data || [])
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return
+    const res = await fetch('/api/admin-agents', {
+      headers: { 'Authorization': `Bearer ${session.access_token}` }
+    })
+    if (res.ok) {
+      const data = await res.json()
+      setSmsAuthList(data.smsAuthList || [])
+    }
   }
 
   async function fetchAgentList() {
-    const { data } = await supabase
-      .from('dpa_agents')
-      .select('id, name, email, phone, status, plan_type, slug, created_at')
-      .order('created_at', { ascending: false })
-    setAgentList(data || [])
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return
+    const res = await fetch('/api/admin-agents', {
+      headers: { 'Authorization': `Bearer ${session.access_token}` }
+    })
+    if (res.ok) {
+      const data = await res.json()
+      setAgentList(data.agents || [])
+      setSmsAuthList(data.smsAuthList || [])
+    }
   }
 
   async function resendSmsAuthDocs(auth: any) {
