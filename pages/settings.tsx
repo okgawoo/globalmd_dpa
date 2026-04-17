@@ -67,7 +67,7 @@ export default function SettingsPage() {
   // 문자 인증 단계: 'intro' | 'form' | 'sign' | 'confirm' | 'done'
   const [smsAuthStep, setSmsAuthStep] = useState<'intro' | 'form' | 'sign' | 'confirm' | 'done'>('intro')
   const [smsAgreed, setSmsAgreed] = useState(false)
-  const [smsForm, setSmsForm] = useState({ birthDate: '', address: '', senderPhone: '' })
+  const [smsForm, setSmsForm] = useState({ birthDate: '', address: '', senderPhone: '', addressDetail: '' })
   const [signatureData, setSignatureData] = useState('')
   const [isDrawing, setIsDrawing] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -333,10 +333,46 @@ export default function SettingsPage() {
 
                 <div className={styles.field}>
                   <label className={styles.fieldLabel}>주소 *</label>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <input className={styles.fieldInput}
+                      placeholder="주소 검색 버튼을 눌러주세요"
+                      value={smsForm.address}
+                      readOnly
+                      style={{ background: '#F9FAFB' }}
+                    />
+                    <button
+                      onClick={() => {
+                        const script = document.createElement('script')
+                        script.src = '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js'
+                        script.onload = () => {
+                          new (window as any).daum.Postcode({
+                            oncomplete: (data: any) => {
+                              const addr = data.roadAddress || data.jibunAddress
+                              setSmsForm({ ...smsForm, address: addr })
+                            }
+                          }).open()
+                        }
+                        if ((window as any).daum?.Postcode) {
+                          new (window as any).daum.Postcode({
+                            oncomplete: (data: any) => {
+                              const addr = data.roadAddress || data.jibunAddress
+                              setSmsForm({ ...smsForm, address: addr })
+                            }
+                          }).open()
+                        } else {
+                          document.head.appendChild(script)
+                        }
+                      }}
+                      style={{ whiteSpace: 'nowrap', padding: '0 14px', borderRadius: 8, border: '1px solid #1D9E75', background: '#1D9E75', color: 'white', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                      주소 검색
+                    </button>
+                  </div>
                   <input className={styles.fieldInput}
-                    placeholder="도로명 주소 입력"
-                    value={smsForm.address}
-                    onChange={e => setSmsForm({ ...smsForm, address: e.target.value })} />
+                    placeholder="상세 주소 입력 (동/호수 등)"
+                    value={smsForm.addressDetail || ''}
+                    onChange={e => setSmsForm({ ...smsForm, addressDetail: e.target.value } as any)}
+                    style={{ marginTop: 6 }}
+                  />
                 </div>
 
                 <div className={styles.field}>
@@ -452,7 +488,7 @@ export default function SettingsPage() {
                   {[
                     { label: '이름', value: agent?.name },
                     { label: '생년월일', value: smsForm.birthDate },
-                    { label: '주소', value: smsForm.address },
+                    { label: '주소', value: smsForm.address + (smsForm.addressDetail ? ' ' + smsForm.addressDetail : '') },
                     { label: '발신번호', value: smsForm.senderPhone },
                   ].map(({ label, value }) => (
                     <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #F3F4F6' }}>
@@ -503,7 +539,7 @@ export default function SettingsPage() {
                             agentId: agentData?.id,
                             agentName: agent?.name,
                             birthDate: smsForm.birthDate,
-                            address: smsForm.address,
+                            address: smsForm.address + (smsForm.addressDetail ? ' ' + smsForm.addressDetail : ''),
                             senderPhone: smsForm.senderPhone,
                             signatureData,
                           })
