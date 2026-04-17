@@ -14,7 +14,8 @@ export default function App({ Component, pageProps }: AppProps) {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session && router.pathname !== '/login') {
+      const isPublicPage = router.pathname.startsWith('/c/')
+      if (!session && router.pathname !== '/login' && !isPublicPage) {
         router.replace('/login')
       } else if (session?.user) {
         supabase.from('dpa_agents')
@@ -38,7 +39,8 @@ export default function App({ Component, pageProps }: AppProps) {
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session && router.pathname !== '/login') {
+      const isPublicPage = router.pathname.startsWith('/c/')
+      if (!session && router.pathname !== '/login' && !isPublicPage) {
         router.replace('/login')
       }
     })
@@ -57,7 +59,7 @@ export default function App({ Component, pageProps }: AppProps) {
     </>
   )
 
-  if (router.pathname === '/login') {
+  if (router.pathname === '/login' || router.pathname.startsWith('/c/')) {
     return (
       <>
         <Head>{headMeta}</Head>
