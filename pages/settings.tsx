@@ -399,7 +399,7 @@ export default function SettingsPage() {
                       setSmsAuthStep('sign')
                     }}
                     style={{ flex: 2, padding: '11px 0', borderRadius: 10, border: 'none', background: '#1D9E75', color: 'white', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
-                    다음 — 서명하기
+                    서명하러 가기
                   </button>
                 </div>
               </div>
@@ -472,7 +472,7 @@ export default function SettingsPage() {
                       setSmsAuthStep('confirm')
                     }}
                     style={{ flex: 2, padding: '11px 0', borderRadius: 10, border: 'none', background: '#1D9E75', color: 'white', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
-                    다음 — 내용 확인
+                    확인하기
                   </button>
                 </div>
               </div>
