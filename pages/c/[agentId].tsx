@@ -93,7 +93,7 @@ export default function BusinessCard() {
         <meta name="description" content={`${agent.name} 보험설계사 전자명함`} />
       </Head>
 
-      <div style={{ minHeight: '100vh', background: '#F9FAFB', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+      <div style={{ minHeight: '100vh', background: '#F9FAFB', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '24px 20px' }}>
         <div style={{ width: '100%', maxWidth: 360, fontFamily: "-apple-system, 'Pretendard', sans-serif" }}>
 
           {/* 명함 카드 */}
@@ -195,8 +195,30 @@ export default function BusinessCard() {
             </div>
           </div>
 
-          {/* 하단 URL */}
-          <div style={{ textAlign: 'center', marginTop: 12, fontSize: 12, color: '#9CA3AF' }}>
+          {/* 하단 액션 버튼 */}
+          <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+            {agent.phone && (
+              <a href={`tel:${agent.phone}`} style={{ flex: 1, padding: '12px 0', borderRadius: 12, background: '#fff', border: '1px solid #E5E7EB', color: '#374151', fontSize: 13, fontWeight: 500, textDecoration: 'none', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="2" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.18 6.18l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+                전화하기
+              </a>
+            )}
+            <button onClick={async () => {
+              const url = window.location.href
+              if (navigator.share) {
+                await navigator.share({ title: `${agent.name} 설계사 명함`, url })
+              } else {
+                await navigator.clipboard.writeText(url)
+                alert('링크가 복사됐어요!')
+              }
+            }} style={{ flex: 1, padding: '12px 0', borderRadius: 12, background: '#fff', border: '1px solid #E5E7EB', color: '#374151', fontSize: 13, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="2" strokeLinecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+              공유하기
+            </button>
+          </div>
+
+          {/* 하단 */}
+          <div style={{ textAlign: 'center', marginTop: 16, fontSize: 12, color: '#9CA3AF' }}>
             powered by DPA
           </div>
         </div>
