@@ -9,7 +9,7 @@ const emptyRegForm = {
   username: '', password: '', password2: '',
   name: '', phone: '', kakao_id: '', address: '',
   agent_number: '', license_photo: null as File | null,
-  telecom: '', resident_front: '', resident_back1: '', plan_type: 'demo',
+  telecom: '', resident_front: '', resident_back1: '', plan_type: 'demo', personal_email: '',
 }
 
 const TELECOMS = ['SKT', 'KT', 'LGU+', '알뜰폰(SKT)', '알뜰폰(KT)', '알뜰폰(LGU+)']
@@ -55,7 +55,7 @@ export default function Login() {
   }
 
   async function handleRegister() {
-    if (!form.username || !form.password || !form.name || !form.phone || !form.resident_front || !form.resident_back1)
+    if (!form.username || !form.password || !form.name || !form.phone || !form.resident_front || !form.resident_back1 || !form.personal_email)
       return setError('필수 항목을 모두 입력해주세요. (*)')
     if (form.password !== form.password2) return setError('비밀번호가 일치하지 않아요.')
     if (form.password.length < 6) return setError('비밀번호는 6자리 이상이어야 합니다.')
@@ -87,6 +87,7 @@ export default function Login() {
         plan_type: form.plan_type,
         telecom: form.telecom || null,
         resident_prefix: form.resident_front + form.resident_back1 || null,
+        personal_email: form.personal_email || null,
         demo_started_at: form.plan_type === 'demo' ? now.toISOString() : null,
         demo_expires_at: form.plan_type === 'demo' ? demoExpires.toISOString() : null,
       })
@@ -191,6 +192,17 @@ export default function Login() {
             <div className={styles.field}>
               <label>이름 *</label>
               <input placeholder="홍길동" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
+            </div>
+            <div className={styles.field}>
+              <label>이메일 *</label>
+              <input
+                type="email"
+                placeholder="example@email.com"
+                value={form.personal_email}
+                onChange={e => setForm({ ...form, personal_email: e.target.value })}
+                autoCapitalize="none"
+                inputMode="email"
+              />
             </div>
             <div className={styles.field}>
               <label>휴대폰 *</label>
