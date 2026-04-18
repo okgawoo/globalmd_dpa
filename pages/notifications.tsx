@@ -86,6 +86,7 @@ export default function NotificationsPage() {
   const [bulkSelectedIds, setBulkSelectedIds] = useState<string[]>([])
   const [bulkContent, setBulkContent] = useState('')
   const [bulkTone, setBulkTone] = useState<string>('친근')
+  const [bulkHistoryExpanded, setBulkHistoryExpanded] = useState(false)
   const [bulkSending, setBulkSending] = useState(false)
   const [bulkHistoryOpen, setBulkHistoryOpen] = useState<string | null>(null)
 
@@ -508,7 +509,7 @@ export default function NotificationsPage() {
             </div>
 
             {/* 5. 고객 리스트 */}
-            <div style={{ background: '#fff', border: '1px solid #EDEBE4', borderRadius: 12, marginBottom: 70, overflow: 'hidden' }}>
+            <div style={{ background: '#fff', border: '1px solid #EDEBE4', borderRadius: 12, marginBottom: 12, overflow: 'hidden' }}>
               {bulkFilteredCustomers.length === 0 ? (
                 <p style={{ fontSize: 13, color: '#999', textAlign: 'center', padding: '20px 0' }}>조건에 맞는 고객이 없어요</p>
               ) : bulkFilteredCustomers.map((c: any, i: number) => {
@@ -556,12 +557,62 @@ export default function NotificationsPage() {
                 </button>
               </div>
             )}
+            {/* 7. 단체문자 발송 이력 */}
+            {(() => {
+              const campaigns = [] as any[] // 추후 dpa_sms_campaigns에서 로드
+              if (campaigns.length === 0) return null
+              return (
+                <div style={{ background: '#fff', border: '1px solid #EDEBE4', borderRadius: 12, marginBottom: 80, overflow: 'hidden' }}>
+                  <div onClick={() => setBulkHistoryExpanded(v => !v)}
+                    style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', cursor: 'pointer' }}>
+                    <p style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a' }}>📋 단체문자 발송 이력</p>
+                    <span style={{ fontSize: 12, color: '#999' }}>{bulkHistoryExpanded ? '접기' : '펼치기'}</span>
+                  </div>
+                  {bulkHistoryExpanded && campaigns.map((c: any, i: number) => {
+                    const d = new Date(c.created_at)
+                    const days = ['일','월','화','수','목','금','토']
+                    const dateStr = `${d.getMonth()+1}.${d.getDate()}(${days[d.getDay()]})`
+                    const filterStr = [
+                      c.filter_customer_type !== '전체' ? (c.filter_customer_type === 'existing' ? '마이고객' : '관심고객') : '전체',
+                      c.filter_age_min ? `${c.filter_age_min}대` : null,
+                      c.filter_gender !== '전체' ? c.filter_gender : null,
+                    ].filter(Boolean).join(' · ')
+                    return (
+                      <div key={c.id} style={{ padding: '10px 14px', borderTop: '1px solid #EDEBE4', cursor: 'pointer' }}
+                        onClick={() => alert(c.content)}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                            <span style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>{dateStr}</span>
+                            <span style={{ fontSize: 12, color: '#666' }}>{filterStr}</span>
+                          </div>
+                          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                            <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 6, background: '#E1F5EE', color: '#065F46', fontWeight: 700 }}>{c.sent_count}명</span>
+                            <span style={{ fontSize: 11, color: '#999' }}>{c.tone}</span>
+                          </div>
+                        </div>
+                        <p style={{ fontSize: 12, color: '#999', marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.content}</p>
+                      </div>
+                    )
+                  })}
+                </div>
+              )
+            })()}
           </div>
         )}
 
         {/* ── 메인: 이슈 카드 목록 ── */}
         {!activeIssue && activeTab === 'ai' && (
           <>
+            {/* 잔여 문자 */}
+            {smsUsage && (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', border: '1px solid #EDEBE4', borderRadius: 10, padding: '10px 14px', margin: '10px 10px 0' }}>
+                <span style={{ fontSize: 13, color: '#666' }}>이번 달 문자 잔여</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: smsUsage.remaining < 100 ? '#E24B4A' : '#1D9E75' }}>{smsUsage.remaining}건</span>
+                  <span style={{ fontSize: 12, color: '#999' }}>/ {smsUsage.limit}건</span>
+                </div>
+              </div>
+            )}
             {/* 이슈 카드 */}
             <div className={styles.issueList}>
               {(Object.keys(ISSUE_CONFIG) as IssueType[]).map(type => {
