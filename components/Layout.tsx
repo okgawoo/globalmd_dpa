@@ -123,7 +123,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
         <div className={styles.sidebarFooter}>
-          {userEmail === 'admin@dpa.com' && (
+          {userEmail === 'okgawoo@gmail.com' && (
             <a href="/admin"
               onClick={() => setSidebarOpen(false)}
               style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', marginBottom: 6, borderRadius: 8, background: router.pathname === '/admin' ? '#E1F5EE' : 'transparent', color: router.pathname === '/admin' ? '#1D9E75' : '#666', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>

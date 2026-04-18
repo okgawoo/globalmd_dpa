@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
 
-const ADMIN_EMAIL = 'admin@dpa.com'
+const ADMIN_EMAIL = 'okgawoo@gmail.com'
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next()
