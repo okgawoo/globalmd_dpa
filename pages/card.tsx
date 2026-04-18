@@ -190,7 +190,7 @@ export default function CardPage() {
               </div>
               <div style={{ display: 'flex', gap: 6 }}>
                 <button onClick={copyUrl} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: copied ? '#D1FAE5' : '#1D9E75', color: copied ? '#065F46' : 'white', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
-                  {copied ? '✓ 복사됨' : '🔗 URL 복사'}
+                  {copied ? '✓ 복사됨' : '🔗 URL복사'}
                 </button>
                 <button onClick={shareCard} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: '1px solid #1D9E75', background: '#E8F8F2', color: '#1D9E75', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                   📤 공유하기
