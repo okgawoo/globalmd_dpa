@@ -74,6 +74,19 @@ export default function NotificationsPage() {
   const [agentId, setAgentId] = useState('')
   const [meetings, setMeetings] = useState<any[]>([])
 
+  // 페이지 탭
+  const [activeTab, setActiveTab] = useState<'ai' | 'bulk'>('ai')
+
+  // 단체문자 필터
+  const [bulkAgeMin, setBulkAgeMin] = useState<number | null>(null)
+  const [bulkAgeMax, setBulkAgeMax] = useState<number | null>(null)
+  const [bulkGender, setBulkGender] = useState<'전체' | '남' | '여'>('전체')
+  const [bulkCustomerType, setBulkCustomerType] = useState<'전체' | 'active' | 'prospect'>('전체')
+  const [bulkSelectedIds, setBulkSelectedIds] = useState<string[]>([])
+  const [bulkContent, setBulkContent] = useState('')
+  const [bulkSending, setBulkSending] = useState(false)
+  const [bulkHistoryOpen, setBulkHistoryOpen] = useState<string | null>(null)
+
   // 모바일: 이슈 드릴다운
   const [activeIssue, setActiveIssue] = useState<IssueType | null>(null)
   const [selectMode, setSelectMode] = useState(false)
@@ -279,6 +292,51 @@ export default function NotificationsPage() {
     )
   }
 
+  // 단체문자 대상 고객 필터링
+  const bulkFilteredCustomers = customers.filter((c: any) => {
+    // 고객 유형 필터
+    if (bulkCustomerType !== '전체' && c.customer_type !== bulkCustomerType) return false
+    // 성별 필터
+    if (bulkGender !== '전체') {
+      const rid = c.resident_number || ''
+      const genderCode = rid.replace('-', '')[6]
+      const isMale = genderCode === '1' || genderCode === '3'
+      if (bulkGender === '남' && !isMale) return false
+      if (bulkGender === '여' && isMale) return false
+    }
+    // 나이 필터
+    if (bulkAgeMin !== null || bulkAgeMax !== null) {
+      const bd = c.birth_date || (c.resident_number ? c.resident_number.replace('-', '').slice(0,6) : '')
+      if (!bd) return bulkAgeMin === null
+      const year = parseInt(bd.slice(0,2))
+      const fullYear = year >= 0 && year <= 30 ? 2000 + year : 1900 + year
+      const age = new Date().getFullYear() - fullYear
+      if (bulkAgeMin !== null && age < bulkAgeMin) return false
+      if (bulkAgeMax !== null && age > bulkAgeMax) return false
+    }
+    return true
+  })
+
+  // 나이대 옵션
+  const AGE_OPTIONS = [
+    { label: '전체', min: null, max: null },
+    { label: '20대', min: 20, max: 29 },
+    { label: '30대', min: 30, max: 39 },
+    { label: '40대', min: 40, max: 49 },
+    { label: '50대', min: 50, max: 59 },
+    { label: '60대 이상', min: 60, max: null },
+  ]
+
+  // 마지막 발송일 포맷
+  function fmtSmsDate(ts: string | null) {
+    if (!ts) return null
+    const d = new Date(ts)
+    const yy = String(d.getFullYear()).slice(2)
+    const mm = String(d.getMonth() + 1).padStart(2, '0')
+    const dd = String(d.getDate()).padStart(2, '0')
+    return `${yy}${mm}${dd}`
+  }
+
   if (loading) return <div className={styles.loading}>불러오는 중...</div>
 
   return (
@@ -350,8 +408,135 @@ export default function NotificationsPage() {
       ═══════════════════════════════ */}
       <div className={styles.mobileLayout}>
 
-        {/* ── 메인: 이슈 카드 목록 ── */}
+        {/* ── 탭 바 ── */}
         {!activeIssue && (
+          <div style={{ display: 'flex', borderBottom: '1px solid #EDEBE4', marginBottom: 0, background: '#fff' }}>
+            {[{ key: 'ai', label: '🤖 AI 추천' }, { key: 'bulk', label: '📨 단체문자' }].map(tab => (
+              <button key={tab.key}
+                onClick={() => setActiveTab(tab.key as 'ai' | 'bulk')}
+                style={{ flex: 1, padding: '12px 0', fontSize: 14, fontWeight: activeTab === tab.key ? 700 : 500, color: activeTab === tab.key ? '#1D9E75' : '#999', background: 'none', border: 'none', borderBottom: activeTab === tab.key ? '2px solid #1D9E75' : '2px solid transparent', cursor: 'pointer' }}>
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* ── 단체문자 탭 ── */}
+        {!activeIssue && activeTab === 'bulk' && (
+          <div style={{ padding: '12px 10px' }}>
+            {/* 필터 */}
+            <div style={{ background: '#fff', border: '1px solid #EDEBE4', borderRadius: 12, padding: '14px 12px', marginBottom: 12 }}>
+              <p style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 10 }}>🔍 대상 필터</p>
+
+              {/* 고객 유형 */}
+              <p style={{ fontSize: 12, color: '#999', marginBottom: 6 }}>고객 유형</p>
+              <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+                {[{ key: '전체', label: '전체' }, { key: 'active', label: '마이고객' }, { key: 'prospect', label: '관심고객' }].map(o => (
+                  <button key={o.key}
+                    onClick={() => setBulkCustomerType(o.key as any)}
+                    style={{ padding: '6px 14px', borderRadius: 8, border: `1px solid ${bulkCustomerType === o.key ? '#1D9E75' : '#EDEBE4'}`, background: bulkCustomerType === o.key ? '#E1F5EE' : '#fff', color: bulkCustomerType === o.key ? '#065F46' : '#666', fontSize: 13, fontWeight: bulkCustomerType === o.key ? 700 : 400, cursor: 'pointer' }}>
+                    {o.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* 나이대 */}
+              <p style={{ fontSize: 12, color: '#999', marginBottom: 6 }}>나이대</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
+                {AGE_OPTIONS.map(o => {
+                  const isActive = bulkAgeMin === o.min && bulkAgeMax === o.max
+                  return (
+                    <button key={o.label}
+                      onClick={() => { setBulkAgeMin(o.min); setBulkAgeMax(o.max) }}
+                      style={{ padding: '6px 14px', borderRadius: 8, border: `1px solid ${isActive ? '#1D9E75' : '#EDEBE4'}`, background: isActive ? '#E1F5EE' : '#fff', color: isActive ? '#065F46' : '#666', fontSize: 13, fontWeight: isActive ? 700 : 400, cursor: 'pointer' }}>
+                      {o.label}
+                    </button>
+                  )
+                })}
+              </div>
+
+              {/* 성별 */}
+              <p style={{ fontSize: 12, color: '#999', marginBottom: 6 }}>성별</p>
+              <div style={{ display: 'flex', gap: 6 }}>
+                {['전체', '남', '여'].map(g => (
+                  <button key={g}
+                    onClick={() => setBulkGender(g as any)}
+                    style={{ padding: '6px 14px', borderRadius: 8, border: `1px solid ${bulkGender === g ? '#1D9E75' : '#EDEBE4'}`, background: bulkGender === g ? '#E1F5EE' : '#fff', color: bulkGender === g ? '#065F46' : '#666', fontSize: 13, fontWeight: bulkGender === g ? 700 : 400, cursor: 'pointer' }}>
+                    {g}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 필터 결과 요약 */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+              <p style={{ fontSize: 14, color: '#1a1a1a', fontWeight: 600 }}>대상 고객 <span style={{ color: '#1D9E75' }}>{bulkFilteredCustomers.length}명</span></p>
+              <button
+                onClick={() => setBulkSelectedIds(bulkSelectedIds.length === bulkFilteredCustomers.length ? [] : bulkFilteredCustomers.map((c: any) => c.id))}
+                style={{ fontSize: 13, color: '#1D9E75', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
+                {bulkSelectedIds.length === bulkFilteredCustomers.length && bulkFilteredCustomers.length > 0 ? '전체 해제' : '전체 선택'}
+              </button>
+            </div>
+
+            {/* 고객 리스트 */}
+            <div style={{ background: '#fff', border: '1px solid #EDEBE4', borderRadius: 12, marginBottom: 12, overflow: 'hidden' }}>
+              {bulkFilteredCustomers.length === 0 ? (
+                <p style={{ fontSize: 13, color: '#999', textAlign: 'center', padding: '20px 0' }}>조건에 맞는 고객이 없어요</p>
+              ) : bulkFilteredCustomers.map((c: any, i: number) => {
+                const isSel = bulkSelectedIds.includes(c.id)
+                const lastSent = fmtSmsDate(c.sms_last_sent_at)
+                const msgs = messages.filter((m: any) => m.customer_id === c.id)
+                const smsCount = c.sms_count || msgs.length || 0
+                return (
+                  <div key={c.id}
+                    onClick={() => setBulkSelectedIds(isSel ? bulkSelectedIds.filter(id => id !== c.id) : [...bulkSelectedIds, c.id])}
+                    style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderBottom: i < bulkFilteredCustomers.length - 1 ? '1px solid #EDEBE4' : 'none', background: isSel ? '#F0FDF4' : '#fff', cursor: 'pointer' }}>
+                    {/* 체크박스 */}
+                    <div style={{ width: 20, height: 20, borderRadius: 6, border: `2px solid ${isSel ? '#1D9E75' : '#D1D5DB'}`, background: isSel ? '#1D9E75' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      {isSel && <span style={{ color: '#fff', fontSize: 12, fontWeight: 700 }}>✓</span>}
+                    </div>
+                    {/* 이름 + 번호 */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', marginBottom: 2 }}>{c.name}</p>
+                      <p style={{ fontSize: 12, color: '#999' }}>{c.phone || '번호 없음'}</p>
+                    </div>
+                    {/* 뱃지 */}
+                    <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+                      {smsCount > 0 && (
+                        <span style={{ fontSize: 11, padding: '2px 7px', borderRadius: 6, background: '#E1F5EE', color: '#065F46', fontWeight: 700 }}>{smsCount}회</span>
+                      )}
+                      {lastSent && (
+                        <span style={{ fontSize: 11, padding: '2px 7px', borderRadius: 6, background: '#F1EFE8', color: '#5F5E5A', fontWeight: 600 }}>{lastSent}</span>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* 발송 버튼 */}
+            {bulkSelectedIds.length > 0 && (
+              <div style={{ position: 'sticky', bottom: 70, background: '#FAF9F5', padding: '10px 0', borderTop: '1px solid #EDEBE4' }}>
+                <button
+                  onClick={() => {
+                    const cost = bulkSelectedIds.length * 14
+                    if (confirm(`${bulkSelectedIds.length}명에게 단체문자를 발송합니다.
+예상 비용: 약 ${cost.toLocaleString()}원
+
+계속하시겠습니까?`)) {
+                      alert('단체문자 발송 기능은 SMS 연동 후 사용 가능합니다.')
+                    }
+                  }}
+                  style={{ width: '100%', padding: '14px 0', borderRadius: 10, border: 'none', background: '#1D9E75', color: 'white', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
+                  {bulkSelectedIds.length}명에게 발송하기 · 약 {(bulkSelectedIds.length * 14).toLocaleString()}원
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── 메인: 이슈 카드 목록 ── */}
+        {!activeIssue && activeTab === 'ai' && (
           <>
             {/* 이슈 카드 */}
             <div className={styles.issueList}>
