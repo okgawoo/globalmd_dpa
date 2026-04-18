@@ -438,11 +438,11 @@ export default function NotificationsPage() {
 
         {/* ── 단체문자 탭 ── */}
         {!activeIssue && activeTab === 'bulk' && (
-          <div style={{ padding: '12px 10px' }}>
+          <div>
 
             {/* 1. 잔여 횟수 (최상단) */}
             {smsUsage && (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', border: '1px solid #EDEBE4', borderRadius: 10, padding: '10px 14px', margin: '0 0 10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', border: '1px solid #EDEBE4', borderRadius: 10, padding: '10px 14px', margin: '8px 10px 10px' }}>
                 <span style={{ fontSize: 13, color: '#666' }}>이번 달 문자 잔여</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <span style={{ fontSize: 14, fontWeight: 700, color: smsUsage.remaining < 100 ? '#E24B4A' : '#1D9E75' }}>{smsUsage.remaining}건</span>
@@ -452,7 +452,7 @@ export default function NotificationsPage() {
             )}
 
             {/* 서브탭: 발송하기 / 발송이력 */}
-            <div style={{ display: 'flex', gap: 6, margin: '8px 0 10px', background: '#EDEBE4', borderRadius: 10, padding: 4 }}>
+            <div style={{ display: 'flex', gap: 6, margin: '8px 10px 10px', background: '#EDEBE4', borderRadius: 10, padding: 4 }}>
               {[{ key: 'send', label: '✉️ 발송하기' }, { key: 'history', label: '📋 발송이력' }].map(v => (
                 <button key={v.key}
                   onClick={() => setBulkView(v.key as 'send' | 'history')}
@@ -464,7 +464,7 @@ export default function NotificationsPage() {
 
             {bulkView === 'send' && <>
             {/* 2. 문자 내용 입력 */}
-            <div style={{ background: '#fff', border: '1px solid #EDEBE4', borderRadius: 12, padding: '14px 12px', marginBottom: 10 }}>
+            <div style={{ background: '#fff', border: '1px solid #EDEBE4', borderRadius: 12, padding: '14px 12px', margin: '0 10px 10px' }}>
               <p style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a', marginBottom: 10 }}>✉️ 문자 내용</p>
               {/* 톤 선택 드롭다운 */}
               <select
@@ -485,7 +485,7 @@ export default function NotificationsPage() {
             </div>
 
             {/* 3. 대상 필터 (드롭다운 1줄) */}
-            <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
+            <div style={{ display: 'flex', gap: 6, margin: '0 10px 10px' }}>
               <select value={bulkCustomerType} onChange={e => setBulkCustomerType(e.target.value as any)}
                 style={{ flex: 1, padding: '9px 8px', borderRadius: 8, border: '1px solid #EDEBE4', background: '#fff', fontSize: 13, color: '#1a1a1a', cursor: 'pointer' }}>
                 <option value="전체">전체 고객</option>
@@ -520,7 +520,7 @@ export default function NotificationsPage() {
             </div>
 
             {/* 4. 대상 고객 수 + 전체선택 */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 10px 8px' }}>
               <p style={{ fontSize: 14, color: '#1a1a1a', fontWeight: 600 }}>대상 고객 <span style={{ color: '#1D9E75' }}>{bulkFilteredCustomers.length}명</span></p>
               <button
                 onClick={() => setBulkSelectedIds(bulkSelectedIds.length === bulkFilteredCustomers.length ? [] : bulkFilteredCustomers.map((c: any) => c.id))}
@@ -530,7 +530,7 @@ export default function NotificationsPage() {
             </div>
 
             {/* 5. 고객 리스트 */}
-            <div style={{ background: '#fff', border: '1px solid #EDEBE4', borderRadius: 12, marginBottom: 12, overflow: 'hidden' }}>
+            <div style={{ background: '#fff', border: '1px solid #EDEBE4', borderRadius: 12, margin: '0 10px 12px', overflow: 'hidden' }}>
               {bulkFilteredCustomers.length === 0 ? (
                 <p style={{ fontSize: 13, color: '#999', textAlign: 'center', padding: '20px 0' }}>조건에 맞는 고객이 없어요</p>
               ) : bulkFilteredCustomers.map((c: any, i: number) => {
