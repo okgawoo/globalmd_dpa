@@ -27,7 +27,7 @@ const menus = [
   { label: '문자 발송', path: '/notifications' },
   { label: '뉴스레터', path: '/newsletter' },
   { label: '영업 관리', path: '/sales', dividerAfter: true },
-  { label: '고객 리포트', path: '/report' },
+  { label: '고객 리포트', path: '/customer-report' },
   { label: '보장 분석', path: '/analysis' },
   { label: '영업 성과 리포트', path: '/report' },
   { label: '설정', path: '/settings' },
