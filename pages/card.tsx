@@ -13,6 +13,7 @@ export default function CardPage() {
   const [saving, setSaving] = useState(false)
   const [qrUrl, setQrUrl] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const slideRef = useRef<HTMLDivElement>(null)
   const [photoSlide, setPhotoSlide] = useState(false)
 
   // 고객 정보 수집 설정
@@ -23,6 +24,19 @@ export default function CardPage() {
   useEffect(() => {
     loadAgent()
   }, [])
+
+  // 슬라이드업 스와이프 다운 닫기
+  useEffect(() => {
+    if (!photoSlide) return
+    const el = slideRef.current
+    if (!el) return
+    let startY = 0
+    const onStart = (e: TouchEvent) => { startY = e.touches[0].clientY }
+    const onEnd = (e: TouchEvent) => { if (e.changedTouches[0].clientY - startY > 100) setPhotoSlide(false) }
+    el.addEventListener('touchstart', onStart)
+    el.addEventListener('touchend', onEnd)
+    return () => { el.removeEventListener('touchstart', onStart); el.removeEventListener('touchend', onEnd) }
+  }, [photoSlide])
 
   async function loadAgent() {
     const { data: { user } } = await supabase.auth.getUser()
@@ -239,14 +253,7 @@ export default function CardPage() {
         <>
           <div onClick={() => setPhotoSlide(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1000 }} />
           <div
-            ref={(el) => {
-              if (!el) return
-              let startY = 0
-              const onStart = (e: TouchEvent) => { startY = e.touches[0].clientY }
-              const onEnd = (e: TouchEvent) => { if (e.changedTouches[0].clientY - startY > 100) setPhotoSlide(false) }
-              el.addEventListener('touchstart', onStart)
-              el.addEventListener('touchend', onEnd)
-            }}
+            ref={slideRef}
             style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#FAF9F5', borderRadius: '20px 20px 0 0', zIndex: 1001, padding: '20px 20px 40px', animation: 'slideUp 0.3s ease' }}>
             <div style={{ width: 40, height: 4, borderRadius: 2, background: '#EDEBE4', margin: '0 auto 20px' }} />
             <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 16, textAlign: 'center' }}>프로필 사진 변경</div>
