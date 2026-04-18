@@ -818,7 +818,7 @@ export default function InputPage() {
             </div>
           </div>
 
-          <button className={styles.parseBtn} onClick={handleParse} disabled={parsing || !contractTexts.some(t => t.trim())}>
+          <button className={styles.parseBtn} onClick={handleParse} disabled={parsing || (!contractTexts.some(t => t.trim()) && !contractTextsLoss.some(t => t.trim()))}>
             {parsing ? 'AI 분석 중...' : '🤖 1단계: AI로 분석하기'}
           </button>
 
