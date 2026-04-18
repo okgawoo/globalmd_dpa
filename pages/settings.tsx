@@ -70,6 +70,8 @@ export default function SettingsPage() {
   const [telecomDocUrl, setTelecomDocUrl] = useState('')
   const [telecomUploading, setTelecomUploading] = useState(false)
   const [selectedCarrier, setSelectedCarrier] = useState('')
+  const [telecomVerifyIssues, setTelecomVerifyIssues] = useState<string[]>([])
+  const [telecomVerified, setTelecomVerified] = useState<boolean | null>(null)
   const [smsAgreed, setSmsAgreed] = useState(false)
   const [smsForm, setSmsForm] = useState({ birthDate: '', address: '', senderPhone: '', addressDetail: '' })
   const [signatureData, setSignatureData] = useState('')
@@ -583,6 +585,20 @@ export default function SettingsPage() {
                     </div>
                   )}
                 </label>
+                {telecomVerified === false && telecomVerifyIssues.length > 0 && (
+                  <div style={{ background: '#FCEBEB', border: '1px solid rgba(226,75,74,0.3)', borderRadius: 8, padding: '12px 14px', marginBottom: 12 }}>
+                    <p style={{ fontSize: 13, color: '#A32D2D', fontWeight: 700, marginBottom: 6 }}>❌ 서류 검증 실패 — 아래 내용을 확인해주세요</p>
+                    {telecomVerifyIssues.map((issue, i) => (
+                      <p key={i} style={{ fontSize: 13, color: '#A32D2D', marginBottom: 3 }}>• {issue}</p>
+                    ))}
+                    <p style={{ fontSize: 12, color: '#666', marginTop: 8 }}>수정 후 파일을 다시 업로드해주세요.</p>
+                  </div>
+                )}
+                {telecomVerified === true && (
+                  <div style={{ background: '#E1F5EE', border: '1px solid rgba(29,158,117,0.3)', borderRadius: 8, padding: '10px 14px', marginBottom: 12 }}>
+                    <p style={{ fontSize: 13, color: '#0F6E56', fontWeight: 700 }}>✅ 서류 검증 완료! 다음 단계로 진행하세요.</p>
+                  </div>
+                )}
                 <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                   <button onClick={() => setSmsAuthStep('sign')}
                     style={{ flex: 1, padding: '11px 0', borderRadius: 10, border: '1px solid #E5E7EB', background: '#fff', color: '#374151', fontSize: 14, cursor: 'pointer' }}>
@@ -596,11 +612,21 @@ export default function SettingsPage() {
                       try {
                         const formData = new FormData()
                         formData.append('file', telecomDocFile)
+                        formData.append('agentName', agent?.name || '')
+                        formData.append('birthDate', smsForm.birthDate)
+                        formData.append('senderPhone', smsForm.senderPhone)
                         const res = await fetch('/api/upload-telecom-doc', { method: 'POST', body: formData })
                         const json = await res.json()
                         if (!res.ok) throw new Error(json.error || '업로드 실패')
                         setTelecomDocUrl(json.url)
-                        setSmsAuthStep('confirm')
+                        setTelecomVerified(json.verified)
+                        setTelecomVerifyIssues(json.issues || [])
+                        if (json.verified === false) {
+                          // 검증 실패 → 재업로드 안내 (단계 유지)
+                        } else {
+                          // 통과 또는 검증 불가 → 다음 단계
+                          setSmsAuthStep('confirm')
+                        }
                       } catch (e: any) {
                         alert(e.message || '업로드 중 오류가 발생했습니다.')
                       } finally {
@@ -608,7 +634,7 @@ export default function SettingsPage() {
                       }
                     }}
                     style={{ flex: 2, padding: '11px 0', borderRadius: 10, border: 'none', background: telecomDocFile && !telecomUploading ? '#1D9E75' : '#D1D5DB', color: 'white', fontSize: 14, fontWeight: 600, cursor: telecomDocFile && !telecomUploading ? 'pointer' : 'not-allowed' }}>
-                    {telecomUploading ? '업로드 중...' : '다음'}
+                    {telecomUploading ? '검증 중...' : '다음'}
                   </button>
                 </div>
               </div>
