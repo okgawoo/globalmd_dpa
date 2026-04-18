@@ -339,7 +339,7 @@ export default function SmsSlidePanel({ isOpen, onClose, customer, meetings = []
   const [aiLoading, setAiLoading] = useState(false)
   const [sending, setSending] = useState(false)
   const [toast, setToast] = useState(false)
-  function showToast() { setToast(true); setTimeout(() => setToast(false), 5000) }
+  function showToast() { setToast(true); setTimeout(() => setToast(false), 8000) }
 
   // 슬라이드 팝업 열릴 때 5회까지만 토스트 표시
   useEffect(() => {
@@ -528,9 +528,9 @@ export default function SmsSlidePanel({ isOpen, onClose, customer, meetings = []
         </div>
       </div>
       {toast && (
-        <div style={{ position: 'fixed', bottom: 120, left: '50%', transform: 'translateX(-50%)', background: 'rgba(0,0,0,0.82)', color: '#fff', padding: '14px 20px', borderRadius: 16, zIndex: 2000, animation: 'fadeIn 0.2s ease', textAlign: 'center', lineHeight: 1.8, width: '88vw', maxWidth: 360 }}>
+        <div style={{ position: 'fixed', bottom: 120, left: '50%', transform: 'translateX(-50%)', background: 'rgba(0,0,0,0.82)', color: '#fff', padding: '12px 16px', borderRadius: 16, zIndex: 2000, animation: 'fadeIn 0.2s ease', textAlign: 'center', lineHeight: 1.8, width: '92vw', maxWidth: 420 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, flexWrap: 'nowrap', marginBottom: 4 }}>
-            <div style={{ background: '#FEE500', color: '#3A1D1D', borderRadius: 8, padding: '3px 10px', fontSize: 11, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 3, whiteSpace: 'nowrap', flexShrink: 0 }}>
+            <div style={{ background: '#FEE500', color: '#3A1D1D', borderRadius: 6, padding: '2px 6px', fontSize: 10, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 2, whiteSpace: 'nowrap', flexShrink: 0 }}>
               💬 복사 후 카톡으로 보내기
             </div>
             <span style={{ fontSize: 12, whiteSpace: 'nowrap' }}>클릭하면 내용이 자동 복사돼요!</span>
