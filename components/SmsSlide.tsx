@@ -390,7 +390,7 @@ export default function SmsSlidePanel({ isOpen, onClose, customer, meetings = []
   async function handleCopy() {
     await navigator.clipboard.writeText(scriptText)
     if (agentId && customer?.id) await supabase.from('dpa_messages').insert({ agent_id: agentId, customer_id: customer.id, message_type: situation.type, is_sent: false, sent_script: scriptText })
-    alert('복사됐어요! 카톡에 붙여넣으세요 😊')
+    showToast()
     onClose()
   }
 
@@ -405,14 +405,9 @@ export default function SmsSlidePanel({ isOpen, onClose, customer, meetings = []
     }
     // 1. 클립보드에 스크립트 복사
     try { await navigator.clipboard.writeText(scriptText) } catch {}
-    // 2. 카카오톡 앱 열기 (모바일) 또는 카카오톡 웹 열기 (PC)
+    // 2. 모바일이면 카카오톡 앱 열기
     const isMobile = /android|iphone|ipad/i.test(navigator.userAgent)
-    if (isMobile) {
-      window.location.href = 'kakaotalk://launch'
-      setTimeout(() => { window.open('https://chat.kakao.com', '_blank') }, 1500)
-    } else {
-      window.open('https://chat.kakao.com', '_blank')
-    }
+    if (isMobile) { window.location.href = 'kakaotalk://launch' }
     showToast()
   }
 
