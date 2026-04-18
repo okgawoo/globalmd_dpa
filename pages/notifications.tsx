@@ -92,6 +92,7 @@ export default function NotificationsPage() {
   const [bulkContent, setBulkContent] = useState('')
   const [bulkTone, setBulkTone] = useState<string>('친근')
   const [bulkHistoryExpanded, setBulkHistoryExpanded] = useState(false)
+  const [bulkView, setBulkView] = useState<'send' | 'history'>('send')
   const [bulkSending, setBulkSending] = useState(false)
   const [bulkHistoryOpen, setBulkHistoryOpen] = useState<string | null>(null)
 
@@ -450,6 +451,18 @@ export default function NotificationsPage() {
               </div>
             )}
 
+            {/* 서브탭: 발송하기 / 발송이력 */}
+            <div style={{ display: 'flex', gap: 6, margin: '8px 0 10px', background: '#EDEBE4', borderRadius: 10, padding: 4 }}>
+              {[{ key: 'send', label: '✉️ 발송하기' }, { key: 'history', label: '📋 발송이력' }].map(v => (
+                <button key={v.key}
+                  onClick={() => setBulkView(v.key as 'send' | 'history')}
+                  style={{ flex: 1, padding: '8px 0', fontSize: 13, fontWeight: bulkView === v.key ? 700 : 500, color: bulkView === v.key ? '#1a1a1a' : '#999', background: bulkView === v.key ? '#fff' : 'transparent', border: 'none', borderRadius: 8, cursor: 'pointer' }}>
+                  {v.label}
+                </button>
+              ))}
+            </div>
+
+            {bulkView === 'send' && <>
             {/* 2. 문자 내용 입력 */}
             <div style={{ background: '#fff', border: '1px solid #EDEBE4', borderRadius: 12, padding: '14px 12px', marginBottom: 10 }}>
               <p style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a', marginBottom: 10 }}>✉️ 문자 내용</p>
@@ -563,6 +576,20 @@ export default function NotificationsPage() {
                   style={{ width: '100%', padding: '14px 0', borderRadius: 10, border: 'none', background: bulkContent.trim() ? '#1D9E75' : '#D1D5DB', color: 'white', fontSize: 15, fontWeight: 700, cursor: bulkContent.trim() ? 'pointer' : 'not-allowed' }}>
                   {bulkSelectedIds.length}명에게 발송하기
                 </button>
+              </div>
+            )}
+            </>}
+
+            {/* 발송이력 뷰 */}
+            {bulkView === 'history' && (
+              <div style={{ marginBottom: 20 }}>
+                {/* 추후 dpa_sms_campaigns에서 로드 */}
+                <div style={{ background: '#fff', border: '1px solid #EDEBE4', borderRadius: 12, overflow: 'hidden' }}>
+                  <div style={{ padding: '20px 14px', textAlign: 'center' }}>
+                    <p style={{ fontSize: 14, color: '#999' }}>아직 발송 이력이 없어요 📭</p>
+                    <p style={{ fontSize: 13, color: '#ccc', marginTop: 6 }}>단체문자를 발송하면 여기에 기록돼요</p>
+                  </div>
+                </div>
               </div>
             )}
             {/* 7. 단체문자 발송 이력 */}
