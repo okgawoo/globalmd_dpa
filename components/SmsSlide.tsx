@@ -522,14 +522,14 @@ export default function SmsSlidePanel({ isOpen, onClose, customer, meetings = []
         </div>
       </div>
       {toast && (
-        <div style={{ position: 'fixed', bottom: 120, left: '50%', transform: 'translateX(-50%)', background: 'rgba(0,0,0,0.82)', color: '#fff', padding: '12px 16px', borderRadius: 16, fontSize: 12, fontWeight: 500, zIndex: 2000, animation: 'fadeIn 0.2s ease', textAlign: 'center', lineHeight: 1.7, maxWidth: '90vw' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 5, flexWrap: 'wrap' }}>
-            <div style={{ background: '#FEE500', color: '#3A1D1D', borderRadius: 8, padding: '3px 10px', fontSize: 11, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 3, whiteSpace: 'nowrap' }}>
+        <div style={{ position: 'fixed', bottom: 120, left: '50%', transform: 'translateX(-50%)', background: 'rgba(0,0,0,0.85)', color: '#fff', padding: '14px 20px', borderRadius: 16, fontSize: 13, fontWeight: 500, zIndex: 2000, animation: 'fadeIn 0.2s ease', textAlign: 'center', lineHeight: 1.8, width: '88vw', maxWidth: 380 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
+            <div style={{ background: '#FEE500', color: '#3A1D1D', borderRadius: 8, padding: '4px 12px', fontSize: 12, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>
               💬 복사 후 카톡으로 보내기
             </div>
-            <span style={{ fontSize: 11 }}>버튼을 누르면 내용이 자동 복사돼요!</span>
+            <span style={{ fontSize: 13 }}>를 누르면 내용이 자동 복사돼요!</span>
           </div>
-          <div style={{ fontSize: 11, color: '#ccc' }}>카카오톡 열린 후 보낼 분 선택 → 메시지창에 붙여넣기 하세요</div>
+          <div style={{ fontSize: 12, color: '#ccc' }}>카톡이 열린 후 보낼 분 선택 → 메시지창에 붙여넣기 하세요</div>
         </div>
       )}
       <style>{`
