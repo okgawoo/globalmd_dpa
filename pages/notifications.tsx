@@ -76,6 +76,7 @@ export default function NotificationsPage() {
 
   // 페이지 탭
   const [activeTab, setActiveTab] = useState<'ai' | 'bulk'>('ai')
+  const [smsUsage, setSmsUsage] = useState<any>(null)
 
   // 단체문자 필터
   const [bulkAgeMin, setBulkAgeMin] = useState<number | null>(null)
@@ -122,6 +123,14 @@ export default function NotificationsPage() {
     setMessages(msgs || [])
     setMeetings(meets || [])
     setLoading(false)
+    // SMS 사용량 조회
+    try {
+      const usageRes = await fetch(`/api/sms/usage?agent_id=${aid}`)
+      if (usageRes.ok) {
+        const usageData = await usageRes.json()
+        setSmsUsage(usageData)
+      }
+    } catch (e) {}
   }
 
   // ─── 알림 데이터 계산 ───
@@ -514,12 +523,22 @@ export default function NotificationsPage() {
               })}
             </div>
 
+            {/* SMS 잔여 횟수 */}
+            {smsUsage && (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', border: '1px solid #EDEBE4', borderRadius: 10, padding: '10px 14px', marginBottom: 10 }}>
+                <span style={{ fontSize: 13, color: '#666' }}>이번 달 문자 잔여</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: smsUsage.remaining < 100 ? '#E24B4A' : '#1D9E75' }}>{smsUsage.remaining}건</span>
+                  <span style={{ fontSize: 12, color: '#999' }}>/ {smsUsage.limit}건</span>
+                </div>
+              </div>
+            )}
+
             {/* 발송 버튼 */}
             {bulkSelectedIds.length > 0 && (
               <div style={{ position: 'sticky', bottom: 70, background: '#FAF9F5', padding: '10px 0', borderTop: '1px solid #EDEBE4' }}>
                 <button
                   onClick={() => {
-                    const cost = bulkSelectedIds.length * 14
                     if (confirm(`${bulkSelectedIds.length}명에게 단체문자를 발송합니다.
 예상 비용: 약 ${cost.toLocaleString()}원
 
@@ -528,7 +547,7 @@ export default function NotificationsPage() {
                     }
                   }}
                   style={{ width: '100%', padding: '14px 0', borderRadius: 10, border: 'none', background: '#1D9E75', color: 'white', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
-                  {bulkSelectedIds.length}명에게 발송하기 · 약 {(bulkSelectedIds.length * 14).toLocaleString()}원
+                  {bulkSelectedIds.length}명에게 발송하기
                 </button>
               </div>
             )}
