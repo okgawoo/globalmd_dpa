@@ -414,7 +414,6 @@ export default function SmsSlidePanel({ isOpen, onClose, customer, meetings = []
       window.open('https://chat.kakao.com', '_blank')
     }
     showToast()
-    onClose()
   }
 
   async function handleSend() {
@@ -520,7 +519,7 @@ export default function SmsSlidePanel({ isOpen, onClose, customer, meetings = []
         </div>
         {toast && (
           <div style={{ position: 'fixed', bottom: 100, left: '50%', transform: 'translateX(-50%)', background: 'rgba(0,0,0,0.75)', color: '#fff', padding: '10px 20px', borderRadius: 20, fontSize: 13, fontWeight: 600, zIndex: 2000, whiteSpace: 'nowrap', animation: 'fadeIn 0.2s ease' }}>
-            📋 복사됐어요! 카톡에서 붙여넣기 해주세요 😊
+            📋 문자가 복사됐어요! 카카오톡에서 붙여넣기 해주세요 😊
           </div>
         )}
       </div>
