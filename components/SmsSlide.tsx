@@ -340,6 +340,14 @@ export default function SmsSlidePanel({ isOpen, onClose, customer, meetings = []
   const [sending, setSending] = useState(false)
   const [toast, setToast] = useState(false)
   function showToast() { setToast(true); setTimeout(() => setToast(false), 5000) }
+
+  // 슬라이드 팝업 열릴 때 자동으로 토스트 표시
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => showToast(), 700)
+      return () => clearTimeout(timer)
+    }
+  }, [isOpen])
   const [situation, setSituation] = useState<{ type: SituationType; label: string }>({ type: '일반', label: '📱 일반' })
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
@@ -505,9 +513,6 @@ export default function SmsSlidePanel({ isOpen, onClose, customer, meetings = []
         </div>
 
         <div style={{ padding: '10px 16px 4px', borderTop: '1px solid var(--border)', flexShrink: 0 }}>
-          <div style={{ fontSize: 12, color: '#888', textAlign: 'center', marginBottom: 8, fontWeight: 500 }}>
-            📋 문자가 복사됐어요! 카카오톡에서 붙여넣기 해주세요 😊
-          </div>
           <button onClick={handleKakao} style={{ width: '100%', padding: '12px', borderRadius: 12, border: 'none', background: '#FEE500', color: '#3A1D1D', fontSize: 14, fontWeight: 700, cursor: 'pointer', marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
             <span style={{ fontSize: 16 }}>💬</span> 복사 후 카톡으로 보내기
           </button>
@@ -516,6 +521,17 @@ export default function SmsSlidePanel({ isOpen, onClose, customer, meetings = []
           </div>
         </div>
       </div>
+      {toast && (
+        <div style={{ position: 'fixed', bottom: 120, left: '50%', transform: 'translateX(-50%)', background: 'rgba(0,0,0,0.82)', color: '#fff', padding: '12px 16px', borderRadius: 16, fontSize: 12, fontWeight: 500, zIndex: 2000, animation: 'fadeIn 0.2s ease', textAlign: 'center', lineHeight: 1.7, maxWidth: '90vw' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 5, flexWrap: 'wrap' }}>
+            <div style={{ background: '#FEE500', color: '#3A1D1D', borderRadius: 8, padding: '3px 10px', fontSize: 11, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 3, whiteSpace: 'nowrap' }}>
+              💬 복사 후 카톡으로 보내기
+            </div>
+            <span style={{ fontSize: 11 }}>버튼을 누르면 내용이 자동 복사돼요!</span>
+          </div>
+          <div style={{ fontSize: 11, color: '#ccc' }}>카카오톡 열린 후 보낼 분 선택 → 메시지창에 붙여넣기 하세요</div>
+        </div>
+      )}
       <style>{`
         @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
         @keyframes slideUp { from { transform: translateY(100%) } to { transform: translateY(0) } }
