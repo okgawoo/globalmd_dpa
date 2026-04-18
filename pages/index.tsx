@@ -510,7 +510,7 @@ export default function Dashboard() {
 
         {/* 하단 아이콘 4개 */}
         <div className={styles.mobileBottomIcons}>
-          <button className={styles.mobileIconBtn} onClick={(e) => { e.preventDefault(); if (agentSlug) router.push(`/c/${agentSlug}`) }}>
+          <button className={styles.mobileIconBtn} onClick={(e) => { e.preventDefault(); router.push('/card') }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.8"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M8 10h8M8 14h5"/></svg>
             <span className={styles.mobileIconLabel}>전자명함</span>
           </button>
