@@ -539,10 +539,7 @@ export default function NotificationsPage() {
               <div style={{ position: 'sticky', bottom: 70, background: '#FAF9F5', padding: '10px 0', borderTop: '1px solid #EDEBE4' }}>
                 <button
                   onClick={() => {
-                    if (confirm(`${bulkSelectedIds.length}명에게 단체문자를 발송합니다.
-예상 비용: 약 ${cost.toLocaleString()}원
-
-계속하시겠습니까?`)) {
+                    if (confirm(`${bulkSelectedIds.length}명에게 단체문자를 발송합니다. 계속하시겠습니까?`)) {
                       alert('단체문자 발송 기능은 SMS 연동 후 사용 가능합니다.')
                     }
                   }}
