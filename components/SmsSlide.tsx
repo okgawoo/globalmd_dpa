@@ -456,7 +456,7 @@ export default function SmsSlidePanel({ isOpen, onClose, customer, meetings = []
   return (
     <>
       <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1000, animation: 'fadeIn 0.2s ease' }} />
-      <div ref={panelRef} style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'var(--bg-card)', borderRadius: '20px 20px 0 0', zIndex: 1001, maxHeight: '90vh', display: 'flex', flexDirection: 'column', animation: 'slideUp 0.3s ease', boxShadow: '0 -4px 20px rgba(0,0,0,0.15)' }}>
+      <div ref={panelRef} style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'var(--bg-card)', borderRadius: '20px 20px 0 0', zIndex: 1001, maxHeight: '95vh', display: 'flex', flexDirection: 'column', animation: 'slideUp 0.3s ease', boxShadow: '0 -4px 20px rgba(0,0,0,0.15)' }}>
 
         <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px', cursor: 'pointer', flexShrink: 0 }} onClick={onClose}>
           <div style={{ width: 40, height: 4, borderRadius: 2, background: 'var(--border)' }} />
@@ -497,22 +497,22 @@ export default function SmsSlidePanel({ isOpen, onClose, customer, meetings = []
               placeholder="스크립트를 작성해주세요..." />
           </div>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 6 }}>
             {EMOJIS.map(e => (
               <button key={e} onClick={() => insertEmoji(e)} style={{ background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8, padding: '4px 6px', fontSize: 16, cursor: 'pointer' }}>{e}</button>
             ))}
           </div>
         </div>
 
-        <div style={{ padding: '12px 16px 4px', borderTop: '1px solid var(--border)', flexShrink: 0 }}>
+        <div style={{ padding: '10px 16px 4px', borderTop: '1px solid var(--border)', flexShrink: 0 }}>
           <div style={{ fontSize: 12, color: '#888', textAlign: 'center', marginBottom: 8, fontWeight: 500 }}>
             📋 문자가 복사됐어요! 카카오톡에서 붙여넣기 해주세요 😊
           </div>
-          <div style={{ display: 'flex', gap: 8, paddingBottom: 24 }}>
-            <button onClick={handleKakao} style={{ flex: 1, padding: '11px', borderRadius: 12, border: 'none', background: '#FEE500', color: '#3A1D1D', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-              <span style={{ fontSize: 15 }}>💬</span> 복사 후 카톡으로 보내기
-            </button>
-            <button onClick={handleSend} disabled={sending || !scriptText} style={{ flex: 1, padding: '11px', borderRadius: 12, border: 'none', background: '#1D9E75', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer', opacity: sending ? 0.7 : 1 }}>{sending ? '발송 중...' : '📱 문자 보내기'}</button>
+          <button onClick={handleKakao} style={{ width: '100%', padding: '12px', borderRadius: 12, border: 'none', background: '#FEE500', color: '#3A1D1D', fontSize: 14, fontWeight: 700, cursor: 'pointer', marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            <span style={{ fontSize: 16 }}>💬</span> 복사 후 카톡으로 보내기
+          </button>
+          <div style={{ paddingBottom: 24 }}>
+            <button onClick={handleSend} disabled={sending || !scriptText} style={{ width: '100%', padding: '12px', borderRadius: 12, border: 'none', background: '#1D9E75', color: 'white', fontSize: 14, fontWeight: 700, cursor: 'pointer', opacity: sending ? 0.7 : 1 }}>{sending ? '발송 중...' : '📱 문자 보내기'}</button>
           </div>
         </div>
       </div>
