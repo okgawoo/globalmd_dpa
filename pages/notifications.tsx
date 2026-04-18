@@ -85,6 +85,7 @@ export default function NotificationsPage() {
   const [bulkCustomerType, setBulkCustomerType] = useState<'전체' | 'active' | 'prospect'>('전체')
   const [bulkSelectedIds, setBulkSelectedIds] = useState<string[]>([])
   const [bulkContent, setBulkContent] = useState('')
+  const [bulkTone, setBulkTone] = useState<string>('친근')
   const [bulkSending, setBulkSending] = useState(false)
   const [bulkHistoryOpen, setBulkHistoryOpen] = useState<string | null>(null)
 
@@ -433,52 +434,76 @@ export default function NotificationsPage() {
         {/* ── 단체문자 탭 ── */}
         {!activeIssue && activeTab === 'bulk' && (
           <div style={{ padding: '12px 10px' }}>
-            {/* 필터 */}
-            <div style={{ background: '#fff', border: '1px solid #EDEBE4', borderRadius: 12, padding: '14px 12px', marginBottom: 12 }}>
-              <p style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 10 }}>🔍 대상 필터</p>
 
-              {/* 고객 유형 */}
-              <p style={{ fontSize: 12, color: '#999', marginBottom: 6 }}>고객 유형</p>
-              <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
-                {[{ key: '전체', label: '전체' }, { key: 'active', label: '마이고객' }, { key: 'prospect', label: '관심고객' }].map(o => (
-                  <button key={o.key}
-                    onClick={() => setBulkCustomerType(o.key as any)}
-                    style={{ padding: '6px 14px', borderRadius: 8, border: `1px solid ${bulkCustomerType === o.key ? '#1D9E75' : '#EDEBE4'}`, background: bulkCustomerType === o.key ? '#E1F5EE' : '#fff', color: bulkCustomerType === o.key ? '#065F46' : '#666', fontSize: 13, fontWeight: bulkCustomerType === o.key ? 700 : 400, cursor: 'pointer' }}>
-                    {o.label}
-                  </button>
-                ))}
+            {/* 1. 잔여 횟수 (최상단) */}
+            {smsUsage && (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', border: '1px solid #EDEBE4', borderRadius: 10, padding: '10px 14px', marginBottom: 10 }}>
+                <span style={{ fontSize: 13, color: '#666' }}>이번 달 문자 잔여</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: smsUsage.remaining < 100 ? '#E24B4A' : '#1D9E75' }}>{smsUsage.remaining}건</span>
+                  <span style={{ fontSize: 12, color: '#999' }}>/ {smsUsage.limit}건</span>
+                </div>
               </div>
+            )}
 
-              {/* 나이대 */}
-              <p style={{ fontSize: 12, color: '#999', marginBottom: 6 }}>나이대</p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
-                {AGE_OPTIONS.map(o => {
-                  const isActive = bulkAgeMin === o.min && bulkAgeMax === o.max
-                  return (
-                    <button key={o.label}
-                      onClick={() => { setBulkAgeMin(o.min); setBulkAgeMax(o.max) }}
-                      style={{ padding: '6px 14px', borderRadius: 8, border: `1px solid ${isActive ? '#1D9E75' : '#EDEBE4'}`, background: isActive ? '#E1F5EE' : '#fff', color: isActive ? '#065F46' : '#666', fontSize: 13, fontWeight: isActive ? 700 : 400, cursor: 'pointer' }}>
-                      {o.label}
-                    </button>
-                  )
-                })}
-              </div>
-
-              {/* 성별 */}
-              <p style={{ fontSize: 12, color: '#999', marginBottom: 6 }}>성별</p>
-              <div style={{ display: 'flex', gap: 6 }}>
-                {['전체', '남', '여'].map(g => (
-                  <button key={g}
-                    onClick={() => setBulkGender(g as any)}
-                    style={{ padding: '6px 14px', borderRadius: 8, border: `1px solid ${bulkGender === g ? '#1D9E75' : '#EDEBE4'}`, background: bulkGender === g ? '#E1F5EE' : '#fff', color: bulkGender === g ? '#065F46' : '#666', fontSize: 13, fontWeight: bulkGender === g ? 700 : 400, cursor: 'pointer' }}>
-                    {g}
-                  </button>
-                ))}
-              </div>
+            {/* 2. 문자 내용 입력 */}
+            <div style={{ background: '#fff', border: '1px solid #EDEBE4', borderRadius: 12, padding: '14px 12px', marginBottom: 10 }}>
+              <p style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a', marginBottom: 10 }}>✉️ 문자 내용</p>
+              {/* 톤 선택 드롭다운 */}
+              <select
+                value={bulkTone}
+                onChange={e => setBulkTone(e.target.value)}
+                style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #EDEBE4', background: '#FAF9F5', fontSize: 14, color: '#1a1a1a', marginBottom: 10, cursor: 'pointer' }}>
+                {['친근', '정중', '애교', '간결'].map(t => <option key={t} value={t}>{t}한 톤</option>)}
+              </select>
+              {/* 내용 입력 */}
+              <textarea
+                value={bulkContent}
+                onChange={e => setBulkContent(e.target.value)}
+                placeholder="발송할 문자 내용을 입력하세요"
+                rows={4}
+                style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #EDEBE4', fontSize: 14, color: '#1a1a1a', resize: 'none', lineHeight: 1.6, background: '#fff' }}
+              />
+              <p style={{ fontSize: 12, color: '#999', textAlign: 'right', marginTop: 4 }}>{bulkContent.length}자</p>
             </div>
 
-            {/* 필터 결과 요약 */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+            {/* 3. 대상 필터 (드롭다운 1줄) */}
+            <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
+              <select value={bulkCustomerType} onChange={e => setBulkCustomerType(e.target.value as any)}
+                style={{ flex: 1, padding: '9px 8px', borderRadius: 8, border: '1px solid #EDEBE4', background: '#fff', fontSize: 13, color: '#1a1a1a', cursor: 'pointer' }}>
+                <option value="전체">전체 고객</option>
+                <option value="active">마이고객</option>
+                <option value="prospect">관심고객</option>
+              </select>
+              <select
+                value={bulkAgeMin === null ? '전체' : `${bulkAgeMin}`}
+                onChange={e => {
+                  const v = e.target.value
+                  if (v === '전체') { setBulkAgeMin(null); setBulkAgeMax(null) }
+                  else if (v === '20') { setBulkAgeMin(20); setBulkAgeMax(29) }
+                  else if (v === '30') { setBulkAgeMin(30); setBulkAgeMax(39) }
+                  else if (v === '40') { setBulkAgeMin(40); setBulkAgeMax(49) }
+                  else if (v === '50') { setBulkAgeMin(50); setBulkAgeMax(59) }
+                  else if (v === '60') { setBulkAgeMin(60); setBulkAgeMax(null) }
+                }}
+                style={{ flex: 1, padding: '9px 8px', borderRadius: 8, border: '1px solid #EDEBE4', background: '#fff', fontSize: 13, color: '#1a1a1a', cursor: 'pointer' }}>
+                <option value="전체">전체 나이</option>
+                <option value="20">20대</option>
+                <option value="30">30대</option>
+                <option value="40">40대</option>
+                <option value="50">50대</option>
+                <option value="60">60대 이상</option>
+              </select>
+              <select value={bulkGender} onChange={e => setBulkGender(e.target.value as any)}
+                style={{ flex: 1, padding: '9px 8px', borderRadius: 8, border: '1px solid #EDEBE4', background: '#fff', fontSize: 13, color: '#1a1a1a', cursor: 'pointer' }}>
+                <option value="전체">전체 성별</option>
+                <option value="남">남성</option>
+                <option value="여">여성</option>
+              </select>
+            </div>
+
+            {/* 4. 대상 고객 수 + 전체선택 */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
               <p style={{ fontSize: 14, color: '#1a1a1a', fontWeight: 600 }}>대상 고객 <span style={{ color: '#1D9E75' }}>{bulkFilteredCustomers.length}명</span></p>
               <button
                 onClick={() => setBulkSelectedIds(bulkSelectedIds.length === bulkFilteredCustomers.length ? [] : bulkFilteredCustomers.map((c: any) => c.id))}
@@ -487,8 +512,8 @@ export default function NotificationsPage() {
               </button>
             </div>
 
-            {/* 고객 리스트 */}
-            <div style={{ background: '#fff', border: '1px solid #EDEBE4', borderRadius: 12, marginBottom: 12, overflow: 'hidden' }}>
+            {/* 5. 고객 리스트 */}
+            <div style={{ background: '#fff', border: '1px solid #EDEBE4', borderRadius: 12, marginBottom: 70, overflow: 'hidden' }}>
               {bulkFilteredCustomers.length === 0 ? (
                 <p style={{ fontSize: 13, color: '#999', textAlign: 'center', padding: '20px 0' }}>조건에 맞는 고객이 없어요</p>
               ) : bulkFilteredCustomers.map((c: any, i: number) => {
@@ -500,16 +525,13 @@ export default function NotificationsPage() {
                   <div key={c.id}
                     onClick={() => setBulkSelectedIds(isSel ? bulkSelectedIds.filter(id => id !== c.id) : [...bulkSelectedIds, c.id])}
                     style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderBottom: i < bulkFilteredCustomers.length - 1 ? '1px solid #EDEBE4' : 'none', background: isSel ? '#F0FDF4' : '#fff', cursor: 'pointer' }}>
-                    {/* 체크박스 */}
                     <div style={{ width: 20, height: 20, borderRadius: 6, border: `2px solid ${isSel ? '#1D9E75' : '#D1D5DB'}`, background: isSel ? '#1D9E75' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       {isSel && <span style={{ color: '#fff', fontSize: 12, fontWeight: 700 }}>✓</span>}
                     </div>
-                    {/* 이름 + 번호 */}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', marginBottom: 2 }}>{c.name}</p>
                       <p style={{ fontSize: 12, color: '#999' }}>{c.phone || '번호 없음'}</p>
                     </div>
-                    {/* 뱃지 */}
                     <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
                       {smsCount > 0 && (
                         <span style={{ fontSize: 11, padding: '2px 7px', borderRadius: 6, background: '#E1F5EE', color: '#065F46', fontWeight: 700 }}>{smsCount}회</span>
@@ -523,27 +545,18 @@ export default function NotificationsPage() {
               })}
             </div>
 
-            {/* SMS 잔여 횟수 */}
-            {smsUsage && (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', border: '1px solid #EDEBE4', borderRadius: 10, padding: '10px 14px', marginBottom: 10 }}>
-                <span style={{ fontSize: 13, color: '#666' }}>이번 달 문자 잔여</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: smsUsage.remaining < 100 ? '#E24B4A' : '#1D9E75' }}>{smsUsage.remaining}건</span>
-                  <span style={{ fontSize: 12, color: '#999' }}>/ {smsUsage.limit}건</span>
-                </div>
-              </div>
-            )}
-
-            {/* 발송 버튼 */}
+            {/* 6. 발송 버튼 (하단 고정) */}
             {bulkSelectedIds.length > 0 && (
-              <div style={{ position: 'sticky', bottom: 70, background: '#FAF9F5', padding: '10px 0', borderTop: '1px solid #EDEBE4' }}>
+              <div style={{ position: 'fixed', bottom: 60, left: 0, right: 0, padding: '10px 10px', background: '#FAF9F5', borderTop: '1px solid #EDEBE4', zIndex: 100 }}>
                 <button
+                  disabled={!bulkContent.trim()}
                   onClick={() => {
+                    if (!bulkContent.trim()) { alert('문자 내용을 입력해주세요.'); return }
                     if (confirm(`${bulkSelectedIds.length}명에게 단체문자를 발송합니다. 계속하시겠습니까?`)) {
                       alert('단체문자 발송 기능은 SMS 연동 후 사용 가능합니다.')
                     }
                   }}
-                  style={{ width: '100%', padding: '14px 0', borderRadius: 10, border: 'none', background: '#1D9E75', color: 'white', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
+                  style={{ width: '100%', padding: '14px 0', borderRadius: 10, border: 'none', background: bulkContent.trim() ? '#1D9E75' : '#D1D5DB', color: 'white', fontSize: 15, fontWeight: 700, cursor: bulkContent.trim() ? 'pointer' : 'not-allowed' }}>
                   {bulkSelectedIds.length}명에게 발송하기
                 </button>
               </div>
