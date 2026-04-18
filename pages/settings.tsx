@@ -70,6 +70,7 @@ export default function SettingsPage() {
   const [telecomDocUrl, setTelecomDocUrl] = useState('')
   const [telecomUploading, setTelecomUploading] = useState(false)
   const [selectedCarrier, setSelectedCarrier] = useState('')
+  const [smsAuthSubmittedAt, setSmsAuthSubmittedAt] = useState('')
   const [telecomVerifyIssues, setTelecomVerifyIssues] = useState<string[]>([])
   const [telecomVerified, setTelecomVerified] = useState<boolean | null>(null)
   const [smsAgreed, setSmsAgreed] = useState(false)
@@ -122,13 +123,14 @@ export default function SettingsPage() {
       // 기존 발신번호 신청 여부 확인
       const { data: smsAuth } = await supabase
         .from('dpa_sms_auth')
-        .select('status, sender_phone')
+        .select('status, sender_phone, submitted_at')
         .eq('agent_id', ag.id)
         .single()
       if (smsAuth) {
         if (smsAuth.status === 'approved') {
           setSenderStatus('verified')
           setSenderPhone(smsAuth.sender_phone || '')
+          setSmsAuthSubmittedAt(smsAuth.submitted_at || '')
         } else if (smsAuth.status === 'pending') {
           setSmsAuthStep('done')
           setSenderStatus('pending')
@@ -739,13 +741,28 @@ export default function SettingsPage() {
             {/* 인증 완료 상태 */}
             {senderStatus === 'verified' && (
               <div style={{ background: '#F0FDF4', border: '1px solid #6EE7B7', borderRadius: 12, padding: '16px', marginBottom: 16 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#1D9E75', display: 'inline-block', flexShrink: 0 }} />
-                  <div>
-                    <p style={{ fontWeight: 600, fontSize: 14, color: '#065F46' }}>인증 완료</p>
-                    <p style={{ fontSize: 12, color: '#374151' }}>발신번호: {senderPhone || smsForm.senderPhone}</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                  <span style={{ fontSize: 20 }}>✅</span>
+                  <p style={{ fontWeight: 700, fontSize: 16, color: '#065F46' }}>문자 발신번호 인증 완료</p>
+                </div>
+                <div style={{ background: '#fff', borderRadius: 8, padding: '10px 14px', marginBottom: 12 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #E1F5EE' }}>
+                    <p style={{ fontSize: 13, color: '#999' }}>등록 번호</p>
+                    <p style={{ fontSize: 14, color: '#1a1a1a', fontWeight: 600 }}>{senderPhone}</p>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0' }}>
+                    <p style={{ fontSize: 13, color: '#999' }}>등록일</p>
+                    <p style={{ fontSize: 14, color: '#1a1a1a', fontWeight: 600 }}>
+                      {smsAuthSubmittedAt ? new Date(smsAuthSubmittedAt).toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\. /g, '.').replace('.', '') : '-'}
+                    </p>
                   </div>
                 </div>
+                <p style={{ fontSize: 12, color: '#999', marginBottom: 8 }}>번호 변경이 필요하시면 아래 버튼을 눌러주세요.</p>
+                <button
+                  onClick={() => { setSenderStatus('none'); setSmsAuthStep('intro') }}
+                  style={{ width: '100%', padding: '10px 0', borderRadius: 8, border: '1px solid #6EE7B7', background: '#fff', color: '#065F46', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+                  재신청하기
+                </button>
               </div>
             )}
 
