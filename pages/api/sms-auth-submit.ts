@@ -155,7 +155,97 @@ function generateContractHTML(data: any): string {
       <td style="width:50%; vertical-align:top; padding:14px">
         <p><strong>을 (수탁자)</strong></p>
         <p>${COMPANY.name}</p>
-        <p>대표이사 (인)</p>
+        <p>대표이사 배진영 (인)</p>
+      </td>
+    </tr>
+  </table>
+</body></html>`
+}
+
+
+// 솔라피 제출용 위임장 (공식 양식)
+function generateSolapiDelegationHTML(data: any): string {
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>${pdfStyle}
+    .solapi-logo { font-size: 28px; font-weight: 900; color: #4A60FF; margin-bottom: 20px; }
+    .footnote { font-size: 11px; color: #555; margin-top: 20px; }
+    .footnote p { margin: 3px 0; }
+  </style></head><body>
+  <div class="solapi-logo">S solapi</div>
+  <h1>발신번호 위임장</h1>
+  <p>□ 용 도 : 발신번호 사전등록</p>
+  <p>□ 제 출 처 : ㈜솔라피</p>
+  <p>□ 위임내용 :</p>
+  <p style="margin-left:12px">고객(위임하는 사람)은(는) ㈜솔라피에서의 발신번호 사전등록 업무 권한 및 발신번호 이용 권한을 대리인에게 위임합니다.</p>
+  <div class="section" style="margin-top:16px">
+    <h2 style="margin-top:0">□ 위탁자 정보(위임하는 사람)</h2>
+    <table>
+      <tr><td>○ 위탁자명 (또는 회사명)</td><td>${data.agentName} (인)</td></tr>
+      <tr><td>○ 위탁자 식별번호<sup>1)</sup></td><td>${data.birthDate}</td></tr>
+      <tr><td>○ 주소</td><td>${data.address}</td></tr>
+      <tr><td>○ 위임할 발신번호 목록</td><td>${data.senderPhone}</td></tr>
+    </table>
+    <p style="margin-top:10px">서명</p>
+    <div class="sign-box">${data.signatureData ? `<img src="${data.signatureData}" />` : ''}</div>
+  </div>
+  <div class="section">
+    <h2 style="margin-top:0">□ 수탁자 정보(위임받는 사람)</h2>
+    <table>
+      <tr><td>○ 수탁자명 (또는 회사명)</td><td>${COMPANY.name} (인)</td></tr>
+      <tr><td>○ 수탁자 식별번호<sup>1)</sup></td><td>${COMPANY.bizNo}</td></tr>
+      <tr><td>○ 주소</td><td>${COMPANY.address}</td></tr>
+      <tr><td>○ 발신번호 이용 목적<sup>2)</sup></td><td>문자메시지 발송 업무</td></tr>
+      <tr><td>○ 위탁자와의 관계</td><td>업무 위탁 계약</td></tr>
+    </table>
+  </div>
+  <p class="date">${getToday()}</p>
+  <div class="footnote">
+    <p>1) 사업자는 사업자등록번호, 개인은 생년월일</p>
+    <p>2) 발신번호 이용 목적을 구체적으로 입력해 주세요.</p>
+  </div>
+</body></html>`
+}
+
+// 솔라피 제출용 위임관계증명서 (공식 예시 기반 상세 버전)
+function generateSolapiContractHTML(data: any): string {
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>${pdfStyle}</style></head><body>
+  <h1>개인정보처리 위탁 계약서</h1>
+  <p><span class="label">위임자(갑):</span> ${data.agentName} / 생년월일: ${data.birthDate}</p>
+  <p><span class="label">수탁자(을):</span> ${COMPANY.name} / 사업자등록번호: ${COMPANY.bizNo}</p>
+  <p style="margin-top:8px">"갑"의 개인정보 처리업무를 "을"에게 위탁함에 있어 다음과 같은 내용으로 본 업무위탁계약을 체결합니다.</p>
+  <h2>제1조 (목적)</h2>
+  <p>이 계약은 "갑"이 개인정보처리업무를 "을"에게 위탁하고, "을"은 이를 승낙하여 "을"의 책임아래 성실하게 업무를 완성하도록 하는데 필요한 사항을 정함을 목적으로 한다.</p>
+  <h2>제2조 (용어의 정의)</h2>
+  <p>본 계약에서 별도로 정의되지 아니한 용어는 「개인정보 보호법」, 같은 법 시행령 및 시행규칙, 「개인정보의 안전성 확보조치 기준」 및 「표준 개인정보 보호지침」에서 정의된 바에 따른다.</p>
+  <h2>제3조 (위탁업무의 목적 및 범위)</h2>
+  <p>"을"은 계약이 정하는 바에 따라 인터넷을 통한 문자메시지 발송 목적으로 다음과 같은 개인정보 처리 업무를 수행한다.</p>
+  <p>1. 수신자 전화번호</p>
+  <p>2. 메시지 내용 (LMS, MMS의 경우 제목 포함)</p>
+  <h2>제4조 (재위탁 제한)</h2>
+  <p>① "을"은 "갑"의 사전 승낙을 얻은 경우를 제외하고 "갑"과의 계약상의 권리와 의무의 전부 또는 일부를 제3자에게 양도하거나 재위탁할 수 없다.</p>
+  <p>② "을"이 다른 제3의 회사와 수탁계약을 할 경우에는 "을"은 해당 사실을 계약 체결 7일 이전에 "갑"에게 통보하고 협의하여야 한다.</p>
+  <h2>제5조 (개인정보의 안전성 확보조치)</h2>
+  <p>"을"은 「개인정보 보호법」 제29조에 따라 개인정보의 안전성 확보에 필요한 기술적·관리적 조치를 취하여야 한다.</p>
+  <h2>제6조 (개인정보의 처리제한)</h2>
+  <p>① "을"은 계약기간은 물론 계약 종료 후에도 위탁업무 수행 목적 범위를 넘어 개인정보를 이용하거나 이를 제3자에게 제공 또는 누설하여서는 안 된다.</p>
+  <p>② "을"은 계약이 해지되거나 계약기간이 만료된 경우 위탁업무와 관련하여 보유하고 있는 개인정보를 즉시 파기하거나 "갑"에게 반납하여야 한다.</p>
+  <h2>제7조 (수탁자에 대한 관리·감독)</h2>
+  <p>"갑"은 개인정보의 처리 현황, 접근 또는 접속기록, 목적외 이용·제공 및 재위탁 금지 준수여부 등을 감독할 수 있으며, "을"은 특별한 사유가 없는 한 이에 응하여야 한다.</p>
+  <h2>제8조 (손해배상)</h2>
+  <p>"을" 또는 "을"의 임직원 기타 "을"의 수탁자가 이 계약에 따른 의무를 위반하여 손해가 발생한 경우 "을"은 그 손해를 배상하여야 한다.</p>
+  <p class="date" style="margin-top:16px">${getToday()}</p>
+  <table style="margin-top:16px" class="no-break">
+    <tr>
+      <td style="width:50%; vertical-align:top; padding:14px">
+        <p><strong>갑 (위임자)</strong></p>
+        <p>소재지: ${data.address}</p>
+        <p>이름: ${data.agentName}</p>
+        <div class="sign-box">${data.signatureData ? `<img src="${data.signatureData}" />` : ''}</div>
+      </td>
+      <td style="width:50%; vertical-align:top; padding:14px">
+        <p><strong>을 (수탁자)</strong></p>
+        <p>소재지: ${COMPANY.address}</p>
+        <p>${COMPANY.name}</p>
+        <p>대표이사 배진영 (인)</p>
       </td>
     </tr>
   </table>
@@ -231,9 +321,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const pdfData = { agentName, birthDate, address, senderPhone, signatureData }
+
+    // 내부 보관용 3개 (Supabase 저장)
     const agreementPdf = await generatePDF(generateAgreementHTML(pdfData))
     const delegationPdf = await generatePDF(generateDelegationHTML(pdfData))
     const contractPdf = await generatePDF(generateContractHTML(pdfData))
+
+    // 솔라피 제출용 2개 (이메일 첨부)
+    const solapiDelegationPdf = await generatePDF(generateSolapiDelegationHTML(pdfData))
+    const solapiContractPdf = await generatePDF(generateSolapiContractHTML(pdfData))
 
     const prefix = `sms-auth/${agentId}/${Date.now()}`
     await Promise.all([
@@ -257,6 +353,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD }
     })
 
+    // 솔라피 제출용 이메일 발송 (위임장 + 위임관계증명서 + 사업자등록증)
+    const bizLicenseUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/dpa-docs/company/bizlicense.jpg`
+    const bizLicenseRes = await fetch(bizLicenseUrl)
+    const bizLicenseBuffer = Buffer.from(await bizLicenseRes.arrayBuffer())
+
     await transporter.sendMail({
       from: process.env.GMAIL_USER,
       to: ADMIN_EMAIL,
@@ -278,7 +379,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         <ul>
           <li>발신번호 위임장</li>
           <li>개인정보처리 위탁 계약서</li>
-          <li>서비스 이용 동의서</li>
+          <li>사업자등록증 (글로벌엠디)</li>
         </ul>
         <br/>
         <p>위 서류를 검토하시어 발신번호 등록 처리 부탁드립니다.</p>
@@ -292,9 +393,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         <p>이메일 : okgawoo@gmail.com</p>
       `,
       attachments: [
-        { filename: `[위임장]_${agentName}_${senderPhone}.pdf`, content: delegationPdf },
-        { filename: `[위임관계증명서]_${agentName}_${senderPhone}.pdf`, content: contractPdf },
-        { filename: `[동의서]_${agentName}_${senderPhone}.pdf`, content: agreementPdf },
+        { filename: `[위임장]_${agentName}_${senderPhone}.pdf`, content: solapiDelegationPdf },
+        { filename: `[위임관계증명서]_${agentName}_${senderPhone}.pdf`, content: solapiContractPdf },
+        { filename: `[사업자등록증]_글로벌엠디.jpg`, content: bizLicenseBuffer },
       ]
     })
 
