@@ -341,11 +341,17 @@ export default function SmsSlidePanel({ isOpen, onClose, customer, meetings = []
   const [toast, setToast] = useState(false)
   function showToast() { setToast(true); setTimeout(() => setToast(false), 5000) }
 
-  // 슬라이드 팝업 열릴 때 자동으로 토스트 표시
+  // 슬라이드 팝업 열릴 때 최초 1회만 토스트 표시
   useEffect(() => {
     if (isOpen) {
-      const timer = setTimeout(() => showToast(), 700)
-      return () => clearTimeout(timer)
+      const seen = localStorage.getItem('smsToastSeen')
+      if (!seen) {
+        const timer = setTimeout(() => {
+          showToast()
+          localStorage.setItem('smsToastSeen', '1')
+        }, 700)
+        return () => clearTimeout(timer)
+      }
     }
   }, [isOpen])
   const [situation, setSituation] = useState<{ type: SituationType; label: string }>({ type: '일반', label: '📱 일반' })
@@ -527,9 +533,9 @@ export default function SmsSlidePanel({ isOpen, onClose, customer, meetings = []
             <div style={{ background: '#FEE500', color: '#3A1D1D', borderRadius: 8, padding: '4px 12px', fontSize: 12, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>
               💬 복사 후 카톡으로 보내기
             </div>
-            <span style={{ fontSize: 13 }}>를 누르면 내용이 자동 복사돼요!</span>
+            <span style={{ fontSize: 13 }}>를 누르고 카톡이 열리면</span>
           </div>
-          <div style={{ fontSize: 12, color: '#ccc' }}>카톡이 열린 후 보낼 분 선택 → 메시지창에 붙여넣기 하세요</div>
+          <div style={{ fontSize: 12, color: '#ccc' }}>보낼 분을 선택하고 메시지창에 붙여넣기 하세요</div>
         </div>
       )}
       <style>{`
