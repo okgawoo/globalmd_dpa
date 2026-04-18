@@ -194,7 +194,31 @@ async function sendSlackNotification(data: any) {
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SLACK_BOT_TOKEN}` },
     body: JSON.stringify({
       channel: SLACK_CHANNEL,
-      text: `📱 DPA 발신번호 등록 신청 | 신청인: ${data.agentName} | 번호: ${data.senderPhone} | 생년월일: ${data.birthDate} | 신청일: ${getTodayShort()} | ✅ Gmail로 서류 3개 발송 완료 → 솔라피(cs@solapi.com) 제출 필요`
+      text: `📱 발신번호 등록 신청`,
+      blocks: [
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `📱 *발신번호 등록 신청*`
+          }
+        },
+        {
+          type: 'section',
+          fields: [
+            { type: 'mrkdwn', text: `👤 *신청인*\n${data.agentName}` },
+            { type: 'mrkdwn', text: `📞 *발신번호*\n${data.senderPhone}` },
+            { type: 'mrkdwn', text: `🎂 *생년월일*\n${data.birthDate}` },
+            { type: 'mrkdwn', text: `📅 *신청일*\n${getTodayShort()}` },
+          ]
+        },
+        {
+          type: 'context',
+          elements: [
+            { type: 'mrkdwn', text: `✅ Gmail로 서류 3개 발송 완료 → 솔라피(cs@solapi.com) 제출 필요` }
+          ]
+        }
+      ]
     })
   })
 }
