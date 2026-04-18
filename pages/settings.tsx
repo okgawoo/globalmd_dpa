@@ -69,6 +69,7 @@ export default function SettingsPage() {
   const [telecomDocFile, setTelecomDocFile] = useState<File | null>(null)
   const [telecomDocUrl, setTelecomDocUrl] = useState('')
   const [telecomUploading, setTelecomUploading] = useState(false)
+  const [selectedCarrier, setSelectedCarrier] = useState('')
   const [smsAgreed, setSmsAgreed] = useState(false)
   const [smsForm, setSmsForm] = useState({ birthDate: '', address: '', senderPhone: '', addressDetail: '' })
   const [signatureData, setSignatureData] = useState('')
@@ -517,14 +518,13 @@ export default function SettingsPage() {
                       { label: '세종', name: '세종텔레콤', docName: '통신서비스 이용증명원', url: 'https://www.sejongtelecom.net', path: '고객센터 전화 요청', warn: '고객센터: 1699-1000' },
                       { label: '기타', name: '기타 알뜰폰', docName: '통신서비스 이용증명원', url: '', path: '해당 통신사 고객센터에 전화하여 발급 요청', warn: '' },
                     ]
-                    const [selected, setSelected] = useState('')
-                    const found = carriers.find(c => c.label === selected)
+                    const found = carriers.find(c => c.label === selectedCarrier)
                     return (
                       <div>
                         <select
-                          value={selected}
-                          onChange={e => setSelected(e.target.value)}
-                          style={{ width: '100%', padding: '11px 14px', borderRadius: 8, border: '1px solid #6EE7B7', background: '#fff', color: selected ? '#065F46' : '#9CA3AF', fontSize: 14, cursor: 'pointer', marginBottom: 8 }}>
+                          value={selectedCarrier}
+                          onChange={e => setSelectedCarrier(e.target.value)}
+                          style={{ width: '100%', padding: '11px 14px', borderRadius: 8, border: '1px solid #6EE7B7', background: '#fff', color: selectedCarrier ? '#065F46' : '#9CA3AF', fontSize: 14, cursor: 'pointer', marginBottom: 8 }}>
                           <option value="" disabled>통신사를 선택하세요</option>
                           {carriers.map(c => <option key={c.label} value={c.label}>{c.name}</option>)}
                         </select>
