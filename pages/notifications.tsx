@@ -308,18 +308,13 @@ export default function NotificationsPage() {
     if (bulkCustomerType !== '전체' && c.customer_type !== bulkCustomerType) return false
     // 성별 필터
     if (bulkGender !== '전체') {
-      const rid = c.resident_number || ''
-      const genderCode = rid.replace('-', '')[6]
-      const isMale = genderCode === '1' || genderCode === '3'
-      if (bulkGender === '남' && !isMale) return false
-      if (bulkGender === '여' && isMale) return false
+      if (c.gender !== bulkGender) return false
     }
     // 나이 필터
     if (bulkAgeMin !== null || bulkAgeMax !== null) {
-      const bd = c.birth_date || (c.resident_number ? c.resident_number.replace('-', '').slice(0,6) : '')
-      if (!bd) return bulkAgeMin === null
-      const year = parseInt(bd.slice(0,2))
-      const fullYear = year >= 0 && year <= 30 ? 2000 + year : 1900 + year
+      const bd = c.birth_date || ''
+      if (!bd) return false
+      const fullYear = new Date(bd).getFullYear()
       const age = new Date().getFullYear() - fullYear
       if (bulkAgeMin !== null && age < bulkAgeMin) return false
       if (bulkAgeMax !== null && age > bulkAgeMax) return false
