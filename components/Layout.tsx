@@ -22,13 +22,14 @@ function NavIcon({ path, active }: { path: string; active: boolean }) {
 
 const menus = [
   { label: '대시보드', path: '/' },
-  { label: '고객 관리', path: '/customers' },
   { label: '데이터 입력', path: '/input' },
-  { label: '보장 분석', path: '/analysis' },
-  { label: '영업 관리', path: '/sales' },
-  { label: '영업 성과 리포트', path: '/report', dividerAfter: true },
+  { label: '고객 관리', path: '/customers' },
   { label: '문자 발송', path: '/notifications' },
   { label: '뉴스레터', path: '/newsletter' },
+  { label: '영업 관리', path: '/sales', dividerAfter: true },
+  { label: '고객 리포트', path: '/report' },
+  { label: '보장 분석', path: '/analysis' },
+  { label: '영업 성과 리포트', path: '/report' },
   { label: '설정', path: '/settings' },
 ]
 
