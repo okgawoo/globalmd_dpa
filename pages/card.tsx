@@ -32,10 +32,16 @@ export default function CardPage() {
     if (!el) return
     let startY = 0
     const onStart = (e: TouchEvent) => { startY = e.touches[0].clientY }
+    const onMove = (e: TouchEvent) => { e.preventDefault() }
     const onEnd = (e: TouchEvent) => { if (e.changedTouches[0].clientY - startY > 100) setPhotoSlide(false) }
     el.addEventListener('touchstart', onStart)
+    el.addEventListener('touchmove', onMove, { passive: false })
     el.addEventListener('touchend', onEnd)
-    return () => { el.removeEventListener('touchstart', onStart); el.removeEventListener('touchend', onEnd) }
+    return () => {
+      el.removeEventListener('touchstart', onStart)
+      el.removeEventListener('touchmove', onMove)
+      el.removeEventListener('touchend', onEnd)
+    }
   }, [photoSlide])
 
   async function loadAgent() {
