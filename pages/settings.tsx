@@ -64,8 +64,11 @@ export default function SettingsPage() {
   const [registeringPhone, setRegisteringPhone] = useState(false)
   const [registerError, setRegisterError] = useState('')
 
-  // 문자 인증 단계: 'intro' | 'form' | 'sign' | 'confirm' | 'done'
-  const [smsAuthStep, setSmsAuthStep] = useState<'intro' | 'form' | 'sign' | 'confirm' | 'done'>('intro')
+  // 문자 인증 단계: 'intro' | 'form' | 'sign' | 'upload' | 'confirm' | 'done'
+  const [smsAuthStep, setSmsAuthStep] = useState<'intro' | 'form' | 'sign' | 'upload' | 'confirm' | 'done'>('intro')
+  const [telecomDocFile, setTelecomDocFile] = useState<File | null>(null)
+  const [telecomDocUrl, setTelecomDocUrl] = useState('')
+  const [telecomUploading, setTelecomUploading] = useState(false)
   const [smsAgreed, setSmsAgreed] = useState(false)
   const [smsForm, setSmsForm] = useState({ birthDate: '', address: '', senderPhone: '', addressDetail: '' })
   const [signatureData, setSignatureData] = useState('')
@@ -289,7 +292,7 @@ export default function SettingsPage() {
 
                 <div style={{ background: '#fff', borderRadius: 8, padding: '12px 14px', marginBottom: 16, border: '1px solid #D1FAE5' }}>
                   <p style={{ fontWeight: 600, fontSize: 13, color: '#065F46', marginBottom: 8 }}>📝 진행 절차</p>
-                  {['1단계 — 서비스 이용 동의', '2단계 — 본인 정보 입력 (이름/생년월일/주소/발신번호)', '3단계 — 본인 서명 (모바일에서 직접 서명)', '4단계 — 입력 내용 최종 확인', '5단계 — 제출 완료'].map((s, i) => (
+                  {['1단계 — 서비스 이용 동의', '2단계 — 본인 정보 입력 (이름/생년월일/주소/발신번호)', '3단계 — 본인 서명 (모바일에서 직접 서명)', '4단계 — 통신서비스 이용증명원 업로드', '5단계 — 입력 내용 최종 확인', '6단계 — 제출 완료'].map((s, i) => (
                     <p key={i} style={{ fontSize: 12, color: '#374151', marginBottom: 4 }}>✓ {s}</p>
                   ))}
                 </div>
@@ -485,7 +488,7 @@ export default function SettingsPage() {
                   <button
                     onClick={() => {
                       if (!signatureData) { alert('서명을 먼저 완성해주세요.'); return }
-                      setSmsAuthStep('confirm')
+                      setSmsAuthStep('upload')
                     }}
                     style={{ flex: 2, padding: '11px 0', borderRadius: 10, border: 'none', background: '#1D9E75', color: 'white', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
                     확인하기
@@ -494,7 +497,88 @@ export default function SettingsPage() {
               </div>
             )}
 
-            {/* STEP 4: 최종 확인 */}
+            {/* STEP 4: 통신서비스 이용증명원 업로드 */}
+            {senderStatus !== 'verified' && smsAuthStep === 'upload' && (
+              <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12, padding: '20px 16px', marginBottom: 16 }}>
+                <p style={{ fontWeight: 700, fontSize: 15, color: '#111827', marginBottom: 4 }}>4단계 — 통신서비스 이용증명원 업로드</p>
+                <p style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 16 }}>통신사 앱 또는 고객센터에서 발급받은 이용증명원을 업로드해주세요.</p>
+                <div style={{ background: '#F0FDF4', border: '1px solid #6EE7B7', borderRadius: 8, padding: '12px 14px', marginBottom: 16 }}>
+                  <p style={{ fontSize: 12, color: '#065F46', fontWeight: 600, marginBottom: 10 }}>📋 통신사를 선택하면 발급 페이지로 이동합니다</p>
+                  <select
+                    onChange={e => { if (e.target.value) window.open(e.target.value, '_blank') }}
+                    defaultValue=""
+                    style={{ width: '100%', padding: '11px 14px', borderRadius: 8, border: '1px solid #6EE7B7', background: '#fff', color: '#065F46', fontSize: 14, cursor: 'pointer', marginBottom: 8 }}>
+                    <option value="" disabled>통신사를 선택하세요</option>
+                    <optgroup label="3대 통신사">
+                      <option value="https://www.tworld.co.kr/web/etc/ucert/issue">SKT (T World)</option>
+                      <option value="https://m.kt.com/mypage/cpinfo/myCpInfo.do">KT (My KT)</option>
+                      <option value="https://www.uplus.co.kr/css/myCon/MyConUseStat.hpi">LG U+</option>
+                    </optgroup>
+                    <optgroup label="알뜰폰 (MVNO)">
+                      <option value="https://www.hellomobile.co.kr/ft/mypage/myinfo/InfoMain.do">헬로모바일</option>
+                      <option value="https://www.ktmmobile.com/mypage/main.do">KT M모바일</option>
+                      <option value="https://www.uplusalmo.co.kr/mypage/main.do">U+알뜰모바일</option>
+                      <option value="https://www.emartmobile.co.kr/mypage/main.do">이마트모바일</option>
+                      <option value="https://www.sktmvno.com">SK7모바일</option>
+                      <option value="https://www.liivmobile.com">리브모바일 (KB)</option>
+                      <option value="https://www.togomobile.co.kr">토고모바일</option>
+                      <option value="https://www.onnurimobile.co.kr">온누리모바일</option>
+                      <option value="https://www.msafer.or.kr">기타 알뜰폰 (엠세이퍼)</option>
+                    </optgroup>
+                  </select>
+                  <p style={{ fontSize: 11, color: '#6B7280', marginTop: 4, marginBottom: 8 }}>선택 시 발급 페이지가 새창으로 열립니다. 발급 후 아래에 파일을 업로드해주세요.</p>
+                </div>
+                <label style={{ display: 'block', border: '2px dashed #D1D5DB', borderRadius: 10, padding: '20px', textAlign: 'center', cursor: 'pointer', background: telecomDocFile ? '#F0FDF4' : '#FAFAFA', marginBottom: 12 }}>
+                  <input type="file" accept=".pdf,.jpg,.jpeg,.png" style={{ display: 'none' }}
+                    onChange={e => {
+                      const file = e.target.files?.[0]
+                      if (file) setTelecomDocFile(file)
+                    }} />
+                  {telecomDocFile ? (
+                    <div>
+                      <p style={{ fontSize: 14, color: '#065F46', fontWeight: 600 }}>✅ {telecomDocFile.name}</p>
+                      <p style={{ fontSize: 12, color: '#6B7280', marginTop: 4 }}>다른 파일로 변경하려면 다시 클릭하세요</p>
+                    </div>
+                  ) : (
+                    <div>
+                      <p style={{ fontSize: 32, marginBottom: 8 }}>📄</p>
+                      <p style={{ fontSize: 14, color: '#374151', fontWeight: 600 }}>파일을 선택하세요</p>
+                      <p style={{ fontSize: 12, color: '#9CA3AF', marginTop: 4 }}>PDF, JPG, PNG 파일 지원</p>
+                    </div>
+                  )}
+                </label>
+                <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                  <button onClick={() => setSmsAuthStep('sign')}
+                    style={{ flex: 1, padding: '11px 0', borderRadius: 10, border: '1px solid #E5E7EB', background: '#fff', color: '#374151', fontSize: 14, cursor: 'pointer' }}>
+                    이전
+                  </button>
+                  <button
+                    disabled={!telecomDocFile || telecomUploading}
+                    onClick={async () => {
+                      if (!telecomDocFile) { alert('파일을 먼저 선택해주세요.'); return }
+                      setTelecomUploading(true)
+                      try {
+                        const formData = new FormData()
+                        formData.append('file', telecomDocFile)
+                        const res = await fetch('/api/upload-telecom-doc', { method: 'POST', body: formData })
+                        const json = await res.json()
+                        if (!res.ok) throw new Error(json.error || '업로드 실패')
+                        setTelecomDocUrl(json.url)
+                        setSmsAuthStep('confirm')
+                      } catch (e: any) {
+                        alert(e.message || '업로드 중 오류가 발생했습니다.')
+                      } finally {
+                        setTelecomUploading(false)
+                      }
+                    }}
+                    style={{ flex: 2, padding: '11px 0', borderRadius: 10, border: 'none', background: telecomDocFile && !telecomUploading ? '#1D9E75' : '#D1D5DB', color: 'white', fontSize: 14, fontWeight: 600, cursor: telecomDocFile && !telecomUploading ? 'pointer' : 'not-allowed' }}>
+                    {telecomUploading ? '업로드 중...' : '다음'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 5: 최종 확인 */}
             {senderStatus !== 'verified' && smsAuthStep === 'confirm' && (
               <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12, padding: '20px 16px', marginBottom: 16 }}>
                 <p style={{ fontWeight: 700, fontSize: 15, color: '#111827', marginBottom: 4 }}>4단계 — 최종 확인</p>
@@ -558,6 +642,7 @@ export default function SettingsPage() {
                             address: smsForm.address + (smsForm.addressDetail ? ' ' + smsForm.addressDetail : ''),
                             senderPhone: smsForm.senderPhone,
                             signatureData,
+                            telecomDocUrl,
                           })
                         })
                         if (!res.ok) throw new Error('제출 실패')

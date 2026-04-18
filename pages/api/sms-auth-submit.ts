@@ -315,7 +315,7 @@ async function sendSlackNotification(data: any) {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end()
-  const { agentId, agentName, birthDate, address, senderPhone, signatureData } = req.body
+  const { agentId, agentName, birthDate, address, senderPhone, signatureData, telecomDocUrl } = req.body
   if (!agentId || !agentName || !birthDate || !address || !senderPhone || !signatureData)
     return res.status(400).json({ error: '필수 항목이 누락됐습니다.' })
 
@@ -353,10 +353,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD }
     })
 
-    // 솔라피 제출용 이메일 발송 (위임장 + 위임관계증명서 + 사업자등록증)
-    const bizLicenseUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/dpa-docs/company/bizlicense.jpg`
+    // 솔라피 제출용 이메일 발송 (위임장 + 위임관계증명서 + 사업자등록증 + 통신서비스 이용증명원)
+    const bizLicenseUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/company-docs/bizlicense.jpg`
     const bizLicenseRes = await fetch(bizLicenseUrl)
     const bizLicenseBuffer = Buffer.from(await bizLicenseRes.arrayBuffer())
+
+    // 통신서비스 이용증명원
+    let telecomDocBuffer: Buffer | null = null
+    let telecomDocExt = 'pdf'
+    if (telecomDocUrl) {
+      const supabaseUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/dpa-docs/${telecomDocUrl}`
+      const telecomRes = await fetch(supabaseUrl, {
+        headers: { Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}` }
+      })
+      telecomDocBuffer = Buffer.from(await telecomRes.arrayBuffer())
+      telecomDocExt = telecomDocUrl.split('.').pop() || 'pdf'
+    }
 
     await transporter.sendMail({
       from: process.env.GMAIL_USER,
@@ -396,6 +408,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         { filename: `[위임장]_${agentName}_${senderPhone}.pdf`, content: solapiDelegationPdf },
         { filename: `[위임관계증명서]_${agentName}_${senderPhone}.pdf`, content: solapiContractPdf },
         { filename: `[사업자등록증]_글로벌엠디.jpg`, content: bizLicenseBuffer },
+        ...(telecomDocBuffer ? [{ filename: `[통신서비스이용증명원]_${agentName}_${senderPhone}.${telecomDocExt}`, content: telecomDocBuffer }] : []),
       ]
     })
 
