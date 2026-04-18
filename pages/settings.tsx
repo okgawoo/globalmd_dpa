@@ -556,7 +556,15 @@ export default function SettingsPage() {
                   })()}
                   <p style={{ fontSize: 13, color: '#999', marginTop: 6, marginBottom: 10, lineHeight: 1.7 }}>발급 후 아래에 파일을 업로드해주세요.<br/>⚠️ 생년월일이 **로 가려진 서류는 사용할 수 없습니다.</p>
                 </div>
-                <label style={{ display: 'block', border: '2px dashed #D1D5DB', borderRadius: 10, padding: '20px', textAlign: 'center', cursor: 'pointer', background: telecomDocFile ? '#F0FDF4' : '#FAFAFA', marginBottom: 12 }}>
+                <label
+                  style={{ display: 'block', border: `2px dashed ${telecomDocFile ? '#1D9E75' : '#D1D5DB'}`, borderRadius: 10, padding: '20px', textAlign: 'center', cursor: 'pointer', background: telecomDocFile ? '#F0FDF4' : '#FAFAFA', marginBottom: 12 }}
+                  onDragOver={e => { e.preventDefault(); e.stopPropagation() }}
+                  onDrop={e => {
+                    e.preventDefault(); e.stopPropagation()
+                    const file = e.dataTransfer.files?.[0]
+                    if (file) setTelecomDocFile(file)
+                  }}
+                >
                   <input type="file" accept=".pdf,.jpg,.jpeg,.png" style={{ display: 'none' }}
                     onChange={e => {
                       const file = e.target.files?.[0]
@@ -570,7 +578,7 @@ export default function SettingsPage() {
                   ) : (
                     <div>
                       <p style={{ fontSize: 32, marginBottom: 8 }}>📄</p>
-                      <p style={{ fontSize: 14, color: '#1a1a1a', fontWeight: 600 }}>파일을 선택하세요</p>
+                      <p style={{ fontSize: 14, color: '#1a1a1a', fontWeight: 600 }}>파일을 선택하거나 여기에 끌어다 놓으세요</p>
                       <p style={{ fontSize: 13, color: '#999', marginTop: 4 }}>PDF, JPG, PNG 파일 지원</p>
                     </div>
                   )}
