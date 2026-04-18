@@ -504,29 +504,57 @@ export default function SettingsPage() {
                 <p style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 16 }}>통신사 앱 또는 고객센터에서 발급받은 이용증명원을 업로드해주세요.</p>
                 <div style={{ background: '#F0FDF4', border: '1px solid #6EE7B7', borderRadius: 8, padding: '12px 14px', marginBottom: 16 }}>
                   <p style={{ fontSize: 12, color: '#065F46', fontWeight: 600, marginBottom: 10 }}>📋 통신사를 선택하면 발급 페이지로 이동합니다</p>
-                  <select
-                    onChange={e => { if (e.target.value) window.open(e.target.value, '_blank') }}
-                    defaultValue=""
-                    style={{ width: '100%', padding: '11px 14px', borderRadius: 8, border: '1px solid #6EE7B7', background: '#fff', color: '#065F46', fontSize: 14, cursor: 'pointer', marginBottom: 8 }}>
-                    <option value="" disabled>통신사를 선택하세요</option>
-                    <optgroup label="3대 통신사">
-                      <option value="https://www.tworld.co.kr/web/etc/ucert/issue">SKT (T World)</option>
-                      <option value="https://m.kt.com/mypage/cpinfo/myCpInfo.do">KT (My KT)</option>
-                      <option value="https://www.uplus.co.kr/css/myCon/MyConUseStat.hpi">LG U+</option>
-                    </optgroup>
-                    <optgroup label="알뜰폰 (MVNO)">
-                      <option value="https://www.hellomobile.co.kr/ft/mypage/myinfo/InfoMain.do">헬로모바일</option>
-                      <option value="https://www.ktmmobile.com/mypage/main.do">KT M모바일</option>
-                      <option value="https://www.uplusalmo.co.kr/mypage/main.do">U+알뜰모바일</option>
-                      <option value="https://www.emartmobile.co.kr/mypage/main.do">이마트모바일</option>
-                      <option value="https://www.sktmvno.com">SK7모바일</option>
-                      <option value="https://www.liivmobile.com">리브모바일 (KB)</option>
-                      <option value="https://www.togomobile.co.kr">토고모바일</option>
-                      <option value="https://www.onnurimobile.co.kr">온누리모바일</option>
-                      <option value="https://www.msafer.or.kr">기타 알뜰폰 (엠세이퍼)</option>
-                    </optgroup>
-                  </select>
-                  <p style={{ fontSize: 11, color: '#6B7280', marginTop: 4, marginBottom: 8 }}>선택 시 발급 페이지가 새창으로 열립니다. 발급 후 아래에 파일을 업로드해주세요.</p>
+                  {(() => {
+                    const carriers = [
+                      { label: 'SKT', name: 'SKT (T World)', docName: '이용계약 등록사항 증명서', url: 'https://www.tworld.co.kr', path: 'MY > 나의 가입정보 > 이용계약 등록사항 증명서 조회', warn: '⚠️ 인터넷으로 직접 발급하면 생년월일 일부가 **로 가려져 나옵니다. 가려지지 않은 서류가 필요하므로 고객센터 114에 전화하여 "이용계약 등록사항 증명서 발급 요청"을 해주세요.' },
+                      { label: 'KT', name: 'KT', docName: '가입증명원 (통신서비스 이용증명원)', url: 'https://www.kt.com', path: '마이 > 가입/이용 > 가입정보 > 가입증명원 인쇄', warn: '' },
+                      { label: 'LGU+', name: 'LG U+', docName: '서비스 가입확인서', url: 'https://www.lguplus.com/support/service/use-guide/registered-service', path: '고객지원 > 서비스 이용안내 > 이용 가이드 > 서비스 조회 > 가입조회', warn: '' },
+                      { label: '헬로모바일', name: '헬로모바일', docName: '통신서비스 이용증명원', url: 'https://www.hellomobile.co.kr', path: '마이페이지 > 이용증명원 발급', warn: '고객센터: 1855-1144' },
+                      { label: 'KT M모바일', name: 'KT M모바일', docName: '통신서비스 이용증명원', url: 'https://www.ktmmobile.com', path: '마이페이지 > 증명서 발급', warn: '고객센터: 1899-1114' },
+                      { label: 'U+알뜰', name: 'U+알뜰모바일', docName: '통신서비스 이용증명원', url: 'https://www.uplusalmo.co.kr', path: '마이페이지 > 이용증명원', warn: '고객센터: 1544-7000' },
+                      { label: 'SK7', name: 'SK7모바일', docName: '통신서비스 이용증명원', url: 'https://www.sk7mobile.com', path: '마이페이지 > 증명서 발급', warn: '고객센터: 1599-0999' },
+                      { label: '이마트', name: '이마트모바일', docName: '통신서비스 이용증명원', url: 'https://www.emartmobile.co.kr', path: '마이페이지 > 이용증명원', warn: '고객센터: 1599-7900' },
+                      { label: '세종', name: '세종텔레콤', docName: '통신서비스 이용증명원', url: 'https://www.sejongtelecom.net', path: '고객센터 전화 요청', warn: '고객센터: 1699-1000' },
+                      { label: '기타', name: '기타 알뜰폰', docName: '통신서비스 이용증명원', url: '', path: '해당 통신사 고객센터에 전화하여 발급 요청', warn: '' },
+                    ]
+                    const [selected, setSelected] = React.useState('')
+                    const found = carriers.find(c => c.label === selected)
+                    return (
+                      <div>
+                        <select
+                          value={selected}
+                          onChange={e => setSelected(e.target.value)}
+                          style={{ width: '100%', padding: '11px 14px', borderRadius: 8, border: '1px solid #6EE7B7', background: '#fff', color: selected ? '#065F46' : '#9CA3AF', fontSize: 14, cursor: 'pointer', marginBottom: 8 }}>
+                          <option value="" disabled>통신사를 선택하세요</option>
+                          {carriers.map(c => <option key={c.label} value={c.label}>{c.name}</option>)}
+                        </select>
+                        {found && (
+                          <div style={{ background: '#F0FDF4', border: '1px solid #6EE7B7', borderRadius: 8, padding: '12px 14px', marginBottom: 8 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                              <p style={{ fontSize: 11, color: '#6B7280' }}>서류명</p>
+                              <p style={{ fontSize: 12, color: '#065F46', fontWeight: 700 }}>{found.docName}</p>
+                            </div>
+                            <div style={{ borderTop: '1px solid #D1FAE5', paddingTop: 8, marginBottom: 8 }}>
+                              <p style={{ fontSize: 11, color: '#6B7280', marginBottom: 4 }}>발급 경로</p>
+                              <p style={{ fontSize: 12, color: '#374151', fontWeight: 500 }}>{found.path}</p>
+                            </div>
+                            {found.warn && (
+                              <div style={{ background: '#FEF3C7', borderRadius: 6, padding: '6px 10px', marginBottom: 8 }}>
+                                <p style={{ fontSize: 11, color: '#92400E' }}>{found.warn}</p>
+                              </div>
+                            )}
+                            {found.url && (
+                              <button onClick={() => window.open(found.url, '_blank')}
+                                style={{ width: '100%', padding: '9px 0', borderRadius: 8, border: 'none', background: '#1D9E75', color: 'white', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                                {found.name} 발급 페이지 열기 →
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })()}
+                  <p style={{ fontSize: 11, color: '#6B7280', marginTop: 4, marginBottom: 8 }}>발급 후 아래에 파일을 업로드해주세요. ⚠️ 생년월일이 **로 가려진 서류는 사용할 수 없습니다.</p>
                 </div>
                 <label style={{ display: 'block', border: '2px dashed #D1D5DB', borderRadius: 10, padding: '20px', textAlign: 'center', cursor: 'pointer', background: telecomDocFile ? '#F0FDF4' : '#FAFAFA', marginBottom: 12 }}>
                   <input type="file" accept=".pdf,.jpg,.jpeg,.png" style={{ display: 'none' }}
