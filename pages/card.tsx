@@ -84,7 +84,7 @@ export default function CardPage() {
     if (!agent?.slug) return
     const url = `${window.location.origin}/c/${agent.slug}`
     if (navigator.share) {
-      await navigator.share({ title: `${agent.name} 설계사 명함`, url })
+      await navigator.share({ url })
     } else {
       await navigator.clipboard.writeText(url)
       alert('링크가 복사됐어요!')
