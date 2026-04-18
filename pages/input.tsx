@@ -363,6 +363,8 @@ export default function InputPage() {
   const [saveMode, setSaveMode] = useState<'new' | 'existing'>('new')
   const [existingCustomers, setExistingCustomers] = useState<any[]>([])
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>('')
+  const [customerSearch, setCustomerSearch] = useState<string>('')
+  const [contractTextsLoss, setContractTextsLoss] = useState<string[]>([''])
 
   useEffect(() => {
     if (queryTab === 'scan' || queryTab === 'manual' || queryTab === 'paste') {
@@ -390,6 +392,11 @@ export default function InputPage() {
     const count = Math.max(1, Math.min(20, n))
     setContractCount(count)
     setContractTexts(prev => {
+      const arr = [...prev]
+      while (arr.length < count) arr.push('')
+      return arr.slice(0, count)
+    })
+    setContractTextsLoss(prev => {
       const arr = [...prev]
       while (arr.length < count) arr.push('')
       return arr.slice(0, count)
@@ -475,8 +482,12 @@ export default function InputPage() {
   }
 
   async function handleParse() {
-    const combinedText = contractTexts.some(t => t.trim())
-      ? contractTexts.map((t, i) => t.trim() ? `[계약 ${i + 1}번]\n${t.trim()}` : '').filter(Boolean).join('\n\n')
+    const combinedText = contractTexts.some(t => t.trim()) || contractTextsLoss.some(t => t.trim())
+      ? contractTexts.map((t, i) => {
+          const fixed = t.trim() ? `[계약 ${i + 1}번 - 정액형]\n${t.trim()}` : ''
+          const loss = contractTextsLoss[i]?.trim() ? `[계약 ${i + 1}번 - 실손형]\n${contractTextsLoss[i].trim()}` : ''
+          return [fixed, loss].filter(Boolean).join('\n\n')
+        }).filter(Boolean).join('\n\n')
       : pasteText
     if (!combinedText.trim()) return alert('텍스트를 붙여넣어 주세요!')
     setParsing(true)
@@ -567,6 +578,7 @@ export default function InputPage() {
         }
       }
       setDone(true)
+      setTimeout(() => router.push('/customers'), 1500)
     } catch (e) { alert('저장 중 오류가 발생했어요!') }
     setSaving(false)
   }
@@ -591,7 +603,7 @@ export default function InputPage() {
     setDone(false)
     setForm({ name: '', rrn: '', age: '', gender: '여', job: '직장인 (회사원)', phone: '', grade: '일반', address: '', workplace: '', bank_name: '', bank_account: '', driver_license: '' })
     setContracts([emptyContract()])
-    setParsed(null); setPasteText(''); setContractTexts(['']); setContractCount(1); setJobCustom('')
+    setParsed(null); setPasteText(''); setContractTexts(['']); setContractTextsLoss(['']); setContractCount(1); setJobCustom('')
   }
 
   if (done) return (
@@ -750,22 +762,42 @@ export default function InputPage() {
 
           {/* 계약별 textarea */}
           {contractTexts.map((text, idx) => (
-            <div key={idx} style={{marginBottom:10}}>
-              <div style={{fontSize:12,fontWeight:600,color:'var(--text-secondary)',marginBottom:4}}>
-                {idx + 1}번 계약 붙여넣기
+            <div key={idx} style={{marginBottom:16,padding:'12px 14px',background:'var(--bg-card)',borderRadius:12,border:'1px solid var(--border)'}}>
+              <div style={{fontSize:13,fontWeight:700,color:'var(--text-primary)',marginBottom:10}}>
+                📋 {idx + 1}번 계약
               </div>
-              <textarea
-                className={styles.pasteArea}
-                value={text}
-                onChange={e => {
-                  const arr = [...contractTexts]
-                  arr[idx] = e.target.value
-                  setContractTexts(arr)
-                }}
-                placeholder={`${idx + 1}번 보험 보장내역을 여기에 붙여넣기 하세요 (Ctrl+V)`}
-                rows={5}
-                style={{marginBottom:0}}
-              />
+              <div style={{display:'flex',gap:8}}>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:12,fontWeight:600,color:'#1D9E75',marginBottom:4}}>정액형 보장</div>
+                  <textarea
+                    className={styles.pasteArea}
+                    value={text}
+                    onChange={e => {
+                      const arr = [...contractTexts]
+                      arr[idx] = e.target.value
+                      setContractTexts(arr)
+                    }}
+                    placeholder={`${idx + 1}번 보험 정액형 보장내역 붙여넣기 (Ctrl+V)`}
+                    rows={5}
+                    style={{marginBottom:0}}
+                  />
+                </div>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:12,fontWeight:600,color:'#6366F1',marginBottom:4}}>실손형 보장</div>
+                  <textarea
+                    className={styles.pasteArea}
+                    value={contractTextsLoss[idx] || ''}
+                    onChange={e => {
+                      const arr = [...contractTextsLoss]
+                      arr[idx] = e.target.value
+                      setContractTextsLoss(arr)
+                    }}
+                    placeholder={`${idx + 1}번 보험 실손형 보장내역 붙여넣기 (Ctrl+V)`}
+                    rows={5}
+                    style={{marginBottom:0}}
+                  />
+                </div>
+              </div>
             </div>
           ))}
 
@@ -816,15 +848,46 @@ export default function InputPage() {
                 </button>
               </div>
 
-              {/* 기존 고객 선택 드롭다운 */}
+              {/* 기존 고객 선택 — 검색 + 목록 */}
               {saveMode === 'existing' && (
                 <div style={{marginBottom:12}}>
-                  <select value={selectedCustomerId} onChange={e => setSelectedCustomerId(e.target.value)} style={{width:'100%',fontSize:13,padding:'8px 12px',borderRadius:8,border:'1px solid #E5E7EB',background:'#fff'}}>
-                    <option value="">고객을 선택해주세요</option>
-                    {existingCustomers.map(c => (
-                      <option key={c.id} value={c.id}>{c.name} {c.age ? `(${c.age}세)` : ''}</option>
-                    ))}
-                  </select>
+                  <input
+                    value={customerSearch}
+                    onChange={e => setCustomerSearch(e.target.value)}
+                    placeholder="고객 이름 검색..."
+                    style={{width:'100%',fontSize:13,padding:'8px 12px',borderRadius:8,border:'1px solid #E5E7EB',background:'#fff',marginBottom:6,boxSizing:'border-box'}}
+                  />
+                  <div style={{maxHeight:180,overflowY:'auto',border:'1px solid #E5E7EB',borderRadius:8,background:'#fff'}}>
+                    {existingCustomers
+                      .filter(c => !customerSearch || c.name.includes(customerSearch))
+                      .length === 0 ? (
+                      <div style={{padding:'12px',fontSize:13,color:'#9CA3AF',textAlign:'center'}}>검색 결과가 없어요</div>
+                    ) : (
+                      existingCustomers
+                        .filter(c => !customerSearch || c.name.includes(customerSearch))
+                        .map(c => (
+                          <div
+                            key={c.id}
+                            onClick={() => setSelectedCustomerId(c.id)}
+                            style={{
+                              padding:'10px 14px',fontSize:13,cursor:'pointer',
+                              background: selectedCustomerId === c.id ? '#E8F8F2' : 'transparent',
+                              color: selectedCustomerId === c.id ? '#1D9E75' : '#374151',
+                              fontWeight: selectedCustomerId === c.id ? 600 : 400,
+                              borderBottom:'1px solid #F3F4F6',
+                            }}
+                          >
+                            {c.name} {c.age ? `(${c.age}세)` : ''}
+                            {selectedCustomerId === c.id && <span style={{float:'right'}}>✓</span>}
+                          </div>
+                        ))
+                    )}
+                  </div>
+                  {selectedCustomerId && (
+                    <div style={{marginTop:6,fontSize:12,color:'#1D9E75',fontWeight:600}}>
+                      ✓ {existingCustomers.find(c => c.id === selectedCustomerId)?.name} 선택됨
+                    </div>
+                  )}
                 </div>
               )}
 
