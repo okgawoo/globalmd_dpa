@@ -500,11 +500,11 @@ export default function SettingsPage() {
 
             {/* STEP 4: 통신서비스 이용증명원 업로드 */}
             {senderStatus !== 'verified' && smsAuthStep === 'upload' && (
-              <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12, padding: '20px 16px', marginBottom: 16 }}>
-                <p style={{ fontWeight: 700, fontSize: 15, color: '#111827', marginBottom: 4 }}>4단계 — 통신서비스 이용증명원 업로드</p>
-                <p style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 16 }}>통신사 앱 또는 고객센터에서 발급받은 이용증명원을 업로드해주세요.</p>
+              <div style={{ background: '#fff', border: '1px solid #EDEBE4', borderRadius: 12, padding: '14px 10px', marginBottom: 16 }}>
+                <p style={{ fontWeight: 700, fontSize: 16, color: '#1a1a1a', marginBottom: 4 }}>4단계 — 통신서비스 이용증명원 업로드</p>
+                <p style={{ fontSize: 13, color: '#999', marginBottom: 14 }}>통신사 앱 또는 고객센터에서 발급받은 이용증명원을 업로드해주세요.</p>
                 <div style={{ background: '#F0FDF4', border: '1px solid #6EE7B7', borderRadius: 8, padding: '12px 14px', marginBottom: 16 }}>
-                  <p style={{ fontSize: 12, color: '#065F46', fontWeight: 600, marginBottom: 10 }}>📋 통신사를 선택하면 발급 페이지로 이동합니다</p>
+                  <p style={{ fontSize: 14, color: '#065F46', fontWeight: 700, marginBottom: 10 }}>📋 통신사를 선택하면 발급 페이지로 이동합니다</p>
                   {(() => {
                     const carriers = [
                       { label: 'SKT', name: 'SKT (T World)', docName: '이용계약 등록사항 증명서', url: 'https://www.tworld.co.kr', path: 'MY > 나의 가입정보 > 이용계약 등록사항 증명서 조회', warn: '⚠️ 인터넷으로 직접 발급하면 생년월일 일부가 **로 가려져 나옵니다. 가려지지 않은 서류가 필요하므로 고객센터 114에 전화하여 "이용계약 등록사항 증명서 발급 요청"을 해주세요.' },
@@ -524,28 +524,28 @@ export default function SettingsPage() {
                         <select
                           value={selectedCarrier}
                           onChange={e => setSelectedCarrier(e.target.value)}
-                          style={{ width: '100%', padding: '11px 14px', borderRadius: 8, border: '1px solid #6EE7B7', background: '#fff', color: selectedCarrier ? '#065F46' : '#9CA3AF', fontSize: 14, cursor: 'pointer', marginBottom: 8 }}>
+                          style={{ width: '100%', padding: '11px 12px', borderRadius: 8, border: '1px solid #6EE7B7', background: '#fff', color: selectedCarrier ? '#1a1a1a' : '#999', fontSize: 15, cursor: 'pointer', marginBottom: 8 }}>
                           <option value="" disabled>통신사를 선택하세요</option>
                           {carriers.map(c => <option key={c.label} value={c.label}>{c.name}</option>)}
                         </select>
                         {found && (
                           <div style={{ background: '#F0FDF4', border: '1px solid #6EE7B7', borderRadius: 8, padding: '12px 14px', marginBottom: 8 }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                              <p style={{ fontSize: 11, color: '#6B7280' }}>서류명</p>
-                              <p style={{ fontSize: 12, color: '#065F46', fontWeight: 700 }}>{found.docName}</p>
+                              <p style={{ fontSize: 12, color: '#999' }}>서류명</p>
+                              <p style={{ fontSize: 14, color: '#065F46', fontWeight: 700 }}>{found.docName}</p>
                             </div>
                             <div style={{ borderTop: '1px solid #D1FAE5', paddingTop: 8, marginBottom: 8 }}>
-                              <p style={{ fontSize: 11, color: '#6B7280', marginBottom: 4 }}>발급 경로</p>
-                              <p style={{ fontSize: 12, color: '#374151', fontWeight: 500 }}>{found.path}</p>
+                              <p style={{ fontSize: 12, color: '#999', marginBottom: 4 }}>발급 경로</p>
+                              <p style={{ fontSize: 14, color: '#1a1a1a', fontWeight: 500 }}>{found.path}</p>
                             </div>
                             {found.warn && (
                               <div style={{ background: '#FEF3C7', borderRadius: 6, padding: '6px 10px', marginBottom: 8 }}>
-                                <p style={{ fontSize: 11, color: '#92400E' }}>{found.warn}</p>
+                                <p style={{ fontSize: 13, color: '#92400E', fontWeight: 700, lineHeight: 1.7 }}>{found.warn}</p>
                               </div>
                             )}
                             {found.url && (
                               <button onClick={() => window.open(found.url, '_blank')}
-                                style={{ width: '100%', padding: '9px 0', borderRadius: 8, border: 'none', background: '#1D9E75', color: 'white', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                                style={{ width: '100%', padding: '12px 0', borderRadius: 8, border: 'none', background: '#1D9E75', color: 'white', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
                                 {found.name} 발급 페이지 열기 →
                               </button>
                             )}
@@ -554,7 +554,7 @@ export default function SettingsPage() {
                       </div>
                     )
                   })()}
-                  <p style={{ fontSize: 11, color: '#6B7280', marginTop: 4, marginBottom: 8 }}>발급 후 아래에 파일을 업로드해주세요. ⚠️ 생년월일이 **로 가려진 서류는 사용할 수 없습니다.</p>
+                  <p style={{ fontSize: 13, color: '#999', marginTop: 6, marginBottom: 10, lineHeight: 1.7 }}>발급 후 아래에 파일을 업로드해주세요.<br/>⚠️ 생년월일이 **로 가려진 서류는 사용할 수 없습니다.</p>
                 </div>
                 <label style={{ display: 'block', border: '2px dashed #D1D5DB', borderRadius: 10, padding: '20px', textAlign: 'center', cursor: 'pointer', background: telecomDocFile ? '#F0FDF4' : '#FAFAFA', marginBottom: 12 }}>
                   <input type="file" accept=".pdf,.jpg,.jpeg,.png" style={{ display: 'none' }}
@@ -565,13 +565,13 @@ export default function SettingsPage() {
                   {telecomDocFile ? (
                     <div>
                       <p style={{ fontSize: 14, color: '#065F46', fontWeight: 600 }}>✅ {telecomDocFile.name}</p>
-                      <p style={{ fontSize: 12, color: '#6B7280', marginTop: 4 }}>다른 파일로 변경하려면 다시 클릭하세요</p>
+                      <p style={{ fontSize: 13, color: '#999', marginTop: 4 }}>다른 파일로 변경하려면 다시 클릭하세요</p>
                     </div>
                   ) : (
                     <div>
                       <p style={{ fontSize: 32, marginBottom: 8 }}>📄</p>
-                      <p style={{ fontSize: 14, color: '#374151', fontWeight: 600 }}>파일을 선택하세요</p>
-                      <p style={{ fontSize: 12, color: '#9CA3AF', marginTop: 4 }}>PDF, JPG, PNG 파일 지원</p>
+                      <p style={{ fontSize: 14, color: '#1a1a1a', fontWeight: 600 }}>파일을 선택하세요</p>
+                      <p style={{ fontSize: 13, color: '#999', marginTop: 4 }}>PDF, JPG, PNG 파일 지원</p>
                     </div>
                   )}
                 </label>
