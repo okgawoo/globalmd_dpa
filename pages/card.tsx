@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import styles from '../styles/Input.module.css'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { supabase } from '../lib/supabase'
@@ -12,6 +13,7 @@ export default function CardPage() {
   const [saving, setSaving] = useState(false)
   const [qrUrl, setQrUrl] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [photoSlide, setPhotoSlide] = useState(false)
 
   // 고객 정보 수집 설정
   const [collectName, setCollectName] = useState(true)
@@ -101,7 +103,7 @@ export default function CardPage() {
   return (
     <>
       <Head><title>전자명함 관리</title></Head>
-      <div style={{ padding: '16px 20px' }}>
+      <div className={styles.formWrap}>
 
         {/* 명함 미리보기 */}
         <div style={{ fontSize: 13, fontWeight: 700, color: '#1D9E75', marginBottom: 10 }}>📇 내 명함 미리보기</div>
@@ -110,7 +112,7 @@ export default function CardPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               {/* 프로필 사진 */}
               <div
-                onClick={() => fileInputRef.current?.click()}
+                onClick={() => setPhotoSlide(true)}
                 style={{ width: 60, height: 60, borderRadius: '50%', background: 'rgba(255,255,255,0.25)', border: '2px solid rgba(255,255,255,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', overflow: 'hidden', flexShrink: 0, position: 'relative' }}>
                 {agent?.profile_image_url ? (
                   <img src={agent.profile_image_url} alt={agent.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -231,6 +233,36 @@ export default function CardPage() {
           👀 고객 화면으로 보기
         </button>
       </div>
+
+      {/* 프로필 사진 슬라이드업 */}
+      {photoSlide && (
+        <>
+          <div onClick={() => setPhotoSlide(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1000 }} />
+          <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#FAF9F5', borderRadius: '20px 20px 0 0', zIndex: 1001, padding: '20px 20px 40px', animation: 'slideUp 0.3s ease' }}>
+            <div style={{ width: 40, height: 4, borderRadius: 2, background: '#EDEBE4', margin: '0 auto 20px' }} />
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 16, textAlign: 'center' }}>프로필 사진 변경</div>
+            <button onClick={() => { fileInputRef.current?.click(); setPhotoSlide(false) }}
+              style={{ width: '100%', padding: '14px 0', borderRadius: 12, border: 'none', background: '#1D9E75', color: 'white', fontSize: 14, fontWeight: 600, cursor: 'pointer', marginBottom: 10 }}>
+              📷 사진 선택하기
+            </button>
+            {agent?.profile_image_url && (
+              <button onClick={async () => {
+                await supabase.from('dpa_agents').update({ profile_image_url: null }).eq('id', agent.id)
+                setAgent({ ...agent, profile_image_url: null })
+                setPhotoSlide(false)
+              }}
+                style={{ width: '100%', padding: '14px 0', borderRadius: 12, border: '1px solid #E5E7EB', background: '#fff', color: '#EF4444', fontSize: 14, fontWeight: 600, cursor: 'pointer', marginBottom: 10 }}>
+                🗑️ 사진 삭제
+              </button>
+            )}
+            <button onClick={() => setPhotoSlide(false)}
+              style={{ width: '100%', padding: '14px 0', borderRadius: 12, border: '1px solid #E5E7EB', background: '#fff', color: '#6B7280', fontSize: 14, fontWeight: 500, cursor: 'pointer' }}>
+              취소
+            </button>
+          </div>
+          <style>{`@keyframes slideUp { from { transform: translateY(100%) } to { transform: translateY(0) } }`}</style>
+        </>
+      )}
     </>
   )
 }
