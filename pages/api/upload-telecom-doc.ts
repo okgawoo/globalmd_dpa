@@ -118,7 +118,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!result.date_ok) issues.push('발급일이 3개월을 초과했습니다. 새로 발급해주세요.')
     if (!result.phone_ok) issues.push(`전화번호 불일치 (입력: ${senderPhone})`)
 
-    const uniqueIssues = [...new Set(issues)]
+    const uniqueIssues = Array.from(new Set(issues))
     const verified = uniqueIssues.length === 0
 
     if (verified) {
