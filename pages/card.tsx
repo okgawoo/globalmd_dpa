@@ -238,7 +238,16 @@ export default function CardPage() {
       {photoSlide && (
         <>
           <div onClick={() => setPhotoSlide(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1000 }} />
-          <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#FAF9F5', borderRadius: '20px 20px 0 0', zIndex: 1001, padding: '20px 20px 40px', animation: 'slideUp 0.3s ease' }}>
+          <div
+            ref={(el) => {
+              if (!el) return
+              let startY = 0
+              const onStart = (e: TouchEvent) => { startY = e.touches[0].clientY }
+              const onEnd = (e: TouchEvent) => { if (e.changedTouches[0].clientY - startY > 100) setPhotoSlide(false) }
+              el.addEventListener('touchstart', onStart)
+              el.addEventListener('touchend', onEnd)
+            }}
+            style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#FAF9F5', borderRadius: '20px 20px 0 0', zIndex: 1001, padding: '20px 20px 40px', animation: 'slideUp 0.3s ease' }}>
             <div style={{ width: 40, height: 4, borderRadius: 2, background: '#EDEBE4', margin: '0 auto 20px' }} />
             <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 16, textAlign: 'center' }}>프로필 사진 변경</div>
             <button onClick={() => { fileInputRef.current?.click(); setPhotoSlide(false) }}
