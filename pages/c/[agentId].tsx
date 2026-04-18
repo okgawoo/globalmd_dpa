@@ -24,6 +24,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 export default function BusinessCard({ agent, slug }: { agent: any, slug: string }) {
   const [qrUrl, setQrUrl] = useState('')
   const [kakaCopied, setKakaCopied] = useState(false)
+  const [showRegister, setShowRegister] = useState(false)
+  const [regName, setRegName] = useState('')
+  const [regPhone, setRegPhone] = useState('')
+  const [regBirth, setRegBirth] = useState('')
+  const [regSaving, setRegSaving] = useState(false)
+  const [regDone, setRegDone] = useState(false)
 
   useEffect(() => {
     const cardUrl = `${window.location.origin}/c/${slug}`
@@ -56,6 +62,27 @@ export default function BusinessCard({ agent, slug }: { agent: any, slug: string
     await navigator.clipboard.writeText(agent.kakao_id)
     setKakaCopied(true)
     setTimeout(() => setKakaCopied(false), 2000)
+  }
+
+  async function handleRegister() {
+    if (!regName.trim()) return alert('이름을 입력해주세요!')
+    setRegSaving(true)
+    try {
+      const res = await fetch('/api/register-customer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ agentSlug: slug, name: regName, phone: regPhone, birth: regBirth }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        setRegDone(true)
+      } else {
+        alert('등록 중 오류가 발생했어요!')
+      }
+    } catch {
+      alert('등록 중 오류가 발생했어요!')
+    }
+    setRegSaving(false)
   }
 
   if (!agent) return (
@@ -193,6 +220,52 @@ export default function BusinessCard({ agent, slug }: { agent: any, slug: string
               명함 공유하기
             </button>
           </div>
+
+          {/* 내 정보 등록하기 */}
+          {!showRegister && !regDone && (
+            <button onClick={() => setShowRegister(true)} style={{ width: '100%', marginTop: 8, padding: '12px 0', borderRadius: 12, background: '#1D9E75', border: 'none', color: 'white', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+              📝 내 정보 등록하기
+            </button>
+          )}
+
+          {showRegister && !regDone && (
+            <div style={{ marginTop: 8, background: '#F9FAFB', borderRadius: 16, padding: '16px', border: '1px solid #E5E7EB' }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#111827', marginBottom: 4 }}>내 정보 등록하기</div>
+              <div style={{ fontSize: 12, color: '#6B7280', marginBottom: 14 }}>{agent.name} 설계사에게 내 정보를 전달해요</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div>
+                  <div style={{ fontSize: 12, color: '#374151', fontWeight: 500, marginBottom: 4 }}>이름 *</div>
+                  <input value={regName} onChange={e => setRegName(e.target.value)} placeholder="홍길동" style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 14, boxSizing: 'border-box' }} />
+                </div>
+                {agent.settings?.collect_phone !== false && (
+                  <div>
+                    <div style={{ fontSize: 12, color: '#374151', fontWeight: 500, marginBottom: 4 }}>연락처</div>
+                    <input value={regPhone} onChange={e => setRegPhone(e.target.value)} placeholder="010-0000-0000" style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 14, boxSizing: 'border-box' }} />
+                  </div>
+                )}
+                {agent.settings?.collect_birth && (
+                  <div>
+                    <div style={{ fontSize: 12, color: '#374151', fontWeight: 500, marginBottom: 4 }}>생년월일</div>
+                    <input value={regBirth} onChange={e => setRegBirth(e.target.value)} placeholder="1990.01.01" style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 14, boxSizing: 'border-box' }} />
+                  </div>
+                )}
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button onClick={() => setShowRegister(false)} style={{ flex: 1, padding: '10px 0', borderRadius: 8, border: '1px solid #E5E7EB', background: '#fff', fontSize: 13, fontWeight: 500, cursor: 'pointer', color: '#6B7280' }}>취소</button>
+                  <button onClick={handleRegister} disabled={regSaving} style={{ flex: 2, padding: '10px 0', borderRadius: 8, border: 'none', background: '#1D9E75', color: 'white', fontSize: 13, fontWeight: 600, cursor: 'pointer', opacity: regSaving ? 0.7 : 1 }}>
+                    {regSaving ? '등록 중...' : '✅ 등록하기'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {regDone && (
+            <div style={{ marginTop: 8, background: '#E8F8F2', borderRadius: 16, padding: '20px', textAlign: 'center', border: '1px solid #A7F3D0' }}>
+              <div style={{ fontSize: 32, marginBottom: 8 }}>🎉</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#065F46' }}>정보가 전달됐어요!</div>
+              <div style={{ fontSize: 12, color: '#047857', marginTop: 4 }}>{agent.name} 설계사가 곧 연락드릴 거예요</div>
+            </div>
+          )}
 
           <div style={{ textAlign: 'center', marginTop: 16, fontSize: 12, color: '#9CA3AF' }}>
             powered by DPA
