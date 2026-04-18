@@ -442,7 +442,7 @@ export default function NotificationsPage() {
 
             {/* 1. 잔여 횟수 (최상단) */}
             {smsUsage && (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', border: '1px solid #EDEBE4', borderRadius: 10, padding: '10px 14px', margin: '8px 10px 10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', border: '1px solid #EDEBE4', borderRadius: 10, padding: '10px 14px', margin: '0 0 10px' }}>
                 <span style={{ fontSize: 13, color: '#666' }}>이번 달 문자 잔여</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <span style={{ fontSize: 14, fontWeight: 700, color: smsUsage.remaining < 100 ? '#E24B4A' : '#1D9E75' }}>{smsUsage.remaining}건</span>
