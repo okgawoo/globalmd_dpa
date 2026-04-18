@@ -95,13 +95,13 @@ export default function CardPage() {
     </div>
   )
 
-  const cardUrl = agent?.slug ? `${typeof window !== 'undefined' ? window.location.origin : 'https://globalmd-dpa.vercel.app'}/c/${agent.slug}` : ''
+  const cardUrl = agent?.slug ? `https://globalmd-dpa.vercel.app/c/${agent.slug}` : ''
   const initials = agent?.name?.slice(0, 1) || '?'
 
   return (
     <>
       <Head><title>전자명함 관리</title></Head>
-      <div style={{ padding: '16px', maxWidth: 480, margin: '0 auto' }}>
+      <div style={{ padding: '16px 20px' }}>
 
         {/* 명함 미리보기 */}
         <div style={{ fontSize: 13, fontWeight: 700, color: '#1D9E75', marginBottom: 10 }}>📇 내 명함 미리보기</div>
