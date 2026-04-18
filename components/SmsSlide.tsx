@@ -413,8 +413,7 @@ export default function SmsSlidePanel({ isOpen, onClose, customer, meetings = []
     } else {
       window.open('https://chat.kakao.com', '_blank')
     }
-    alert('📋 문자가 복사됐어요!
-카카오톡에서 붙여넣기(꾹 누르기)해서 보내주세요 😊')
+    showToast()
     onClose()
   }
 
