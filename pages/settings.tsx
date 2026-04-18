@@ -517,7 +517,7 @@ export default function SettingsPage() {
                       { label: '세종', name: '세종텔레콤', docName: '통신서비스 이용증명원', url: 'https://www.sejongtelecom.net', path: '고객센터 전화 요청', warn: '고객센터: 1699-1000' },
                       { label: '기타', name: '기타 알뜰폰', docName: '통신서비스 이용증명원', url: '', path: '해당 통신사 고객센터에 전화하여 발급 요청', warn: '' },
                     ]
-                    const [selected, setSelected] = React.useState('')
+                    const [selected, setSelected] = useState('')
                     const found = carriers.find(c => c.label === selected)
                     return (
                       <div>
