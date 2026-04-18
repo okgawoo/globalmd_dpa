@@ -40,18 +40,19 @@ function getTodayShort() {
 const pdfStyle = `
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif; font-size: 13px; color: #111; line-height: 2.0; padding: 30px 35px; }
-  h1 { font-size: 18px; text-align: center; font-weight: 700; margin-bottom: 35px; text-decoration: underline; }
-  h2 { font-size: 13px; font-weight: 700; margin-top: 18px; margin-bottom: 8px; }
-  p { margin: 5px 0; }
-  .section { margin-bottom: 16px; padding: 12px 16px; border: 1px solid #ccc; }
+  body { font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif; font-size: 13px; color: #111; line-height: 1.85; padding: 30px 35px; }
+  h1 { font-size: 18px; text-align: center; font-weight: 700; margin-bottom: 30px; text-decoration: underline; }
+  h2 { font-size: 13px; font-weight: 700; margin-top: 14px; margin-bottom: 6px; }
+  p { margin: 4px 0; }
+  .section { margin-bottom: 14px; padding: 12px 16px; border: 1px solid #ccc; page-break-inside: avoid; }
   .label { font-weight: 700; }
-  .sign-box { border: 1px solid #999; padding: 6px; min-height: 65px; margin-top: 6px; text-align: center; }
+  .sign-box { border: 1px solid #999; padding: 6px; min-height: 65px; margin-top: 6px; text-align: center; page-break-inside: avoid; }
   .sign-box img { max-height: 58px; }
-  .date { text-align: center; margin-top: 16px; font-size: 13px; }
+  .date { text-align: center; margin-top: 14px; font-size: 13px; }
   table { width: 100%; border-collapse: collapse; margin-top: 6px; }
   td { padding: 5px 10px; border: 1px solid #ddd; font-size: 13px; }
   td:first-child { background: #f5f5f5; font-weight: 700; width: 35%; }
+  .no-break { page-break-inside: avoid; }
 `
 
 function generateAgreementHTML(data: any): string {
@@ -75,7 +76,7 @@ function generateAgreementHTML(data: any): string {
   <p>· 위반 시 서비스가 즉시 해지될 수 있습니다.</p>
   <h2>제5조 (면책)</h2>
   <p>본인의 귀책으로 발생한 법적 문제는 본인이 책임집니다.</p>
-  <div class="section" style="margin-top:30px">
+  <div class="section no-break" style="margin-top:24px">
     <h2 style="margin-top:0">신청인 정보</h2>
     <table>
       <tr><td>이름</td><td>${data.agentName}</td></tr>
@@ -84,9 +85,11 @@ function generateAgreementHTML(data: any): string {
       <tr><td>발신번호</td><td>${data.senderPhone}</td></tr>
     </table>
   </div>
-  <p class="date">${getToday()}</p>
-  <p style="text-align:center; margin-top:16px">신청인 (서명)</p>
-  <div class="sign-box">${data.signatureData ? `<img src="${data.signatureData}" />` : ''}</div>
+  <div class="no-break">
+    <p class="date">${getToday()}</p>
+    <p style="text-align:center; margin-top:14px">신청인 (서명)</p>
+    <div class="sign-box">${data.signatureData ? `<img src="${data.signatureData}" />` : ''}</div>
+  </div>
 </body></html>`
 }
 
@@ -142,7 +145,7 @@ function generateContractHTML(data: any): string {
   <h2>제6조 (손해배상)</h2>
   <p>"을"이 이 계약에 따른 의무를 위반하여 손해가 발생한 경우 "을"은 그 손해를 배상하여야 합니다.</p>
   <p class="date">${getToday()}</p>
-  <table style="margin-top:20px">
+  <table style="margin-top:16px" class="no-break">
     <tr>
       <td style="width:50%; vertical-align:top; padding:14px">
         <p><strong>갑 (위임자)</strong></p>
@@ -260,7 +263,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         <p>주식회사 글로벌엠디</p>
         <p>사업자등록번호: 596-87-03305</p>
         <p>주소: 부산광역시 중구 대청로 135, 3층 24-1호 (48931)</p>
-        <br/>
         <p>담당자 : 옥윤철</p>
         <p>모바일 : 010-8846-9776</p>
         <p>이메일 : okgawoo@gmail.com</p>
