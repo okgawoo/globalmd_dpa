@@ -345,7 +345,7 @@ export default function SmsSlidePanel({ isOpen, onClose, customer, meetings = []
   useEffect(() => {
     if (isOpen) {
       const count = parseInt(localStorage.getItem('smsToastCount') || '0')
-      if (count < 100) {
+      if (count < 5) {
         const timer = setTimeout(() => {
           showToast()
           localStorage.setItem('smsToastCount', String(count + 1))
