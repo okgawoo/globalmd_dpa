@@ -339,7 +339,7 @@ export default function SmsSlidePanel({ isOpen, onClose, customer, meetings = []
   const [aiLoading, setAiLoading] = useState(false)
   const [sending, setSending] = useState(false)
   const [toast, setToast] = useState(false)
-  function showToast() { setToast(true); setTimeout(() => setToast(false), 2500) }
+  function showToast() { setToast(true); setTimeout(() => setToast(false), 5000) }
   const [situation, setSituation] = useState<{ type: SituationType; label: string }>({ type: '일반', label: '📱 일반' })
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
@@ -407,7 +407,7 @@ export default function SmsSlidePanel({ isOpen, onClose, customer, meetings = []
     try { await navigator.clipboard.writeText(scriptText) } catch {}
     // 2. 모바일이면 카카오톡 앱 열기
     const isMobile = /android|iphone|ipad/i.test(navigator.userAgent)
-    if (isMobile) { window.location.href = 'kakaotalk://launch' }
+    if (isMobile) { window.open('kakaotalk://launch') }
     showToast()
   }
 
