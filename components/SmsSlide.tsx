@@ -528,7 +528,6 @@ export default function SmsSlidePanel({ isOpen, onClose, customer, meetings = []
         </div>
       </div>
       {toast && (
-      {toast && (
         <div style={{ position: 'fixed', bottom: 120, left: '50%', transform: 'translateX(-50%)', background: 'rgba(0,0,0,0.82)', color: '#fff', padding: '14px 20px', borderRadius: 16, zIndex: 2000, animation: 'fadeIn 0.2s ease', textAlign: 'center', lineHeight: 1.8, width: '88vw', maxWidth: 360 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, flexWrap: 'nowrap', marginBottom: 4 }}>
             <div style={{ background: '#FEE500', color: '#3A1D1D', borderRadius: 8, padding: '3px 10px', fontSize: 11, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 3, whiteSpace: 'nowrap', flexShrink: 0 }}>
