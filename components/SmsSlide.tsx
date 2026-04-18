@@ -533,9 +533,9 @@ export default function SmsSlidePanel({ isOpen, onClose, customer, meetings = []
             <div style={{ background: '#FEE500', color: '#3A1D1D', borderRadius: 8, padding: '3px 10px', fontSize: 11, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 3, whiteSpace: 'nowrap', flexShrink: 0 }}>
               💬 복사 후 카톡으로 보내기
             </div>
-            <span style={{ fontSize: 12, whiteSpace: 'nowrap' }}>를 누르면 내용이 자동 복사돼요!</span>
+            <span style={{ fontSize: 12, whiteSpace: 'nowrap' }}>클릭하면 내용이 자동 복사돼요!</span>
           </div>
-          <div style={{ fontSize: 12, color: '#ccc' }}>카톡이 열린 후 보낼 분 선택 → 메시지창에 붙여넣기 하세요</div>
+          <div style={{ fontSize: 12, color: '#ccc' }}>카톡이 열리면 보낼 분 선택 → 메시지창에 붙여넣기</div>
         </div>
       )}
       <style>{`
