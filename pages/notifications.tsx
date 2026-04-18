@@ -75,7 +75,12 @@ export default function NotificationsPage() {
   const [meetings, setMeetings] = useState<any[]>([])
 
   // 페이지 탭
-  const [activeTab, setActiveTab] = useState<'ai' | 'bulk'>('ai')
+  const [activeTab, setActiveTab] = useState<'ai' | 'bulk'>(() => {
+    if (typeof window !== 'undefined') {
+      return (sessionStorage.getItem('notif_tab') as 'ai' | 'bulk') || 'ai'
+    }
+    return 'ai'
+  })
   const [smsUsage, setSmsUsage] = useState<any>(null)
 
   // 단체문자 필터
@@ -109,6 +114,17 @@ export default function NotificationsPage() {
   const textareaRef = useRef<any>(null)
 
   useEffect(() => { fetchAll() }, [])
+  useEffect(() => {
+    async function loadUsage() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+        const res = await fetch(`/api/sms/usage?agent_id=${user.id}`)
+        if (res.ok) setSmsUsage(await res.json())
+      } catch (e) {}
+    }
+    loadUsage()
+  }, [])
 
   async function fetchAll() {
     const { data: { user } } = await supabase.auth.getUser()
@@ -125,14 +141,6 @@ export default function NotificationsPage() {
     setMessages(msgs || [])
     setMeetings(meets || [])
     setLoading(false)
-    // SMS 사용량 조회
-    try {
-      const usageRes = await fetch(`/api/sms/usage?agent_id=${aid}`)
-      if (usageRes.ok) {
-        const usageData = await usageRes.json()
-        setSmsUsage(usageData)
-      }
-    } catch (e) {}
   }
 
   // ─── 알림 데이터 계산 ───
@@ -419,7 +427,7 @@ export default function NotificationsPage() {
           <div style={{ display: 'flex', borderBottom: '1px solid #EDEBE4', marginBottom: 0, background: '#fff' }}>
             {[{ key: 'ai', label: '🤖 AI 추천' }, { key: 'bulk', label: '📨 단체문자' }].map(tab => (
               <button key={tab.key}
-                onClick={() => setActiveTab(tab.key as 'ai' | 'bulk')}
+                onClick={() => { const t = tab.key as 'ai' | 'bulk'; setActiveTab(t); sessionStorage.setItem('notif_tab', t) }}
                 style={{ flex: 1, padding: '12px 0', fontSize: 14, fontWeight: activeTab === tab.key ? 700 : 500, color: activeTab === tab.key ? '#1D9E75' : '#999', background: 'none', border: 'none', borderBottom: activeTab === tab.key ? '2px solid #1D9E75' : '2px solid transparent', cursor: 'pointer' }}>
                 {tab.label}
               </button>
@@ -605,7 +613,7 @@ export default function NotificationsPage() {
           <>
             {/* 잔여 문자 */}
             {smsUsage && (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', border: '1px solid #EDEBE4', borderRadius: 10, padding: '10px 14px', margin: '10px 10px 0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', border: '1px solid #EDEBE4', borderRadius: 10, padding: '10px 14px', margin: '8px 10px 0' }}>
                 <span style={{ fontSize: 13, color: '#666' }}>이번 달 문자 잔여</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <span style={{ fontSize: 14, fontWeight: 700, color: smsUsage.remaining < 100 ? '#E24B4A' : '#1D9E75' }}>{smsUsage.remaining}건</span>
