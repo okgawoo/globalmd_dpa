@@ -366,6 +366,16 @@ export default function InputPage() {
   const [customerSearch, setCustomerSearch] = useState<string>('')
   const [contractTextsLoss, setContractTextsLoss] = useState<string[]>([''])
 
+  // 페이지 로드 시 고객 목록 미리 불러오기
+  useEffect(() => {
+    async function loadCustomers() {
+      const { data: { user } } = await supabase.auth.getUser()
+      const { data: custs } = await supabase.from('dpa_customers').select('id, name, age').eq('agent_id', user?.id).order('name')
+      setExistingCustomers(custs || [])
+    }
+    loadCustomers()
+  }, [])
+
   useEffect(() => {
     if (queryTab === 'scan' || queryTab === 'manual' || queryTab === 'paste') {
       setInputTab(queryTab as InputTab)
@@ -514,12 +524,7 @@ export default function InputPage() {
       }
       data._warnings = warns
       setParsed(data)
-      setSaveMode('new')
       setSelectedCustomerId('')
-      // 기존 고객 목록 불러오기
-      const { data: { user } } = await supabase.auth.getUser()
-      const { data: custs } = await supabase.from('dpa_customers').select('id, name, age').eq('agent_id', user?.id).order('name')
-      setExistingCustomers(custs || [])
     } catch (e) { alert('파싱 중 오류가 발생했어요!') }
     setParsing(false)
   }
@@ -722,6 +727,47 @@ export default function InputPage() {
 
       {inputTab === 'paste' && (
         <div className={styles.formWrap}>
+
+          {/* 신규/기존 고객 선택 - 맨 위에 먼저 */}
+          <div style={{marginBottom:16}}>
+            <div style={{fontSize:13,fontWeight:700,color:'#1D9E75',marginBottom:8}}>📋 저장 방식 선택</div>
+            <div style={{display:'flex',gap:8,marginBottom:10}}>
+              <button onClick={() => setSaveMode('new')} style={{flex:1,padding:'10px 0',borderRadius:10,border:`2px solid ${saveMode==='new'?'#1D9E75':'#E5E7EB'}`,background:saveMode==='new'?'#E8F8F2':'#fff',color:saveMode==='new'?'#1D9E75':'#6B7280',fontWeight:saveMode==='new'?700:400,fontSize:13,cursor:'pointer'}}>
+                ➕ 새 고객으로 저장
+              </button>
+              <button onClick={() => setSaveMode('existing')} style={{flex:1,padding:'10px 0',borderRadius:10,border:`2px solid ${saveMode==='existing'?'#1D9E75':'#E5E7EB'}`,background:saveMode==='existing'?'#E8F8F2':'#fff',color:saveMode==='existing'?'#1D9E75':'#6B7280',fontWeight:saveMode==='existing'?700:400,fontSize:13,cursor:'pointer'}}>
+                👤 기존 고객에 추가
+              </button>
+            </div>
+            {saveMode === 'existing' && (
+              <div>
+                <input
+                  value={customerSearch}
+                  onChange={e => setCustomerSearch(e.target.value)}
+                  placeholder="고객 이름 검색..."
+                  style={{width:'100%',fontSize:13,padding:'8px 12px',borderRadius:8,border:'1px solid #E5E7EB',background:'#fff',marginBottom:6,boxSizing:'border-box'}}
+                />
+                <div style={{maxHeight:160,overflowY:'auto',border:'1px solid #E5E7EB',borderRadius:8,background:'#fff'}}>
+                  {existingCustomers.filter(c => !customerSearch || c.name.includes(customerSearch)).length === 0 ? (
+                    <div style={{padding:'12px',fontSize:13,color:'#9CA3AF',textAlign:'center'}}>검색 결과가 없어요</div>
+                  ) : (
+                    existingCustomers.filter(c => !customerSearch || c.name.includes(customerSearch)).map(c => (
+                      <div key={c.id} onClick={() => setSelectedCustomerId(c.id)}
+                        style={{padding:'10px 14px',fontSize:13,cursor:'pointer',background:selectedCustomerId===c.id?'#E8F8F2':'transparent',color:selectedCustomerId===c.id?'#1D9E75':'#374151',fontWeight:selectedCustomerId===c.id?600:400,borderBottom:'1px solid #F3F4F6'}}>
+                        {c.name} {c.age ? `(${c.age}세)` : ''}
+                        {selectedCustomerId === c.id && <span style={{float:'right'}}>✓</span>}
+                      </div>
+                    ))
+                  )}
+                </div>
+                {selectedCustomerId && (
+                  <div style={{marginTop:6,fontSize:12,color:'#1D9E75',fontWeight:600}}>
+                    ✓ {existingCustomers.find(c => c.id === selectedCustomerId)?.name} 선택됨
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
           {/* 가이드 아이콘 버튼 + 팝업 */}
           {/* 가이드 + 계약 수 입력 */}
           <div className={styles.guideRow}>
@@ -838,56 +884,10 @@ export default function InputPage() {
                 </div>
               )}
 
-              {/* 저장 방식 선택 */}
-              <div style={{display:'flex',gap:8,marginBottom:12}}>
-                <button onClick={() => setSaveMode('new')} style={{flex:1,padding:'8px 0',borderRadius:8,border:`2px solid ${saveMode==='new'?'#1D9E75':'#E5E7EB'}`,background:saveMode==='new'?'#E8F8F2':'#fff',color:saveMode==='new'?'#1D9E75':'#6B7280',fontWeight:saveMode==='new'?600:400,fontSize:13,cursor:'pointer'}}>
-                  ➕ 새 고객으로 저장
-                </button>
-                <button onClick={() => setSaveMode('existing')} style={{flex:1,padding:'8px 0',borderRadius:8,border:`2px solid ${saveMode==='existing'?'#1D9E75':'#E5E7EB'}`,background:saveMode==='existing'?'#E8F8F2':'#fff',color:saveMode==='existing'?'#1D9E75':'#6B7280',fontWeight:saveMode==='existing'?600:400,fontSize:13,cursor:'pointer'}}>
-                  👤 기존 고객에 추가
-                </button>
-              </div>
-
-              {/* 기존 고객 선택 — 검색 + 목록 */}
-              {saveMode === 'existing' && (
-                <div style={{marginBottom:12}}>
-                  <input
-                    value={customerSearch}
-                    onChange={e => setCustomerSearch(e.target.value)}
-                    placeholder="고객 이름 검색..."
-                    style={{width:'100%',fontSize:13,padding:'8px 12px',borderRadius:8,border:'1px solid #E5E7EB',background:'#fff',marginBottom:6,boxSizing:'border-box'}}
-                  />
-                  <div style={{maxHeight:180,overflowY:'auto',border:'1px solid #E5E7EB',borderRadius:8,background:'#fff'}}>
-                    {existingCustomers
-                      .filter(c => !customerSearch || c.name.includes(customerSearch))
-                      .length === 0 ? (
-                      <div style={{padding:'12px',fontSize:13,color:'#9CA3AF',textAlign:'center'}}>검색 결과가 없어요</div>
-                    ) : (
-                      existingCustomers
-                        .filter(c => !customerSearch || c.name.includes(customerSearch))
-                        .map(c => (
-                          <div
-                            key={c.id}
-                            onClick={() => setSelectedCustomerId(c.id)}
-                            style={{
-                              padding:'10px 14px',fontSize:13,cursor:'pointer',
-                              background: selectedCustomerId === c.id ? '#E8F8F2' : 'transparent',
-                              color: selectedCustomerId === c.id ? '#1D9E75' : '#374151',
-                              fontWeight: selectedCustomerId === c.id ? 600 : 400,
-                              borderBottom:'1px solid #F3F4F6',
-                            }}
-                          >
-                            {c.name} {c.age ? `(${c.age}세)` : ''}
-                            {selectedCustomerId === c.id && <span style={{float:'right'}}>✓</span>}
-                          </div>
-                        ))
-                    )}
-                  </div>
-                  {selectedCustomerId && (
-                    <div style={{marginTop:6,fontSize:12,color:'#1D9E75',fontWeight:600}}>
-                      ✓ {existingCustomers.find(c => c.id === selectedCustomerId)?.name} 선택됨
-                    </div>
-                  )}
+              {/* 선택된 고객 표시 (기존 고객인 경우) */}
+              {saveMode === 'existing' && selectedCustomerId && (
+                <div style={{background:'#E8F8F2',border:'1.5px solid #1D9E75',borderRadius:10,padding:'10px 14px',marginBottom:12,fontSize:13,color:'#1D9E75',fontWeight:600}}>
+                  👤 {existingCustomers.find(c => c.id === selectedCustomerId)?.name} 님 보험에 추가됩니다
                 </div>
               )}
 
