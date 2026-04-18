@@ -13,6 +13,7 @@ function NavIcon({ path, active }: { path: string; active: boolean }) {
   if (path === '/input') return <svg {...s} style={{transform:'translateY(-1px)'}} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
   if (path === '/analysis') return <svg {...s} style={{transform:'translateY(-1px)'}} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
   if (path === '/report') return <svg {...s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+  if (path === '/customer-report') return <svg {...s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
   if (path === '/sales') return <svg {...s} style={{transform:'translateY(-1px)'}} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
   if (path === '/notifications') return <svg {...s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
   if (path === '/newsletter') return <svg {...s} style={{transform:'translateY(-1px)'}} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
@@ -26,10 +27,8 @@ const menus = [
   { label: '고객 관리', path: '/customers' },
   { label: '문자 발송', path: '/notifications' },
   { label: '뉴스레터', path: '/newsletter' },
+  { label: '미팅 리포트', path: '/report' },
   { label: '영업 관리', path: '/sales', dividerAfter: true },
-  { label: '고객 리포트', path: '/customer-report' },
-  { label: '보장 분석', path: '/analysis' },
-  { label: '영업 성과 리포트', path: '/report' },
   { label: '설정', path: '/settings' },
 ]
 
