@@ -82,7 +82,7 @@ export default function NotificationsPage() {
   const [bulkAgeMin, setBulkAgeMin] = useState<number | null>(null)
   const [bulkAgeMax, setBulkAgeMax] = useState<number | null>(null)
   const [bulkGender, setBulkGender] = useState<'전체' | '남' | '여'>('전체')
-  const [bulkCustomerType, setBulkCustomerType] = useState<'전체' | 'active' | 'prospect'>('전체')
+  const [bulkCustomerType, setBulkCustomerType] = useState<'전체' | 'existing' | 'prospect'>('전체')
   const [bulkSelectedIds, setBulkSelectedIds] = useState<string[]>([])
   const [bulkContent, setBulkContent] = useState('')
   const [bulkTone, setBulkTone] = useState<string>('친근')
@@ -472,7 +472,7 @@ export default function NotificationsPage() {
               <select value={bulkCustomerType} onChange={e => setBulkCustomerType(e.target.value as any)}
                 style={{ flex: 1, padding: '9px 8px', borderRadius: 8, border: '1px solid #EDEBE4', background: '#fff', fontSize: 13, color: '#1a1a1a', cursor: 'pointer' }}>
                 <option value="전체">전체 고객</option>
-                <option value="active">마이고객</option>
+                <option value="existing">마이고객</option>
                 <option value="prospect">관심고객</option>
               </select>
               <select
