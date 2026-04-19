@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
+import Layout from '../components/Layout'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -169,7 +170,8 @@ export default function SupportPage() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', background: '#FAF9F5' }}>
+    <Layout>
+    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100dvh - 56px)', background: '#FAF9F5' }}>
       <style>{`@keyframes bounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }`}</style>
 
       {/* 헤더 */}
@@ -256,5 +258,6 @@ export default function SupportPage() {
         </div>
       )}
     </div>
+    </Layout>
   )
 }

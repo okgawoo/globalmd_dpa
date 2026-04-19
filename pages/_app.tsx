@@ -59,7 +59,7 @@ export default function App({ Component, pageProps }: AppProps) {
     </>
   )
 
-  if (router.pathname === '/login' || router.pathname.startsWith('/c/') || router.pathname === '/support') {
+  if (router.pathname === '/login' || router.pathname.startsWith('/c/')) {
     return (
       <>
         <Head>{headMeta}</Head>
@@ -68,7 +68,7 @@ export default function App({ Component, pageProps }: AppProps) {
     )
   }
 
-  if (checking && router.pathname !== '/support') return null
+  if (checking) return null
 
   if (demoStatus.expired) {
     return (
