@@ -177,7 +177,8 @@
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 6px;
-    min-height: 120px;
+    min-height: 90px;
+    height: auto;
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
     overflow: hidden;
     display: flex;
@@ -194,9 +195,9 @@
   }
   .webCardTitleGroup { display: flex; align-items: center; gap: 8px; }
   .webCardAccent { width: 3px; height: 12px; background: #1D9E75; border-radius: 2px; flex-shrink: 0; }
-  .webCardTitle { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+  .webCardTitle { font-size: 14px; font-weight: 500; color: var(--text-primary); }
   .webCardLink {
-    font-size: 10px;
+    font-size: 12px;
     color: #1D9E75;
     cursor: pointer;
     text-decoration: none;
@@ -204,7 +205,7 @@
     border: none;
     padding: 0;
   }
-  .webCardBody { padding: 10px 12px; flex: 1; }
+  .webCardBody { padding: 6px 10px; flex: 1; }
 
   /* 2열 그리드 */
   .webRow2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; flex: 1; }
@@ -225,23 +226,23 @@
     gap: 6px;
   }
   .webStatCard:hover { background: var(--bg); }
-  .webStatLabel { font-size: 11px; font-weight: 400; color: var(--text-secondary); text-align: left; white-space: nowrap; }
-  .webStatValue { font-size: 16px; font-weight: 500; color: var(--text-primary); line-height: 1.1; text-align: right; white-space: nowrap; }
+  .webStatLabel { font-size: 12px; font-weight: 400; color: var(--text-secondary); text-align: left; white-space: nowrap; }
+  .webStatValue { font-size: 18px; font-weight: 500; color: var(--text-primary); line-height: 1.1; text-align: right; white-space: nowrap; }
 
   /* 리스트 행 */
-  .webListRow { display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 0.5px solid #EDEBE4; cursor: pointer; transition: background 0.15s; }
+  .webListRow { display: flex; align-items: center; gap: 8px; padding: 3px 0; border-bottom: 0.5px solid #EDEBE4; cursor: pointer; transition: background 0.15s; }
   .webListRow:last-child { border-bottom: none; }
   .webListRow:hover { background: var(--bg); }
-  .webListIcon { font-size: 13px; flex-shrink: 0; }
-  .webListLabel { flex: 1; font-size: 13px; font-weight: 400; color: var(--text-primary); }
-  .webListMeta { font-size: 11px; font-weight: 400; color: var(--text-secondary); white-space: nowrap; }
-  .webBadge { font-size: 11px; font-weight: 500; padding: 2px 7px; border-radius: 999px; white-space: nowrap; }
-  .webEmpty { font-size: 13px; font-weight: 400; color: var(--text-secondary); padding: 12px 0; text-align: center; }
+  .webListIcon { font-size: 14px; flex-shrink: 0; }
+  .webListLabel { flex: 1; font-size: 14px; font-weight: 400; color: var(--text-primary); }
+  .webListMeta { font-size: 12px; font-weight: 400; color: var(--text-secondary); white-space: nowrap; }
+  .webBadge { font-size: 12px; font-weight: 500; padding: 2px 7px; border-radius: 999px; white-space: nowrap; }
+  .webEmpty { font-size: 14px; font-weight: 400; color: var(--text-secondary); padding: 10px 0; text-align: center; }
 
   /* 이번달 미팅 현황 */
-  .webMeetingStats { display: flex; flex-direction: column; gap: 10px; }
-  .webMeetingStat { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+  .webMeetingStats { display: flex; flex-direction: column; gap: 8px; }
+  .webMeetingStat { display: flex; align-items: center; gap: 8px; padding: 3px 0; }
   .webDot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
-  .webMeetingLabel { font-size: 13px; font-weight: 400; color: var(--text-secondary); flex: 1; }
-  .webMeetingValue { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+  .webMeetingLabel { font-size: 14px; font-weight: 400; color: var(--text-secondary); flex: 1; }
+  .webMeetingValue { font-size: 14px; font-weight: 500; color: var(--text-primary); }
 }
