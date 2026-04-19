@@ -177,7 +177,7 @@
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 6px;
-    min-height: 80px !important;
+    min-height: 180px !important;
     height: auto !important;
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
     overflow: hidden;
@@ -210,8 +210,8 @@
   /* 2열 그리드 */
   .webRow2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; flex: 1; align-items: flex-start; }
 
-  /* 통계 6열 */
-  .webStats4 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+  /* 통계 6열 (섹션 블록 바로 아래 붙게 gap 8px — webDash gap(14) + margin-top(-6)) */
+  .webStats4 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-top: -6px; }
   .webStatCard {
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -230,7 +230,7 @@
   .webStatValue { font-size: 16px; font-weight: 500; color: var(--text-primary); line-height: 1.1; text-align: right; white-space: nowrap; }
 
   /* 리스트 행 */
-  .webListRow { display: flex; align-items: center; gap: 8px; padding: 3px 0 !important; border-bottom: 0.5px solid #EDEBE4; cursor: pointer; transition: background 0.15s; }
+  .webListRow { display: flex; align-items: center; gap: 8px; padding: 6px 0 !important; border-bottom: 0.5px solid #EDEBE4; cursor: pointer; transition: background 0.15s; }
   .webListRow:last-child { border-bottom: none; }
   .webListRow:hover { background: var(--bg); }
   .webListIcon { font-size: 13px; flex-shrink: 0; }
@@ -241,7 +241,7 @@
 
   /* 이번달 미팅 현황 */
   .webMeetingStats { display: flex; flex-direction: column; gap: 8px; }
-  .webMeetingStat { display: flex; align-items: center; gap: 8px; padding: 3px 0; }
+  .webMeetingStat { display: flex; align-items: center; gap: 8px; padding: 6px 0; }
   .webDot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
   .webMeetingLabel { font-size: 13px; font-weight: 400; color: var(--text-secondary); flex: 1; }
   .webMeetingValue { font-size: 13px; font-weight: 500; color: var(--text-primary); }
