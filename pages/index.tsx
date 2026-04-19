@@ -38,6 +38,7 @@ export default function Dashboard() {
   const [calMonth, setCalMonth] = useState(new Date().getMonth())
   const [agentName, setAgentName] = useState('')
   const [agentEmail, setAgentEmail] = useState('')
+  const [agentRole, setAgentRole] = useState('')
   const [agentPlan, setAgentPlan] = useState('')
   const [agentDbId, setAgentDbId] = useState('')
   const [agentSlug, setAgentSlug] = useState('')
@@ -57,13 +58,14 @@ export default function Dashboard() {
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) {
         setAgentEmail(data.user.email || '')
-        supabase.from('dpa_agents').select('id, name, settings, slug').eq('user_id', data.user.id).single()
+        supabase.from('dpa_agents').select('*').eq('user_id', data.user.id).single()
           .then(({ data: agent }) => {
             if (agent) {
               setAgentName(agent.name)
               setAgentDbId(agent.id)
               setAgentSlug(agent.slug || agent.id)
               setAgentPlan(agent.settings?.plan || 'basic')
+              setAgentRole(agent.role || '')
               fetchUnreadNotice(agent.id)
             }
           })
@@ -580,7 +582,7 @@ export default function Dashboard() {
         <div className={styles.webDash}>
           {/* 상단 바 */}
           <div className={styles.webTopBar}>
-            <span className={styles.webTopGreet}>안녕하세요, {agentName || '설계사'}님</span>
+            <span className={styles.webTopGreet}>안녕하세요, {agentName ? `${agentName} ` : ''}{agentRole === 'admin' ? '대표님' : '설계사님'}</span>
             <div className={styles.webTopDateWrap}>
               <span className={styles.webTopDate}>{dateStr}</span>
               {agentPlan && <span className={styles.webTopPlan}>{agentPlan.toUpperCase()}</span>}
