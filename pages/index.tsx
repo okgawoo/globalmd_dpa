@@ -734,13 +734,13 @@ export default function Dashboard() {
               <div className={styles.webStatLabel}>관심고객</div>
               <div className={styles.webStatValue}>{prospectCustomers}</div>
             </div>
-            <div className={styles.webStatCard} style={{ borderTopColor: '#1D9E75' }} onClick={() => router.push('/customers')}>
-              <div className={styles.webStatLabel}>보험 계약</div>
-              <div className={styles.webStatValue}>{contracts.length}</div>
-            </div>
             <div className={styles.webStatCard} style={{ borderTopColor: '#8B5CF6' }} onClick={() => router.push('/customers')}>
               <div className={styles.webStatLabel}>이번달 신규</div>
               <div className={styles.webStatValue}>{newThisMonth}</div>
+            </div>
+            <div className={styles.webStatCard} style={{ borderTopColor: '#1D9E75' }} onClick={() => router.push('/customers')}>
+              <div className={styles.webStatLabel}>보험 계약</div>
+              <div className={styles.webStatValue}>{contracts.length}</div>
             </div>
             <div className={styles.webStatCard} style={{ borderTopColor: '#0891B2' }}>
               <div className={styles.webStatLabel}>월납입 합계</div>
