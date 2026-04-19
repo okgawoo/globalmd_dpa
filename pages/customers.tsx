@@ -1105,7 +1105,6 @@ export default function Customers() {
               if (content && content.scrollTop > 0 && dy > 0) return
               if (dy > 0) {
                 dragging = true
-                ev.preventDefault()
                 panel.style.transform = `translateY(${dy}px)`
                 panel.style.transition = 'none'
               }
