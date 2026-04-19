@@ -12,7 +12,9 @@ interface Message {
 function renderMarkdown(text: string) {
   const lines = text.split('\n')
   return lines.map((line, i) => {
-    const parts = line.split(/(\*\*[^*]+\*\*)/g)
+    // ## 헤더 제거
+    const cleanLine = line.replace(/^#{1,3}\s+/, '')
+    const parts = cleanLine.split(/(\*\*[^*]+\*\*)/g)
     return (
       <span key={i}>
         {parts.map((part, j) => {
@@ -134,7 +136,7 @@ export default function SupportPage() {
       const res = await fetch('/api/support-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ agentId, agentName, messages: [{ role: 'user', content: cat.label }] }),
+        body: JSON.stringify({ agentId, agentName, messages: [{ role: 'user', content: cat.label }], category: CATEGORIES_L1.find(c => c.id === selectedL1)?.label }),
       })
       const data = await res.json()
       setMessages(prev => [...prev, { role: 'assistant', content: data.reply }])
@@ -156,7 +158,7 @@ export default function SupportPage() {
       const res = await fetch('/api/support-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ agentId, agentName, messages: newMessages }),
+        body: JSON.stringify({ agentId, agentName, messages: newMessages, category: CATEGORIES_L1.find(c => c.id === selectedL1)?.label }),
       })
       const data = await res.json()
       setMessages(prev => [...prev, { role: 'assistant', content: data.reply }])

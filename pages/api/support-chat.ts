@@ -45,7 +45,7 @@ async function sendSlackAlert(agentName: string, agentId: string, messages: any[
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end()
 
-  const { agentId, agentName, messages, escalate } = req.body
+  const { agentId, agentName, messages, escalate, category } = req.body
 
   if (!agentId || !messages) return res.status(400).json({ error: '필수 값 누락' })
 
@@ -72,7 +72,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     body: JSON.stringify({
       model: 'claude-sonnet-4-5-20250929',
       max_tokens: 500,
-      system: SYSTEM_PROMPT,
+      system: SYSTEM_PROMPT + (category ? `\n\n현재 문의 카테고리: ${category}` : ''),
       messages: messages.map((m: any) => ({ role: m.role, content: m.content })),
     }),
   })
