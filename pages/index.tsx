@@ -690,7 +690,7 @@ export default function Dashboard() {
               <div className={styles.webCardHeader}>
                 <div className={styles.webCardTitleGroup}>
                   <span className={styles.webCardAccent}></span>
-                  <span className={styles.webCardTitle}>오늘 영업일정</span>
+                  <span className={styles.webCardTitle}>영업일정</span>
                 </div>
                 <button className={styles.webCardLink} onClick={() => router.push('/sales?tab=meeting&sub=today')}>전체보기</button>
               </div>
