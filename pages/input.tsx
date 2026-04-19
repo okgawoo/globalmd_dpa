@@ -730,7 +730,7 @@ export default function InputPage() {
 
           {/* 신규/기존 고객 선택 - 맨 위에 먼저 */}
           <div style={{marginBottom:16}}>
-            <div style={{fontSize:13,fontWeight:700,color:'#1D9E75',marginBottom:8}}>📋 저장 방식 선택</div>
+            <div style={{fontSize:13,fontWeight:600,color:'#1a1a1a',marginBottom:8,display:'flex',alignItems:'center',gap:8}}><span style={{display:'inline-block',width:3,height:12,background:'#1D9E75',borderRadius:2,flexShrink:0}}></span>저장 방식 선택</div>
             <div style={{display:'flex',gap:8,marginBottom:10}}>
               <button onClick={() => setSaveMode('new')} style={{flex:1,padding:'10px 0',borderRadius:10,border:`2px solid ${saveMode==='new'?'#1D9E75':'#E5E7EB'}`,background:saveMode==='new'?'#E8F8F2':'#fff',color:saveMode==='new'?'#1D9E75':'#6B7280',fontWeight:saveMode==='new'?700:400,fontSize:13,cursor:'pointer'}}>
                 ➕ 새 고객으로 저장
