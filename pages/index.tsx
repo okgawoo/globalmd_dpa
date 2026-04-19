@@ -680,9 +680,9 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* 1행: 오늘의 할일 + 오늘 영업일정 (2열) — 두 카드 높이 동일 유지 */}
-          <div className={styles.webRow2} style={{ alignItems: 'stretch' }}>
-            <div className={styles.webCard}>
+          {/* 1행: 오늘의 할일 + 오늘 영업일정 (2열) — 두 카드 콘텐츠 맞춰 자동 높이 + 좌우 동일 높이 */}
+          <div className={styles.webRow2} style={{ display: 'flex', alignItems: 'stretch', gap: 14 }}>
+            <div className={styles.webCard} style={{ flex: 1, height: 'auto', minHeight: 280 }}>
               <div className={styles.webCardHeader}>
                 <div className={styles.webCardTitleGroup}>
                   <span className={styles.webCardAccent}></span>
@@ -711,7 +711,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className={styles.webCard}>
+            <div className={styles.webCard} style={{ flex: 1, height: 'auto', minHeight: 280 }}>
               <div className={styles.webCardHeader}>
                 <div className={styles.webCardTitleGroup}>
                   <span className={styles.webCardAccent}></span>

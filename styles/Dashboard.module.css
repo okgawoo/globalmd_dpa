@@ -177,7 +177,7 @@
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 6px;
-    min-height: 180px !important;
+    min-height: 280px !important;
     height: auto !important;
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
     overflow: hidden;
