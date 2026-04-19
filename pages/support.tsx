@@ -312,13 +312,12 @@ export default function SupportPage() {
             </button>
           </div>
         )}
+        <style>{`
+          @keyframes bounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-5px); }
+          }
+        `}</style>
       </div>
-      <style>{`
-        @keyframes bounce {
-          0%, 60%, 100% { transform: translateY(0); }
-          30% { transform: translateY(-5px); }
-        }
-      `}</style>
-    </div>
   )
 }
