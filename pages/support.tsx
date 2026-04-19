@@ -9,7 +9,6 @@ interface Message {
   isQuickReply?: boolean
 }
 
-// 마크다운 렌더링 함수
 function renderMarkdown(text: string) {
   const lines = text.split('\n')
   return lines.map((line, i) => {
@@ -28,52 +27,50 @@ function renderMarkdown(text: string) {
   })
 }
 
-// 1차 카테고리
 const CATEGORIES_L1 = [
-  { id: 'data', label: '📊 데이터 입력' },
-  { id: 'customer', label: '👥 고객 관리' },
-  { id: 'sms', label: '📨 문자 발송' },
-  { id: 'sender', label: '📞 발신번호 인증' },
-  { id: 'newsletter', label: '📰 뉴스레터' },
-  { id: 'etc', label: '❓ 기타 문의' },
+  { id: 'data',       label: '데이터 입력' },
+  { id: 'customer',   label: '고객 관리' },
+  { id: 'sms',        label: '문자 발송' },
+  { id: 'sender',     label: '발신번호 인증' },
+  { id: 'newsletter', label: '뉴스레터' },
+  { id: 'etc',        label: '기타 문의' },
 ]
 
-// 2차 카테고리
 const CATEGORIES_L2: Record<string, { id: string; label: string }[]> = {
   data: [
-    { id: 'data_input', label: '복불 입력 방법' },
-    { id: 'data_card', label: '명함 입력 방법' },
-    { id: 'data_manual', label: '수동 입력 방법' },
-    { id: 'data_etc', label: '기타 질문' },
+    { id: 'data_copy',   label: '복불 입력' },
+    { id: 'data_card',   label: '명함 입력' },
+    { id: 'data_manual', label: '수동 입력' },
+    { id: 'data_etc',    label: '기타' },
   ],
   customer: [
-    { id: 'customer_my', label: '마이고객 관리' },
+    { id: 'customer_my',       label: '마이고객 관리' },
     { id: 'customer_prospect', label: '관심고객 관리' },
-    { id: 'customer_edit', label: '고객 정보 수정' },
-    { id: 'customer_etc', label: '기타 질문' },
+    { id: 'customer_edit',     label: '고객 정보 수정' },
+    { id: 'customer_etc',      label: '기타' },
   ],
   sms: [
-    { id: 'sms_ai', label: 'AI 추천 문자' },
-    { id: 'sms_bulk', label: '단체문자 발송' },
+    { id: 'sms_ai',      label: 'AI 추천 문자' },
+    { id: 'sms_bulk',    label: '단체문자 발송' },
     { id: 'sms_history', label: '발송 이력 확인' },
-    { id: 'sms_etc', label: '기타 질문' },
+    { id: 'sms_etc',     label: '기타' },
   ],
   sender: [
-    { id: 'sender_register', label: '발신번호 등록 방법' },
-    { id: 'sender_doc', label: '필요 서류 안내' },
+    { id: 'sender_how',    label: '등록 방법' },
+    { id: 'sender_doc',    label: '필요 서류 안내' },
     { id: 'sender_status', label: '등록 현황 확인' },
-    { id: 'sender_etc', label: '기타 질문' },
+    { id: 'sender_etc',    label: '기타' },
   ],
   newsletter: [
-    { id: 'newsletter_send', label: '뉴스레터 발송' },
+    { id: 'newsletter_send',     label: '발송 방법' },
     { id: 'newsletter_template', label: '템플릿 사용법' },
-    { id: 'newsletter_etc', label: '기타 질문' },
+    { id: 'newsletter_etc',      label: '기타' },
   ],
   etc: [
-    { id: 'etc_account', label: '계정 관련' },
-    { id: 'etc_error', label: '오류/버그 신고' },
+    { id: 'etc_account',    label: '계정 관련' },
+    { id: 'etc_error',      label: '오류/버그 신고' },
     { id: 'etc_suggestion', label: '기능 제안' },
-    { id: 'etc_other', label: '직접 입력' },
+    { id: 'etc_direct',     label: '직접 입력' },
   ],
 }
 
@@ -105,7 +102,6 @@ export default function SupportPage() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, loading, step])
 
-  // 1차 카테고리 선택
   function selectL1(cat: { id: string; label: string }) {
     setSelectedL1(cat.id)
     setMessages(prev => [
@@ -116,9 +112,8 @@ export default function SupportPage() {
     setStep('l2')
   }
 
-  // 2차 카테고리 선택
   async function selectL2(cat: { id: string; label: string }) {
-    if (cat.id.endsWith('_etc') || cat.id === 'etc_other') {
+    if (cat.id.endsWith('_etc') || cat.id.endsWith('_direct')) {
       setMessages(prev => [
         ...prev,
         { role: 'user', content: cat.label, isQuickReply: true },
@@ -127,25 +122,18 @@ export default function SupportPage() {
       setStep('chat')
       return
     }
-
-    const userMsg = cat.label
     const newMessages: Message[] = [
       ...messages,
-      { role: 'user', content: userMsg, isQuickReply: true },
+      { role: 'user', content: cat.label, isQuickReply: true },
     ]
     setMessages(newMessages)
     setStep('chat')
     setLoading(true)
-
     try {
       const res = await fetch('/api/support-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          agentId,
-          agentName,
-          messages: [{ role: 'user', content: userMsg }],
-        }),
+        body: JSON.stringify({ agentId, agentName, messages: [{ role: 'user', content: cat.label }] }),
       })
       const data = await res.json()
       setMessages(prev => [...prev, { role: 'assistant', content: data.reply }])
@@ -156,7 +144,6 @@ export default function SupportPage() {
     }
   }
 
-  // 직접 입력 발송
   async function sendMessage() {
     if (!input.trim() || loading) return
     const userMsg: Message = { role: 'user', content: input.trim() }
@@ -179,7 +166,6 @@ export default function SupportPage() {
     }
   }
 
-  // 담당자 연결
   async function handleEscalate() {
     setLoading(true)
     try {
@@ -200,24 +186,35 @@ export default function SupportPage() {
 
   return (
     <Layout>
-      <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 56px)', background: '#FAF9F5' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#FAF9F5' }}>
 
-        {/* 채팅 메시지 영역 */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {/* 자체 헤더 */}
+        <div style={{ background: '#1D9E75', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+          <button onClick={() => router.back()}
+            style={{ background: 'none', border: 'none', color: '#fff', fontSize: 20, cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}>
+            ←
+          </button>
+          <p style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>고객센터</p>
+          <span style={{ marginLeft: 8, fontSize: 12, color: 'rgba(255,255,255,0.8)', background: 'rgba(255,255,255,0.2)', padding: '2px 8px', borderRadius: 10 }}>● AI 상담 중</span>
+        </div>
+
+        {/* 채팅 영역 */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '20px 16px 16px', display: 'flex', flexDirection: 'column', gap: 14 }}>
           {messages.map((msg, i) => (
             <div key={i} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start', gap: 8, alignItems: 'flex-end' }}>
               {msg.role === 'assistant' && (
-                <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#E1F5EE', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>🤖</div>
+                <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#E1F5EE', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17, flexShrink: 0 }}>🤖</div>
               )}
               <div style={{
                 maxWidth: '85%',
-                padding: '10px 14px',
+                padding: '11px 14px',
                 borderRadius: msg.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
                 background: msg.role === 'user' ? (msg.isQuickReply ? '#E1F5EE' : '#1D9E75') : '#fff',
                 color: msg.role === 'user' ? (msg.isQuickReply ? '#065F46' : '#fff') : '#1a1a1a',
                 fontSize: 14,
                 lineHeight: 1.6,
                 border: msg.role === 'assistant' ? '1px solid #EDEBE4' : 'none',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
               }}>
                 {renderMarkdown(msg.content)}
               </div>
@@ -227,46 +224,46 @@ export default function SupportPage() {
           {/* 로딩 */}
           {loading && (
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
-              <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#E1F5EE', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>🤖</div>
-              <div style={{ padding: '10px 14px', borderRadius: '18px 18px 18px 4px', background: '#fff', border: '1px solid #EDEBE4' }}>
-                <div style={{ display: 'flex', gap: 4 }}>
+              <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#E1F5EE', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17 }}>🤖</div>
+              <div style={{ padding: '11px 16px', borderRadius: '18px 18px 18px 4px', background: '#fff', border: '1px solid #EDEBE4', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
                   {[0,1,2].map(i => (
-                    <div key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: '#999' }} />
+                    <div key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: '#ccc', animation: `bounce 1s ${i * 0.2}s infinite` }} />
                   ))}
                 </div>
               </div>
             </div>
           )}
 
-          {/* 1차 카테고리 버튼 */}
+          {/* 1차 카테고리 - 2열 그리드 통일 */}
           {step === 'l1' && !loading && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 4 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 4 }}>
               {CATEGORIES_L1.map(cat => (
                 <button key={cat.id} onClick={() => selectL1(cat)}
-                  style={{ padding: '8px 14px', borderRadius: 20, border: '1px solid #1D9E75', background: '#fff', color: '#1D9E75', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                  style={{ padding: '12px 8px', borderRadius: 12, border: '1.5px solid #1D9E75', background: '#fff', color: '#1D9E75', fontSize: 14, fontWeight: 600, cursor: 'pointer', textAlign: 'center' }}>
                   {cat.label}
                 </button>
               ))}
             </div>
           )}
 
-          {/* 2차 카테고리 버튼 */}
+          {/* 2차 카테고리 - 2열 그리드 통일 */}
           {step === 'l2' && !loading && selectedL1 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 4 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 4 }}>
               {CATEGORIES_L2[selectedL1]?.map(cat => (
                 <button key={cat.id} onClick={() => selectL2(cat)}
-                  style={{ padding: '8px 14px', borderRadius: 20, border: '1px solid #1D9E75', background: '#fff', color: '#1D9E75', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                  style={{ padding: '12px 8px', borderRadius: 12, border: '1.5px solid #1D9E75', background: '#fff', color: '#1D9E75', fontSize: 14, fontWeight: 600, cursor: 'pointer', textAlign: 'center' }}>
                   {cat.label}
                 </button>
               ))}
             </div>
           )}
 
-          {/* 담당자 연결 버튼 */}
+          {/* 담당자 연결 */}
           {step === 'chat' && messages.length >= 5 && !escalated && !loading && (
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: 4 }}>
               <button onClick={handleEscalate}
-                style={{ padding: '8px 16px', borderRadius: 20, border: '1px solid #EDEBE4', background: '#fff', color: '#666', fontSize: 13, cursor: 'pointer' }}>
+                style={{ padding: '8px 18px', borderRadius: 20, border: '1px solid #EDEBE4', background: '#fff', color: '#666', fontSize: 13, cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                 🙋 담당자 연결 요청
               </button>
             </div>
@@ -275,9 +272,9 @@ export default function SupportPage() {
           <div ref={bottomRef} />
         </div>
 
-        {/* 입력창 (chat 단계에서만 표시) */}
+        {/* 입력창 */}
         {step === 'chat' && (
-          <div style={{ background: '#fff', borderTop: '1px solid #EDEBE4', padding: '10px 12px', display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+          <div style={{ background: '#fff', borderTop: '1px solid #EDEBE4', padding: '10px 12px', display: 'flex', gap: 8, alignItems: 'flex-end', flexShrink: 0 }}>
             <textarea
               value={input}
               onChange={e => setInput(e.target.value)}
@@ -293,6 +290,13 @@ export default function SupportPage() {
           </div>
         )}
       </div>
+
+      <style>{`
+        @keyframes bounce {
+          0%, 60%, 100% { transform: translateY(0); }
+          30% { transform: translateY(-5px); }
+        }
+      `}</style>
     </Layout>
   )
 }

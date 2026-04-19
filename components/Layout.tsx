@@ -78,6 +78,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   // 모바일 대시보드 페이지에서는 헤더 숨김
   const isDashboardMobile = router.pathname === '/'
+  const isFullPage = router.pathname === '/support'
 
   return (
     <div className={styles.root}>
@@ -145,7 +146,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </aside>
 
       <div className={styles.main}>
-        <header className={[styles.header, isDashboardMobile ? styles.headerHiddenMobile : ''].join(' ')}
+        <header className={[styles.header, isDashboardMobile ? styles.headerHiddenMobile : '', isFullPage ? styles.headerHiddenMobile : ''].join(' ')}
           style={router.pathname === '/admin' ? {background:'#1D9E75'} : {}}>
           <button className={styles.hamburger} onClick={() => setSidebarOpen(!sidebarOpen)}
             style={router.pathname === '/admin' ? {filter:'brightness(0) invert(1)'} : {}}>
