@@ -59,7 +59,7 @@ export default function App({ Component, pageProps }: AppProps) {
     </>
   )
 
-  if (router.pathname === '/login' || router.pathname.startsWith('/c/')) {
+  if (router.pathname === '/login' || router.pathname.startsWith('/c/') || router.pathname === '/support') {
     return (
       <>
         <Head>{headMeta}</Head>
