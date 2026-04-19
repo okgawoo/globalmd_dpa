@@ -263,6 +263,8 @@ export default function Customers() {
   }, [router.isReady, router.query.id, customers])
   const isMobile = useIsMobile()
   const slideContentRef = useRef<HTMLDivElement>(null)
+  const zoomWrapperRef = useRef<HTMLDivElement>(null)
+  const zoomStateRef = useRef({ scale: 1, tx: 0, ty: 0 })
   const { confirm, ConfirmDialog } = useConfirm()
   const [addInsMode, setAddInsMode] = useState(false)
   const [insForm, setInsForm] = useState({ company: '삼성생명', product_name: '', insurance_type: '건강', monthly_fee: '', payment_status: '유지', payment_years: '', expiry_age: '', contract_start: '' })
@@ -284,6 +286,150 @@ export default function Customers() {
       const onPop = () => closeSlide()
       window.addEventListener('popstate', onPop)
       return () => window.removeEventListener('popstate', onPop)
+    }
+  }, [slideOpen])
+
+  // 슬라이드 팝업 커스텀 pinch-zoom / pan (CSS transform 기반)
+  useEffect(() => {
+    const content = slideContentRef.current
+    if (!content) return
+    const MIN = 1, MAX = 4
+    let mode: 'none' | 'pinch' | 'pan' = 'none'
+    let startDist = 0
+    let pivot = { x: 0, y: 0 }
+    let startScale = 1
+    let startTx = 0
+    let startTy = 0
+    let startTouchX = 0
+    let startTouchY = 0
+
+    const applyTransform = () => {
+      const el = zoomWrapperRef.current
+      if (!el) return
+      const { scale, tx, ty } = zoomStateRef.current
+      el.style.transformOrigin = '0 0'
+      el.style.transform = scale === 1 && tx === 0 && ty === 0
+        ? ''
+        : `translate3d(${tx}px, ${ty}px, 0) scale(${scale})`
+      content.style.touchAction = scale > 1 ? 'none' : 'pan-y'
+    }
+
+    const getRel = (x: number, y: number) => {
+      const r = content.getBoundingClientRect()
+      return { x: x - r.left, y: y - r.top }
+    }
+    const clamp = (scale: number, tx: number, ty: number) => {
+      const r = content.getBoundingClientRect()
+      const minTx = Math.min(0, r.width - r.width * scale)
+      const minTy = Math.min(0, r.height - r.height * scale)
+      return {
+        tx: Math.max(minTx, Math.min(0, tx)),
+        ty: Math.max(minTy, Math.min(0, ty)),
+      }
+    }
+
+    const onStart = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        const t1 = e.touches[0], t2 = e.touches[1]
+        const p1 = getRel(t1.clientX, t1.clientY)
+        const p2 = getRel(t2.clientX, t2.clientY)
+        const midX = (p1.x + p2.x) / 2
+        const midY = (p1.y + p2.y) / 2
+        startDist = Math.hypot(p2.x - p1.x, p2.y - p1.y) || 1
+        startScale = zoomStateRef.current.scale
+        startTx = zoomStateRef.current.tx
+        startTy = zoomStateRef.current.ty
+        pivot = {
+          x: (midX - startTx) / startScale,
+          y: (midY - startTy) / startScale,
+        }
+        mode = 'pinch'
+        e.stopPropagation()
+        e.preventDefault()
+      } else if (e.touches.length === 1 && zoomStateRef.current.scale > 1) {
+        const t = e.touches[0]
+        startTouchX = t.clientX
+        startTouchY = t.clientY
+        startTx = zoomStateRef.current.tx
+        startTy = zoomStateRef.current.ty
+        mode = 'pan'
+        e.stopPropagation()
+      } else {
+        mode = 'none'
+      }
+    }
+
+    const onMove = (e: TouchEvent) => {
+      if (mode === 'pinch' && e.touches.length >= 2) {
+        const t1 = e.touches[0], t2 = e.touches[1]
+        const p1 = getRel(t1.clientX, t1.clientY)
+        const p2 = getRel(t2.clientX, t2.clientY)
+        const curMidX = (p1.x + p2.x) / 2
+        const curMidY = (p1.y + p2.y) / 2
+        const curDist = Math.hypot(p2.x - p1.x, p2.y - p1.y) || 1
+        let newScale = startScale * (curDist / startDist)
+        newScale = Math.max(MIN, Math.min(MAX, newScale))
+        const newTx = curMidX - pivot.x * newScale
+        const newTy = curMidY - pivot.y * newScale
+        const c = clamp(newScale, newTx, newTy)
+        zoomStateRef.current = { scale: newScale, tx: c.tx, ty: c.ty }
+        applyTransform()
+        e.stopPropagation()
+        e.preventDefault()
+      } else if (mode === 'pan' && e.touches.length === 1) {
+        const t = e.touches[0]
+        const dx = t.clientX - startTouchX
+        const dy = t.clientY - startTouchY
+        const { scale } = zoomStateRef.current
+        const c = clamp(scale, startTx + dx, startTy + dy)
+        zoomStateRef.current = { scale, tx: c.tx, ty: c.ty }
+        applyTransform()
+        e.stopPropagation()
+        e.preventDefault()
+      }
+    }
+
+    const onEnd = (e: TouchEvent) => {
+      if (e.touches.length === 0) {
+        if (zoomStateRef.current.scale <= MIN + 0.01) {
+          zoomStateRef.current = { scale: 1, tx: 0, ty: 0 }
+          applyTransform()
+        }
+        mode = 'none'
+      } else if (e.touches.length === 1 && mode === 'pinch') {
+        if (zoomStateRef.current.scale > 1) {
+          const t = e.touches[0]
+          startTouchX = t.clientX
+          startTouchY = t.clientY
+          startTx = zoomStateRef.current.tx
+          startTy = zoomStateRef.current.ty
+          mode = 'pan'
+        } else {
+          mode = 'none'
+        }
+      }
+    }
+
+    content.addEventListener('touchstart', onStart, { passive: false })
+    content.addEventListener('touchmove', onMove, { passive: false })
+    content.addEventListener('touchend', onEnd, { passive: false })
+    content.addEventListener('touchcancel', onEnd, { passive: false })
+    return () => {
+      content.removeEventListener('touchstart', onStart)
+      content.removeEventListener('touchmove', onMove)
+      content.removeEventListener('touchend', onEnd)
+      content.removeEventListener('touchcancel', onEnd)
+    }
+  }, [])
+
+  // 슬라이드 닫힐 때 줌 리셋
+  useEffect(() => {
+    if (!slideOpen) {
+      zoomStateRef.current = { scale: 1, tx: 0, ty: 0 }
+      const el = zoomWrapperRef.current
+      if (el) { el.style.transform = ''; el.style.transformOrigin = '0 0' }
+      const content = slideContentRef.current
+      if (content) content.style.touchAction = 'pan-y'
     }
   }, [slideOpen])
 
@@ -1092,11 +1238,11 @@ export default function Customers() {
       <div className={[styles.slideOverlay, slideOpen ? styles.overlayVisible : ''].join(' ')} onClick={closeSlide}>
         <div
           className={[styles.slidePanel, slideOpen ? styles.slideIn : styles.slideOut].join(' ')}
-          style={{ touchAction: 'pan-x pan-y pinch-zoom' }}
           onClick={e => e.stopPropagation()}
           onTouchStart={e => {
-            // 멀티터치(핀치 줌 등)는 드래그 처리 안 함
+            // 멀티터치(핀치 줌 등) 또는 확대 상태에서는 드래그 처리 안 함
             if (e.touches.length > 1) return
+            if (zoomStateRef.current.scale > 1) return
             const startY = e.touches[0].clientY
             const panel = e.currentTarget as HTMLElement
             const content = slideContentRef.current
@@ -1134,7 +1280,8 @@ export default function Customers() {
           }}
         >
           <div className={styles.slideHandle} />
-          <div className={styles.slideContent} ref={slideContentRef} style={{ touchAction: 'pan-x pan-y pinch-zoom' }}>
+          <div className={styles.slideContent} ref={slideContentRef} style={{ touchAction: 'pan-y', overflow: 'auto' }}>
+            <div ref={zoomWrapperRef} style={{ transformOrigin: '0 0', willChange: 'transform' }}>
             {addMode && !selected && (
               <div className={styles.editBox} style={{padding:'20px 0'}}>
                 <div className={styles.slideHeader} style={{marginBottom:12}}>
@@ -1384,6 +1531,7 @@ export default function Customers() {
                 <a href={`/input?customer_id=${selected.id}`} className={styles.addInsBtn}>+ 보험 추가</a>
               </>
             )}
+            </div>
           </div>
         </div>
       </div>
