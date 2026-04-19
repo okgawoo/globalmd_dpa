@@ -180,8 +180,8 @@
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   }
   .webStatCard:hover { border-color: var(--green); transform: translateY(-1px); }
-  .webStatLabel { font-size: 12px; font-weight: 400; color: var(--text-secondary); margin-bottom: 10px; }
-  .webStatValue { font-size: 36px; font-weight: 700; color: var(--text-primary); line-height: 1.1; }
+  .webStatLabel { font-size: 13px; font-weight: 400; color: var(--text-secondary); margin-bottom: 10px; }
+  .webStatValue { font-size: 28px; font-weight: 700; color: var(--text-primary); line-height: 1.1; }
 
   .webListRow { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s; }
   .webListRow:last-child { border-bottom: none; }
@@ -194,6 +194,6 @@
 
   .webSmsRow { display: flex; gap: 48px; align-items: center; padding: 4px 0 2px; }
   .webSmsItem { display: flex; flex-direction: column; gap: 6px; }
-  .webSmsValue { font-size: 36px; font-weight: 700; color: var(--text-primary); line-height: 1.1; }
-  .webSmsLabel { font-size: 12px; font-weight: 400; color: var(--text-secondary); }
+  .webSmsValue { font-size: 28px; font-weight: 700; color: var(--text-primary); line-height: 1.1; }
+  .webSmsLabel { font-size: 13px; font-weight: 400; color: var(--text-secondary); }
 }
