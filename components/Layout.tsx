@@ -186,7 +186,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           )}
         </header>
 
-        <div className={styles.content} style={isDashboardMobile ? {padding: 0, display: 'flex', flexDirection: 'column'} : {}}>
+        <div className={isDashboardMobile ? styles.contentDashboard : styles.content}>
           {children}
         </div>
 

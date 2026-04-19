@@ -53,6 +53,8 @@
 .logoutBtn:hover { background: #FEF2F2; color: #B91C1C; border-color: #FECACA; }
 
 .content { flex: 1; padding: 24px 20px; }
+/* 대시보드 전용 콘텐츠 클래스 — 모바일에서만 edge-to-edge, 데스크톱은 일반 content와 동일 패딩 */
+.contentDashboard { flex: 1; padding: 0; display: flex; flex-direction: column; }
 
 @media (max-width: 768px) {
   .headerHiddenMobile { display: none; }
@@ -106,6 +108,8 @@
   .header { align-self: stretch; }
   /* 콘텐츠: 큰 화면에서는 900px 중앙, 창 좁을 때는 100% 가변 */
   .content { width: 100%; max-width: 900px; margin: 0 auto; padding: 24px 32px; }
+  /* 대시보드 페이지도 데스크톱에선 일반 content 와 동일한 중앙정렬/패딩 */
+  .contentDashboard { width: 100%; max-width: 900px; margin: 0 auto; padding: 24px 32px; display: block; }
   /* 사이드바 메뉴 글자 */
   .navItem { font-size: 15px; color: #374151; }
   .navItem.active { font-size: 15px; font-weight: 600; color: #1D9E75; }
