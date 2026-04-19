@@ -79,7 +79,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   // 모바일 대시보드 페이지에서는 헤더 숨김
   const isDashboardMobile = router.pathname === '/'
-  const isFullPage = router.pathname === '/support'
 
   return (
     <div className={styles.root}>
