@@ -193,7 +193,7 @@ export default function SupportPage() {
 
   return (
     <Layout>
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', background: '#FAF9F5', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 200 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', background: '#FAF9F5' }}>
 
         {/* 자체 헤더 */}
         <div style={{ background: '#1D9E75', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
