@@ -149,7 +149,7 @@
 
   /* ── 새 웹 대시보드 레이아웃 ── */
   .webDash {
-    padding-top: 24px;
+    padding-top: 16px;
     padding-bottom: 24px;
     min-height: calc(100vh - 52px);
     display: flex;
