@@ -237,6 +237,41 @@ export default function Dashboard() {
   const newThisMonth = customers.filter(c => new Date(c.created_at).getMonth() === thisMonth).length
   const totalMonthly = contracts.reduce((s, c) => s + (c.monthly_fee || 0), 0)
 
+  // 만기임박: expiry_age 기준, 현재 나이 + 1년 이내 만기
+  const expiryCustomers = customers.filter(c => {
+    const custContracts = contracts.filter(ct => ct.customer_id === c.id && ct.payment_status !== '완납')
+    return custContracts.some(ct => {
+      if (!ct.expiry_age || !c.birth_date) return false
+      const birth = new Date(c.birth_date)
+      const currentAge = now.getFullYear() - birth.getFullYear()
+      return ct.expiry_age <= currentAge + 1 && ct.expiry_age > currentAge
+    })
+  })
+
+  // 계약기념일: contract_start 기준 이번달
+  const anniversaryCustomers = customers.filter(c => {
+    const custContracts = contracts.filter(ct => ct.customer_id === c.id)
+    return custContracts.some(ct => {
+      if (!ct.contract_start) return false
+      const parts = ct.contract_start.split('.')
+      if (parts.length < 2) return false
+      const contractMonth = parseInt(parts[1])
+      return contractMonth === (now.getMonth() + 1)
+    })
+  })
+
+  // 장기미연락: meetings 기준 90일 이상 미팅 없는 마이고객
+  const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)
+  const noContactCustomers = customers.filter(c => {
+    if (c.customer_type !== 'existing') return false
+    const custMeetings = meetings.filter(m => m.customer_id === c.id)
+    if (custMeetings.length === 0) return true
+    const lastMeeting = custMeetings.reduce((latest: any, m: any) => {
+      return new Date(m.meeting_date) > new Date(latest.meeting_date) ? m : latest
+    })
+    return new Date(lastMeeting.meeting_date) < ninetyDaysAgo
+  })
+
   const kakaoTargets = [
     ...nearDoneCustomers.map(c => ({ ...c, reason: '완납 임박', tag: 'warn' })),
     ...gapCustomers.filter(c => !nearDoneCustomers.find(n => n.id === c.id)).map(c => ({ ...c, reason: '보장 공백', tag: 'red' })),
@@ -250,16 +285,25 @@ export default function Dashboard() {
   }
 
   const todoItems: { id: string; icon: string; text: string; badge: string; badgeColor: string; badgeBg: string; sort: string }[] = []
-  birthdayCustomers.slice(0, 3).forEach(c => {
+  birthdayCustomers.slice(0, 5).forEach(c => {
     const diff = Math.abs(new Date(c.birth_date).getDate() - now.getDate())
     todoItems.push({ id: c.id, icon: '🎂', text: `${c.name}고객 생일`, badge: diff === 0 ? 'D-day' : `D-${diff}`, badgeColor: '#EF9F27', badgeBg: '#FEF3E2', sort: '생일임박' })
   })
-  nearDoneCustomers.slice(0, 3).forEach(c => {
+  nearDoneCustomers.slice(0, 5).forEach(c => {
     const ct = nearDoneContracts.find((ct: any) => ct.customer_id === c.id)
     todoItems.push({ id: c.id, icon: '🔥', text: `${c.name}고객 완납임박`, badge: `${ct ? calcPaymentRate(ct) : 0}%`, badgeColor: '#E24B4A', badgeBg: '#FCEBEB', sort: '완납임박' })
   })
-  gapCustomers.slice(0, 3).forEach(c => {
+  gapCustomers.slice(0, 5).forEach(c => {
     todoItems.push({ id: c.id, icon: '⚠️', text: `${c.name}고객 보장공백`, badge: '확인', badgeColor: '#E24B4A', badgeBg: '#FCEBEB', sort: '보장공백' })
+  })
+  expiryCustomers.slice(0, 5).forEach(c => {
+    todoItems.push({ id: c.id, icon: '📋', text: `${c.name}고객 만기임박`, badge: '만기', badgeColor: '#7C3AED', badgeBg: '#EDE9FE', sort: '만기임박' })
+  })
+  anniversaryCustomers.slice(0, 5).forEach(c => {
+    todoItems.push({ id: c.id, icon: '🗓️', text: `${c.name}고객 계약기념일`, badge: '기념일', badgeColor: '#0891B2', badgeBg: '#E0F2FE', sort: '계약기념일' })
+  })
+  noContactCustomers.slice(0, 5).forEach(c => {
+    todoItems.push({ id: c.id, icon: '📵', text: `${c.name}고객 장기미연락`, badge: '연락필요', badgeColor: '#6B7280', badgeBg: '#F3F4F6', sort: '장기미연락' })
   })
 
   const formatMonthly = (val: number) => {
@@ -380,6 +424,30 @@ export default function Dashboard() {
                 items: todoItems.filter(i => i.sort === '보장공백'),
                 badgeColor: '#E24B4A',
                 badgeBg: '#FCEBEB',
+              },
+              {
+                sort: '만기임박',
+                icon: '📋',
+                label: '만기 임박',
+                items: todoItems.filter(i => i.sort === '만기임박'),
+                badgeColor: '#7C3AED',
+                badgeBg: '#EDE9FE',
+              },
+              {
+                sort: '계약기념일',
+                icon: '🗓️',
+                label: '계약 기념일',
+                items: todoItems.filter(i => i.sort === '계약기념일'),
+                badgeColor: '#0891B2',
+                badgeBg: '#E0F2FE',
+              },
+              {
+                sort: '장기미연락',
+                icon: '📵',
+                label: '장기 미연락',
+                items: todoItems.filter(i => i.sort === '장기미연락'),
+                badgeColor: '#6B7280',
+                badgeBg: '#F3F4F6',
               },
             ].filter(g => g.items.length > 0)
 
@@ -605,6 +673,9 @@ export default function Dashboard() {
                   { sort: '생일임박', icon: '🎂', label: '생일 임박', count: birthdayCustomers.length, color: '#EF9F27', bg: '#FEF3E2' },
                   { sort: '완납임박', icon: '🔥', label: '완납 임박', count: nearDoneCustomers.length, color: '#E24B4A', bg: '#FCEBEB' },
                   { sort: '보장공백', icon: '⚠️', label: '보장 공백', count: gapCustomers.length, color: '#E24B4A', bg: '#FCEBEB' },
+                  { sort: '만기임박', icon: '📋', label: '만기 임박', count: expiryCustomers.length, color: '#7C3AED', bg: '#EDE9FE' },
+                  { sort: '계약기념일', icon: '🗓️', label: '계약 기념일', count: anniversaryCustomers.length, color: '#0891B2', bg: '#E0F2FE' },
+                  { sort: '장기미연락', icon: '📵', label: '장기 미연락', count: noContactCustomers.length, color: '#6B7280', bg: '#F3F4F6' },
                 ].filter(g => g.count > 0)
                 if (issueGroups.length === 0) return <div className={styles.webEmpty}>오늘 이슈 없음 🎉</div>
                 return issueGroups.map(g => (
