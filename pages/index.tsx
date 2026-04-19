@@ -671,7 +671,9 @@ export default function Dashboard() {
                     background: 'rgba(255,255,255,0.25)',
                     color: '#ffffff',
                     padding: '2px 10px',
-                    borderRadius: 6,
+                    borderRadius: 8,
+                    fontSize: 12,
+                    fontWeight: 700,
                   }}
                 >
                   {agentPlan.toUpperCase()}
