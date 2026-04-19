@@ -677,7 +677,7 @@ export default function Dashboard() {
                   <div key={g.sort} className={styles.webListRow} onClick={() => router.push(`/customers?sort=${g.sort}`)}>
                     <span className={styles.webListIcon}>{g.icon}</span>
                     <span className={styles.webListLabel}>{g.label}</span>
-                    <span className={styles.webListMeta} style={{ color: g.color }}>{g.count}명</span>
+                    <span className={styles.webListMeta}>{g.count}명</span>
                   </div>
                 ))
               })()}
