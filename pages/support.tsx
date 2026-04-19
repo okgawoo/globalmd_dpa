@@ -28,12 +28,12 @@ function renderMarkdown(text: string) {
 }
 
 const CATEGORIES_L1 = [
-  { id: 'data',       label: '데이터 입력' },
-  { id: 'customer',   label: '고객 관리' },
-  { id: 'sms',        label: '문자 발송' },
-  { id: 'sender',     label: '발신번호 인증' },
-  { id: 'newsletter', label: '뉴스레터' },
-  { id: 'etc',        label: '기타 문의' },
+  { id: 'sender',   label: '발신번호 인증' },
+  { id: 'data',     label: '데이터 입력' },
+  { id: 'sms',      label: '문자 발송' },
+  { id: 'customer', label: '고객 관리' },
+  { id: 'sales',    label: '영업 관리' },
+  { id: 'etc',      label: '기타 문의' },
 ]
 
 const CATEGORIES_L2: Record<string, { id: string; label: string }[]> = {
@@ -61,10 +61,11 @@ const CATEGORIES_L2: Record<string, { id: string; label: string }[]> = {
     { id: 'sender_status', label: '등록 현황 확인' },
     { id: 'sender_etc',    label: '기타' },
   ],
-  newsletter: [
-    { id: 'newsletter_send',     label: '발송 방법' },
-    { id: 'newsletter_template', label: '템플릿 사용법' },
-    { id: 'newsletter_etc',      label: '기타' },
+  sales: [
+    { id: 'sales_meeting', label: '미팅 일정 관리' },
+    { id: 'sales_history', label: '영업 이력 관리' },
+    { id: 'sales_contact', label: '연락할 고객' },
+    { id: 'sales_etc',     label: '기타' },
   ],
   etc: [
     { id: 'etc_account',    label: '계정 관련' },
@@ -199,7 +200,7 @@ export default function SupportPage() {
         </div>
 
         {/* 채팅 영역 */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '20px 16px 16px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '10px 10px 10px', display: 'flex', flexDirection: 'column', gap: 14 }}>
           {messages.map((msg, i) => (
             <div key={i} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start', gap: 8, alignItems: 'flex-end' }}>
               {msg.role === 'assistant' && (
@@ -237,7 +238,7 @@ export default function SupportPage() {
 
           {/* 1차 카테고리 - 2열 그리드 통일 */}
           {step === 'l1' && !loading && (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 4 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, margin: '4px 0 0' }}>
               {CATEGORIES_L1.map(cat => (
                 <button key={cat.id} onClick={() => selectL1(cat)}
                   style={{ padding: '12px 8px', borderRadius: 12, border: '1.5px solid #1D9E75', background: '#fff', color: '#1D9E75', fontSize: 14, fontWeight: 600, cursor: 'pointer', textAlign: 'center' }}>
@@ -249,7 +250,7 @@ export default function SupportPage() {
 
           {/* 2차 카테고리 - 2열 그리드 통일 */}
           {step === 'l2' && !loading && selectedL1 && (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 4 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, margin: '4px 0 0' }}>
               {CATEGORIES_L2[selectedL1]?.map(cat => (
                 <button key={cat.id} onClick={() => selectL2(cat)}
                   style={{ padding: '12px 8px', borderRadius: 12, border: '1.5px solid #1D9E75', background: '#fff', color: '#1D9E75', fontSize: 14, fontWeight: 600, cursor: 'pointer', textAlign: 'center' }}>
