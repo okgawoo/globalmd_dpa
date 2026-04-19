@@ -45,6 +45,7 @@ export default function Dashboard() {
   const [seenBirthday, setSeenBirthday] = useState<string[]>([])
   const [seenGap, setSeenGap] = useState<string[]>([])
   const [unreadNotice, setUnreadNotice] = useState<any>(null)
+  const [smsStats, setSmsStats] = useState({ total: 0, success: 0, failed: 0 })
 
   const now = new Date()
   const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })
@@ -165,6 +166,22 @@ export default function Dashboard() {
     setContracts(conts)
     setCoverages(covs)
     setMeetings(meetsRes.data || [])
+
+    // 오늘 문자 발송 현황
+    const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0)
+    const { data: smsRows } = await supabase
+      .from('dpa_messages')
+      .select('status')
+      .eq('agent_id', agentId)
+      .gte('sent_at', todayStart.toISOString())
+    const sms = { total: 0, success: 0, failed: 0 }
+    ;(smsRows || []).forEach((m: any) => {
+      sms.total++
+      if (m.status === 'failed') sms.failed++
+      else sms.success++
+    })
+    setSmsStats(sms)
+
     setLoading(false)
   }
 
@@ -529,170 +546,140 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ── 웹(데스크탑) 기존 대시보드 ── */}
+      {/* ── 웹(데스크탑) 대시보드 ── */}
       <div className={styles.desktopDash}>
-        <div className={styles.topRow}>
-          <div className={styles.welcomeMsg}>
-            안녕하세요, <strong>{agentName || 'admin'} 설계사님</strong> 👋 오늘도 좋은 하루 되세요!
-          </div>
-          <div className={styles.dateRow}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
-              <span className={styles.dateStr}>{dateStr}</span>
-              {agentPlan && (
-                <span style={{
-                  display: 'inline-block', padding: '2px 10px', borderRadius: 10,
-                  fontSize: 11, fontWeight: 700, letterSpacing: 0.5,
-                  background: agentPlan === 'pro' ? '#1D9E75' : agentPlan === 'standard' ? '#378ADD' : '#888',
-                  color: 'white',
-                }}>{agentPlan.toUpperCase()}</span>
-              )}
+        <div className={styles.webDash}>
+          <div className={styles.topRow}>
+            <div className={styles.welcomeMsg}>
+              안녕하세요, <strong>{agentName || 'admin'} 설계사님</strong> 👋 오늘도 좋은 하루 되세요!
             </div>
-            <div style={{ position: 'relative' }}>
-              <button className={styles.calBtn} onClick={() => setCalOpen(v => !v)}>📅 달력</button>
-              {calOpen && (
-                <>
-                  <div style={{ position: 'fixed', inset: 0, zIndex: 200 }} onClick={() => setCalOpen(false)} />
-                  <div className={styles.calPopup} style={{ top: '100%', right: 0, marginTop: 6, position: 'absolute', zIndex: 201 }} onClick={e => e.stopPropagation()}>
-                    <div className={styles.calHeader}>
-                      <button className={styles.calArrow} onClick={prevMonth}>‹</button>
-                      <span className={styles.calMonthStr}>{calMonthStr}</span>
-                      <button className={styles.calArrow} onClick={nextMonth}>›</button>
-                      <button className={styles.calClose} onClick={() => setCalOpen(false)}>✕</button>
-                    </div>
-                    <div className={styles.calGrid}>
-                      {['일','월','화','수','목','금','토'].map(d => (
-                        <div key={d} className={styles.calDayLabel}>{d}</div>
-                      ))}
-                      {Array.from({ length: calFirst }).map((_, i) => <div key={`e${i}`} />)}
-                      {Array.from({ length: calLast }).map((_, i) => {
-                        const day = i + 1
-                        const isToday = calYear === now.getFullYear() && calMonth === now.getMonth() && day === now.getDate()
-                        return (
-                          <div key={day} className={[styles.calDay, isToday ? styles.calToday : ''].join(' ')}>{day}</div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className={styles.alertsTitle}>오늘의 액션 알림</div>
-        <div className={styles.alerts}>
-          <div className={[styles.alertCard, styles.acRed].join(' ')} onClick={handleGapClick} style={{cursor: gapCustomers.length > 0 ? 'pointer' : 'default'}}>
-            <div className={styles.alertIcon}>⚠</div>
-            <div className={styles.alertTitle}>
-              보장 공백
-              {gapCustomers.some((c: any) => isNewGap(c.id)) && <span style={{marginLeft:6,fontSize:10,background:'#E53E3E',color:'#fff',borderRadius:4,padding:'1px 5px',fontWeight:700,verticalAlign:'middle'}}>NEW</span>}
-            </div>
-            <div className={styles.alertDesc}>
-              {gapCustomers.length === 0 ? '공백 고객 없음' : gapCustomers.map((c: any) => `${c.name} 님`).join(', ')} — 뇌혈관 확대 제안 필요
-            </div>
-          </div>
-          <div className={[styles.alertCard, styles.acAmber].join(' ')} onClick={handleNearDoneClick} style={{cursor: nearDoneCustomers.length > 0 ? 'pointer' : 'default'}}>
-            <div className={styles.alertIcon}>🔥</div>
-            <div className={styles.alertTitle}>
-              완납 임박 {nearDoneCustomers.length}명
-              {nearDoneCustomers.some((c: any) => isNewNearDone(c.id)) && <span style={{marginLeft:6,fontSize:10,background:'#E53E3E',color:'#fff',borderRadius:4,padding:'1px 5px',fontWeight:700,verticalAlign:'middle'}}>NEW</span>}
-            </div>
-            <div className={styles.alertDesc}>
-              {nearDoneCustomers.length === 0 ? '해당 없음' : nearDoneCustomers.map((c: any) => {
-                const ct = nearDoneContracts.find((ct: any) => ct.customer_id === c.id)
-                return `${c.name}(${ct?.company} ${ct ? calcPaymentRate(ct) : 0}%)`
-              }).join(', ')}
-            </div>
-          </div>
-          <div className={[styles.alertCard, styles.acGreen].join(' ')} onClick={handleBirthdayClick} style={{cursor: birthdayCustomers.length > 0 ? 'pointer' : 'default'}}>
-            <div className={styles.alertIcon}>★</div>
-            <div className={styles.alertTitle}>
-              유지 관리
-              {birthdayCustomers.some((c: any) => isNewBirthday(c.id)) && <span style={{marginLeft:6,fontSize:10,background:'#E53E3E',color:'#fff',borderRadius:4,padding:'1px 5px',fontWeight:700,verticalAlign:'middle'}}>NEW</span>}
-            </div>
-            <div className={styles.alertDesc}>
-              {fullCustomers.length === 0 ? '해당 없음' : fullCustomers.map((c: any) => `${c.name} 님`).join(', ')} — 보장 완비, 정기 안부 연락
-            </div>
-          </div>
-        </div>
-
-        <div className={styles.metrics}>
-          <div className={styles.metric} onClick={(e) => { e.preventDefault(); router.push('/customers') }}>
-            <div className={styles.mlabel}>총 고객</div>
-            <div className={styles.mvalue}>{customers.length}</div>
-            <div className={styles.msub}>기존 고객 ↗</div>
-          </div>
-          <div className={styles.metric} onClick={(e) => { e.preventDefault(); router.push('/customers') }}>
-            <div className={styles.mlabel}>보험 계약</div>
-            <div className={styles.mvalue}>{contracts.length}</div>
-            <div className={styles.msub}>총 계약 건수 ↗</div>
-          </div>
-          <div className={styles.metric} onClick={handleNearDoneClick} style={{cursor:'pointer'}}>
-            <div className={styles.mlabel}>
-              완납 임박
-              {nearDoneCustomers.some((c: any) => isNewNearDone(c.id)) && <span style={{marginLeft:6,fontSize:10,background:'#E53E3E',color:'#fff',borderRadius:4,padding:'1px 5px',fontWeight:700,verticalAlign:'middle'}}>NEW</span>}
-            </div>
-            <div className={[styles.mvalue, styles.red].join(' ')}>{nearDoneCustomers.length}</div>
-            <div className={styles.msub}>납입률 90%↑ ↗</div>
-          </div>
-          <div className={styles.metric} onClick={handleGapClick} style={{cursor:'pointer'}}>
-            <div className={styles.mlabel}>
-              보장 공백
-              {gapCustomers.some((c: any) => isNewGap(c.id)) && <span style={{marginLeft:6,fontSize:10,background:'#E53E3E',color:'#fff',borderRadius:4,padding:'1px 5px',fontWeight:700,verticalAlign:'middle'}}>NEW</span>}
-            </div>
-            <div className={[styles.mvalue, styles.amber].join(' ')}>{gapCustomers.length}</div>
-            <div className={styles.msub}>뇌혈관 미가입 ↗</div>
-          </div>
-        </div>
-
-        <div className={styles.grid2}>
-          <div className={styles.card}>
-            <div className={styles.cardTitle}>카톡 발송 예정</div>
-            {kakaoTargets.length === 0 ? (
-              <div className={styles.emptySmall}>오늘 발송 대상 없음</div>
-            ) : kakaoTargets.map((c, i) => (
-              <div key={i} className={styles.kakaoRow}>
-                <div className={styles.kakaoName}>{c.name}</div>
-                <span className={[styles.badge, c.tag === 'warn' ? styles.badgeWarn : c.tag === 'green' ? styles.badgeGreen : styles.badgeRed].join(' ')}>{c.reason}</span>
-                <button className={styles.copyBtn} onClick={() => {
-                  navigator.clipboard.writeText(getScript(c))
-                  alert('복사됐어요! 카톡에 붙여넣으세요 😊')
-                }}>복사</button>
+            <div className={styles.dateRow}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+                <span className={styles.dateStr}>{dateStr}</span>
+                {agentPlan && (
+                  <span style={{
+                    display: 'inline-block', padding: '2px 10px', borderRadius: 10,
+                    fontSize: 11, fontWeight: 700, letterSpacing: 0.5,
+                    background: agentPlan === 'pro' ? '#1D9E75' : agentPlan === 'standard' ? '#378ADD' : '#888',
+                    color: 'white',
+                  }}>{agentPlan.toUpperCase()}</span>
+                )}
               </div>
-            ))}
+              <div style={{ position: 'relative' }}>
+                <button className={styles.calBtn} onClick={() => setCalOpen(v => !v)}>📅 달력</button>
+                {calOpen && (
+                  <>
+                    <div style={{ position: 'fixed', inset: 0, zIndex: 200 }} onClick={() => setCalOpen(false)} />
+                    <div className={styles.calPopup} style={{ top: '100%', right: 0, marginTop: 6, position: 'absolute', zIndex: 201 }} onClick={e => e.stopPropagation()}>
+                      <div className={styles.calHeader}>
+                        <button className={styles.calArrow} onClick={prevMonth}>‹</button>
+                        <span className={styles.calMonthStr}>{calMonthStr}</span>
+                        <button className={styles.calArrow} onClick={nextMonth}>›</button>
+                        <button className={styles.calClose} onClick={() => setCalOpen(false)}>✕</button>
+                      </div>
+                      <div className={styles.calGrid}>
+                        {['일','월','화','수','목','금','토'].map(d => (
+                          <div key={d} className={styles.calDayLabel}>{d}</div>
+                        ))}
+                        {Array.from({ length: calFirst }).map((_, i) => <div key={`e${i}`} />)}
+                        {Array.from({ length: calLast }).map((_, i) => {
+                          const day = i + 1
+                          const isToday = calYear === now.getFullYear() && calMonth === now.getMonth() && day === now.getDate()
+                          return (
+                            <div key={day} className={[styles.calDay, isToday ? styles.calToday : ''].join(' ')}>{day}</div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
 
-          <div className={styles.card}>
-            <div className={styles.cardTitle}>이번 달 통계</div>
-            <div className={styles.statRow}>
-              <span className={styles.statLabel}>신규 고객</span>
-              <span className={styles.statVal}>{newThisMonth}명</span>
+          {/* 오늘의 할일 + 오늘 영업일정 (2열) */}
+          <div className={styles.webRow2}>
+            <div className={styles.webCard}>
+              <div className={styles.webCardTitle}>오늘의 할일</div>
+              {(() => {
+                const issueGroups = [
+                  { sort: '생일임박', icon: '🎂', label: '생일 임박', count: birthdayCustomers.length, color: '#EF9F27', bg: '#FEF3E2' },
+                  { sort: '완납임박', icon: '🔥', label: '완납 임박', count: nearDoneCustomers.length, color: '#E24B4A', bg: '#FCEBEB' },
+                  { sort: '보장공백', icon: '⚠️', label: '보장 공백', count: gapCustomers.length, color: '#E24B4A', bg: '#FCEBEB' },
+                ].filter(g => g.count > 0)
+                if (issueGroups.length === 0) return <div className={styles.webEmpty}>오늘 이슈 없음 🎉</div>
+                return issueGroups.map(g => (
+                  <div key={g.sort} className={styles.webListRow} onClick={() => router.push(`/customers?sort=${g.sort}`)}>
+                    <span className={styles.webListIcon}>{g.icon}</span>
+                    <span className={styles.webListLabel}>{g.label}</span>
+                    <span className={styles.webBadge} style={{ color: g.color, background: g.bg }}>{g.count}명</span>
+                  </div>
+                ))
+              })()}
             </div>
-            <div className={styles.statRow}>
-              <span className={styles.statLabel}>총 월 보험료</span>
-              <span className={styles.statVal}>{totalMonthly.toLocaleString()}원</span>
-            </div>
-            <div className={styles.statRow}>
-              <span className={styles.statLabel}>관리 계약 수</span>
-              <span className={styles.statVal}>{contracts.length}건</span>
-            </div>
-            <div className={styles.statRow}>
-              <span className={styles.statLabel}>보장 공백 고객</span>
-              <span className={[styles.statVal, styles.red].join(' ')}>{gapCustomers.length}명</span>
+
+            <div className={styles.webCard}>
+              <div className={styles.webCardTitle}>오늘 영업일정</div>
+              {(() => {
+                const todayDateStr = new Date().toISOString().split('T')[0]
+                const todayMeetings = meetings.filter(m => (m.meeting_date || '').split('T')[0] === todayDateStr)
+                if (todayMeetings.length === 0) return <div className={styles.webEmpty}>오늘 미팅이 없어요 😊</div>
+                return todayMeetings.map(m => {
+                  const cust = customers.find(c => c.id === m.customer_id)
+                  const name = cust?.name || '이름 없음'
+                  const badgeText = cust?.customer_type === 'prospect' ? '관심고객' : '마이고객'
+                  return (
+                    <div key={m.id} className={styles.webListRow} onClick={() => router.push(`/sales?tab=meeting&sub=today&meetingId=${m.id}`)}>
+                      <span className={styles.webListIcon}>🤝</span>
+                      <span className={styles.webListLabel}>{name} 고객
+                        <span className={styles.webBadge} style={{ color: '#1D4ED8', background: '#EFF6FF', marginLeft: 8 }}>{badgeText}</span>
+                      </span>
+                      <span className={styles.webListMeta}>{m.meeting_time || '시간 미정'}</span>
+                    </div>
+                  )
+                })
+              })()}
             </div>
           </div>
-        </div>
 
-        <div className={styles.card} style={{ marginTop: 14 }}>
-          <div className={styles.cardTitle}>최근 활동 로그</div>
-          {customers.slice(-3).reverse().map((c, i) => (
-            <div key={i} className={styles.logRow}>
-              <span className={styles.logDot} />
-              <span className={styles.logText}>{c.name} 님 고객 등록</span>
-              <span className={styles.logTime}>{new Date(c.created_at).toLocaleDateString('ko-KR')}</span>
+          {/* 통계 카드 4열 */}
+          <div className={styles.webStats4}>
+            <div className={styles.webStatCard} onClick={() => router.push('/customers')}>
+              <div className={styles.webStatLabel}>총 고객</div>
+              <div className={styles.webStatValue}>{customers.length}</div>
             </div>
-          ))}
-          {customers.length === 0 && <div className={styles.emptySmall}>활동 내역 없음</div>}
+            <div className={styles.webStatCard} onClick={() => router.push('/customers')}>
+              <div className={styles.webStatLabel}>보험 계약</div>
+              <div className={styles.webStatValue}>{contracts.length}</div>
+            </div>
+            <div className={styles.webStatCard} onClick={handleNearDoneClick}>
+              <div className={styles.webStatLabel}>완납 임박</div>
+              <div className={styles.webStatValue} style={{ color: 'var(--red)' }}>{nearDoneCustomers.length}</div>
+            </div>
+            <div className={styles.webStatCard} onClick={handleGapClick}>
+              <div className={styles.webStatLabel}>보장 공백</div>
+              <div className={styles.webStatValue} style={{ color: 'var(--amber)' }}>{gapCustomers.length}</div>
+            </div>
+          </div>
+
+          {/* 오늘 문자 발송 현황 (전체폭) */}
+          <div className={styles.webCard}>
+            <div className={styles.webCardTitle}>오늘 문자 발송 현황</div>
+            <div className={styles.webSmsRow}>
+              <div className={styles.webSmsItem}>
+                <span className={styles.webSmsLabel}>발송 건수</span>
+                <span className={styles.webSmsValue}>{smsStats.total}</span>
+              </div>
+              <div className={styles.webSmsItem}>
+                <span className={styles.webSmsLabel}>성공</span>
+                <span className={styles.webSmsValue} style={{ color: '#1D9E75' }}>{smsStats.success}</span>
+              </div>
+              <div className={styles.webSmsItem}>
+                <span className={styles.webSmsLabel}>실패</span>
+                <span className={styles.webSmsValue} style={{ color: '#E24B4A' }}>{smsStats.failed}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
