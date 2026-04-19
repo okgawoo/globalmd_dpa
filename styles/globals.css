@@ -37,7 +37,7 @@
 
 /* 웹(데스크톱) 전용 배경색: 모바일은 #FAF9F5 유지 */
 @media (min-width: 769px) {
-  :root { --bg: #F0F0EB; }
+  :root { --bg: #F8F8F6; }
 }
 
 body {
