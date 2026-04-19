@@ -47,7 +47,7 @@ export default function Dashboard() {
   const [seenGap, setSeenGap] = useState<string[]>([])
   const [unreadNotice, setUnreadNotice] = useState<any>(null)
   const [smsStats, setSmsStats] = useState({ total: 0, success: 0, failed: 0 })
-  const [meetingStats, setMeetingStats] = useState({ done: 0, scheduled: 0, waiting: 0, cancelled: 0 })
+  const [meetingStats, setMeetingStats] = useState({ done: 0, scheduled: 0, cancelled: 0 })
 
   const now = new Date()
   const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })
@@ -197,11 +197,10 @@ export default function Dashboard() {
       .eq('agent_id', agentId)
       .gte('meeting_date', firstStr)
       .lte('meeting_date', lastStr)
-    const mStats = { done: 0, scheduled: 0, waiting: 0, cancelled: 0 }
+    const mStats = { done: 0, scheduled: 0, cancelled: 0 }
     ;(monthMeetings || []).forEach((m: any) => {
       if (m.status === '완료') mStats.done++
       else if (m.status === '취소') mStats.cancelled++
-      else if (m.status === '대기') mStats.waiting++
       else mStats.scheduled++
     })
     setMeetingStats(mStats)
@@ -509,8 +508,8 @@ export default function Dashboard() {
             const customer = customers.find(c => c.id === m.customer_id)
             const name = customer?.name || '이름 없음'
             const badgeText = customer?.customer_type === 'prospect' ? '관심고객' : '마이고객'
-            const badgeColor = '#1D4ED8'
-            const badgeBg = '#EFF6FF'
+            const badgeColor = customer?.customer_type === 'prospect' ? '#B45309' : '#1D4ED8'
+            const badgeBg = customer?.customer_type === 'prospect' ? '#FEF3E2' : '#EFF6FF'
             const dateObj = new Date(m.meeting_date)
             const dateLabel = `${dateObj.getMonth()+1}/${dateObj.getDate()}(${['일','월','화','수','목','금','토'][dateObj.getDay()]})`
             const timeLabel = m.meeting_time ? ` ${m.meeting_time}` : ''
@@ -532,8 +531,8 @@ export default function Dashboard() {
                 const customer = customers.find(c => c.id === m.customer_id)
                 const name = customer?.name || '이름 없음'
                 const badgeText = customer?.customer_type === 'prospect' ? '관심고객' : '마이고객'
-                const badgeColor = '#1D4ED8'
-                const badgeBg = '#EFF6FF'
+                const badgeColor = customer?.customer_type === 'prospect' ? '#B45309' : '#1D4ED8'
+                const badgeBg = customer?.customer_type === 'prospect' ? '#FEF3E2' : '#EFF6FF'
                 const dateObj = new Date(m.meeting_date)
                 const dateLabel = `${dateObj.getMonth()+1}/${dateObj.getDate()}(${['일','월','화','수','목','금','토'][dateObj.getDay()]})`
                 const timeLabel = m.meeting_time ? ` ${m.meeting_time}` : ''
@@ -695,11 +694,13 @@ export default function Dashboard() {
                   const cust = customers.find(c => c.id === m.customer_id)
                   const name = cust?.name || '이름 없음'
                   const badgeText = cust?.customer_type === 'prospect' ? '관심고객' : '마이고객'
+                  const badgeColor = cust?.customer_type === 'prospect' ? '#B45309' : '#1D4ED8'
+                  const badgeBg = cust?.customer_type === 'prospect' ? '#FEF3E2' : '#EFF6FF'
                   return (
                     <div key={m.id} className={styles.webListRow} onClick={() => router.push(`/sales?tab=meeting&sub=today&meetingId=${m.id}`)}>
                       <span className={styles.webListIcon}>🤝</span>
                       <span className={styles.webListLabel}>{name} 고객
-                        <span className={styles.webBadge} style={{ color: '#1D4ED8', background: '#EFF6FF', marginLeft: 8 }}>{badgeText}</span>
+                        <span className={styles.webBadge} style={{ color: badgeColor, background: badgeBg, marginLeft: 8 }}>{badgeText}</span>
                       </span>
                       <span className={styles.webListMeta}>{m.meeting_time || '시간 미정'}</span>
                     </div>
@@ -751,19 +752,14 @@ export default function Dashboard() {
               <div className={styles.webCardBody}>
                 <div className={styles.webMeetingStats}>
                   <div className={styles.webMeetingStat}>
-                    <span className={styles.webDot} style={{ background: '#378ADD' }}></span>
-                    <span className={styles.webMeetingLabel}>예정</span>
-                    <span className={styles.webMeetingValue}>{meetingStats.scheduled}건</span>
-                  </div>
-                  <div className={styles.webMeetingStat}>
-                    <span className={styles.webDot} style={{ background: '#EF9F27' }}></span>
-                    <span className={styles.webMeetingLabel}>대기</span>
-                    <span className={styles.webMeetingValue}>{meetingStats.waiting}건</span>
-                  </div>
-                  <div className={styles.webMeetingStat}>
                     <span className={styles.webDot} style={{ background: '#1D9E75' }}></span>
                     <span className={styles.webMeetingLabel}>완료</span>
                     <span className={styles.webMeetingValue}>{meetingStats.done}건</span>
+                  </div>
+                  <div className={styles.webMeetingStat}>
+                    <span className={styles.webDot} style={{ background: '#378ADD' }}></span>
+                    <span className={styles.webMeetingLabel}>예정</span>
+                    <span className={styles.webMeetingValue}>{meetingStats.scheduled}건</span>
                   </div>
                   <div className={styles.webMeetingStat}>
                     <span className={styles.webDot} style={{ background: '#B91C1C' }}></span>
@@ -790,11 +786,13 @@ export default function Dashboard() {
                 if (recent.length === 0) return <div className={styles.webEmpty}>등록된 고객이 없어요</div>
                 return recent.map(c => {
                   const badgeText = c.customer_type === 'prospect' ? '관심고객' : '마이고객'
+                  const badgeColor = c.customer_type === 'prospect' ? '#B45309' : '#1D4ED8'
+                  const badgeBg = c.customer_type === 'prospect' ? '#FEF3E2' : '#EFF6FF'
                   return (
                     <div key={c.id} className={styles.webListRow} onClick={() => router.push(`/customers?id=${c.id}`)}>
                       <span className={styles.webListIcon}>👤</span>
                       <span className={styles.webListLabel}>{c.name} 고객
-                        <span className={styles.webBadge} style={{ color: '#1D4ED8', background: '#EFF6FF', marginLeft: 8 }}>{badgeText}</span>
+                        <span className={styles.webBadge} style={{ color: badgeColor, background: badgeBg, marginLeft: 8 }}>{badgeText}</span>
                       </span>
                       <span className={styles.webListMeta}>{new Date(c.created_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}</span>
                     </div>
