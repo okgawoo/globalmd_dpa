@@ -646,21 +646,6 @@ export default function Dashboard() {
       {/* ── 웹(데스크탑) ERP 대시보드 ── */}
       <div className={styles.desktopDash}>
         <div className={styles.webDash}>
-          {/* 상단 바 — 좌측 인사말, 우측 날짜+요금제 뱃지 */}
-          <div className={styles.webTopBar}>
-            <span className={styles.webTopGreet}>
-              안녕하세요, {agentName ? `${agentName} ` : ''}{agentRole === 'admin' ? '대표님' : '설계사님'}
-            </span>
-            <div className={styles.webTopDateWrap}>
-              <span className={styles.webTopDate}>{dateStr}</span>
-              {agentPlan && (
-                <span className={styles.webTopPlan}>
-                  {agentPlan.toUpperCase()}
-                </span>
-              )}
-            </div>
-          </div>
-
           {/* 1행: 오늘의 할일 + 오늘 영업일정 (2열) — 두 카드 콘텐츠 맞춰 자동 높이 + 좌우 동일 높이 */}
           <div className={styles.webRow2} style={{ display: 'flex', alignItems: 'stretch', gap: 14 }}>
             <div className={styles.webCard} style={{ flex: 1, height: '100%', minHeight: 300 }}>
