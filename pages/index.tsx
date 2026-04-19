@@ -396,9 +396,7 @@ export default function Dashboard() {
             <span className={styles.mobileCardLink} onClick={(e) => { e.preventDefault(); router.push('/customers') }}>전체보기</span>
           </div>
           <div className={styles.mobileCardBody}>
-          {todoItems.length === 0 ? (
-            <p className={styles.mobileEmpty}>오늘 이슈 없음 🎉</p>
-          ) : (() => {
+          {(() => {
             // 이슈별로 그룹화
             const issueGroups = [
               {
@@ -449,7 +447,7 @@ export default function Dashboard() {
                 badgeColor: '#6B7280',
                 badgeBg: '#F3F4F6',
               },
-            ].filter(g => g.items.length > 0)
+            ]
 
             return (
               <>
@@ -676,8 +674,7 @@ export default function Dashboard() {
                   { sort: '만기임박', icon: '📋', label: '만기 임박', count: expiryCustomers.length, color: '#7C3AED', bg: '#EDE9FE' },
                   { sort: '계약기념일', icon: '🗓️', label: '계약 기념일', count: anniversaryCustomers.length, color: '#0891B2', bg: '#E0F2FE' },
                   { sort: '장기미연락', icon: '📵', label: '장기 미연락', count: noContactCustomers.length, color: '#6B7280', bg: '#F3F4F6' },
-                ].filter(g => g.count > 0)
-                if (issueGroups.length === 0) return <div className={styles.webEmpty}>오늘 이슈 없음 🎉</div>
+                ]
                 return issueGroups.map(g => (
                   <div key={g.sort} className={styles.webListRow} onClick={() => router.push(`/customers?sort=${g.sort}`)}>
                     <span className={styles.webListIcon}>{g.icon}</span>
