@@ -193,7 +193,7 @@ export default function SupportPage() {
 
   return (
     <Layout>
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', background: '#FAF9F5' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100dvh - 56px)', background: '#FAF9F5' }}>
 
         {/* 자체 헤더 */}
         <div style={{ background: '#1D9E75', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
@@ -214,15 +214,18 @@ export default function SupportPage() {
                 <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#E1F5EE', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17, flexShrink: 0 }}>🤖</div>
               )}
               <div style={{
-                maxWidth: '78%',
-                padding: '11px 14px',
+                maxWidth: msg.isGuide ? '100%' : '78%',
+                padding: msg.isGuide ? '4px 0' : '11px 14px',
                 borderRadius: msg.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-                background: msg.role === 'user' ? (msg.isQuickReply ? '#E1F5EE' : '#1D9E75') : '#fff',
-                color: msg.role === 'user' ? (msg.isQuickReply ? '#065F46' : '#fff') : '#1a1a1a',
-                fontSize: 14,
+                background: msg.isGuide ? 'transparent' : msg.role === 'user' ? (msg.isQuickReply ? '#E1F5EE' : '#1D9E75') : '#fff',
+                color: msg.isGuide ? '#999' : msg.role === 'user' ? (msg.isQuickReply ? '#065F46' : '#fff') : '#1a1a1a',
+                fontSize: msg.isGuide ? 13 : 14,
                 lineHeight: 1.6,
-                border: msg.role === 'assistant' ? '1px solid #EDEBE4' : 'none',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                border: msg.isGuide ? 'none' : msg.role === 'assistant' ? '1px solid #EDEBE4' : 'none',
+                boxShadow: msg.isGuide ? 'none' : '0 1px 3px rgba(0,0,0,0.06)',
+                whiteSpace: msg.isGuide ? 'nowrap' : 'normal',
+                overflow: msg.isGuide ? 'hidden' : 'visible',
+                textOverflow: msg.isGuide ? 'ellipsis' : 'clip',
               }}>
                 {renderMarkdown(msg.content)}
               </div>
