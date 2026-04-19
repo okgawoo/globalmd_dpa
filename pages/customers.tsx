@@ -1107,6 +1107,8 @@ export default function Customers() {
                 dragging = false
                 panel.style.transition = ''
                 panel.style.transform = ''
+                panel.removeEventListener('touchmove', onMove)
+                document.removeEventListener('touchend', onEnd)
                 return
               }
               const dy = ev.touches[0].clientY - startY
@@ -1123,10 +1125,10 @@ export default function Customers() {
               panel.style.transition = ''
               panel.style.transform = ''
               if (dragging && dy > 100) closeSlide()
-              document.removeEventListener('touchmove', onMove)
+              panel.removeEventListener('touchmove', onMove)
               document.removeEventListener('touchend', onEnd)
             }
-            document.addEventListener('touchmove', onMove, { passive: true })
+            panel.addEventListener('touchmove', onMove, { passive: true })
             document.addEventListener('touchend', onEnd)
           }}
         >
