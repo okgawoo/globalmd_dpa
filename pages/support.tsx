@@ -100,6 +100,7 @@ export default function SupportPage() {
   }, [])
 
   useEffect(() => {
+    if (messages.length <= 1) return
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, loading, step])
 
