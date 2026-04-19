@@ -232,9 +232,8 @@ export default function SupportPage() {
         <div ref={bottomRef} />
       </div>
 
-      {/* 입력창 */}
-      {step === 'chat' && (
-        <div style={{ background: '#fff', borderTop: '1px solid #EDEBE4', padding: '10px 12px', display: 'flex', gap: 8, alignItems: 'flex-end', flexShrink: 0 }}>
+      {/* 입력창 - 항상 하단 고정, chat 단계에서만 표시 */}
+      <div style={{ background: '#fff', borderTop: '1px solid #EDEBE4', padding: '10px 12px', display: 'flex', gap: 8, alignItems: 'flex-end', flexShrink: 0, visibility: step === 'chat' ? 'visible' : 'hidden' }}>
           <textarea
             value={input}
             onChange={e => setInput(e.target.value)}
@@ -248,7 +247,6 @@ export default function SupportPage() {
             ↑
           </button>
         </div>
-      )}
     </div>
     </Layout>
   )
