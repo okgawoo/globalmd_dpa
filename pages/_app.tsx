@@ -49,7 +49,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
   const headMeta = (
     <>
-      <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
       <meta name="theme-color" content="#1D9E75" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -59,7 +59,7 @@ export default function App({ Component, pageProps }: AppProps) {
     </>
   )
 
-  if (router.pathname === '/login' || router.pathname.startsWith('/c/') || router.pathname === '/support') {
+  if (router.pathname === '/login' || router.pathname.startsWith('/c/')) {
     return (
       <>
         <Head>{headMeta}</Head>
