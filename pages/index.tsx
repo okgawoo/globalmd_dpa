@@ -649,6 +649,10 @@ export default function Dashboard() {
           {/* 1행: 오늘의 할일 + 오늘 영업일정 (2열) — 두 카드 콘텐츠 맞춰 자동 높이 + 좌우 동일 높이 */}
           <div className={styles.webRow2} style={{ display: 'flex', alignItems: 'stretch', gap: 14 }}>
             <div className={styles.webCard} style={{ flex: 1 }}>
+              <div className={styles.webCardHeader}>
+                <div className={styles.webCardTitleGroup}>
+                  <span className={styles.webCardAccent}></span>
+                  <span className={styles.webCardTitle}>오늘의 할일</span>
                 </div>
                 <button className={styles.webCardLink} onClick={() => router.push('/customers')}>전체보기</button>
               </div>
