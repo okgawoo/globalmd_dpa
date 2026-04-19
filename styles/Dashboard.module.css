@@ -1,4 +1,4 @@
-.wrap { max-width: 1000px; }
+.wrap { width: 100%; }
 .loading { padding: 40px; text-align: center; color: var(--text-muted); }
 
 /* 웹/모바일 분리 */

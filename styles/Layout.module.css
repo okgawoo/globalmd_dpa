@@ -100,4 +100,6 @@
     white-space: nowrap;
   }
   .main.mainCollapsed { margin-left: 60px; }
+  /* 콘텐츠 영역: 남은 공간을 항상 꽉 채움 */
+  .content { width: 100%; max-width: none; padding: 24px 32px; }
 }

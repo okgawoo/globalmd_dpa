@@ -1,4 +1,4 @@
-.wrap { padding: 0 0 2rem; max-width: 1000px; }
+.wrap { padding: 0 0 2rem; width: 100%; }
 .loading { text-align: center; padding: 40px; color: #9CA3AF; }
 
 /* 탭 */
