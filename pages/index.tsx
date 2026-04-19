@@ -655,7 +655,36 @@ export default function Dashboard() {
               안녕하세요, {agentName ? `${agentName} ` : ''}{agentRole === 'admin' ? '대표님' : '설계사님'}
             </span>
           </div>
-          {/* 1행: 오늘의 할일 + 오늘 영업일정 (2열) — 두 카드 콘텐츠 맞춰 자동 높이 + 좌우 동일 높이 */}
+
+          {/* 1행: 통계 카드 6열 */}
+          <div className={styles.webStats4}>
+            <div className={styles.webStatCard} style={{ borderTopColor: '#378ADD' }} onClick={() => router.push('/customers')}>
+              <div className={styles.webStatLabel}>총 고객</div>
+              <div className={styles.webStatValue}>{customers.length}</div>
+            </div>
+            <div className={styles.webStatCard} style={{ borderTopColor: '#1D4ED8' }} onClick={() => router.push('/customers?type=existing')}>
+              <div className={styles.webStatLabel}>마이고객</div>
+              <div className={styles.webStatValue}>{myCustomers}</div>
+            </div>
+            <div className={styles.webStatCard} style={{ borderTopColor: '#B45309' }} onClick={() => router.push('/customers?type=prospect')}>
+              <div className={styles.webStatLabel}>관심고객</div>
+              <div className={styles.webStatValue}>{prospectCustomers}</div>
+            </div>
+            <div className={styles.webStatCard} style={{ borderTopColor: '#8B5CF6' }} onClick={() => router.push('/customers')}>
+              <div className={styles.webStatLabel}>이번달 신규</div>
+              <div className={styles.webStatValue}>{newThisMonth}</div>
+            </div>
+            <div className={styles.webStatCard} style={{ borderTopColor: '#1D9E75' }} onClick={() => router.push('/customers')}>
+              <div className={styles.webStatLabel}>보험 계약</div>
+              <div className={styles.webStatValue}>{contracts.length}</div>
+            </div>
+            <div className={styles.webStatCard} style={{ borderTopColor: '#0891B2' }}>
+              <div className={styles.webStatLabel}>월납입 합계</div>
+              <div className={styles.webStatValue}>{formatMonthlyWeb(totalMonthly)}</div>
+            </div>
+          </div>
+
+          {/* 2행: 오늘의 할일 + 영업일정 (2열) */}
           <div className={styles.webRow2} style={{ display: 'flex', alignItems: 'stretch', gap: 14 }}>
             <div className={styles.webCard} style={{ flex: 1 }}>
               <div className={styles.webCardHeader}>
@@ -717,34 +746,6 @@ export default function Dashboard() {
                 })
               })()}
               </div>
-            </div>
-          </div>
-
-          {/* 2행: 통계 카드 6열 (총고객 / 마이고객 / 관심고객 / 보험계약 / 이번달신규 / 월납입합계) */}
-          <div className={styles.webStats4}>
-            <div className={styles.webStatCard} style={{ borderTopColor: '#378ADD' }} onClick={() => router.push('/customers')}>
-              <div className={styles.webStatLabel}>총 고객</div>
-              <div className={styles.webStatValue}>{customers.length}</div>
-            </div>
-            <div className={styles.webStatCard} style={{ borderTopColor: '#1D4ED8' }} onClick={() => router.push('/customers?type=existing')}>
-              <div className={styles.webStatLabel}>마이고객</div>
-              <div className={styles.webStatValue}>{myCustomers}</div>
-            </div>
-            <div className={styles.webStatCard} style={{ borderTopColor: '#B45309' }} onClick={() => router.push('/customers?type=prospect')}>
-              <div className={styles.webStatLabel}>관심고객</div>
-              <div className={styles.webStatValue}>{prospectCustomers}</div>
-            </div>
-            <div className={styles.webStatCard} style={{ borderTopColor: '#8B5CF6' }} onClick={() => router.push('/customers')}>
-              <div className={styles.webStatLabel}>이번달 신규</div>
-              <div className={styles.webStatValue}>{newThisMonth}</div>
-            </div>
-            <div className={styles.webStatCard} style={{ borderTopColor: '#1D9E75' }} onClick={() => router.push('/customers')}>
-              <div className={styles.webStatLabel}>보험 계약</div>
-              <div className={styles.webStatValue}>{contracts.length}</div>
-            </div>
-            <div className={styles.webStatCard} style={{ borderTopColor: '#0891B2' }}>
-              <div className={styles.webStatLabel}>월납입 합계</div>
-              <div className={styles.webStatValue}>{formatMonthlyWeb(totalMonthly)}</div>
             </div>
           </div>
 
