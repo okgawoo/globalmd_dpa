@@ -146,8 +146,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </aside>
 
       <div className={styles.main}>
-        <header className={[styles.header, isDashboardMobile ? styles.headerHiddenMobile : ''].join(' ')} style={isFullPage ? {display: 'none'} : {}}
-          style={router.pathname === '/admin' ? {background:'#1D9E75'} : {}}>
+        <header className={[styles.header, isDashboardMobile ? styles.headerHiddenMobile : ''].join(' ')} style={isFullPage ? {display: 'none'} : router.pathname === '/admin' ? {background:'#1D9E75'} : {}}>
           <button className={styles.hamburger} onClick={() => setSidebarOpen(!sidebarOpen)}
             style={router.pathname === '/admin' ? {filter:'brightness(0) invert(1)'} : {}}>
             <span /><span /><span />
