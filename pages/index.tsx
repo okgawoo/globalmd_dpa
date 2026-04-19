@@ -629,7 +629,7 @@ export default function Dashboard() {
               <div className={styles.webCardBody}>
               {(() => {
                 const todayDateStr = new Date().toISOString().split('T')[0]
-                const todayMeetings = meetings.filter(m => (m.meeting_date || '').split('T')[0] === todayDateStr)
+                const todayMeetings = meetings.filter(m => (m.meeting_date || '').split('T')[0] === todayDateStr).slice(0, 5)
                 if (todayMeetings.length === 0) return <div className={styles.webEmpty}>오늘 미팅이 없어요 😊</div>
                 return todayMeetings.map(m => {
                   const cust = customers.find(c => c.id === m.customer_id)
