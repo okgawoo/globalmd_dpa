@@ -195,7 +195,7 @@ export default function SupportPage() {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', background: '#FAF9F5' }}>
 
         {/* 자체 헤더 */}
-        <div style={{ background: '#1D9E75', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+        <div style={{ background: '#1D9E75', height: 56, padding: '0 16px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
           <button onClick={() => router.back()}
             style={{ background: 'none', border: 'none', color: '#fff', fontSize: 22, cursor: 'pointer', padding: 0, lineHeight: 1 }}>
             ←
