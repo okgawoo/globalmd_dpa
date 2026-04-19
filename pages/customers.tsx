@@ -1092,6 +1092,7 @@ export default function Customers() {
       <div className={[styles.slideOverlay, slideOpen ? styles.overlayVisible : ''].join(' ')} onClick={closeSlide}>
         <div
           className={[styles.slidePanel, slideOpen ? styles.slideIn : styles.slideOut].join(' ')}
+          style={{ touchAction: 'pan-x pan-y pinch-zoom' }}
           onClick={e => e.stopPropagation()}
           onTouchStart={e => {
             // 멀티터치(핀치 줌 등)는 드래그 처리 안 함
@@ -1133,7 +1134,7 @@ export default function Customers() {
           }}
         >
           <div className={styles.slideHandle} />
-          <div className={styles.slideContent} ref={slideContentRef}>
+          <div className={styles.slideContent} ref={slideContentRef} style={{ touchAction: 'pan-x pan-y pinch-zoom' }}>
             {addMode && !selected && (
               <div className={styles.editBox} style={{padding:'20px 0'}}>
                 <div className={styles.slideHeader} style={{marginBottom:12}}>
