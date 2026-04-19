@@ -165,6 +165,29 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className={styles.content} style={isDashboardMobile ? {padding: 0, display: 'flex', flexDirection: 'column'} : {}}>
           {children}
         </div>
+
+        {/* 고객센터 FAB 버튼 */}
+        {router.pathname !== '/support' && (
+          <a href="/support" style={{
+            position: 'fixed',
+            bottom: 76,
+            right: 16,
+            width: 48,
+            height: 48,
+            borderRadius: '50%',
+            background: '#1D9E75',
+            color: '#fff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 22,
+            boxShadow: '0 4px 12px rgba(29,158,117,0.4)',
+            zIndex: 99,
+            textDecoration: 'none',
+          }}>
+            💬
+          </a>
+        )}
       </div>
     </div>
   )
