@@ -47,7 +47,7 @@ export default function Dashboard() {
   const [seenGap, setSeenGap] = useState<string[]>([])
   const [unreadNotice, setUnreadNotice] = useState<any>(null)
   const [smsStats, setSmsStats] = useState({ total: 0, success: 0, failed: 0 })
-  const [meetingStats, setMeetingStats] = useState({ done: 0, scheduled: 0, cancelled: 0 })
+  const [meetingStats, setMeetingStats] = useState({ done: 0, scheduled: 0, waiting: 0, cancelled: 0 })
 
   const now = new Date()
   const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })
@@ -197,10 +197,11 @@ export default function Dashboard() {
       .eq('agent_id', agentId)
       .gte('meeting_date', firstStr)
       .lte('meeting_date', lastStr)
-    const mStats = { done: 0, scheduled: 0, cancelled: 0 }
+    const mStats = { done: 0, scheduled: 0, waiting: 0, cancelled: 0 }
     ;(monthMeetings || []).forEach((m: any) => {
       if (m.status === '완료') mStats.done++
       else if (m.status === '취소') mStats.cancelled++
+      else if (m.status === '대기') mStats.waiting++
       else mStats.scheduled++
     })
     setMeetingStats(mStats)
@@ -750,14 +751,19 @@ export default function Dashboard() {
               <div className={styles.webCardBody}>
                 <div className={styles.webMeetingStats}>
                   <div className={styles.webMeetingStat}>
-                    <span className={styles.webDot} style={{ background: '#1D9E75' }}></span>
-                    <span className={styles.webMeetingLabel}>완료</span>
-                    <span className={styles.webMeetingValue}>{meetingStats.done}건</span>
-                  </div>
-                  <div className={styles.webMeetingStat}>
                     <span className={styles.webDot} style={{ background: '#378ADD' }}></span>
                     <span className={styles.webMeetingLabel}>예정</span>
                     <span className={styles.webMeetingValue}>{meetingStats.scheduled}건</span>
+                  </div>
+                  <div className={styles.webMeetingStat}>
+                    <span className={styles.webDot} style={{ background: '#EF9F27' }}></span>
+                    <span className={styles.webMeetingLabel}>대기</span>
+                    <span className={styles.webMeetingValue}>{meetingStats.waiting}건</span>
+                  </div>
+                  <div className={styles.webMeetingStat}>
+                    <span className={styles.webDot} style={{ background: '#1D9E75' }}></span>
+                    <span className={styles.webMeetingLabel}>완료</span>
+                    <span className={styles.webMeetingValue}>{meetingStats.done}건</span>
                   </div>
                   <div className={styles.webMeetingStat}>
                     <span className={styles.webDot} style={{ background: '#B91C1C' }}></span>
