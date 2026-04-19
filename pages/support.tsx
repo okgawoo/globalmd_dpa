@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
-import Layout from '../components/Layout'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -192,8 +191,7 @@ export default function SupportPage() {
   }
 
   return (
-    <Layout>
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', background: '#FAF9F5' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', background: '#FAF9F5' }}>
 
         {/* 자체 헤더 */}
         <div style={{ background: '#1D9E75', height: 56, padding: '0 16px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
@@ -321,6 +319,6 @@ export default function SupportPage() {
           30% { transform: translateY(-5px); }
         }
       `}</style>
-    </Layout>
+    </div>
   )
 }
