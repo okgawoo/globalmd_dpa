@@ -154,7 +154,7 @@
     min-height: calc(100vh - 52px);
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 8px;
     box-sizing: border-box;
   }
 
@@ -208,10 +208,10 @@
   .webCardBody { padding: 6px 10px !important; flex: 1; }
 
   /* 2열 그리드 */
-  .webRow2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; flex: 1; align-items: flex-start; }
+  .webRow2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; flex: 1; align-items: flex-start; margin-bottom: 8px; }
 
-  /* 통계 6열 (섹션 블록 바로 아래 붙게 gap 8px — webDash gap(14) + margin-top(-6)) */
-  .webStats4 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-top: -6px; }
+  /* 통계 6열 */
+  .webStats4 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
   .webStatCard {
     background: var(--bg-card);
     border: 1px solid var(--border);
