@@ -81,15 +81,23 @@
 
 @media (min-width: 769px) {
   .collapseBtn { display: flex; }
-  .sidebar { transition: width 0.2s ease, transform 0.25s ease; }
+  /* 사이드바 width만 transition, 내부 요소 reflow 방지 위해 overflow clip */
+  .sidebar { transition: width 0.2s ease, transform 0.25s ease; overflow-x: hidden; }
   .main { transition: margin-left 0.2s ease; }
   .sidebar.collapsed { width: 60px; }
-  /* 로고 숨김 (헤더 높이는 min-height로 유지 → nav Y 위치 고정) */
-  .sidebar.collapsed .sidebarLogo { display: none; }
-  /* navItem / logoutBtn의 padding/gap/정렬 그대로 유지 → 아이콘 X/Y 위치 완전 고정 */
+  /* 헤더 높이 고정 → 접힘/펼침 시 nav Y 위치 완전 동일 */
+  .sidebarHeader { height: 91px; }
+  /* 로고는 항상 렌더링되지만 접힘 상태에선 visibility로 공간만 유지 */
+  .sidebar.collapsed .sidebarLogo { visibility: hidden; }
+  /* navItem / logoutBtn padding·gap·정렬 그대로 → 아이콘 X/Y 위치 고정 */
   .sidebar.collapsed .navLabel,
   .sidebar.collapsed .logoutLabel { display: none; }
-  /* 접힘 시 footer 오른쪽 여백을 없애 버튼이 60px 안에 들어가도록 */
+  /* 접힘 시 footer 우측 여백 제거 (60px 안에 버튼 fit) */
   .sidebar.collapsed .sidebarFooter { padding: 12px 0 12px 16px; }
+  /* 펼침 transition 중에 텍스트가 줄바꿈되어 높이가 변하지 않도록 nowrap */
+  .sidebarLogo, .sidebarLogo *, .navLabel, .logoutLabel,
+  .logoInfo, .logoMainRow, .logoText, .logoVersion, .logoSub, .madeBy {
+    white-space: nowrap;
+  }
   .main.mainCollapsed { margin-left: 60px; }
 }
