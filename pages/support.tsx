@@ -37,17 +37,17 @@ const CATEGORIES_L1 = [
 ]
 
 const CATEGORIES_L2: Record<string, { id: string; label: string }[]> = {
+  sender: [
+    { id: 'sender_how',    label: '등록 방법' },
+    { id: 'sender_doc',    label: '필요 서류 안내' },
+    { id: 'sender_status', label: '등록 현황 확인' },
+    { id: 'sender_etc',    label: '기타' },
+  ],
   data: [
     { id: 'data_copy',   label: '복불 입력' },
     { id: 'data_card',   label: '명함 입력' },
     { id: 'data_manual', label: '수동 입력' },
     { id: 'data_etc',    label: '기타' },
-  ],
-  customer: [
-    { id: 'customer_my',       label: '마이고객 관리' },
-    { id: 'customer_prospect', label: '관심고객 관리' },
-    { id: 'customer_edit',     label: '고객 정보 수정' },
-    { id: 'customer_etc',      label: '기타' },
   ],
   sms: [
     { id: 'sms_ai',      label: 'AI 추천 문자' },
@@ -55,11 +55,11 @@ const CATEGORIES_L2: Record<string, { id: string; label: string }[]> = {
     { id: 'sms_history', label: '발송 이력 확인' },
     { id: 'sms_etc',     label: '기타' },
   ],
-  sender: [
-    { id: 'sender_how',    label: '등록 방법' },
-    { id: 'sender_doc',    label: '필요 서류 안내' },
-    { id: 'sender_status', label: '등록 현황 확인' },
-    { id: 'sender_etc',    label: '기타' },
+  customer: [
+    { id: 'customer_my',       label: '마이고객 관리' },
+    { id: 'customer_prospect', label: '관심고객 관리' },
+    { id: 'customer_edit',     label: '고객 정보 수정' },
+    { id: 'customer_etc',      label: '기타' },
   ],
   sales: [
     { id: 'sales_meeting', label: '미팅 일정 관리' },
@@ -78,7 +78,7 @@ const CATEGORIES_L2: Record<string, { id: string; label: string }[]> = {
 export default function SupportPage() {
   const router = useRouter()
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: '안녕하세요! DPA 고객센터입니다 😊\n어떤 도움이 필요하신가요?' }
+    { role: 'assistant', content: '안녕하세요! DPA 고객센터입니다 😊\n무엇이 궁금하신가요?' }
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -187,27 +187,28 @@ export default function SupportPage() {
 
   return (
     <Layout>
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', background: '#FAF9F5' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', background: '#FAF9F5', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 200 }}>
 
         {/* 자체 헤더 */}
         <div style={{ background: '#1D9E75', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
           <button onClick={() => router.back()}
-            style={{ background: 'none', border: 'none', color: '#fff', fontSize: 20, cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}>
+            style={{ background: 'none', border: 'none', color: '#fff', fontSize: 22, cursor: 'pointer', padding: 0, lineHeight: 1 }}>
             ←
           </button>
-          <p style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>고객센터</p>
-          <span style={{ marginLeft: 8, fontSize: 12, color: 'rgba(255,255,255,0.8)', background: 'rgba(255,255,255,0.2)', padding: '2px 8px', borderRadius: 10 }}>● AI 상담 중</span>
+          <span style={{ fontSize: 17, fontWeight: 700, color: '#fff', flex: 1 }}>고객센터</span>
+          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.9)', background: 'rgba(255,255,255,0.2)', padding: '3px 10px', borderRadius: 20 }}>● AI 상담 중</span>
         </div>
 
         {/* 채팅 영역 */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '8px 10px 10px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '16px 14px 12px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+
           {messages.map((msg, i) => (
             <div key={i} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start', gap: 8, alignItems: 'flex-end' }}>
               {msg.role === 'assistant' && (
                 <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#E1F5EE', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17, flexShrink: 0 }}>🤖</div>
               )}
               <div style={{
-                maxWidth: '85%',
+                maxWidth: '78%',
                 padding: '11px 14px',
                 borderRadius: msg.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
                 background: msg.role === 'user' ? (msg.isQuickReply ? '#E1F5EE' : '#1D9E75') : '#fff',
@@ -215,7 +216,7 @@ export default function SupportPage() {
                 fontSize: 14,
                 lineHeight: 1.6,
                 border: msg.role === 'assistant' ? '1px solid #EDEBE4' : 'none',
-                boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
               }}>
                 {renderMarkdown(msg.content)}
               </div>
@@ -226,34 +227,56 @@ export default function SupportPage() {
           {loading && (
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
               <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#E1F5EE', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17 }}>🤖</div>
-              <div style={{ padding: '11px 16px', borderRadius: '18px 18px 18px 4px', background: '#fff', border: '1px solid #EDEBE4', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-                <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+              <div style={{ padding: '12px 16px', borderRadius: '18px 18px 18px 4px', background: '#fff', border: '1px solid #EDEBE4' }}>
+                <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                   {[0,1,2].map(i => (
-                    <div key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: '#ccc', animation: `bounce 1s ${i * 0.2}s infinite` }} />
+                    <div key={i} style={{ width: 7, height: 7, borderRadius: '50%', background: '#ccc', animation: `bounce 1s ${i * 0.2}s infinite` }} />
                   ))}
                 </div>
               </div>
             </div>
           )}
 
-          {/* 1차 카테고리 - 2열 그리드 통일 */}
+          {/* 1차 카테고리 */}
           {step === 'l1' && !loading && (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, margin: '4px 0 0' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 4 }}>
               {CATEGORIES_L1.map(cat => (
-                <button key={cat.id} onClick={() => selectL1(cat)}
-                  style={{ padding: '12px 10px', borderRadius: 12, border: '1px solid #1D9E75', background: '#fff', color: '#1D9E75', fontSize: 14, fontWeight: 600, cursor: 'pointer', textAlign: 'center' }}>
+                <button key={cat.id} onClick={() => selectL1(cat)} style={{
+                  padding: '14px 10px',
+                  borderRadius: 14,
+                  border: 'none',
+                  background: '#fff',
+                  color: '#1a1a1a',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+                  borderBottom: '3px solid #1D9E75',
+                }}>
                   {cat.label}
                 </button>
               ))}
             </div>
           )}
 
-          {/* 2차 카테고리 - 2열 그리드 통일 */}
+          {/* 2차 카테고리 */}
           {step === 'l2' && !loading && selectedL1 && (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, margin: '4px 0 0' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 4 }}>
               {CATEGORIES_L2[selectedL1]?.map(cat => (
-                <button key={cat.id} onClick={() => selectL2(cat)}
-                  style={{ padding: '12px 10px', borderRadius: 12, border: '1px solid #1D9E75', background: '#fff', color: '#1D9E75', fontSize: 14, fontWeight: 600, cursor: 'pointer', textAlign: 'center' }}>
+                <button key={cat.id} onClick={() => selectL2(cat)} style={{
+                  padding: '13px 10px',
+                  borderRadius: 14,
+                  border: 'none',
+                  background: '#fff',
+                  color: '#1a1a1a',
+                  fontSize: 14,
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+                  borderBottom: '3px solid #EDEBE4',
+                }}>
                   {cat.label}
                 </button>
               ))}
@@ -263,8 +286,16 @@ export default function SupportPage() {
           {/* 담당자 연결 */}
           {step === 'chat' && messages.length >= 5 && !escalated && !loading && (
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: 4 }}>
-              <button onClick={handleEscalate}
-                style={{ padding: '8px 18px', borderRadius: 20, border: '1px solid #EDEBE4', background: '#fff', color: '#666', fontSize: 13, cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+              <button onClick={handleEscalate} style={{
+                padding: '9px 20px',
+                borderRadius: 20,
+                border: '1px solid #EDEBE4',
+                background: '#fff',
+                color: '#666',
+                fontSize: 13,
+                cursor: 'pointer',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+              }}>
                 🙋 담당자 연결 요청
               </button>
             </div>
@@ -282,10 +313,10 @@ export default function SupportPage() {
               onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() } }}
               placeholder="궁금한 점을 입력하세요..."
               rows={1}
-              style={{ flex: 1, padding: '10px 14px', borderRadius: 20, border: '1px solid #EDEBE4', fontSize: 14, resize: 'none', lineHeight: 1.5, background: '#FAF9F5', outline: 'none' }}
+              style={{ flex: 1, padding: '10px 14px', borderRadius: 22, border: '1px solid #EDEBE4', fontSize: 14, resize: 'none', lineHeight: 1.5, background: '#FAF9F5', outline: 'none' }}
             />
             <button onClick={sendMessage} disabled={!input.trim() || loading}
-              style={{ width: 40, height: 40, borderRadius: '50%', border: 'none', background: input.trim() && !loading ? '#1D9E75' : '#D1D5DB', color: '#fff', fontSize: 18, cursor: input.trim() && !loading ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              style={{ width: 42, height: 42, borderRadius: '50%', border: 'none', background: input.trim() && !loading ? '#1D9E75' : '#D1D5DB', color: '#fff', fontSize: 20, cursor: input.trim() && !loading ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               ↑
             </button>
           </div>
