@@ -30,7 +30,6 @@ const menus = [
   { label: '미팅 리포트', path: '/report' },
   { label: '영업 관리', path: '/sales', dividerAfter: true },
   { label: '설정', path: '/settings' },
-  { label: '고객센터', path: '/support' },
 ]
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -79,6 +78,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   // 모바일 대시보드 페이지에서는 헤더 숨김
   const isDashboardMobile = router.pathname === '/'
+  const isFullPage = router.pathname === '/support'
 
   return (
     <div className={styles.root}>
@@ -146,15 +146,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </aside>
 
       <div className={styles.main}>
-        <header className={[styles.header, isDashboardMobile ? styles.headerHiddenMobile : ''].join(' ')} style={{ background: '#1D9E75' }}>
-          <button className={styles.hamburger} onClick={() => setSidebarOpen(!sidebarOpen)} style={{filter:'brightness(0) invert(1)'}}>
+        <header className={[styles.header, isDashboardMobile ? styles.headerHiddenMobile : ''].join(' ')} style={isFullPage ? {display: 'none'} : router.pathname === '/admin' ? {background:'#1D9E75'} : {}}>
+          <button className={styles.hamburger} onClick={() => setSidebarOpen(!sidebarOpen)}
+            style={router.pathname === '/admin' ? {filter:'brightness(0) invert(1)'} : {}}>
             <span /><span /><span />
           </button>
-          <span className={styles.headerTitle} style={{color:'white'}}>
+          <span className={styles.headerTitle}
+            style={router.pathname === '/admin' ? {color:'white'} : {}}>
             {router.pathname === '/admin' ? '관리자 페이지' : (menus.find(m => m.path === router.pathname)?.label || 'DPA')}
           </span>
           {!isDashboardMobile && (
-            <Link href="/" style={{marginLeft:'auto',padding:'4px 8px',color:'white',display:'flex',alignItems:'center'}}>
+            <Link href="/" style={{marginLeft:'auto',padding:'4px 8px',color: router.pathname === '/admin' ? 'white' : 'var(--text-secondary)',display:'flex',alignItems:'center'}}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             </Link>
           )}
@@ -168,7 +170,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {router.pathname !== '/support' && (
           <a href="/support" style={{
             position: 'fixed',
-            bottom: 76,
+            bottom: 96,
             right: 16,
             width: 48,
             height: 48,
