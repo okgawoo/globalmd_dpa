@@ -648,11 +648,7 @@ export default function Dashboard() {
         <div className={styles.webDash}>
           {/* 1행: 오늘의 할일 + 오늘 영업일정 (2열) — 두 카드 콘텐츠 맞춰 자동 높이 + 좌우 동일 높이 */}
           <div className={styles.webRow2} style={{ display: 'flex', alignItems: 'stretch', gap: 14 }}>
-            <div className={styles.webCard} style={{ flex: 1, height: '100%', minHeight: 300 }}>
-              <div className={styles.webCardHeader}>
-                <div className={styles.webCardTitleGroup}>
-                  <span className={styles.webCardAccent}></span>
-                  <span className={styles.webCardTitle}>오늘의 할일</span>
+            <div className={styles.webCard} style={{ flex: 1 }}>
                 </div>
                 <button className={styles.webCardLink} onClick={() => router.push('/customers')}>전체보기</button>
               </div>
@@ -677,7 +673,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className={styles.webCard} style={{ flex: 1, height: '100%', minHeight: 300 }}>
+            <div className={styles.webCard} style={{ flex: 1 }}>
               <div className={styles.webCardHeader}>
                 <div className={styles.webCardTitleGroup}>
                   <span className={styles.webCardAccent}></span>
@@ -695,7 +691,7 @@ export default function Dashboard() {
                   const name = cust?.name || '이름 없음'
                   const badgeText = cust?.customer_type === 'prospect' ? '관심고객' : '마이고객'
                   return (
-                    <div key={m.id} className={styles.webListRow} style={{ padding: '6px 0' }} onClick={() => router.push(`/sales?tab=meeting&sub=today&meetingId=${m.id}`)}>
+                    <div key={m.id} className={styles.webListRow} onClick={() => router.push(`/sales?tab=meeting&sub=today&meetingId=${m.id}`)}>
                       <span className={styles.webListIcon}>🤝</span>
                       <span className={styles.webListLabel}>{name} 고객
                         <span className={styles.webBadge} style={{ color: '#1D4ED8', background: '#EFF6FF', marginLeft: 8 }}>{badgeText}</span>
