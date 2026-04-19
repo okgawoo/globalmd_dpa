@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
-import Layout from '../components/Layout'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -170,9 +169,15 @@ export default function SupportPage() {
   }
 
   return (
-    <Layout>
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100dvh - 52px)', background: '#FAF9F5' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', background: '#FAF9F5' }}>
       <style>{`@keyframes bounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }`}</style>
+
+      {/* 자체 헤더 */}
+      <div style={{ background: '#1D9E75', height: 52, padding: '0 16px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+        <button onClick={() => router.back()} style={{ background: 'none', border: 'none', color: '#fff', fontSize: 22, cursor: 'pointer', padding: 0, lineHeight: 1 }}>←</button>
+        <span style={{ fontSize: 15, fontWeight: 600, color: '#fff', flex: 1 }}>고객센터</span>
+        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.9)', background: 'rgba(255,255,255,0.2)', padding: '3px 10px', borderRadius: 20 }}>● AI 상담 중</span>
+      </div>
 
       {/* 채팅 영역 */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px 14px 12px', display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -251,6 +256,5 @@ export default function SupportPage() {
         </div>
       )}
     </div>
-    </Layout>
   )
 }
