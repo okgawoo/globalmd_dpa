@@ -35,13 +35,25 @@ const menus = [
 export default function Layout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [userEmail, setUserEmail] = useState('')
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) setUserEmail(user.email || '')
     })
+    try {
+      if (localStorage.getItem('sidebarCollapsed') === '1') setSidebarCollapsed(true)
+    } catch {}
   }, [])
+
+  const toggleCollapsed = () => {
+    setSidebarCollapsed(v => {
+      const next = !v
+      try { localStorage.setItem('sidebarCollapsed', next ? '1' : '0') } catch {}
+      return next
+    })
+  }
 
   useEffect(() => {
     let startX = 0
@@ -85,7 +97,20 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {ConfirmDialog}
       {sidebarOpen && <div className={styles.overlay} onClick={() => setSidebarOpen(false)} />}
 
-      <aside className={[styles.sidebar, sidebarOpen ? styles.open : ''].join(' ')}>
+      <aside className={[styles.sidebar, sidebarOpen ? styles.open : '', sidebarCollapsed ? styles.collapsed : ''].join(' ')}>
+        <button
+          type="button"
+          className={styles.collapseBtn}
+          onClick={toggleCollapsed}
+          aria-label={sidebarCollapsed ? '사이드바 펼치기' : '사이드바 접기'}
+          title={sidebarCollapsed ? '펼치기' : '접기'}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            {sidebarCollapsed
+              ? <polyline points="9 18 15 12 9 6" />
+              : <polyline points="15 18 9 12 15 6" />}
+          </svg>
+        </button>
         <div className={styles.sidebarHeader}>
           <a href="/" className={styles.sidebarLogo}>
             <div>
@@ -96,7 +121,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   <path d="M20 30C17.5 30 15 28 15 25C15 22 17 20 20 20C23 20 25 22 25 25" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
                   <circle cx="20" cy="20" r="2" fill="white"/>
                 </svg>
-                <div>
+                <div className={styles.logoInfo}>
                   <div className={styles.logoMainRow}>
                     <span className={styles.logoText} style={{color:'var(--text-primary)',fontWeight:700,fontSize:20}}>DPA</span>
                     <span className={styles.logoVersion} style={{color:'var(--text-secondary)',fontSize:11,marginLeft:2}}>v1.0</span>
@@ -117,7 +142,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 onClick={() => setSidebarOpen(false)}
               >
                 <span className={styles.navIcon}><NavIcon path={m.path} active={router.pathname === m.path} /></span>
-                <span>{m.label}</span>
+                <span className={styles.navLabel}>{m.label}</span>
               </a>
               {m.dividerAfter && <div className={styles.divider} />}
             </div>
@@ -131,7 +156,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
               </svg>
-              관리자 페이지
+              <span className={styles.logoutLabel}>관리자 페이지</span>
             </a>
           )}
           <button className={styles.logoutBtn} onClick={handleLogout}>
@@ -140,12 +165,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <polyline points="16 17 21 12 16 7" />
               <line x1="21" y1="12" x2="9" y2="12" />
             </svg>
-            로그아웃
+            <span className={styles.logoutLabel}>로그아웃</span>
           </button>
         </div>
       </aside>
 
-      <div className={styles.main}>
+      <div className={[styles.main, sidebarCollapsed ? styles.mainCollapsed : ''].join(' ')}>
         <header className={[styles.header, isDashboardMobile ? styles.headerHiddenMobile : ''].join(' ')} style={isFullPage ? {display: 'none'} : {background:'#1D9E75'}}>
           <button className={styles.hamburger} onClick={() => setSidebarOpen(!sidebarOpen)}
             style={{filter:'brightness(0) invert(1)'}}>
