@@ -137,7 +137,7 @@
 @media (min-width: 769px) {
   /* 탭바 */
   .tabBar { border-bottom: 0.5px solid #EDEBE4; margin-bottom: 16px; gap: 0; }
-  .tab { font-size: 13px; padding: 10px 16px; color: #666; }
+  .tab { font-size: 14px; padding: 10px 16px; color: #666; }
   .activeTab { color: #1D9E75; border-bottom-color: #1D9E75; font-weight: 600; }
 
   /* 폼 래퍼 */
