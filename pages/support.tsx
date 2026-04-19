@@ -187,7 +187,7 @@ export default function SupportPage() {
 
   return (
     <Layout>
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#FAF9F5' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', background: '#FAF9F5' }}>
 
         {/* 자체 헤더 */}
         <div style={{ background: '#1D9E75', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
@@ -200,7 +200,7 @@ export default function SupportPage() {
         </div>
 
         {/* 채팅 영역 */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '10px 10px 10px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '8px 10px 10px', display: 'flex', flexDirection: 'column', gap: 14 }}>
           {messages.map((msg, i) => (
             <div key={i} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start', gap: 8, alignItems: 'flex-end' }}>
               {msg.role === 'assistant' && (
@@ -241,7 +241,7 @@ export default function SupportPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, margin: '4px 0 0' }}>
               {CATEGORIES_L1.map(cat => (
                 <button key={cat.id} onClick={() => selectL1(cat)}
-                  style={{ padding: '12px 8px', borderRadius: 12, border: '1.5px solid #1D9E75', background: '#fff', color: '#1D9E75', fontSize: 14, fontWeight: 600, cursor: 'pointer', textAlign: 'center' }}>
+                  style={{ padding: '12px 10px', borderRadius: 12, border: '1px solid #1D9E75', background: '#fff', color: '#1D9E75', fontSize: 14, fontWeight: 600, cursor: 'pointer', textAlign: 'center' }}>
                   {cat.label}
                 </button>
               ))}
@@ -253,7 +253,7 @@ export default function SupportPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, margin: '4px 0 0' }}>
               {CATEGORIES_L2[selectedL1]?.map(cat => (
                 <button key={cat.id} onClick={() => selectL2(cat)}
-                  style={{ padding: '12px 8px', borderRadius: 12, border: '1.5px solid #1D9E75', background: '#fff', color: '#1D9E75', fontSize: 14, fontWeight: 600, cursor: 'pointer', textAlign: 'center' }}>
+                  style={{ padding: '12px 10px', borderRadius: 12, border: '1px solid #1D9E75', background: '#fff', color: '#1D9E75', fontSize: 14, fontWeight: 600, cursor: 'pointer', textAlign: 'center' }}>
                   {cat.label}
                 </button>
               ))}
