@@ -205,7 +205,7 @@
     border: none;
     padding: 0;
   }
-  .webCardBody { padding: 10px 10px 6px !important; flex: 1; }
+  .webCardBody { padding: 6px 10px !important; flex: 1; }
 
   /* 2열 (flex) */
   .webRow2 { display: flex; gap: 14px; align-items: stretch; margin-bottom: 8px; }
@@ -217,7 +217,7 @@
     border: 1px solid var(--border);
     border-top-width: 2px;
     border-radius: 6px;
-    padding: 10px 12px;
+    padding: 11px 12px 10px;
     cursor: pointer;
     transition: background 0.15s;
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
@@ -240,9 +240,8 @@
   .webEmpty { font-size: 13px; font-weight: 400; color: var(--text-secondary); padding: 10px 0; text-align: center; }
 
   /* 이번달 미팅 현황 */
-  .webMeetingStats { display: flex; flex-direction: column; gap: 0; }
-  .webMeetingStat { display: flex; align-items: center; gap: 8px; padding: 0; min-height: 44px; border-bottom: 0.5px solid #EDEBE4; }
-  .webMeetingStat:last-child { border-bottom: none; }
+  .webMeetingStats { display: flex; flex-direction: column; gap: 8px; }
+  .webMeetingStat { display: flex; align-items: center; gap: 8px; padding: 6px 0; }
   .webDot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
   .webMeetingLabel { font-size: 13px; font-weight: 400; color: var(--text-secondary); flex: 1; }
   .webMeetingValue { font-size: 13px; font-weight: 500; color: var(--text-primary); }
