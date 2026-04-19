@@ -46,6 +46,7 @@ export default function Dashboard() {
   const [seenGap, setSeenGap] = useState<string[]>([])
   const [unreadNotice, setUnreadNotice] = useState<any>(null)
   const [smsStats, setSmsStats] = useState({ total: 0, success: 0, failed: 0 })
+  const [meetingStats, setMeetingStats] = useState({ done: 0, scheduled: 0, cancelled: 0 })
 
   const now = new Date()
   const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })
@@ -181,6 +182,26 @@ export default function Dashboard() {
       else sms.success++
     })
     setSmsStats(sms)
+
+    // 이번달 미팅 현황 (완료 / 예정 / 취소)
+    const firstDay = new Date()
+    firstDay.setDate(1); firstDay.setHours(0, 0, 0, 0)
+    const lastDay = new Date(firstDay.getFullYear(), firstDay.getMonth() + 1, 0)
+    const firstStr = firstDay.toISOString().split('T')[0]
+    const lastStr = lastDay.toISOString().split('T')[0]
+    const { data: monthMeetings } = await supabase
+      .from('dpa_meetings')
+      .select('status')
+      .eq('agent_id', agentId)
+      .gte('meeting_date', firstStr)
+      .lte('meeting_date', lastStr)
+    const mStats = { done: 0, scheduled: 0, cancelled: 0 }
+    ;(monthMeetings || []).forEach((m: any) => {
+      if (m.status === '완료') mStats.done++
+      else if (m.status === '취소') mStats.cancelled++
+      else mStats.scheduled++
+    })
+    setMeetingStats(mStats)
 
     setLoading(false)
   }
@@ -554,14 +575,29 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ── 웹(데스크탑) 대시보드 ── */}
+      {/* ── 웹(데스크탑) ERP 대시보드 ── */}
       <div className={styles.desktopDash}>
         <div className={styles.webDash}>
+          {/* 상단 바 */}
+          <div className={styles.webTopBar}>
+            <span className={styles.webTopGreet}>안녕하세요, {agentName || '설계사'}님</span>
+            <div className={styles.webTopDateWrap}>
+              <span className={styles.webTopDate}>{dateStr}</span>
+              {agentPlan && <span className={styles.webTopPlan}>{agentPlan.toUpperCase()}</span>}
+            </div>
+          </div>
+
           {/* 1행: 오늘의 할일 + 오늘 영업일정 (2열) */}
           <div className={styles.webRow2}>
             <div className={styles.webCard}>
-              <div className={styles.webCardTitle}>오늘의 할일</div>
-              <div className={styles.webListWrap}>
+              <div className={styles.webCardHeader}>
+                <div className={styles.webCardTitleGroup}>
+                  <span className={styles.webCardAccent}></span>
+                  <span className={styles.webCardTitle}>오늘의 할일</span>
+                </div>
+                <button className={styles.webCardLink} onClick={() => router.push('/customers')}>전체보기</button>
+              </div>
+              <div className={styles.webCardBody}>
               {(() => {
                 const issueGroups = [
                   { sort: '생일임박', icon: '🎂', label: '생일 임박', count: birthdayCustomers.length, color: '#EF9F27', bg: '#FEF3E2' },
@@ -581,8 +617,14 @@ export default function Dashboard() {
             </div>
 
             <div className={styles.webCard}>
-              <div className={styles.webCardTitle}>오늘 영업일정</div>
-              <div className={styles.webListWrap}>
+              <div className={styles.webCardHeader}>
+                <div className={styles.webCardTitleGroup}>
+                  <span className={styles.webCardAccent}></span>
+                  <span className={styles.webCardTitle}>오늘 영업일정</span>
+                </div>
+                <button className={styles.webCardLink} onClick={() => router.push('/sales?tab=meeting&sub=today')}>전체보기</button>
+              </div>
+              <div className={styles.webCardBody}>
               {(() => {
                 const todayDateStr = new Date().toISOString().split('T')[0]
                 const todayMeetings = meetings.filter(m => (m.meeting_date || '').split('T')[0] === todayDateStr)
@@ -606,57 +648,74 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* 2행: 통계 카드 6열 */}
+          {/* 2행: 통계 카드 6열 (총고객 / 이번달신규 / 보험계약 / 완납임박 / 보장공백 / 월납입합계) */}
           <div className={styles.webStats4}>
-            <div className={styles.webStatCard} style={{ ['--bar-color' as any]: '#378ADD' }} onClick={() => router.push('/customers')}>
+            <div className={styles.webStatCard} style={{ borderTopColor: '#378ADD' }} onClick={() => router.push('/customers')}>
               <div className={styles.webStatLabel}>총 고객</div>
               <div className={styles.webStatValue}>{customers.length}</div>
             </div>
-            <div className={styles.webStatCard} style={{ ['--bar-color' as any]: '#1D9E75' }} onClick={() => router.push('/customers')}>
-              <div className={styles.webStatLabel}>보험 계약</div>
-              <div className={styles.webStatValue}>{contracts.length}</div>
-            </div>
-            <div className={styles.webStatCard} style={{ ['--bar-color' as any]: '#B45309' }} onClick={handleNearDoneClick}>
-              <div className={styles.webStatLabel}>완납 임박</div>
-              <div className={styles.webStatValue} style={{ color: 'var(--red)' }}>{nearDoneCustomers.length}</div>
-            </div>
-            <div className={styles.webStatCard} style={{ ['--bar-color' as any]: '#B91C1C' }} onClick={handleGapClick}>
-              <div className={styles.webStatLabel}>보장 공백</div>
-              <div className={styles.webStatValue} style={{ color: 'var(--amber)' }}>{gapCustomers.length}</div>
-            </div>
-            <div className={styles.webStatCard} style={{ ['--bar-color' as any]: '#8B5CF6' }} onClick={() => router.push('/customers')}>
+            <div className={styles.webStatCard} style={{ borderTopColor: '#8B5CF6' }} onClick={() => router.push('/customers')}>
               <div className={styles.webStatLabel}>이번달 신규</div>
               <div className={styles.webStatValue}>{newThisMonth}</div>
             </div>
-            <div className={styles.webStatCard} style={{ ['--bar-color' as any]: '#0891B2' }}>
+            <div className={styles.webStatCard} style={{ borderTopColor: '#1D9E75' }} onClick={() => router.push('/customers')}>
+              <div className={styles.webStatLabel}>보험 계약</div>
+              <div className={styles.webStatValue}>{contracts.length}</div>
+            </div>
+            <div className={styles.webStatCard} style={{ borderTopColor: '#B45309' }} onClick={handleNearDoneClick}>
+              <div className={styles.webStatLabel}>완납 임박</div>
+              <div className={styles.webStatValue} style={{ color: 'var(--red)' }}>{nearDoneCustomers.length}</div>
+            </div>
+            <div className={styles.webStatCard} style={{ borderTopColor: '#B91C1C' }} onClick={handleGapClick}>
+              <div className={styles.webStatLabel}>보장 공백</div>
+              <div className={styles.webStatValue} style={{ color: 'var(--amber)' }}>{gapCustomers.length}</div>
+            </div>
+            <div className={styles.webStatCard} style={{ borderTopColor: '#0891B2' }}>
               <div className={styles.webStatLabel}>월납입 합계</div>
               <div className={styles.webStatValue}>{formatMonthlyWeb(totalMonthly)}</div>
             </div>
           </div>
 
-          {/* 3행: 문자 발송 현황 + 최근 등록 고객 (2열) */}
+          {/* 3행: 이번달 미팅 현황 + 최근 등록 고객 (2열) */}
           <div className={styles.webRow2}>
             <div className={styles.webCard}>
-              <div className={styles.webCardTitle}>오늘 문자 발송 현황</div>
-              <div className={styles.webSmsRow}>
-                <div className={styles.webSmsItem}>
-                  <span className={styles.webSmsLabel}>발송 건수</span>
-                  <span className={styles.webSmsValue}>{smsStats.total}</span>
+              <div className={styles.webCardHeader}>
+                <div className={styles.webCardTitleGroup}>
+                  <span className={styles.webCardAccent}></span>
+                  <span className={styles.webCardTitle}>이번달 미팅 현황</span>
                 </div>
-                <div className={styles.webSmsItem}>
-                  <span className={styles.webSmsLabel}>성공</span>
-                  <span className={styles.webSmsValue} style={{ color: '#1D9E75' }}>{smsStats.success}</span>
-                </div>
-                <div className={styles.webSmsItem}>
-                  <span className={styles.webSmsLabel}>실패</span>
-                  <span className={styles.webSmsValue} style={{ color: '#E24B4A' }}>{smsStats.failed}</span>
+                <button className={styles.webCardLink} onClick={() => router.push('/sales?tab=meeting')}>전체보기</button>
+              </div>
+              <div className={styles.webCardBody}>
+                <div className={styles.webMeetingStats}>
+                  <div className={styles.webMeetingStat}>
+                    <span className={styles.webDot} style={{ background: '#1D9E75' }}></span>
+                    <span className={styles.webMeetingLabel}>완료</span>
+                    <span className={styles.webMeetingValue}>{meetingStats.done}건</span>
+                  </div>
+                  <div className={styles.webMeetingStat}>
+                    <span className={styles.webDot} style={{ background: '#378ADD' }}></span>
+                    <span className={styles.webMeetingLabel}>예정</span>
+                    <span className={styles.webMeetingValue}>{meetingStats.scheduled}건</span>
+                  </div>
+                  <div className={styles.webMeetingStat}>
+                    <span className={styles.webDot} style={{ background: '#B91C1C' }}></span>
+                    <span className={styles.webMeetingLabel}>취소</span>
+                    <span className={styles.webMeetingValue}>{meetingStats.cancelled}건</span>
+                  </div>
                 </div>
               </div>
             </div>
 
             <div className={styles.webCard}>
-              <div className={styles.webCardTitle}>최근 등록 고객</div>
-              <div className={styles.webListWrap}>
+              <div className={styles.webCardHeader}>
+                <div className={styles.webCardTitleGroup}>
+                  <span className={styles.webCardAccent}></span>
+                  <span className={styles.webCardTitle}>최근 등록 고객</span>
+                </div>
+                <button className={styles.webCardLink} onClick={() => router.push('/customers')}>전체보기</button>
+              </div>
+              <div className={styles.webCardBody}>
               {(() => {
                 const recent = [...customers]
                   .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
