@@ -193,7 +193,7 @@ export default function SupportPage() {
 
   return (
     <Layout>
-      <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100dvh - 56px)', background: '#FAF9F5' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', background: '#FAF9F5' }}>
 
         {/* 자체 헤더 */}
         <div style={{ background: '#1D9E75', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
@@ -252,16 +252,16 @@ export default function SupportPage() {
               {CATEGORIES_L1.map(cat => (
                 <button key={cat.id} onClick={() => selectL1(cat)} style={{
                   padding: '14px 10px',
-                  borderRadius: 14,
-                  border: 'none',
+                  borderRadius: 12,
+                  border: '1px solid #EDEBE4',
+                  borderBottom: '3px solid #1D9E75',
                   background: '#fff',
                   color: '#1a1a1a',
                   fontSize: 14,
                   fontWeight: 600,
                   cursor: 'pointer',
                   textAlign: 'center',
-                  boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
-                  borderBottom: '3px solid #1D9E75',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
                 }}>
                   {cat.label}
                 </button>
@@ -274,17 +274,17 @@ export default function SupportPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 4 }}>
               {CATEGORIES_L2[selectedL1]?.map(cat => (
                 <button key={cat.id} onClick={() => selectL2(cat)} style={{
-                  padding: '13px 10px',
-                  borderRadius: 14,
-                  border: 'none',
+                  padding: '14px 10px',
+                  borderRadius: 12,
+                  border: '1px solid #EDEBE4',
+                  borderBottom: '3px solid #EDEBE4',
                   background: '#fff',
                   color: '#1a1a1a',
                   fontSize: 14,
                   fontWeight: 500,
                   cursor: 'pointer',
                   textAlign: 'center',
-                  boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
-                  borderBottom: '3px solid #EDEBE4',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
                 }}>
                   {cat.label}
                 </button>
