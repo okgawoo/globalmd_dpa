@@ -174,13 +174,6 @@ export default function SupportPage() {
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100dvh - 56px)', background: '#FAF9F5' }}>
       <style>{`@keyframes bounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }`}</style>
 
-      {/* 헤더 */}
-      <div style={{ background: '#1D9E75', height: 56, padding: '0 16px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-        <button onClick={() => router.back()} style={{ background: 'none', border: 'none', color: '#fff', fontSize: 22, cursor: 'pointer', padding: 0, lineHeight: 1 }}>←</button>
-        <span style={{ fontSize: 17, fontWeight: 700, color: '#fff', flex: 1 }}>고객센터</span>
-        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.9)', background: 'rgba(255,255,255,0.2)', padding: '3px 10px', borderRadius: 20 }}>● AI 상담 중</span>
-      </div>
-
       {/* 채팅 영역 */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px 14px 12px', display: 'flex', flexDirection: 'column', gap: 12 }}>
         {messages.map((msg, i) => (
