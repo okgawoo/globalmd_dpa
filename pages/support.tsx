@@ -321,7 +321,6 @@ export default function SupportPage() {
           30% { transform: translateY(-5px); }
         }
       `}</style>
-    </div>
     </>
   )
 }
