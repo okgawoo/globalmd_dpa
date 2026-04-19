@@ -115,7 +115,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <a href="/" className={styles.sidebarLogo}>
             <div>
               <div style={{display:'flex',alignItems:'flex-end',gap:10}}>
-                <svg width="44" height="44" viewBox="0 0 40 40" fill="none" style={{flexShrink:0}}>
+                <svg width="52" height="52" viewBox="0 0 40 40" fill="none" style={{flexShrink:0}}>
                   <rect width="40" height="40" rx="12" fill="#1D9E75"/>
                   <path d="M10 20C10 14.477 14.477 10 20 10C25.523 10 30 14.477 30 20C30 25.523 25.523 30 20 30" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
                   <path d="M20 30C17.5 30 15 28 15 25C15 22 17 20 20 20C23 20 25 22 25 25" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
@@ -123,13 +123,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </svg>
                 <div className={styles.logoInfo}>
                   <div className={styles.logoMainRow}>
-                    <span className={styles.logoText} style={{color:'var(--text-primary)',fontWeight:700,fontSize:20}}>DPA</span>
-                    <span className={styles.logoVersion} style={{color:'var(--text-secondary)',fontSize:11,marginLeft:2}}>v1.0</span>
+                    <span className={styles.logoText} style={{color:'var(--text-primary)',fontWeight:700,fontSize:24}}>DPA</span>
+                    <span className={styles.logoVersion} style={{color:'var(--text-secondary)',fontSize:11,marginLeft:2}}>v2.0</span>
                   </div>
                   <span className={styles.logoSub} style={{color:'var(--text-secondary)',fontSize:10}}>AI 보험 관리 자동화 플랫폼</span>
                 </div>
               </div>
-              <span className={styles.madeBy} style={{display:'block',marginTop:2,paddingLeft:54,color:'var(--text-muted)',fontSize:10}}>made by okga</span>
             </div>
           </a>
         </div>
