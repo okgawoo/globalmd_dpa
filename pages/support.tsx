@@ -315,14 +315,12 @@ export default function SupportPage() {
           </div>
         )}
       </div>
-
       <style>{`
         @keyframes bounce {
           0%, 60%, 100% { transform: translateY(0); }
           30% { transform: translateY(-5px); }
         }
       `}</style>
-    </div>
     </Layout>
   )
 }
