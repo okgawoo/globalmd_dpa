@@ -655,8 +655,8 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* 1행: 오늘의 할일 + 오늘 영업일정 (2열) */}
-          <div className={styles.webRow2}>
+          {/* 1행: 오늘의 할일 + 오늘 영업일정 (2열) — 두 카드 높이 동일 유지 */}
+          <div className={styles.webRow2} style={{ alignItems: 'stretch' }}>
             <div className={styles.webCard}>
               <div className={styles.webCardHeader}>
                 <div className={styles.webCardTitleGroup}>
@@ -697,14 +697,14 @@ export default function Dashboard() {
               <div className={styles.webCardBody}>
               {(() => {
                 const todayDateStr = new Date().toISOString().split('T')[0]
-                const todayMeetings = meetings.filter(m => (m.meeting_date || '').split('T')[0] === todayDateStr).slice(0, 5)
+                const todayMeetings = meetings.filter(m => (m.meeting_date || '').split('T')[0] === todayDateStr).slice(0, 6)
                 if (todayMeetings.length === 0) return <div className={styles.webEmpty}>오늘 미팅이 없어요 😊</div>
                 return todayMeetings.map(m => {
                   const cust = customers.find(c => c.id === m.customer_id)
                   const name = cust?.name || '이름 없음'
                   const badgeText = cust?.customer_type === 'prospect' ? '관심고객' : '마이고객'
                   return (
-                    <div key={m.id} className={styles.webListRow} onClick={() => router.push(`/sales?tab=meeting&sub=today&meetingId=${m.id}`)}>
+                    <div key={m.id} className={styles.webListRow} style={{ padding: '6px 0' }} onClick={() => router.push(`/sales?tab=meeting&sub=today&meetingId=${m.id}`)}>
                       <span className={styles.webListIcon}>🤝</span>
                       <span className={styles.webListLabel}>{name} 고객
                         <span className={styles.webBadge} style={{ color: '#1D4ED8', background: '#EFF6FF', marginLeft: 8 }}>{badgeText}</span>
