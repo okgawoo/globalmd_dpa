@@ -47,7 +47,7 @@ export default function Dashboard() {
   const [seenGap, setSeenGap] = useState<string[]>([])
   const [unreadNotice, setUnreadNotice] = useState<any>(null)
   const [smsStats, setSmsStats] = useState({ total: 0, success: 0, failed: 0 })
-  const [meetingStats, setMeetingStats] = useState({ done: 0, scheduled: 0, cancelled: 0 })
+  const [meetingStats, setMeetingStats] = useState({ done: 0, scheduled: 0, waiting: 0, cancelled: 0 })
 
   const now = new Date()
   const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })
@@ -197,10 +197,11 @@ export default function Dashboard() {
       .eq('agent_id', agentId)
       .gte('meeting_date', firstStr)
       .lte('meeting_date', lastStr)
-    const mStats = { done: 0, scheduled: 0, cancelled: 0 }
+    const mStats = { done: 0, scheduled: 0, waiting: 0, cancelled: 0 }
     ;(monthMeetings || []).forEach((m: any) => {
       if (m.status === '완료') mStats.done++
       else if (m.status === '취소') mStats.cancelled++
+      else if (m.status === '대기') mStats.waiting++
       else mStats.scheduled++
     })
     setMeetingStats(mStats)
@@ -646,6 +647,12 @@ export default function Dashboard() {
       {/* ── 웹(데스크탑) ERP 대시보드 ── */}
       <div className={styles.desktopDash}>
         <div className={styles.webDash}>
+          {/* 상단 인사말 바 */}
+          <div className={styles.webTopBar}>
+            <span className={styles.webTopGreet}>
+              안녕하세요, {agentName ? `${agentName} ` : ''}{agentRole === 'admin' ? '대표님' : '설계사님'}
+            </span>
+          </div>
           {/* 1행: 오늘의 할일 + 오늘 영업일정 (2열) — 두 카드 콘텐츠 맞춰 자동 높이 + 좌우 동일 높이 */}
           <div className={styles.webRow2} style={{ display: 'flex', alignItems: 'stretch', gap: 14 }}>
             <div className={styles.webCard} style={{ flex: 1 }}>
@@ -670,7 +677,7 @@ export default function Dashboard() {
                   <div key={g.sort} className={styles.webListRow} onClick={() => router.push(`/customers?sort=${g.sort}`)}>
                     <span className={styles.webListIcon}>{g.icon}</span>
                     <span className={styles.webListLabel}>{g.label}</span>
-                    <span className={styles.webBadge} style={{ color: g.color, background: g.bg }}>{g.count}명</span>
+                    <span className={styles.webListMeta} style={{ color: g.color }}>{g.count}명</span>
                   </div>
                 ))
               })()}
@@ -752,14 +759,19 @@ export default function Dashboard() {
               <div className={styles.webCardBody}>
                 <div className={styles.webMeetingStats}>
                   <div className={styles.webMeetingStat}>
-                    <span className={styles.webDot} style={{ background: '#1D9E75' }}></span>
-                    <span className={styles.webMeetingLabel}>완료</span>
-                    <span className={styles.webMeetingValue}>{meetingStats.done}건</span>
-                  </div>
-                  <div className={styles.webMeetingStat}>
                     <span className={styles.webDot} style={{ background: '#378ADD' }}></span>
                     <span className={styles.webMeetingLabel}>예정</span>
                     <span className={styles.webMeetingValue}>{meetingStats.scheduled}건</span>
+                  </div>
+                  <div className={styles.webMeetingStat}>
+                    <span className={styles.webDot} style={{ background: '#EF9F27' }}></span>
+                    <span className={styles.webMeetingLabel}>대기</span>
+                    <span className={styles.webMeetingValue}>{meetingStats.waiting}건</span>
+                  </div>
+                  <div className={styles.webMeetingStat}>
+                    <span className={styles.webDot} style={{ background: '#1D9E75' }}></span>
+                    <span className={styles.webMeetingLabel}>완료</span>
+                    <span className={styles.webMeetingValue}>{meetingStats.done}건</span>
                   </div>
                   <div className={styles.webMeetingStat}>
                     <span className={styles.webDot} style={{ background: '#B91C1C' }}></span>
