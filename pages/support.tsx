@@ -191,6 +191,7 @@ export default function SupportPage() {
   }
 
   return (
+    <>
     <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', background: '#FAF9F5' }}>
 
         {/* 자체 헤더 */}
@@ -321,5 +322,6 @@ export default function SupportPage() {
         }
       `}</style>
     </div>
+    </>
   )
 }
