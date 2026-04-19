@@ -2,7 +2,7 @@
 
 /* 목록 헤더 */
 .listHeader { background: #FAF9F5; padding: 16px 10px 12px; }
-.listTitle { font-size: 20px; font-weight: 700; color: #1a1a1a; margin: 0 0 4px; }
+.listTitle { font-size: 16px; font-weight: 700; color: #1a1a1a; margin: 0 0 4px; }
 .listSubtitle { font-size: 13px; color: #666; margin: 0; }
 
 /* 목록 카드 */
