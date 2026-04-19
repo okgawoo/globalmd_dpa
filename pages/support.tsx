@@ -171,7 +171,7 @@ export default function SupportPage() {
 
   return (
     <Layout>
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100dvh - 56px)', background: '#FAF9F5' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100dvh - 52px)', background: '#FAF9F5' }}>
       <style>{`@keyframes bounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }`}</style>
 
       {/* 채팅 영역 */}
