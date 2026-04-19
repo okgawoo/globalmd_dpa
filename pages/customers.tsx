@@ -1094,12 +1094,21 @@ export default function Customers() {
           className={[styles.slidePanel, slideOpen ? styles.slideIn : styles.slideOut].join(' ')}
           onClick={e => e.stopPropagation()}
           onTouchStart={e => {
+            // 멀티터치(핀치 줌 등)는 드래그 처리 안 함
+            if (e.touches.length > 1) return
             const startY = e.touches[0].clientY
             const panel = e.currentTarget as HTMLElement
             const content = slideContentRef.current
             let dragging = false
 
             const onMove = (ev: TouchEvent) => {
+              // 드래그 중 손가락이 추가되면 드래그 취소 후 핀치 줌 허용
+              if (ev.touches.length > 1) {
+                dragging = false
+                panel.style.transition = ''
+                panel.style.transform = ''
+                return
+              }
               const dy = ev.touches[0].clientY - startY
               // 콘텐츠 스크롤 중이면 패널 드래그 안 함
               if (content && content.scrollTop > 0 && dy > 0) return
@@ -1117,7 +1126,7 @@ export default function Customers() {
               document.removeEventListener('touchmove', onMove)
               document.removeEventListener('touchend', onEnd)
             }
-            document.addEventListener('touchmove', onMove, { passive: false })
+            document.addEventListener('touchmove', onMove, { passive: true })
             document.addEventListener('touchend', onEnd)
           }}
         >
