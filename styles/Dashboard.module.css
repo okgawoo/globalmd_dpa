@@ -205,7 +205,7 @@
     border: none;
     padding: 0;
   }
-  .webCardBody { padding: 6px 10px !important; flex: 1; }
+  .webCardBody { padding: 6px 10px 6px 12px !important; flex: 1; }
 
   /* 2열 (flex) */
   .webRow2 { display: flex; gap: 14px; align-items: stretch; margin-bottom: 8px; }
@@ -217,7 +217,7 @@
     border: 1px solid var(--border);
     border-top-width: 2px;
     border-radius: 6px;
-    padding: 11px 12px 10px;
+    padding: 10px 12px;
     cursor: pointer;
     transition: background 0.15s;
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
