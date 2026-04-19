@@ -249,6 +249,14 @@ export default function Dashboard() {
     return val.toLocaleString()
   }
 
+  // 웹 대시보드용 월납입 합계 포맷 (한 줄 강제용)
+  // 1억 미만: "N만", 1억 이상: "N.N억"
+  const formatMonthlyWeb = (val: number) => {
+    if (val >= 100000000) return `${(val / 100000000).toFixed(1)}억`
+    if (val >= 10000) return `${Math.floor(val / 10000).toLocaleString()}만`
+    return val.toLocaleString()
+  }
+
   if (loading) return <div className={styles.loading}>불러오는 중...</div>
 
   return (
@@ -622,7 +630,7 @@ export default function Dashboard() {
             </div>
             <div className={styles.webStatCard} style={{ ['--bar-color' as any]: '#0891B2' }}>
               <div className={styles.webStatLabel}>월납입 합계</div>
-              <div className={styles.webStatValue}>{formatMonthly(totalMonthly)}</div>
+              <div className={styles.webStatValue}>{formatMonthlyWeb(totalMonthly)}</div>
             </div>
           </div>
 
