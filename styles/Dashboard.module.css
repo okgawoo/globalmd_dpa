@@ -178,7 +178,7 @@
   .webRow2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; flex: 1; }
   .webRow2 > .webCard { display: flex; flex-direction: column; }
   .webRow2 > .webCard > .webListWrap { flex: 1; }
-  .webStats4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .webStats4 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
 
   .webStatCard {
     background: var(--bg-card);

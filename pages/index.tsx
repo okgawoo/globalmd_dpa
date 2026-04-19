@@ -616,6 +616,14 @@ export default function Dashboard() {
               <div className={styles.webStatLabel}>보장 공백</div>
               <div className={styles.webStatValue} style={{ color: 'var(--amber)' }}>{gapCustomers.length}</div>
             </div>
+            <div className={styles.webStatCard} onClick={() => router.push('/customers')}>
+              <div className={styles.webStatLabel}>이번달 신규</div>
+              <div className={styles.webStatValue}>{newThisMonth}</div>
+            </div>
+            <div className={styles.webStatCard}>
+              <div className={styles.webStatLabel}>월납입 합계</div>
+              <div className={styles.webStatValue}>{formatMonthly(totalMonthly)}</div>
+            </div>
           </div>
 
           {/* 3행: 문자 발송 현황 + 최근 등록 고객 (2열) */}
