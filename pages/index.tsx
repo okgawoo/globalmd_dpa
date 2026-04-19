@@ -237,6 +237,8 @@ export default function Dashboard() {
   const thisMonth = now.getMonth()
   const newThisMonth = customers.filter(c => new Date(c.created_at).getMonth() === thisMonth).length
   const totalMonthly = contracts.reduce((s, c) => s + (c.monthly_fee || 0), 0)
+  const myCustomers = customers.filter(c => c.customer_type === 'existing').length
+  const prospectCustomers = customers.filter(c => c.customer_type === 'prospect').length
 
   // 만기임박: expiry_age 기준, 현재 나이 + 1년 이내 만기
   const expiryCustomers = customers.filter(c => {
@@ -718,27 +720,27 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* 2행: 통계 카드 6열 (총고객 / 이번달신규 / 보험계약 / 완납임박 / 보장공백 / 월납입합계) */}
+          {/* 2행: 통계 카드 6열 (총고객 / 마이고객 / 관심고객 / 보험계약 / 이번달신규 / 월납입합계) */}
           <div className={styles.webStats4}>
             <div className={styles.webStatCard} style={{ borderTopColor: '#378ADD' }} onClick={() => router.push('/customers')}>
               <div className={styles.webStatLabel}>총 고객</div>
               <div className={styles.webStatValue}>{customers.length}</div>
             </div>
-            <div className={styles.webStatCard} style={{ borderTopColor: '#8B5CF6' }} onClick={() => router.push('/customers')}>
-              <div className={styles.webStatLabel}>이번달 신규</div>
-              <div className={styles.webStatValue}>{newThisMonth}</div>
+            <div className={styles.webStatCard} style={{ borderTopColor: '#1D4ED8' }} onClick={() => router.push('/customers?type=existing')}>
+              <div className={styles.webStatLabel}>마이고객</div>
+              <div className={styles.webStatValue}>{myCustomers}</div>
+            </div>
+            <div className={styles.webStatCard} style={{ borderTopColor: '#B45309' }} onClick={() => router.push('/customers?type=prospect')}>
+              <div className={styles.webStatLabel}>관심고객</div>
+              <div className={styles.webStatValue}>{prospectCustomers}</div>
             </div>
             <div className={styles.webStatCard} style={{ borderTopColor: '#1D9E75' }} onClick={() => router.push('/customers')}>
               <div className={styles.webStatLabel}>보험 계약</div>
               <div className={styles.webStatValue}>{contracts.length}</div>
             </div>
-            <div className={styles.webStatCard} style={{ borderTopColor: '#B45309' }} onClick={handleNearDoneClick}>
-              <div className={styles.webStatLabel}>완납 임박</div>
-              <div className={styles.webStatValue} style={{ color: 'var(--red)' }}>{nearDoneCustomers.length}</div>
-            </div>
-            <div className={styles.webStatCard} style={{ borderTopColor: '#B91C1C' }} onClick={handleGapClick}>
-              <div className={styles.webStatLabel}>보장 공백</div>
-              <div className={styles.webStatValue} style={{ color: 'var(--amber)' }}>{gapCustomers.length}</div>
+            <div className={styles.webStatCard} style={{ borderTopColor: '#8B5CF6' }} onClick={() => router.push('/customers')}>
+              <div className={styles.webStatLabel}>이번달 신규</div>
+              <div className={styles.webStatValue}>{newThisMonth}</div>
             </div>
             <div className={styles.webStatCard} style={{ borderTopColor: '#0891B2' }}>
               <div className={styles.webStatLabel}>월납입 합계</div>
