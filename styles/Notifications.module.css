@@ -270,3 +270,27 @@
 
 /* 전화번호 아래 줄 */
 .drillCardPhone { font-size: 11px; color: #9CA3AF; margin: 1px 0 0; display: block; }
+
+@media (min-width: 769px) {
+  /* 섹션제목 17/600 */
+  .sectionLabel,
+  .drillGreenTitle,
+  .drillSimpleTitle { font-size: 17px; font-weight: 600; letter-spacing: normal; text-transform: none; }
+  /* 본문 14/400 */
+  .tab,
+  .cardTitle,
+  .smsName,
+  .settingLabel,
+  .historyName { font-size: 14px; font-weight: 400; }
+  /* 보조 12/400 */
+  .cardDesc,
+  .settingSub,
+  .aiDesc,
+  .empty,
+  .historyTime,
+  .historyScript,
+  .recipientPhone,
+  .mobileSectionLabel,
+  .recentHistoryEmpty,
+  .drillCardPhone { font-size: 12px; font-weight: 400; }
+}

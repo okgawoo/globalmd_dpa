@@ -504,14 +504,16 @@ setCustomerSearch('')
                   <button className={styles.addBtn} onClick={() => setShowForm(true)}>+ 미팅 추가</button>
                 </div>
                 {sorted.length === 0 && <div className={styles.empty}>미팅이 없어요 😊</div>}
-                {sorted.map(m => renderMeetingCard(m, { showDate: true }))}
+                <div className={styles.meetingList}>
+                  {sorted.map(m => renderMeetingCard(m, { showDate: true }))}
+                </div>
               </div>
             )
           })()}
 
           {/* 이번 주 */}
           {meetingSubTab === 'week' && (
-            <div>
+            <div className={styles.meetingList}>
               {(sortAsc ? weekDays : [...weekDays].reverse()).map(day => {
                 const raw = weekMeetings.filter(m => m.meeting_date === day)
                 if (raw.length === 0) return null
@@ -539,7 +541,7 @@ setCustomerSearch('')
 
           {/* 다음 주 */}
           {meetingSubTab === 'next' && (
-            <div>
+            <div className={styles.meetingList}>
               {(sortAsc ? nextWeekDays : [...nextWeekDays].reverse()).map(day => {
                 const raw = nextWeekMeetings.filter(m => m.meeting_date === day)
                 if (raw.length === 0) return null
@@ -571,15 +573,14 @@ setCustomerSearch('')
               </div>
               {pastMeetings.length === 0 ? (
                 <div className={styles.empty}>지난 미팅 기록이 없어요</div>
-              ) : (() => {
-                const sorted = sortAsc ? [...pastMeetings].reverse() : pastMeetings
-                return sorted.map(m => {
-                  const badge = getMeetingBadge(m)
-                  const dateObj = new Date(m.meeting_date + 'T00:00:00')
-                  const dateLabel = `${dateObj.getMonth()+1}/${dateObj.getDate()}(${['일','월','화','수','목','금','토'][dateObj.getDay()]})`
-                  return renderMeetingCard(m, { showDate: true, dateColor: 'var(--text-muted)', opacity: m.status==='취소' ? 0.6 : 1 })
-                })
-              })()}
+              ) : (
+                <div className={styles.meetingList}>
+                  {(() => {
+                    const sorted = sortAsc ? [...pastMeetings].reverse() : pastMeetings
+                    return sorted.map(m => renderMeetingCard(m, { showDate: true, dateColor: 'var(--text-muted)', opacity: m.status==='취소' ? 0.6 : 1 }))
+                  })()}
+                </div>
+              )}
             </div>
           )}
 

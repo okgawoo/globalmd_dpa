@@ -549,58 +549,11 @@ export default function Dashboard() {
       {/* ── 웹(데스크탑) 대시보드 ── */}
       <div className={styles.desktopDash}>
         <div className={styles.webDash}>
-          <div className={styles.topRow}>
-            <div className={styles.welcomeMsg}>
-              안녕하세요, <strong>{agentName || 'admin'} 설계사님</strong> 👋 오늘도 좋은 하루 되세요!
-            </div>
-            <div className={styles.dateRow}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
-                <span className={styles.dateStr}>{dateStr}</span>
-                {agentPlan && (
-                  <span style={{
-                    display: 'inline-block', padding: '2px 10px', borderRadius: 10,
-                    fontSize: 11, fontWeight: 700, letterSpacing: 0.5,
-                    background: agentPlan === 'pro' ? '#1D9E75' : agentPlan === 'standard' ? '#378ADD' : '#888',
-                    color: 'white',
-                  }}>{agentPlan.toUpperCase()}</span>
-                )}
-              </div>
-              <div style={{ position: 'relative' }}>
-                <button className={styles.calBtn} onClick={() => setCalOpen(v => !v)}>📅 달력</button>
-                {calOpen && (
-                  <>
-                    <div style={{ position: 'fixed', inset: 0, zIndex: 200 }} onClick={() => setCalOpen(false)} />
-                    <div className={styles.calPopup} style={{ top: '100%', right: 0, marginTop: 6, position: 'absolute', zIndex: 201 }} onClick={e => e.stopPropagation()}>
-                      <div className={styles.calHeader}>
-                        <button className={styles.calArrow} onClick={prevMonth}>‹</button>
-                        <span className={styles.calMonthStr}>{calMonthStr}</span>
-                        <button className={styles.calArrow} onClick={nextMonth}>›</button>
-                        <button className={styles.calClose} onClick={() => setCalOpen(false)}>✕</button>
-                      </div>
-                      <div className={styles.calGrid}>
-                        {['일','월','화','수','목','금','토'].map(d => (
-                          <div key={d} className={styles.calDayLabel}>{d}</div>
-                        ))}
-                        {Array.from({ length: calFirst }).map((_, i) => <div key={`e${i}`} />)}
-                        {Array.from({ length: calLast }).map((_, i) => {
-                          const day = i + 1
-                          const isToday = calYear === now.getFullYear() && calMonth === now.getMonth() && day === now.getDate()
-                          return (
-                            <div key={day} className={[styles.calDay, isToday ? styles.calToday : ''].join(' ')}>{day}</div>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* 오늘의 할일 + 오늘 영업일정 (2열) */}
+          {/* 1행: 오늘의 할일 + 오늘 영업일정 (2열) */}
           <div className={styles.webRow2}>
             <div className={styles.webCard}>
               <div className={styles.webCardTitle}>오늘의 할일</div>
+              <div className={styles.webListWrap}>
               {(() => {
                 const issueGroups = [
                   { sort: '생일임박', icon: '🎂', label: '생일 임박', count: birthdayCustomers.length, color: '#EF9F27', bg: '#FEF3E2' },
@@ -616,10 +569,12 @@ export default function Dashboard() {
                   </div>
                 ))
               })()}
+              </div>
             </div>
 
             <div className={styles.webCard}>
               <div className={styles.webCardTitle}>오늘 영업일정</div>
+              <div className={styles.webListWrap}>
               {(() => {
                 const todayDateStr = new Date().toISOString().split('T')[0]
                 const todayMeetings = meetings.filter(m => (m.meeting_date || '').split('T')[0] === todayDateStr)
@@ -639,10 +594,11 @@ export default function Dashboard() {
                   )
                 })
               })()}
+              </div>
             </div>
           </div>
 
-          {/* 통계 카드 4열 */}
+          {/* 2행: 통계 카드 4열 */}
           <div className={styles.webStats4}>
             <div className={styles.webStatCard} onClick={() => router.push('/customers')}>
               <div className={styles.webStatLabel}>총 고객</div>
@@ -662,21 +618,47 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* 오늘 문자 발송 현황 (전체폭) */}
-          <div className={styles.webCard}>
-            <div className={styles.webCardTitle}>오늘 문자 발송 현황</div>
-            <div className={styles.webSmsRow}>
-              <div className={styles.webSmsItem}>
-                <span className={styles.webSmsLabel}>발송 건수</span>
-                <span className={styles.webSmsValue}>{smsStats.total}</span>
+          {/* 3행: 문자 발송 현황 + 최근 등록 고객 (2열) */}
+          <div className={styles.webRow2}>
+            <div className={styles.webCard}>
+              <div className={styles.webCardTitle}>오늘 문자 발송 현황</div>
+              <div className={styles.webSmsRow}>
+                <div className={styles.webSmsItem}>
+                  <span className={styles.webSmsLabel}>발송 건수</span>
+                  <span className={styles.webSmsValue}>{smsStats.total}</span>
+                </div>
+                <div className={styles.webSmsItem}>
+                  <span className={styles.webSmsLabel}>성공</span>
+                  <span className={styles.webSmsValue} style={{ color: '#1D9E75' }}>{smsStats.success}</span>
+                </div>
+                <div className={styles.webSmsItem}>
+                  <span className={styles.webSmsLabel}>실패</span>
+                  <span className={styles.webSmsValue} style={{ color: '#E24B4A' }}>{smsStats.failed}</span>
+                </div>
               </div>
-              <div className={styles.webSmsItem}>
-                <span className={styles.webSmsLabel}>성공</span>
-                <span className={styles.webSmsValue} style={{ color: '#1D9E75' }}>{smsStats.success}</span>
-              </div>
-              <div className={styles.webSmsItem}>
-                <span className={styles.webSmsLabel}>실패</span>
-                <span className={styles.webSmsValue} style={{ color: '#E24B4A' }}>{smsStats.failed}</span>
+            </div>
+
+            <div className={styles.webCard}>
+              <div className={styles.webCardTitle}>최근 등록 고객</div>
+              <div className={styles.webListWrap}>
+              {(() => {
+                const recent = [...customers]
+                  .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                  .slice(0, 5)
+                if (recent.length === 0) return <div className={styles.webEmpty}>등록된 고객이 없어요</div>
+                return recent.map(c => {
+                  const badgeText = c.customer_type === 'prospect' ? '관심고객' : '마이고객'
+                  return (
+                    <div key={c.id} className={styles.webListRow} onClick={() => router.push(`/customers?id=${c.id}`)}>
+                      <span className={styles.webListIcon}>👤</span>
+                      <span className={styles.webListLabel}>{c.name} 고객
+                        <span className={styles.webBadge} style={{ color: '#1D4ED8', background: '#EFF6FF', marginLeft: 8 }}>{badgeText}</span>
+                      </span>
+                      <span className={styles.webListMeta}>{new Date(c.created_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}</span>
+                    </div>
+                  )
+                })
+              })()}
               </div>
             </div>
           </div>

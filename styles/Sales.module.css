@@ -103,3 +103,29 @@
 .customerDropdownItem:last-child { border-bottom: none; }
 .customerDropdownItem:active { background: #F0FBF7; }
 .customerDropdownEmpty { padding: 12px 14px; font-size: 12px; color: #9CA3AF; text-align: center; }
+
+@media (min-width: 769px) {
+  /* 섹션제목 17/600 */
+  .sectionTitle,
+  .flowPanelTitle,
+  .formTitle { font-size: 17px; font-weight: 600; }
+  /* 본문 14/400 */
+  .tab,
+  .meetingName,
+  .formInput,
+  .formSelect,
+  .contactName,
+  .customerDropdownItem { font-size: 14px; font-weight: 400; }
+  /* 보조 12/400 */
+  .meetingTime,
+  .meetingLocation,
+  .empty,
+  .formLabel,
+  .contactReason,
+  .flowStageDate,
+  .cancelWarn,
+  .customerDropdownEmpty { font-size: 12px; font-weight: 400; }
+
+  /* 미팅 리스트 스크롤 — 너무 길게 늘어지지 않도록 */
+  .meetingList { max-height: 500px; overflow-y: auto; padding-right: 4px; }
+}

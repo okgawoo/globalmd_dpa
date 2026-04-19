@@ -323,6 +323,25 @@
 @media (min-width: 769px) {
   .covItem { font-size: 13px; }
   .covLabel { font-size: 13px; }
+
+  /* ── 웹 타이포 통일: 섹션제목 17/600, 본문 14/400, 보조 12/400 ── */
+  .section,
+  .detailName { font-size: 17px; font-weight: 600; }
+  .tab,
+  .custName,
+  .insItem,
+  .scriptBox,
+  .infoValue { font-size: 14px; font-weight: 400; }
+  .custMeta,
+  .detailMeta,
+  .infoLabel,
+  .gaugeLabel,
+  .insFee,
+  .insType,
+  .insMeta,
+  .extraInfoLabel,
+  .extraInfoValue,
+  .extraInfoValueGreen { font-size: 12px; font-weight: 400; }
 }
 
 /* 문자 버튼 */

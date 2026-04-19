@@ -133,3 +133,33 @@
   .parsedEditGrid { grid-template-columns: 1fr 1fr !important; }
   .covAmtInput { width: 80px !important; }
 }
+
+@media (min-width: 769px) {
+  /* 섹션제목 17/600 */
+  .formSection,
+  .coverageSectionTitle,
+  .captureText,
+  .doneText,
+  .pasteGuideTitle,
+  .parsedResultTitle,
+  .guideLabel,
+  .guidePopupHeader { font-size: 17px; font-weight: 600; }
+  /* 본문 14/400 */
+  .tab,
+  .pasteGuide,
+  .pasteArea,
+  .dropText,
+  .addContractBtn,
+  .parsedInfo { font-size: 14px; font-weight: 400; }
+  /* 보조 12/400 */
+  .field label,
+  .captureSub,
+  .pasteGuideStep,
+  .dropSub,
+  .excelLabel,
+  .covItem,
+  .covCat,
+  .parsedSection,
+  .covNameInput,
+  .covAmtInput { font-size: 12px; font-weight: 400; }
+}

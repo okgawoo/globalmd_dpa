@@ -95,3 +95,23 @@
   .fieldRow .fieldInput { width: 100%; }
   .btnPrimary, .btnOutline, .btnDanger { width: 100%; text-align: center; }
 }
+
+@media (min-width: 769px) {
+  /* 섹션제목 17/600 */
+  .sectionTitle { font-size: 17px; font-weight: 600; }
+  /* 본문 14/400 */
+  .fieldLabel,
+  .fieldInput,
+  .notifLabel,
+  .arsGuide,
+  .usageInfo,
+  .cancelText,
+  .notifGroupLabel { font-size: 14px; font-weight: 400; }
+  /* 보조 12/400 */
+  .sectionDesc,
+  .fieldHint,
+  .notifDesc,
+  .cancelSub,
+  .usagePlan,
+  .errorText { font-size: 12px; font-weight: 400; }
+}
