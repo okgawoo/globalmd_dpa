@@ -250,7 +250,7 @@
   /* 아이콘 숨김 */
   .tabIcon { display: none !important; }
   /* 슬라이드 패널 높이 제한 */
-  .slidePanel { max-height: 60vh !important; border-radius: 16px 16px 0 0 !important; touch-action: none; }
+  .slidePanel { max-height: 60vh !important; border-radius: 16px 16px 0 0 !important; }
   /* 탭바 2줄 레이아웃 */
   .tabBar { flex-wrap: nowrap !important; gap: 0 !important; border-bottom: none !important; align-items: center !important; width: 100% !important; margin-bottom: 0 !important; padding-bottom: 4px !important; position: relative !important; }
   .tabBar::after { content: '' !important; position: absolute !important; bottom: 0 !important; left: 12px !important; right: 12px !important; height: 1px !important; background: var(--border) !important; }
