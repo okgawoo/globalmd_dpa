@@ -598,29 +598,29 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* 2행: 통계 카드 4열 */}
+          {/* 2행: 통계 카드 6열 */}
           <div className={styles.webStats4}>
-            <div className={styles.webStatCard} onClick={() => router.push('/customers')}>
+            <div className={styles.webStatCard} style={{ ['--bar-color' as any]: '#378ADD' }} onClick={() => router.push('/customers')}>
               <div className={styles.webStatLabel}>총 고객</div>
               <div className={styles.webStatValue}>{customers.length}</div>
             </div>
-            <div className={styles.webStatCard} onClick={() => router.push('/customers')}>
+            <div className={styles.webStatCard} style={{ ['--bar-color' as any]: '#1D9E75' }} onClick={() => router.push('/customers')}>
               <div className={styles.webStatLabel}>보험 계약</div>
               <div className={styles.webStatValue}>{contracts.length}</div>
             </div>
-            <div className={styles.webStatCard} onClick={handleNearDoneClick}>
+            <div className={styles.webStatCard} style={{ ['--bar-color' as any]: '#B45309' }} onClick={handleNearDoneClick}>
               <div className={styles.webStatLabel}>완납 임박</div>
               <div className={styles.webStatValue} style={{ color: 'var(--red)' }}>{nearDoneCustomers.length}</div>
             </div>
-            <div className={styles.webStatCard} onClick={handleGapClick}>
+            <div className={styles.webStatCard} style={{ ['--bar-color' as any]: '#B91C1C' }} onClick={handleGapClick}>
               <div className={styles.webStatLabel}>보장 공백</div>
               <div className={styles.webStatValue} style={{ color: 'var(--amber)' }}>{gapCustomers.length}</div>
             </div>
-            <div className={styles.webStatCard} onClick={() => router.push('/customers')}>
+            <div className={styles.webStatCard} style={{ ['--bar-color' as any]: '#8B5CF6' }} onClick={() => router.push('/customers')}>
               <div className={styles.webStatLabel}>이번달 신규</div>
               <div className={styles.webStatValue}>{newThisMonth}</div>
             </div>
-            <div className={styles.webStatCard}>
+            <div className={styles.webStatCard} style={{ ['--bar-color' as any]: '#0891B2' }}>
               <div className={styles.webStatLabel}>월납입 합계</div>
               <div className={styles.webStatValue}>{formatMonthly(totalMonthly)}</div>
             </div>

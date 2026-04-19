@@ -150,6 +150,7 @@
   /* ── 새 웹 대시보드 레이아웃 ── */
   .webDash {
     padding-top: 24px;
+    padding-bottom: 24px;
     min-height: calc(100vh - 52px);
     display: flex;
     flex-direction: column;
@@ -181,6 +182,7 @@
   .webStats4 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
 
   .webStatCard {
+    position: relative;
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 14px;
@@ -189,9 +191,17 @@
     transition: all 0.15s;
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   }
+  .webStatCard::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--bar-color, transparent);
+    border-radius: 14px 14px 0 0;
+  }
   .webStatCard:hover { border-color: var(--green); transform: translateY(-1px); }
-  .webStatLabel { font-size: 13px; font-weight: 400; color: var(--text-secondary); margin-bottom: 10px; }
-  .webStatValue { font-size: 28px; font-weight: 700; color: var(--text-primary); line-height: 1.1; }
+  .webStatLabel { font-size: 11px; font-weight: 400; color: var(--text-secondary); margin-bottom: 10px; white-space: nowrap; }
+  .webStatValue { font-size: 22px; font-weight: 700; color: var(--text-primary); line-height: 1.1; text-align: right; }
 
   .webListRow { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #BFBDB6; cursor: pointer; transition: background 0.15s; }
   .webListRow:last-child { border-bottom: none; }
