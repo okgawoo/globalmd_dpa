@@ -122,7 +122,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   <circle cx="20" cy="20" r="2" fill="white"/>
                 </svg>
                 <span className={styles.logoText} style={{color:'var(--text-primary)',fontWeight:700,fontSize:26,lineHeight:1}}>DPA</span>
-                <span className={styles.logoVersion} style={{color:'var(--text-secondary)',fontSize:11,alignSelf:'baseline'}}>v2.0</span>
+                <span className={styles.logoVersion} style={{color:'var(--text-secondary)',fontSize:11,alignSelf:'flex-end'}}>v2.0</span>
               </div>
               <span className={styles.logoSub} style={{display:'block',marginTop:4,color:'var(--text-secondary)',fontSize:13,lineHeight:1}}>AI 보험 관리 자동화 플랫폼</span>
             </div>
