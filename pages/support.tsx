@@ -7,6 +7,7 @@ interface Message {
   role: 'user' | 'assistant'
   content: string
   isQuickReply?: boolean
+  isGuide?: boolean
 }
 
 function renderMarkdown(text: string) {
@@ -139,7 +140,10 @@ export default function SupportPage() {
         body: JSON.stringify({ agentId, agentName, messages: [{ role: 'user', content: cat.label }], category: CATEGORIES_L1.find(c => c.id === selectedL1)?.label }),
       })
       const data = await res.json()
-      setMessages(prev => [...prev, { role: 'assistant', content: data.reply }])
+      setMessages(prev => [...prev, 
+        { role: 'assistant', content: data.reply },
+        { role: 'assistant', content: '더 궁금한 게 있으면 편하게 물어보세요 😊', isGuide: true }
+      ])
     } catch {
       setMessages(prev => [...prev, { role: 'assistant', content: '죄송해요, 잠시 후 다시 시도해주세요. 🙏' }])
     } finally {
@@ -206,7 +210,7 @@ export default function SupportPage() {
 
           {messages.map((msg, i) => (
             <div key={i} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start', gap: 8, alignItems: 'flex-end' }}>
-              {msg.role === 'assistant' && (
+              {msg.role === 'assistant' && !msg.isGuide && (
                 <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#E1F5EE', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17, flexShrink: 0 }}>🤖</div>
               )}
               <div style={{
@@ -285,29 +289,13 @@ export default function SupportPage() {
             </div>
           )}
 
-          {/* 담당자 연결 */}
-          {step === 'chat' && messages.length >= 5 && !escalated && !loading && (
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 4 }}>
-              <button onClick={handleEscalate} style={{
-                padding: '9px 20px',
-                borderRadius: 20,
-                border: '1px solid #EDEBE4',
-                background: '#fff',
-                color: '#666',
-                fontSize: 13,
-                cursor: 'pointer',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-              }}>
-                🙋 담당자 연결 요청
-              </button>
-            </div>
-          )}
+
 
           <div ref={bottomRef} />
         </div>
 
-        {/* 입력창 */}
-        {step === 'chat' && (
+        {/* 입력창 - chat 단계 또는 AI 답변이 1개 이상 있을 때 표시 */}
+        {(step === 'chat' || messages.some(m => m.role === 'assistant' && m.isGuide)) && (
           <div style={{ background: '#fff', borderTop: '1px solid #EDEBE4', padding: '10px 12px', display: 'flex', gap: 8, alignItems: 'flex-end', flexShrink: 0 }}>
             <textarea
               value={input}
