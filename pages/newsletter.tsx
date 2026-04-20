@@ -225,6 +225,8 @@ export default function Newsletter() {
                   borderBottom: '1px solid #F3F4F6',
                   cursor: 'pointer',
                   transition: 'background 0.1s',
+                  overflow: 'hidden',
+                  minWidth: 0,
                 }}
                 onMouseEnter={e => (e.currentTarget.style.background = '#FAFAF8')}
                 onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
