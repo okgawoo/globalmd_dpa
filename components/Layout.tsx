@@ -61,10 +61,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [userEmail, setUserEmail] = useState('')
+  const [userRole, setUserRole] = useState('')
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) setUserEmail(user.email || '')
+      if (user) {
+        setUserEmail(user.email || '')
+        supabase.from('dpa_agents').select('role').eq('user_id', user.id).single()
+          .then(({ data }) => { if (data) setUserRole(data.role || '') })
+      }
     })
     try {
       if (localStorage.getItem('sidebarCollapsed') === '1') setSidebarCollapsed(true)
@@ -168,7 +173,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
         <div className={styles.sidebarFooter}>
-          {userEmail === 'okgawoo@gmail.com' && (
+          {userRole === 'admin' && (
             <a href="/admin"
               onClick={() => setSidebarOpen(false)}
               style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', marginBottom: 6, borderRadius: 8, background: router.pathname === '/admin' ? '#E1F5EE' : 'transparent', color: router.pathname === '/admin' ? '#1D9E75' : '#666', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
