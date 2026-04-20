@@ -352,14 +352,15 @@ export default function NotificationsPage() {
     return `${yy}${mm}${dd}`
   }
 
-  if (loading) return <div className={styles.loading}>불러오는 중...</div>
-
-  // PC 웹 선택된 이슈의 고객 목록
+  // PC 웹 전용 상태 (Hook 규칙: 조건문 이전에 선언)
   const [pcActiveIssue, setPcActiveIssue] = useState<IssueType | null>(null)
   const [pcTab, setPcTab] = useState<'ai' | 'bulk' | 'history'>(() => {
     if (typeof window !== 'undefined') return (sessionStorage.getItem('pc_notif_tab') as any) || 'ai'
     return 'ai'
   })
+
+  if (loading) return <div className={styles.loading}>불러오는 중...</div>
+
   const pcActiveNotifs = pcActiveIssue ? notifMap[pcActiveIssue] : []
 
   return (
