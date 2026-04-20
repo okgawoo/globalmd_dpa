@@ -376,7 +376,6 @@ export default function NotificationsPage() {
           {[
             { key: 'ai', label: 'AI 추천' },
             { key: 'bulk', label: '단체문자' },
-            { key: 'history', label: '발송이력' },
           ].map(tab => (
             <button key={tab.key}
               className={[styles.pcTab, pcTab === tab.key ? styles.pcTabActive : ''].join(' ')}
@@ -600,8 +599,23 @@ export default function NotificationsPage() {
                   <textarea value={bulkContent} onChange={e => setBulkContent(e.target.value)}
                     placeholder="발송할 문자 내용을 입력하세요"
                     rows={7}
+                    id="bulkTextarea"
                     style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #EDEBE4', fontSize: 14, color: '#1a1a1a', resize: 'none', lineHeight: 1.6, background: '#fff' }}
                   />
+                  {/* 이모지 바 */}
+                  <div className={styles.pcEmojiBar} style={{ margin: '6px 0' }}>
+                    <span className={styles.pcEmojiLabel}>자주 쓰는</span>
+                    {EMOJIS.map(e => (
+                      <button key={e} className={styles.pcEmojiBtn} onClick={() => {
+                        const el = document.getElementById('bulkTextarea') as HTMLTextAreaElement
+                        if (!el) { setBulkContent(s => s + e); return }
+                        const start = el.selectionStart; const end = el.selectionEnd
+                        const next = bulkContent.slice(0, start) + e + bulkContent.slice(end)
+                        setBulkContent(next)
+                        setTimeout(() => { el.selectionStart = el.selectionEnd = start + e.length; el.focus() }, 0)
+                      }}>{e}</button>
+                    ))}
+                  </div>
                   <p style={{ fontSize: 12, color: '#999', textAlign: 'right', marginTop: 4, marginBottom: 12 }}>{bulkContent.length}자</p>
                   {bulkSelectedIds.length > 0 && (
                     <button
@@ -626,31 +640,6 @@ export default function NotificationsPage() {
                 <p style={{ fontSize: 13, color: '#ccc', marginTop: 6 }}>단체문자를 발송하면 여기에 기록돼요</p>
               </div>
             )}
-          </div>
-        )}
-
-        {/* ── 발송이력 탭 ── */}
-        {pcTab === 'history' && (
-          <div className={styles.pcHistoryWrap}>
-            {messages.length === 0 ? (
-              <div className={styles.pcEmptyHint}>아직 발송 이력이 없어요 📭</div>
-            ) : messages.map((m: any) => {
-              const typeLabel: Record<string, string> = { nearDone: '완납임박', gap: '보장공백', birthday: '생일', expiry: '만기임박', longNoContact: '장기미연락', anniversary: '계약기념일', 최근미팅: '미팅후속', 최근계약: '계약감사', 일반: '일반' }
-              const tCfg = ISSUE_CONFIG[m.message_type as IssueType] || { badgeBg: '#F1EFE8', badgeColor: '#5F5E5A' }
-              return (
-                <div key={m.id} className={styles.pcHistoryItem}>
-                  <div className={styles.pcHistoryLeft}>
-                    <div className={styles.pcHistoryName}>{m.dpa_customers?.name}고객</div>
-                    <div className={styles.pcHistoryScript}>{m.sent_script}</div>
-                  </div>
-                  <div className={styles.pcHistoryRight}>
-                    <span className={styles.pcHistoryBadge} style={{ background: tCfg.badgeBg, color: tCfg.badgeColor }}>{typeLabel[m.message_type] || m.message_type}</span>
-                    <span className={styles.pcHistoryBadge} style={{ background: m.is_sent ? '#E1F5EE' : '#F1EFE8', color: m.is_sent ? '#085041' : '#5F5E5A' }}>{m.is_sent ? '발송' : '카카오/복사'}</span>
-                    <span className={styles.pcHistoryDate}>{fmtDate(m.created_at)}</span>
-                  </div>
-                </div>
-              )
-            })}
           </div>
         )}
 
