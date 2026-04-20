@@ -84,7 +84,7 @@
   .pcTabActive { color: #1D9E75 !important; border-bottom: 2px solid #1D9E75 !important; font-weight: 700; }
 
   /* AI추천 탭 2단 레이아웃 */
-  .pcLayout { display: grid; grid-template-columns: minmax(180px, 22%) 1fr; gap: 16px; align-items: start; padding: 16px; }
+  .pcLayout { display: grid; grid-template-columns: 220px 1fr; gap: 16px; align-items: start; padding: 16px; }
 
   /* 왼쪽 카테고리 패널 */
   .pcLeftPanel { display: flex; flex-direction: column; gap: 8px; }
