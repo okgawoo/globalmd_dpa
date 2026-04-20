@@ -48,206 +48,112 @@
 .nlFooter { text-align: center; padding: 20px 16px 32px; font-size: 11px; color: #9CA3AF; line-height: 1.8; }
 .nlFooter p { margin: 0; }
 
-@media (min-width: 769px) {
-  .wrap { max-width: none; width: 100%; }
-  .listCard { margin: 12px 0; }
-  .nlCard { margin: 12px 0; }
-
-  /* 섹션제목 17/600 */
-  .listTitle,
-  .nlTitle,
-  .nlCardTitle,
-  .listCardTitle { font-size: 17px; font-weight: 600; }
-  /* 본문 14/400 */
-  .nlIntro,
-  .nlCardSummary,
-  .backBtn { font-size: 14px; font-weight: 400; }
-  /* 보조 12/400 */
-  .listSubtitle,
-  .listWeek,
-  .listDate,
-  .listNotice,
-  .detailWeek,
-  .nlWeekLabel,
-  .nlSubtitle,
-  .nlTag,
-  .nlTip,
-  .nlFooter { font-size: 12px; font-weight: 400; }
-}
-
 /* ═══════════════════════════════════════════
-   PC 웹 전용 스타일 (min-width: 769px)
+   모바일 전용
 ═══════════════════════════════════════════ */
-@media (min-width: 769px) {
-
-.pcGrid { display: block; padding: 0; }
-.pcCard { background: #fff; border-radius: 12px; border: 1px solid #EDEBE4; }
-.mobileLayout { display: none !important; }
-
-/* 잔여문자 바 - 숨김 */
-.pcSmsUsageBar { display: none !important; }
-
-/* 탭바 - 고객관리 스타일 통일 */
-.pcTabBar { display: flex; border-bottom: 2px solid #EDEBE4; margin-bottom: 12px; background: transparent; padding: 0; }
-.pcTab { padding: 8px 16px 12px; font-size: 15px; font-weight: 500; color: #666; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px; cursor: pointer; }
-.pcTab:hover { color: #1a1a1a; }
-.pcTabActive { color: #1D9E75 !important; border-bottom: 2px solid #1D9E75 !important; font-weight: 700; color: #1a1a1a !important; }
-
-/* AI추천 탭 2단 레이아웃 */
-.pcLayout { display: grid; grid-template-columns: minmax(180px, 22%) 1fr; gap: 16px; align-items: start; padding: 16px; }
-
-/* 왼쪽 카테고리 패널 */
-.pcLeftPanel { display: flex; flex-direction: column; gap: 8px; height: 100%; }
-.pcSectionLabel { font-size: 11px; color: #999; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 4px; }
-
-.pcCatCard { background: #fff; border: 1px solid #EDEBE4; border-radius: 12px; padding: 12px 14px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: border-color 0.15s; }
-.pcCatCard:hover { border-color: #1D9E75; }
-.pcCatCardActive { border-color: #1D9E75 !important; background: #F0FDF9; }
-.pcCatLeft { display: flex; align-items: center; gap: 10px; }
-.pcCatIcon { font-size: 18px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; background: #FAF9F5; border-radius: 8px; }
-.pcCatName { font-size: 14px; font-weight: 600; color: #1a1a1a; }
-.pcCatDesc { font-size: 12px; color: #999; margin-top: 2px; }
-.pcCatBadge { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 20px; min-width: 28px; text-align: center; }
-
-/* 오른쪽 패널 */
-.pcRightPanel { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
-
-/* 고객 리스트 */
-.pcCustomerList { background: #fff; border: 1px solid #EDEBE4; border-radius: 12px; padding: 14px 16px; }
-.pcListTitle { font-size: 13px; font-weight: 600; color: #666; margin-bottom: 10px; }
-.pcEmptyHint { text-align: center; padding: 20px 16px; color: #999; font-size: 14px; }
-
-.pcCustomerItem { display: flex; align-items: center; gap: 10px; padding: 10px 8px; border-radius: 8px; cursor: pointer; border-bottom: 1px solid #EDEBE4; transition: background 0.1s; }
-.pcCustomerItem:last-child { border-bottom: none; }
-.pcCustomerItem:hover { background: #FAF9F5; }
-.pcCustomerItemActive { background: #F0FDF9 !important; }
-.pcCustAvatar { width: 32px; height: 32px; border-radius: 50%; background: #E1F5EE; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #1D9E75; font-weight: 700; flex-shrink: 0; }
-.pcCustInfo { flex: 1; min-width: 0; overflow: hidden; }
-.pcCustName { font-size: 14px; font-weight: 600; color: #1a1a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pcCustSub { font-size: 12px; color: #999; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pcCustBadge { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
-
-/* 문자 작성 패널 */
-.pcComposePanel { background: #fff; border: 1px solid #EDEBE4; border-radius: 12px; padding: 16px; position: sticky; top: 16px; }
-.pcComposeHeader { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #EDEBE4; }
-.pcComposeAvatar { width: 38px; height: 38px; border-radius: 50%; background: #E1F5EE; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #1D9E75; font-weight: 700; flex-shrink: 0; }
-.pcComposeName { font-size: 15px; font-weight: 700; color: #1a1a1a; }
-.pcComposeMeta { font-size: 12px; color: #999; margin-top: 2px; display: flex; align-items: center; gap: 6px; }
-.pcComposeBadge { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 6px; }
-.pcComposeEmpty { text-align: center; padding: 40px 16px; color: #999; font-size: 14px; line-height: 1.6; }
-
-.pcToneRow { display: flex; gap: 6px; margin-bottom: 10px; }
-.pcToneBtn { font-size: 13px; padding: 5px 12px; border-radius: 20px; border: 1px solid #EDEBE4; color: #666; cursor: pointer; background: #FAF9F5; }
-.pcToneBtnActive { background: #1D9E75 !important; color: #fff !important; border-color: #1D9E75 !important; }
-
-.pcTextarea { width: 100%; border: 1px solid #EDEBE4; border-radius: 10px; padding: 12px 14px; font-size: 14px; color: #1a1a1a; background: #FAF9F5; resize: none; line-height: 1.7; font-family: inherit; min-height: 154px; }
-.pcTextarea:focus { outline: none; border-color: #1D9E75; }
-
-/* 이모티콘 바 */
-.pcEmojiBar { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; padding: 8px 10px; background: #F8F8F6; border-radius: 8px; margin-top: 8px; border: 1px solid #EDEBE4; }
-.pcEmojiLabel { font-size: 11px; color: #999; margin-right: 4px; white-space: nowrap; flex-shrink: 0; }
-.pcEmojiBtn { font-size: 16px; background: none; border: none; cursor: pointer; padding: 2px 3px; border-radius: 4px; line-height: 1; }
-.pcEmojiBtn:hover { background: #fff; }
-
-.pcCharCount { font-size: 12px; color: #999; text-align: right; margin-top: 6px; }
-
-.pcBtnRow { display: flex; gap: 8px; margin-top: 12px; }
-.pcBtnSend { flex: 1; background: #1D9E75; color: #fff; border: none; padding: 12px 0; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; }
-.pcBtnSend:disabled { background: #D1D5DB; cursor: not-allowed; }
-.pcBtnCopy { padding: 12px 14px; border: 1px solid #EDEBE4; border-radius: 10px; font-size: 14px; color: #666; cursor: pointer; background: #fff; white-space: nowrap; }
-.pcBtnKakao { padding: 12px 14px; border: 1px solid #FAE100; border-radius: 10px; font-size: 14px; color: #3A1D1D; background: #FAE100; cursor: pointer; white-space: nowrap; }
-.pcBtnCopy:disabled, .pcBtnKakao:disabled { opacity: 0.4; cursor: not-allowed; }
-
-/* 단체문자 탭 */
-.pcBulkWrap { padding: 16px; }
-
-/* 발송이력 탭 */
-.pcHistoryWrap { }
-.pcHistoryItem { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #EDEBE4; }
-.pcHistoryItem:last-child { border-bottom: none; }
-.pcHistoryLeft { flex: 1; min-width: 0; }
-.pcHistoryName { font-size: 14px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
-.pcHistoryScript { font-size: 13px; color: #666; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.pcHistoryRight { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-.pcHistoryBadge { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
-.pcHistoryDate { font-size: 12px; color: #999; }
-
-}
-
-/* 모바일에서 pcGrid 숨기기 */
 @media (max-width: 768px) {
   .pcGrid { display: none !important; }
 }
 
-/* 2블록 레이아웃 - 고객리스트 넓게 */
+/* ═══════════════════════════════════════════
+   PC 웹 전용 스타일
+═══════════════════════════════════════════ */
 @media (min-width: 769px) {
-.pcLayout { grid-template-columns: 280px 1fr; }
+  .wrap { max-width: none; width: 100%; }
+  .listCard { margin: 12px 0; }
+  .nlCard { margin: 12px 0; }
+  .listTitle, .nlTitle, .nlCardTitle, .listCardTitle { font-size: 17px; font-weight: 600; }
+  .nlIntro, .nlCardSummary, .backBtn { font-size: 14px; font-weight: 400; }
+  .listSubtitle, .listWeek, .listDate, .listNotice, .detailWeek, .nlWeekLabel, .nlSubtitle, .nlTag, .nlTip, .nlFooter { font-size: 12px; font-weight: 400; }
 
-.pcCustomerListWide { background: #fff; border: 1px solid #EDEBE4; border-radius: 12px; padding: 14px 16px; }
-.pcCustomerItemWide { display: flex; align-items: center; gap: 12px; padding: 12px 8px; border-radius: 8px; cursor: pointer; border-bottom: 1px solid #EDEBE4; transition: background 0.1s; }
-.pcCustomerItemWide:last-child { border-bottom: none; }
-.pcCustomerItemWide:hover { background: #FAF9F5; }
-.pcSmsBtn { font-size: 13px; color: #1D9E75; border: 1px solid #1D9E75; padding: 6px 12px; border-radius: 8px; cursor: pointer; background: #fff; white-space: nowrap; flex-shrink: 0; }
-.pcSmsBtn:hover { background: #F0FDF9; }
+  /* PC 그리드 */
+  .pcGrid { display: block; padding: 0; }
+  .pcCard { background: #fff; border-radius: 12px; border: 1px solid #EDEBE4; }
+  .mobileLayout { display: none !important; }
+  .pcSmsUsageBar { display: none !important; }
 
-/* 딤 오버레이 */
-.pcSlideOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; }
+  /* 카드 위 상단바 (카테고리선택 + 잔여문자) */
+  .pcTopBar { display: flex; align-items: center; justify-content: space-between; padding: 4px 2px; margin-bottom: 8px; }
+  .pcTopBarLeft { font-size: 13px; color: #666; font-weight: 500; }
+  .pcTopBarRight { font-size: 13px; }
 
-/* 슬라이드 팝업 패널 */
-.pcSlidePanel { position: fixed; top: 0; right: 0; width: 420px; height: 100vh; background: #fff; z-index: 201; box-shadow: -4px 0 24px rgba(0,0,0,0.12); display: flex; flex-direction: column; padding: 0; overflow-y: auto; animation: slideInRight 0.25s ease; }
-@keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
+  /* 탭바 - 고객관리 스타일 통일 */
+  .pcTabBar { display: flex; border-bottom: 1px solid #EDEBE4; margin-bottom: 0; background: #fff; padding: 0 4px; border-radius: 12px 12px 0 0; }
+  .pcTab { padding: 12px 18px; font-size: 15px; font-weight: 500; color: #666; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; }
+  .pcTab:hover { color: #1a1a1a; }
+  .pcTabActive { color: #1D9E75 !important; border-bottom: 2px solid #1D9E75 !important; font-weight: 700; }
 
-.pcSlideHeader { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid #EDEBE4; background: #fff; position: sticky; top: 0; z-index: 1; }
-.pcSlideClose { font-size: 18px; color: #999; background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 6px; line-height: 1; }
-.pcSlideClose:hover { background: #F1EFE8; color: #1a1a1a; }
+  /* AI추천 탭 2단 레이아웃 */
+  .pcLayout { display: grid; grid-template-columns: minmax(180px, 22%) 1fr; gap: 16px; align-items: start; padding: 16px; }
 
-/* 슬라이드 패널 내부 요소 패딩 */
-.pcSlidePanel .pcToneRow { padding: 14px 20px 0; }
-.pcSlidePanel .pcTextarea { margin: 10px 20px 0; width: calc(100% - 40px); }
-.pcSlidePanel .pcEmojiBar { margin: 8px 20px 0; }
-.pcSlidePanel .pcCharCount { padding: 4px 20px 0; }
-.pcSlidePanel .pcBtnRow { padding: 12px 20px 20px; }
-}
+  /* 왼쪽 카테고리 패널 */
+  .pcLeftPanel { display: flex; flex-direction: column; gap: 8px; }
+  .pcSectionLabel { font-size: 11px; color: #999; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .pcCatCard { background: #fff; border: 1px solid #EDEBE4; border-radius: 12px; padding: 12px 14px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: border-color 0.15s; }
+  .pcCatCard:hover { border-color: #1D9E75; }
+  .pcCatCardActive { border-color: #1D9E75 !important; background: #F0FDF9; }
+  .pcCatLeft { display: flex; align-items: center; gap: 10px; }
+  .pcCatIcon { font-size: 18px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; background: #FAF9F5; border-radius: 8px; }
+  .pcCatName { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+  .pcCatDesc { font-size: 12px; color: #999; margin-top: 2px; }
+  .pcCatBadge { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 20px; min-width: 28px; text-align: center; }
 
+  /* 오른쪽 고객 리스트 */
+  .pcRightWide { background: #fff; border: 1px solid #EDEBE4; border-radius: 12px; padding: 14px 16px; overflow-y: auto; max-height: 70vh; }
+  .pcListTitle { font-size: 13px; font-weight: 600; color: #666; margin-bottom: 10px; }
+  .pcEmptyHint { text-align: center; padding: 20px 16px; color: #999; font-size: 14px; }
+  .pcCustomerRow { display: flex; align-items: center; gap: 12px; padding: 12px 10px; border-bottom: 1px solid #EDEBE4; min-width: 0; }
+  .pcCustomerRow:last-child { border-bottom: none; }
+  .pcCustomerRow:hover { background: #FAF9F5; border-radius: 8px; }
+  .pcCustAvatar { width: 32px; height: 32px; border-radius: 50%; background: #E1F5EE; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #1D9E75; font-weight: 700; flex-shrink: 0; }
+  .pcCustInfo { flex: 1; min-width: 0; overflow: hidden; }
+  .pcCustName { font-size: 14px; font-weight: 600; color: #1a1a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pcCustSub { font-size: 12px; color: #999; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pcCustBadge { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
+  .pcSmsBtn { font-size: 13px; padding: 7px 14px; border-radius: 8px; border: 1px solid #1D9E75; color: #1D9E75; background: #fff; cursor: pointer; white-space: nowrap; font-weight: 600; transition: all 0.1s; }
+  .pcSmsBtn:hover { background: #1D9E75; color: #fff; }
 
-/* 카드 위 상단 바 (카테고리선택 + 잔여문자) */
-.pcTopBar { display: flex; align-items: center; justify-content: space-between; padding: 4px 2px; margin-bottom: 8px; }
-.pcTopBarLeft { font-size: 13px; color: #666; font-weight: 500; }
-.pcTopBarRight { font-size: 13px; }
-/* ── PC 2블록 + 슬라이드 팝업 추가/수정 스타일 ── */
-@media (min-width: 769px) {
+  /* 단체문자 탭 */
+  .pcBulkWrap { padding: 16px; }
 
-/* 2블록: 왼쪽 카테고리 + 오른쪽 고객리스트 넓게 */
-.pcLayout { grid-template-columns: 280px 1fr !important; }
+  /* 발송이력 탭 */
+  .pcHistoryWrap { }
+  .pcHistoryItem { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #EDEBE4; }
+  .pcHistoryItem:last-child { border-bottom: none; }
+  .pcHistoryLeft { flex: 1; min-width: 0; }
+  .pcHistoryName { font-size: 14px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
+  .pcHistoryScript { font-size: 13px; color: #666; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pcHistoryRight { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .pcHistoryBadge { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
+  .pcHistoryDate { font-size: 12px; color: #999; }
 
-/* 오른쪽 고객 리스트 넓게 */
-.pcRightWide { background: #fff; border: 1px solid #EDEBE4; border-radius: 12px; padding: 14px 16px; overflow-y: auto; }
-.pcCustomerRow { display: flex; align-items: center; gap: 12px; padding: 12px 10px; border-bottom: 1px solid #EDEBE4; transition: background 0.1s; min-width: 0; }
-.pcCustomerRow:last-child { border-bottom: none; }
-.pcCustomerRow:hover { background: #FAF9F5; border-radius: 8px; }
+  /* 슬라이드 오버레이 */
+  .pcSlideOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; }
 
-/* 문자 작성 버튼 */
-.pcSmsBtn { font-size: 13px; padding: 7px 14px; border-radius: 8px; border: 1px solid #1D9E75; color: #1D9E75; background: #fff; cursor: pointer; white-space: nowrap; font-weight: 600; transition: all 0.1s; }
-.pcSmsBtn:hover { background: #1D9E75; color: #fff; }
-
-/* 슬라이드 오버레이 (딤 배경) */
-.pcSlideOverlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3); z-index: 200; }
-
-/* 슬라이드 패널 (오른쪽에서 등장) */
-.pcSlidePanel {
-  position: fixed; top: 0; right: 0; bottom: 0;
-  width: 420px;
-  background: #fff;
-  box-shadow: -4px 0 24px rgba(0,0,0,0.12);
-  z-index: 201;
-  padding: 24px 20px;
-  display: flex; flex-direction: column; gap: 12px;
-  overflow-y: auto;
-}
-
-/* 슬라이드 헤더 */
-.pcSlideHeader { display: flex; align-items: center; justify-content: space-between; padding-bottom: 14px; border-bottom: 1px solid #EDEBE4; }
-.pcSlideClose { width: 32px; height: 32px; border-radius: 50%; border: 1px solid #EDEBE4; background: #FAF9F5; font-size: 14px; color: #666; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.pcSlideClose:hover { background: #EDEBE4; }
-
+  /* 슬라이드 팝업 패널 */
+  .pcSlidePanel { position: fixed; top: 0; right: 0; width: 420px; height: 100vh; background: #fff; z-index: 201; box-shadow: -4px 0 24px rgba(0,0,0,0.12); display: flex; flex-direction: column; overflow-y: auto; animation: slideInRight 0.25s ease; }
+  @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
+  .pcSlideHeader { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid #EDEBE4; background: #fff; position: sticky; top: 0; z-index: 1; }
+  .pcSlideClose { font-size: 18px; color: #999; background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 6px; line-height: 1; }
+  .pcSlideClose:hover { background: #F1EFE8; color: #1a1a1a; }
+  .pcComposeAvatar { width: 38px; height: 38px; border-radius: 50%; background: #E1F5EE; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #1D9E75; font-weight: 700; flex-shrink: 0; }
+  .pcComposeName { font-size: 15px; font-weight: 700; color: #1a1a1a; }
+  .pcComposeMeta { font-size: 12px; color: #999; margin-top: 2px; display: flex; align-items: center; gap: 6px; }
+  .pcComposeBadge { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 6px; }
+  .pcToneRow { display: flex; gap: 6px; padding: 14px 20px 0; }
+  .pcToneBtn { font-size: 13px; padding: 5px 12px; border-radius: 20px; border: 1px solid #EDEBE4; color: #666; cursor: pointer; background: #FAF9F5; }
+  .pcToneBtnActive { background: #1D9E75 !important; color: #fff !important; border-color: #1D9E75 !important; }
+  .pcTextarea { width: calc(100% - 40px); margin: 10px 20px 0; border: 1px solid #EDEBE4; border-radius: 10px; padding: 12px 14px; font-size: 14px; color: #1a1a1a; background: #FAF9F5; resize: none; line-height: 1.7; font-family: inherit; min-height: 180px; }
+  .pcTextarea:focus { outline: none; border-color: #1D9E75; }
+  .pcEmojiBar { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; padding: 8px 10px; background: #F8F8F6; border-radius: 8px; margin: 8px 20px 0; border: 1px solid #EDEBE4; }
+  .pcEmojiLabel { font-size: 11px; color: #999; margin-right: 4px; white-space: nowrap; flex-shrink: 0; }
+  .pcEmojiBtn { font-size: 16px; background: none; border: none; cursor: pointer; padding: 2px 3px; border-radius: 4px; line-height: 1; }
+  .pcEmojiBtn:hover { background: #fff; }
+  .pcCharCount { font-size: 12px; color: #999; text-align: right; padding: 4px 20px 0; }
+  .pcBtnRow { display: flex; gap: 8px; padding: 12px 20px 20px; }
+  .pcBtnSend { flex: 1; background: #1D9E75; color: #fff; border: none; padding: 12px 0; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; }
+  .pcBtnSend:disabled { background: #D1D5DB; cursor: not-allowed; }
+  .pcBtnCopy { padding: 12px 14px; border: 1px solid #EDEBE4; border-radius: 10px; font-size: 14px; color: #666; cursor: pointer; background: #fff; white-space: nowrap; }
+  .pcBtnKakao { padding: 12px 14px; border: 1px solid #FAE100; border-radius: 10px; font-size: 14px; color: #3A1D1D; background: #FAE100; cursor: pointer; white-space: nowrap; }
+  .pcBtnCopy:disabled, .pcBtnKakao:disabled { opacity: 0.4; cursor: not-allowed; }
 }
