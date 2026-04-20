@@ -18,3 +18,4 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   res.setHeader('Set-Cookie', cookieValue)
   return res.status(200).json({ ok: true })
 }
+
