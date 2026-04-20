@@ -622,9 +622,9 @@ export default function NotificationsPage() {
                   </div>
                 </div>
                 {/* 오른쪽: 문자 내용 입력 */}
-                <div>
+                <div style={{ paddingTop: 15 }}>
                   {/* AI 추천 템플릿 카드 - 항상 표시 */}
-                  <p style={{ fontSize: 13, color: '#999', marginBottom: 8, marginTop: 20 }}>💡 상황별 추천 문자 — 클릭하면 바로 입력돼요</p>
+                  <p style={{ fontSize: 13, color: '#999', marginBottom: 8 }}>💡 상황별 추천 문자 — 클릭하면 바로 입력돼요</p>
                   {(() => {
                     const TEMPLATES: Record<string, Record<string, string>> = {
                       hello: {
