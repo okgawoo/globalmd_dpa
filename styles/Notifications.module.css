@@ -80,7 +80,7 @@
 ═══════════════════════════════════════════ */
 @media (min-width: 769px) {
 
-.pcGrid { display: block; padding: 16px; background: #FAF9F5; min-height: 100vh; }
+.pcGrid { display: block; padding: 8px 10px 16px; background: #FAF9F5; min-height: 100vh; }
 .pcCard { background: #fff; border-radius: 12px; border: 1px solid #EDEBE4; overflow: hidden; }
 .mobileLayout { display: none !important; }
 
@@ -88,8 +88,8 @@
 .pcSmsUsageBar { display: none !important; }
 
 /* 탭바 - 고객관리 스타일 통일 */
-.pcTabBar { display: flex; border-bottom: 1px solid #EDEBE4; margin-bottom: 0; background: #fff; padding: 0 16px; border-radius: 12px 12px 0 0; }
-.pcTab { padding: 14px 16px; font-size: 15px; font-weight: 500; color: #999; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; }
+.pcTabBar { display: flex; border-bottom: 2px solid #EDEBE4; margin-bottom: 12px; background: transparent; padding: 0; }
+.pcTab { padding: 8px 16px 12px; font-size: 15px; font-weight: 500; color: #666; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px; cursor: pointer; }
 .pcTab:hover { color: #1a1a1a; }
 .pcTabActive { color: #1D9E75 !important; border-bottom: 2px solid #1D9E75 !important; font-weight: 700; color: #1a1a1a !important; }
 
@@ -211,7 +211,7 @@
 
 
 /* 카드 위 상단 바 (카테고리선택 + 잔여문자) */
-.pcTopBar { display: flex; align-items: center; justify-content: space-between; padding: 0 4px; margin-bottom: 10px; }
+.pcTopBar { display: flex; align-items: center; justify-content: space-between; padding: 4px 2px; margin-bottom: 8px; }
 .pcTopBarLeft { font-size: 13px; color: #666; font-weight: 500; }
 .pcTopBarRight { font-size: 13px; }
 /* ── PC 2블록 + 슬라이드 팝업 추가/수정 스타일 ── */
