@@ -71,11 +71,20 @@ const NEWSLETTERS = [
   },
 ]
 
+// 세로바 + 텍스트 공통 컴포넌트
+function SectionTitle({ children, fontSize = 16, color = '#1a1a1a' }: { children: React.ReactNode; fontSize?: number; color?: string }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <span style={{ width: 3, height: fontSize + 2, background: '#1D9E75', borderRadius: 2, display: 'inline-block', flexShrink: 0 }} />
+      <span style={{ fontSize, fontWeight: 700, color, lineHeight: 1.4 }}>{children}</span>
+    </div>
+  )
+}
+
 export default function Newsletter() {
   const router = useRouter()
   const [selectedId, setSelectedId] = useState<string | null>(null)
 
-  // 상세 진입 시 히스토리 추가, 뒤로가기 시 목록으로 복귀
   useEffect(() => {
     if (selectedId) {
       window.history.pushState({ newsletterId: selectedId }, '')
@@ -95,17 +104,18 @@ export default function Newsletter() {
   if (selectedNewsletter) {
     return (
       <div className={styles.wrap}>
+        {/* 상세 헤더 */}
         <div className={styles.detailHeader}>
-          <button className={styles.backBtn} onClick={() => setSelectedId(null)}>
-            ← 목록
-          </button>
+          <button className={styles.backBtn} onClick={() => setSelectedId(null)}>← 목록</button>
           <span className={styles.detailWeek}>{selectedNewsletter.week}</span>
         </div>
 
         {/* 뉴스레터 헤더 */}
         <div className={styles.newsletterHeader}>
           <p className={styles.nlWeekLabel}>{selectedNewsletter.week}</p>
-          <h1 className={styles.nlTitle}>{selectedNewsletter.title}</h1>
+          <div style={{ marginBottom: 8 }}>
+            <SectionTitle fontSize={18} color="#1a1a1a">{selectedNewsletter.title}</SectionTitle>
+          </div>
           <p className={styles.nlSubtitle}>{selectedNewsletter.subtitle}</p>
         </div>
 
@@ -120,7 +130,9 @@ export default function Newsletter() {
             <span className={styles.nlTag} style={{ color: item.tagColor, background: item.tagBg }}>
               {item.tag}
             </span>
-            <h2 className={styles.nlCardTitle}>{item.title}</h2>
+            <div style={{ marginBottom: 10 }}>
+              <SectionTitle fontSize={15} color="#111827">{item.title}</SectionTitle>
+            </div>
             <p className={styles.nlCardSummary}>{item.summary}</p>
             <div className={styles.nlTip}>
               <span className={styles.nlTipIcon}>💡</span>
@@ -142,7 +154,9 @@ export default function Newsletter() {
     <div className={styles.wrap}>
       {/* 헤더 */}
       <div className={styles.listHeader}>
-        <h1 className={styles.listTitle}>📰 보험 브리핑</h1>
+        <div style={{ marginBottom: 6 }}>
+          <SectionTitle fontSize={16} color="#1a1a1a">📰 보험 브리핑</SectionTitle>
+        </div>
         <p className={styles.listSubtitle}>매주 월요일 업데이트</p>
       </div>
 
@@ -151,7 +165,9 @@ export default function Newsletter() {
         <div key={nl.id} className={styles.listCard} onClick={() => setSelectedId(nl.id)}>
           <div className={styles.listCardLeft}>
             <span className={styles.listWeek}>{nl.week}</span>
-            <p className={styles.listCardTitle}>{nl.title}</p>
+            <div style={{ marginBottom: 8 }}>
+              <SectionTitle fontSize={14} color="#111827">{nl.title}</SectionTitle>
+            </div>
             <div className={styles.listTags}>
               {nl.items.map((item, i) => (
                 <span key={i} className={styles.listTag} style={{ color: item.tagColor, background: item.tagBg }}>
