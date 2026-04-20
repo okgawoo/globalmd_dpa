@@ -68,7 +68,7 @@
 
   /* PC 그리드 */
   .pcGrid { display: block; padding: 0; }
-  .pcCard { background: #fff; border-radius: 12px; border: 1px solid #EDEBE4; }
+  .pcCard { background: #fff; border-radius: 12px; border: 1px solid #EDEBE4; min-height: calc(100vh - 148px); }
   .mobileLayout { display: none !important; }
   .pcSmsUsageBar { display: none !important; }
 
