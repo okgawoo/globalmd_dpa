@@ -97,8 +97,9 @@ export default function NotificationsPage() {
   const [bulkSending, setBulkSending] = useState(false)
   const [bulkGenerating, setBulkGenerating] = useState(false)
 
-  async function generateBulkSms(situation: string, tone: string) {
+  async function generateBulkSms(situation: string, tone: string, forceClear?: boolean) {
     setBulkGenerating(true)
+    // 복수 선택 시 이름 없이 일반 인사말
     const customerName = bulkSelectedIds.length === 1
       ? customers.find((c: any) => c.id === bulkSelectedIds[0])?.name || ''
       : ''
@@ -599,7 +600,14 @@ export default function NotificationsPage() {
                       const isSel = bulkSelectedIds.includes(c.id)
                       return (
                         <div key={c.id}
-                          onClick={() => setBulkSelectedIds(isSel ? bulkSelectedIds.filter(id => id !== c.id) : [...bulkSelectedIds, c.id])}
+                          onClick={() => {
+                          const newIds = isSel ? bulkSelectedIds.filter(id => id !== c.id) : [...bulkSelectedIds, c.id]
+                          setBulkSelectedIds(newIds)
+                          // 고객 선택 변경 시 기존 내용에 이름이 포함돼 있으면 초기화
+                          if (bulkContent && bulkContent.includes('고객님')) {
+                            setBulkContent('')
+                          }
+                        }}
                           style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderBottom: i < bulkFilteredCustomers.length - 1 ? '1px solid #EDEBE4' : 'none', background: isSel ? '#F0FDF4' : '#fff', cursor: 'pointer' }}>
                           <div style={{ width: 20, height: 20, borderRadius: 6, border: `2px solid ${isSel ? '#1D9E75' : '#D1D5DB'}`, background: isSel ? '#1D9E75' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             {isSel && <span style={{ color: '#fff', fontSize: 12, fontWeight: 700 }}>✓</span>}
@@ -616,7 +624,7 @@ export default function NotificationsPage() {
                 {/* 오른쪽: 문자 내용 입력 */}
                 <div>
                   {/* AI 추천 템플릿 카드 - 항상 표시 */}
-                  <p style={{ fontSize: 13, color: '#999', marginBottom: 8 }}>💡 상황별 추천 문자 — 클릭하면 바로 입력돼요</p>
+                  <p style={{ fontSize: 13, color: '#999', marginBottom: 8, marginTop: 48 }}>💡 상황별 추천 문자 — 클릭하면 바로 입력돼요</p>
                   {(() => {
                     const TEMPLATES: Record<string, Record<string, string>> = {
                       hello: {
@@ -680,18 +688,11 @@ export default function NotificationsPage() {
                     setBulkTone(newTone)
                     // AI API로 생성
                     const SITUATION_LABELS: Record<string, string> = { hello: '첫 인사', greeting: '안부 인사', birthday: '생일 축하', nearDone: '완납 임박', gap: '보장 공백', expiry: '만기 안내' }
-                    if (bulkContent) {
-                      const detectedKey = Object.keys(SITUATION_LABELS).find(k =>
-                        ['hello','greeting','birthday','nearDone','gap','expiry'].includes(k) &&
-                        bulkContent.includes('
-')
-                      )
-                      if (detectedKey && bulkContent.trim()) {
-                        generateBulkSms(detectedKey, newTone)
-                      }
+                    if (bulkContent && bulkContent.includes('\n')) {
+                      generateBulkSms('greeting', newTone)
                     }
                   }}
-                    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #EDEBE4', background: '#FAF9F5', fontSize: 14, color: '#1a1a1a', marginBottom: 10, cursor: 'pointer' }}>
+                    style={{ width: '100%', padding: '6px 10px', borderRadius: 8, border: '1px solid #EDEBE4', background: '#FAF9F5', fontSize: 13, color: '#1a1a1a', marginBottom: 8, cursor: 'pointer' }}>
                     {['친근', '정중', '애교', '간결'].map(t => <option key={t} value={t}>{t}한 톤</option>)}
                   </select>
 
@@ -803,7 +804,7 @@ export default function NotificationsPage() {
               <select
                 value={bulkTone}
                 onChange={e => setBulkTone(e.target.value)}
-                style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #EDEBE4', background: '#FAF9F5', fontSize: 14, color: '#1a1a1a', marginBottom: 10, cursor: 'pointer' }}>
+                style={{ width: '100%', padding: '6px 10px', borderRadius: 8, border: '1px solid #EDEBE4', background: '#FAF9F5', fontSize: 13, color: '#1a1a1a', marginBottom: 8, cursor: 'pointer' }}>
                 {['친근', '정중', '애교', '간결'].map(t => <option key={t} value={t}>{t}한 톤</option>)}
               </select>
               {/* 내용 입력 */}
@@ -873,7 +874,14 @@ export default function NotificationsPage() {
                 const smsCount = c.sms_count || msgs.length || 0
                 return (
                   <div key={c.id}
-                    onClick={() => setBulkSelectedIds(isSel ? bulkSelectedIds.filter(id => id !== c.id) : [...bulkSelectedIds, c.id])}
+                    onClick={() => {
+                          const newIds = isSel ? bulkSelectedIds.filter(id => id !== c.id) : [...bulkSelectedIds, c.id]
+                          setBulkSelectedIds(newIds)
+                          // 고객 선택 변경 시 기존 내용에 이름이 포함돼 있으면 초기화
+                          if (bulkContent && bulkContent.includes('고객님')) {
+                            setBulkContent('')
+                          }
+                        }}
                     style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderBottom: i < bulkFilteredCustomers.length - 1 ? '1px solid #EDEBE4' : 'none', background: isSel ? '#F0FDF4' : '#fff', cursor: 'pointer' }}>
                     <div style={{ width: 20, height: 20, borderRadius: 6, border: `2px solid ${isSel ? '#1D9E75' : '#D1D5DB'}`, background: isSel ? '#1D9E75' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       {isSel && <span style={{ color: '#fff', fontSize: 12, fontWeight: 700 }}>✓</span>}
