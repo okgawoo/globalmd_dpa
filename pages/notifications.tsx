@@ -370,13 +370,26 @@ export default function NotificationsPage() {
           PC: 새 레이아웃
       ═══════════════════════════════ */}
       <div className={styles.pcGrid}>
+        {/* 잔여문자 - 카드 위, 카테고리 선택 텍스트와 동일선상 */}
+        <div className={styles.pcTopBar}>
+          <span className={styles.pcTopBarLeft}>카테고리 선택</span>
+          {smsUsage && (
+            <span className={styles.pcTopBarRight}>
+              <span style={{ fontWeight: 700, color: smsUsage.remaining < 100 ? '#E24B4A' : '#1D9E75' }}>{smsUsage.remaining}건</span>
+              <span style={{ color: '#999' }}> / {smsUsage.limit}건</span>
+            </span>
+          )}
+        </div>
+
+        {/* 흰색 카드 래퍼 - 다른 페이지 스타일 통일 */}
+        <div className={styles.pcCard}>
 
         {/* 탭: AI추천 / 단체문자 / 발송이력 */}
         <div className={styles.pcTabBar}>
           {[
-            { key: 'ai', label: '🤖 AI 추천' },
-            { key: 'bulk', label: '📨 단체문자' },
-            { key: 'history', label: '📋 발송이력' },
+            { key: 'ai', label: 'AI 추천' },
+            { key: 'bulk', label: '단체문자' },
+            { key: 'history', label: '발송이력' },
           ].map(tab => (
             <button key={tab.key}
               className={[styles.pcTab, pcTab === tab.key ? styles.pcTabActive : ''].join(' ')}
@@ -392,7 +405,6 @@ export default function NotificationsPage() {
 
             {/* 왼쪽: 카테고리 카드 */}
             <div className={styles.pcLeftPanel}>
-              <p className={styles.pcSectionLabel}>카테고리 선택</p>
               {(Object.keys(ISSUE_CONFIG) as IssueType[]).map(type => {
                 const cfg = ISSUE_CONFIG[type]
                 const count = notifMap[type].length
@@ -419,15 +431,6 @@ export default function NotificationsPage() {
 
             {/* 오른쪽: 고객 리스트 (넓게 2블록) */}
             <div className={styles.pcRightWide}>
-              {/* 잔여문자 텍스트 */}
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}>
-                {smsUsage && (
-                  <span style={{ fontSize: 13, color: smsUsage.remaining < 100 ? '#E24B4A' : '#1a1a1a' }}>
-                    <span style={{ fontWeight: 700, color: smsUsage.remaining < 100 ? '#E24B4A' : '#1D9E75' }}>{smsUsage.remaining}건</span>
-                    <span style={{ color: '#999' }}> / {smsUsage.limit}건</span>
-                  </span>
-                )}
-              </div>
               {!pcActiveIssue ? (
                 <div className={styles.pcEmptyHint}>
                   <div style={{ fontSize: 32, marginBottom: 8 }}>👈</div>
@@ -650,6 +653,7 @@ export default function NotificationsPage() {
           </div>
         )}
 
+        </div>{/* pcCard 닫기 */}
       </div>
 
       {/* ═══════════════════════════════

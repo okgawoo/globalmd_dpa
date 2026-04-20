@@ -81,22 +81,23 @@
 @media (min-width: 769px) {
 
 .pcGrid { display: block; padding: 16px; background: #FAF9F5; min-height: 100vh; }
+.pcCard { background: #fff; border-radius: 12px; border: 1px solid #EDEBE4; overflow: hidden; }
 .mobileLayout { display: none !important; }
 
 /* 잔여문자 바 - 숨김 */
 .pcSmsUsageBar { display: none !important; }
 
 /* 탭바 - 고객관리 스타일 통일 */
-.pcTabBar { display: flex; border-bottom: 2px solid #EDEBE4; margin-bottom: 16px; background: transparent; }
-.pcTab { padding: 10px 20px; font-size: 15px; font-weight: 500; color: #999; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px; cursor: pointer; }
+.pcTabBar { display: flex; border-bottom: 1px solid #EDEBE4; margin-bottom: 0; background: #fff; padding: 0 16px; border-radius: 12px 12px 0 0; }
+.pcTab { padding: 14px 16px; font-size: 15px; font-weight: 500; color: #999; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; }
 .pcTab:hover { color: #1a1a1a; }
-.pcTabActive { color: #1D9E75 !important; border-bottom: 2px solid #1D9E75 !important; font-weight: 700; }
+.pcTabActive { color: #1D9E75 !important; border-bottom: 2px solid #1D9E75 !important; font-weight: 700; color: #1a1a1a !important; }
 
 /* AI추천 탭 2단 레이아웃 */
-.pcLayout { display: grid; grid-template-columns: 280px 1fr; gap: 16px; align-items: start; }
+.pcLayout { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: stretch; padding: 16px; }
 
 /* 왼쪽 카테고리 패널 */
-.pcLeftPanel { display: flex; flex-direction: column; gap: 8px; }
+.pcLeftPanel { display: flex; flex-direction: column; gap: 8px; height: 100%; }
 .pcSectionLabel { font-size: 11px; color: #999; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 4px; }
 
 .pcCatCard { background: #fff; border: 1px solid #EDEBE4; border-radius: 12px; padding: 12px 14px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: border-color 0.15s; }
@@ -158,10 +159,10 @@
 .pcBtnCopy:disabled, .pcBtnKakao:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* 단체문자 탭 */
-.pcBulkWrap { background: #fff; border: 1px solid #EDEBE4; border-radius: 12px; padding: 16px; }
+.pcBulkWrap { padding: 16px; }
 
 /* 발송이력 탭 */
-.pcHistoryWrap { background: #fff; border: 1px solid #EDEBE4; border-radius: 12px; overflow: hidden; }
+.pcHistoryWrap { }
 .pcHistoryItem { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #EDEBE4; }
 .pcHistoryItem:last-child { border-bottom: none; }
 .pcHistoryLeft { flex: 1; min-width: 0; }
@@ -208,6 +209,11 @@
 .pcSlidePanel .pcBtnRow { padding: 12px 20px 20px; }
 }
 
+
+/* 카드 위 상단 바 (카테고리선택 + 잔여문자) */
+.pcTopBar { display: flex; align-items: center; justify-content: space-between; padding: 0 4px; margin-bottom: 10px; }
+.pcTopBarLeft { font-size: 13px; color: #666; font-weight: 500; }
+.pcTopBarRight { font-size: 13px; }
 /* ── PC 2블록 + 슬라이드 팝업 추가/수정 스타일 ── */
 @media (min-width: 769px) {
 
@@ -215,7 +221,7 @@
 .pcLayout { grid-template-columns: 280px 1fr !important; }
 
 /* 오른쪽 고객 리스트 넓게 */
-.pcRightWide { background: #fff; border: 1px solid #EDEBE4; border-radius: 12px; padding: 16px; min-height: 400px; }
+.pcRightWide { background: #fff; border: 1px solid #EDEBE4; border-radius: 12px; padding: 16px; min-height: 400px; height: 100%; }
 .pcCustomerRow { display: flex; align-items: center; gap: 12px; padding: 12px 10px; border-bottom: 1px solid #EDEBE4; transition: background 0.1s; }
 .pcCustomerRow:last-child { border-bottom: none; }
 .pcCustomerRow:hover { background: #FAF9F5; border-radius: 8px; }
