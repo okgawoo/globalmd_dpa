@@ -622,7 +622,7 @@ export default function NotificationsPage() {
                   </div>
                 </div>
                 {/* 오른쪽: 문자 내용 입력 */}
-                <div style={{ paddingTop: 11 }}>
+                <div style={{ paddingTop: 15 }}>
                   {/* AI 추천 템플릿 카드 - 항상 표시 */}
                   <p style={{ fontSize: 13, color: '#999', marginBottom: 8 }}>💡 상황별 추천 문자 — 클릭하면 바로 입력돼요</p>
                   {(() => {
@@ -709,12 +709,22 @@ export default function NotificationsPage() {
                       <style>{`@keyframes slideBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(280%); } }`}</style>
                     </div>
                   ) : (
-                    <textarea value={bulkContent} onChange={e => setBulkContent(e.target.value)}
-                      placeholder="상황별 추천 문자를 선택하거나 직접 입력하세요"
-                      rows={7}
-                      id="bulkTextarea"
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #EDEBE4', fontSize: 14, color: '#1a1a1a', resize: 'none', lineHeight: 1.6, background: '#fff' }}
-                    />
+                    <div style={{ border: '1px solid #EDEBE4', borderRadius: 8, background: '#fff', overflow: 'hidden' }}>
+                      <textarea value={bulkContent.replace(/\n\n설계사 .+ 드림$/, '')} onChange={e => {
+                        const sign = bulkContent.match(/\n\n설계사 .+ 드림$/)?.[0] || ''
+                        setBulkContent(e.target.value + sign)
+                      }}
+                        placeholder="상황별 추천 문자를 선택하거나 직접 입력하세요"
+                        rows={6}
+                        id="bulkTextarea"
+                        style={{ width: '100%', padding: '10px 12px', border: 'none', fontSize: 14, color: '#1a1a1a', resize: 'none', lineHeight: 1.6, background: '#fff', outline: 'none' }}
+                      />
+                      {bulkContent.match(/\n\n설계사 .+ 드림$/) && (
+                        <div style={{ borderTop: '1px dashed #EDEBE4', padding: '6px 12px', textAlign: 'right', fontSize: 13, color: '#666', background: '#FAF9F5' }}>
+                          {bulkContent.match(/설계사 .+ 드림/)?.[0]}
+                        </div>
+                      )}
+                    </div>
                   )}
                   {/* 이모지 바 */}
                   <div className={styles.pcEmojiBar} style={{ margin: '6px 0' }}>
