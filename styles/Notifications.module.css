@@ -89,7 +89,7 @@
   /* 왼쪽 카테고리 패널 */
   .pcLeftPanel { display: flex; flex-direction: column; gap: 8px; }
   .pcSectionLabel { font-size: 11px; color: #999; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 4px; }
-  .pcCatCard { background: #fff; border: 1px solid #EDEBE4; border-radius: 12px; padding: 12px 14px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: border-color 0.15s; }
+  .pcCatCard { background: #fff; border: 1px solid #EDEBE4; border-radius: 10px; padding: 14px; margin: 0 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: border-color 0.15s; }
   .pcCatCard:hover { border-color: #1D9E75; }
   .pcCatCardActive { border-color: #1D9E75 !important; background: #F0FDF9; }
   .pcCatLeft { display: flex; align-items: center; gap: 10px; }

@@ -236,7 +236,7 @@ export default function Newsletter() {
                   {item.tag}
                 </span>
                 {/* 제목 */}
-                <span style={{ fontSize: 13, color: '#1a1a1a', fontWeight: 500, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <span style={{ fontSize: 13, color: '#1a1a1a', fontWeight: 500, flex: 1, minWidth: 0, display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {item.title}
                 </span>
                 {/* 화살표 */}

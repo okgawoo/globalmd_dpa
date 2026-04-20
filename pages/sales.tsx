@@ -451,7 +451,7 @@ setCustomerSearch('')
       {/* 탭 */}
       <div style={{ display: 'flex', borderBottom: '2px solid #EDEBE4', marginBottom: 0, background: 'none' }}>
         {[
-          { key: 'contact', label: '✨ AI추천 일정' },
+          { key: 'contact', label: '✨ AI추천' },
           { key: 'meeting', label: '📅 미팅 일정' },
           { key: 'flow',    label: '📊 영업 이력' },
         ].map(tab => (
