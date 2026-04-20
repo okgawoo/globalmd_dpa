@@ -176,3 +176,71 @@
 @media (max-width: 768px) {
   .pcGrid { display: none !important; }
 }
+
+/* 2블록 레이아웃 - 고객리스트 넓게 */
+@media (min-width: 769px) {
+.pcLayout { grid-template-columns: 280px 1fr; }
+
+.pcCustomerListWide { background: #fff; border: 1px solid #EDEBE4; border-radius: 12px; padding: 14px 16px; }
+.pcCustomerItemWide { display: flex; align-items: center; gap: 12px; padding: 12px 8px; border-radius: 8px; cursor: pointer; border-bottom: 1px solid #EDEBE4; transition: background 0.1s; }
+.pcCustomerItemWide:last-child { border-bottom: none; }
+.pcCustomerItemWide:hover { background: #FAF9F5; }
+.pcSmsBtn { font-size: 13px; color: #1D9E75; border: 1px solid #1D9E75; padding: 6px 12px; border-radius: 8px; cursor: pointer; background: #fff; white-space: nowrap; flex-shrink: 0; }
+.pcSmsBtn:hover { background: #F0FDF9; }
+
+/* 딤 오버레이 */
+.pcSlideOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; }
+
+/* 슬라이드 팝업 패널 */
+.pcSlidePanel { position: fixed; top: 0; right: 0; width: 420px; height: 100vh; background: #fff; z-index: 201; box-shadow: -4px 0 24px rgba(0,0,0,0.12); display: flex; flex-direction: column; padding: 0; overflow-y: auto; animation: slideInRight 0.25s ease; }
+@keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
+.pcSlideHeader { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid #EDEBE4; background: #fff; position: sticky; top: 0; z-index: 1; }
+.pcSlideClose { font-size: 18px; color: #999; background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 6px; line-height: 1; }
+.pcSlideClose:hover { background: #F1EFE8; color: #1a1a1a; }
+
+/* 슬라이드 패널 내부 요소 패딩 */
+.pcSlidePanel .pcToneRow { padding: 14px 20px 0; }
+.pcSlidePanel .pcTextarea { margin: 10px 20px 0; width: calc(100% - 40px); }
+.pcSlidePanel .pcEmojiBar { margin: 8px 20px 0; }
+.pcSlidePanel .pcCharCount { padding: 4px 20px 0; }
+.pcSlidePanel .pcBtnRow { padding: 12px 20px 20px; }
+}
+
+/* ── PC 2블록 + 슬라이드 팝업 추가/수정 스타일 ── */
+@media (min-width: 769px) {
+
+/* 2블록: 왼쪽 카테고리 + 오른쪽 고객리스트 넓게 */
+.pcLayout { grid-template-columns: 280px 1fr !important; }
+
+/* 오른쪽 고객 리스트 넓게 */
+.pcRightWide { background: #fff; border: 1px solid #EDEBE4; border-radius: 12px; padding: 16px; min-height: 400px; }
+.pcCustomerRow { display: flex; align-items: center; gap: 12px; padding: 12px 10px; border-bottom: 1px solid #EDEBE4; transition: background 0.1s; }
+.pcCustomerRow:last-child { border-bottom: none; }
+.pcCustomerRow:hover { background: #FAF9F5; border-radius: 8px; }
+
+/* 문자 작성 버튼 */
+.pcSmsBtn { font-size: 13px; padding: 7px 14px; border-radius: 8px; border: 1px solid #1D9E75; color: #1D9E75; background: #fff; cursor: pointer; white-space: nowrap; font-weight: 600; transition: all 0.1s; }
+.pcSmsBtn:hover { background: #1D9E75; color: #fff; }
+
+/* 슬라이드 오버레이 (딤 배경) */
+.pcSlideOverlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3); z-index: 200; }
+
+/* 슬라이드 패널 (오른쪽에서 등장) */
+.pcSlidePanel {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: 420px;
+  background: #fff;
+  box-shadow: -4px 0 24px rgba(0,0,0,0.12);
+  z-index: 201;
+  padding: 24px 20px;
+  display: flex; flex-direction: column; gap: 12px;
+  overflow-y: auto;
+}
+
+/* 슬라이드 헤더 */
+.pcSlideHeader { display: flex; align-items: center; justify-content: space-between; padding-bottom: 14px; border-bottom: 1px solid #EDEBE4; }
+.pcSlideClose { width: 32px; height: 32px; border-radius: 50%; border: 1px solid #EDEBE4; background: #FAF9F5; font-size: 14px; color: #666; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.pcSlideClose:hover { background: #EDEBE4; }
+
+}
