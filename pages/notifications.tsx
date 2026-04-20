@@ -667,7 +667,7 @@ export default function NotificationsPage() {
                     const LABELS: Record<string, string> = { hello: '👋 첫 인사', greeting: '🌸 안부 인사', birthday: '🎂 생일 축하', nearDone: '🔥 완납 임박', gap: '⚠️ 보장 공백', expiry: '📋 만기 안내' }
                     const currentKey = null // AI 생성 방식
                     return (
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 12 }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 6 }}>
                         {Object.keys(TEMPLATES).map(key => {
                           const isActive = currentKey === key
                           return (
