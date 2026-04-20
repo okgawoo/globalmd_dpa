@@ -596,6 +596,32 @@ export default function NotificationsPage() {
                     style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #EDEBE4', background: '#FAF9F5', fontSize: 14, color: '#1a1a1a', marginBottom: 10, cursor: 'pointer' }}>
                     {['친근', '정중', '애교', '간결'].map(t => <option key={t} value={t}>{t}한 톤</option>)}
                   </select>
+
+                  {/* AI 추천 템플릿 카드 */}
+                  {!bulkContent && (
+                    <div style={{ marginBottom: 10 }}>
+                      <p style={{ fontSize: 12, color: '#999', marginBottom: 8 }}>💡 상황별 추천 문자 — 클릭하면 바로 입력돼요</p>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+                        {[
+                          { label: '👋 첫 인사', text: '안녕하세요! 담당 설계사 드림입니다 😊\n처음 인사 드립니다. 보험 관련 궁금한 점이 있으시면 언제든지 편하게 연락 주세요!\n항상 도움이 되도록 최선을 다하겠습니다 🙏' },
+                          { label: '🌸 안부 인사', text: '안녕하세요! 담당 설계사 드림입니다 😊\n날씨가 많이 바뀌었는데 건강하게 잘 지내고 계신가요?\n좋은 하루 보내세요! 궁금한 점 있으시면 연락 주세요 📞' },
+                          { label: '🎂 생일 축하', text: '안녕하세요! 오늘 생일이시군요 🎂🎉\n진심으로 축하드립니다!\n항상 건강하고 행복한 날 되시길 바랍니다 😊' },
+                          { label: '🔥 완납 임박', text: '안녕하세요! 담당 설계사 드림입니다 😊\n가입하신 보험 납입이 거의 완료될 예정입니다 🎉\n오랫동안 성실하게 납입해 주셔서 감사드립니다!\n완납 후 혜택에 대해 안내드릴게요 📞' },
+                          { label: '⚠️ 보장 공백', text: '안녕하세요! 담당 설계사 드림입니다 😊\n고객님 보험을 검토하다 보장 공백이 확인됐습니다.\n시간이 되실 때 한번 통화 가능하실까요? 📞\n더 든든하게 지켜드리고 싶습니다!' },
+                          { label: '📋 만기 안내', text: '안녕하세요! 담당 설계사 드림입니다 😊\n가입하신 보험의 만기가 다가오고 있어 미리 안내드립니다.\n만기 이후 보장 공백이 생기지 않도록 함께 검토해 드릴게요 📞' },
+                        ].map(tpl => (
+                          <button key={tpl.label}
+                            onClick={() => setBulkContent(tpl.text)}
+                            style={{ textAlign: 'left', padding: '9px 12px', borderRadius: 8, border: '1px solid #EDEBE4', background: '#FAF9F5', cursor: 'pointer', fontSize: 13, color: '#1a1a1a', fontWeight: 500, transition: 'all 0.1s' }}
+                            onMouseEnter={e => { (e.target as HTMLElement).style.borderColor = '#1D9E75'; (e.target as HTMLElement).style.background = '#F0FDF9' }}
+                            onMouseLeave={e => { (e.target as HTMLElement).style.borderColor = '#EDEBE4'; (e.target as HTMLElement).style.background = '#FAF9F5' }}>
+                            {tpl.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   <textarea value={bulkContent} onChange={e => setBulkContent(e.target.value)}
                     placeholder="발송할 문자 내용을 입력하세요"
                     rows={7}
