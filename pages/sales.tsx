@@ -448,17 +448,6 @@ setCustomerSearch('')
           agentId={agentId}
         />
       )}
-    <div className={styles.wrap}
-      onTouchStart={e => { (e.currentTarget as any)._touchStartX = e.touches[0].clientX }}
-      onTouchMove={e => {
-        const startX = (e.currentTarget as any)._touchStartX
-        const dx = e.touches[0].clientX - startX
-        // 우→좌 스와이프 막기 (좌→우는 허용)
-        if (dx < -10) e.stopPropagation()
-      }}
-    >
-      <style>{`@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }`}</style>
-
       {/* 탭 */}
       <div style={{ display: 'flex', borderBottom: '1px solid #EDEBE4', marginBottom: 16, background: '#fff' }}>
         {[
@@ -473,6 +462,16 @@ setCustomerSearch('')
           </button>
         ))}
       </div>
+    <div className={styles.wrap}
+      onTouchStart={e => { (e.currentTarget as any)._touchStartX = e.touches[0].clientX }}
+      onTouchMove={e => {
+        const startX = (e.currentTarget as any)._touchStartX
+        const dx = e.touches[0].clientX - startX
+        // 우→좌 스와이프 막기 (좌→우는 허용)
+        if (dx < -10) e.stopPropagation()
+      }}
+    >
+      <style>{`@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }`}</style>
 
       {/* ── 미팅 일정 탭 ── */}
       {activeTab === 'meeting' && (
