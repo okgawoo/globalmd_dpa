@@ -1,4 +1,4 @@
-.wrap { width: 100%; margin: 0 auto; background: #FAF9F5; min-height: 100vh; }
+.wrap { width: 100%; margin: 0 auto; background: #FAF9F5; }
 
 /* 목록 헤더 */
 .listHeader { background: #FAF9F5; padding: 16px 10px 12px; }
@@ -99,7 +99,7 @@
   .pcCatBadge { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 20px; min-width: 28px; text-align: center; }
 
   /* 오른쪽 고객 리스트 */
-  .pcRightWide { background: #fff; border: 1px solid #EDEBE4; border-radius: 12px; padding: 14px 16px; overflow-y: auto; max-height: 70vh; }
+  .pcRightWide { background: #fff; border: 1px solid #EDEBE4; border-radius: 12px; padding: 14px 16px; overflow-y: auto; max-height: calc(100vh - 230px); }
   .pcListTitle { font-size: 13px; font-weight: 600; color: #666; margin-bottom: 10px; }
   .pcEmptyHint { text-align: center; padding: 20px 16px; color: #999; font-size: 14px; }
   .pcCustomerRow { display: flex; align-items: center; gap: 12px; padding: 12px 10px; border-bottom: 1px solid #EDEBE4; min-width: 0; }
