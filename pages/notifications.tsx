@@ -624,7 +624,7 @@ export default function NotificationsPage() {
                 {/* 오른쪽: 문자 내용 입력 */}
                 <div>
                   {/* AI 추천 템플릿 카드 - 항상 표시 */}
-                  <p style={{ fontSize: 13, color: '#999', marginBottom: 8, marginTop: 48 }}>💡 상황별 추천 문자 — 클릭하면 바로 입력돼요</p>
+                  <p style={{ fontSize: 13, color: '#999', marginBottom: 8, marginTop: 92 }}>💡 상황별 추천 문자 — 클릭하면 바로 입력돼요</p>
                   {(() => {
                     const TEMPLATES: Record<string, Record<string, string>> = {
                       hello: {
@@ -697,8 +697,16 @@ export default function NotificationsPage() {
                   </select>
 
                   {bulkGenerating ? (
-                    <div style={{ width: '100%', height: 168, border: '1px solid #EDEBE4', borderRadius: 8, background: '#FAF9F5', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, color: '#1D9E75', fontSize: 14 }}>
-                      <span style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}>⏳</span> AI가 문자를 작성 중이에요...
+                    <div style={{ width: '100%', height: 168, border: '1px solid #EDEBE4', borderRadius: 8, background: '#FAF9F5', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
+                      <span style={{ fontSize: 13, color: '#666' }}>AI 문자 작성중</span>
+                      <div style={{ width: '60%', height: 4, background: '#EDEBE4', borderRadius: 4, overflow: 'hidden' }}>
+                        <div style={{
+                          height: '100%', background: '#1D9E75', borderRadius: 4,
+                          animation: 'slideBar 1.4s ease-in-out infinite',
+                          width: '40%',
+                        }} />
+                      </div>
+                      <style>{`@keyframes slideBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(280%); } }`}</style>
                     </div>
                   ) : (
                     <textarea value={bulkContent} onChange={e => setBulkContent(e.target.value)}
