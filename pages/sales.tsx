@@ -460,10 +460,18 @@ setCustomerSearch('')
       <style>{`@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }`}</style>
 
       {/* 탭 */}
-      <div className={styles.tabs}>
-        <button className={[styles.tab, activeTab === 'contact' ? styles.active : ''].join(' ')} onClick={() => { setActiveTab('contact'); router.push('/sales?tab=contact', undefined, {shallow:true}) }}>✨ AI추천 일정</button>
-        <button className={[styles.tab, activeTab === 'meeting' ? styles.active : ''].join(' ')} onClick={() => { setActiveTab('meeting'); router.push('/sales?tab=meeting', undefined, {shallow:true}) }}>📅 미팅 일정</button>
-        <button className={[styles.tab, activeTab === 'flow' ? styles.active : ''].join(' ')} onClick={() => { setActiveTab('flow'); router.push('/sales?tab=flow', undefined, {shallow:true}) }}>📊 영업 이력</button>
+      <div style={{ display: 'flex', borderBottom: '1px solid #EDEBE4', marginBottom: 16, background: '#fff' }}>
+        {[
+          { key: 'contact', label: '✨ AI추천 일정' },
+          { key: 'meeting', label: '📅 미팅 일정' },
+          { key: 'flow',    label: '📊 영업 이력' },
+        ].map(tab => (
+          <button key={tab.key}
+            onClick={() => { setActiveTab(tab.key as any); router.push(`/sales?tab=${tab.key}`, undefined, { shallow: true }) }}
+            style={{ flex: 1, padding: '10px 20px', fontSize: 14, fontWeight: activeTab === tab.key ? 700 : 500, color: activeTab === tab.key ? '#1D9E75' : '#999', background: 'none', border: 'none', borderBottom: activeTab === tab.key ? '2px solid #1D9E75' : '2px solid transparent', cursor: 'pointer' }}>
+            {tab.label}
+          </button>
+        ))}
       </div>
 
       {/* ── 미팅 일정 탭 ── */}
