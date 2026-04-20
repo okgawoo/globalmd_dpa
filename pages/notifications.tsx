@@ -72,6 +72,7 @@ export default function NotificationsPage() {
   const [messages, setMessages] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [agentId, setAgentId] = useState('')
+  const [agentName, setAgentName] = useState('')
   const [meetings, setMeetings] = useState<any[]>([])
 
   // 페이지 탭
@@ -131,6 +132,8 @@ export default function NotificationsPage() {
     const { data: { user } } = await supabase.auth.getUser()
     const aid = user?.id || ''
     setAgentId(aid)
+    const { data: agentData } = await supabase.from('dpa_agents').select('name').eq('user_id', aid).single()
+    setAgentName(agentData?.name || '')
     const { data: custs } = await supabase.from('dpa_customers').select('*').eq('agent_id', aid)
     const { data: conts } = await supabase.from('dpa_contracts').select('*').eq('agent_id', aid)
     const { data: covs } = await supabase.from('dpa_coverages').select('*').in('contract_id', (conts || []).map((c: any) => c.id))
@@ -592,38 +595,94 @@ export default function NotificationsPage() {
                 </div>
                 {/* 오른쪽: 문자 내용 입력 */}
                 <div>
-                  <select value={bulkTone} onChange={e => setBulkTone(e.target.value)}
+                  {/* AI 추천 템플릿 카드 - 항상 표시 */}
+                  <p style={{ fontSize: 13, color: '#444', fontWeight: 600, marginBottom: 8 }}>💡 상황별 추천 문자 — 클릭하면 바로 입력돼요</p>
+                  {(() => {
+                    const TEMPLATES: Record<string, Record<string, string>> = {
+                      hello: {
+                        친근: `안녕하세요! 담당 설계사 ${agentName}입니다 😊\n처음 인사 드려요! 보험 관련 궁금하신 점 있으시면 편하게 연락 주세요!\n\n설계사 ${agentName} 드림`,
+                        정중: `안녕하세요! 담당 설계사 ${agentName}입니다.\n처음 인사 드립니다. 보험 관련 문의사항이 있으시면 언제든지 연락 주시기 바랍니다.\n\n설계사 ${agentName} 드림`,
+                        애교: `안녕하세요! 담당 설계사 ${agentName}예요~ 😄\n앞으로 잘 부탁드려요! 궁금한 거 있으시면 언제든 연락 주세요 💚\n\n설계사 ${agentName} 드림`,
+                        간결: `안녕하세요! 담당 설계사 ${agentName}입니다. 궁금한 점 편하게 연락 주세요.\n\n설계사 ${agentName} 드림`,
+                      },
+                      greeting: {
+                        친근: `안녕하세요! 담당 설계사 ${agentName}입니다 😊\n잘 지내고 계신가요? 좋은 하루 되세요!\n\n설계사 ${agentName} 드림`,
+                        정중: `안녕하세요! 담당 설계사 ${agentName}입니다.\n안부 인사 드립니다. 항상 건강하게 지내시길 바랍니다.\n\n설계사 ${agentName} 드림`,
+                        애교: `안녕하세요! 설계사 ${agentName}예요~ 😊\n요즘 어떻게 지내세요? 항상 응원하고 있어요 💚\n\n설계사 ${agentName} 드림`,
+                        간결: `안녕하세요! 설계사 ${agentName}입니다. 안부 인사 드립니다.\n\n설계사 ${agentName} 드림`,
+                      },
+                      birthday: {
+                        친근: `안녕하세요! 오늘 생일이시죠? 🎂\n진심으로 축하드려요! 행복한 하루 보내세요 😊\n\n설계사 ${agentName} 드림`,
+                        정중: `안녕하세요! 생신을 진심으로 축하드립니다 🎂\n항상 건강하시고 행복하신 날 되시길 바랍니다.\n\n설계사 ${agentName} 드림`,
+                        애교: `안녕하세요! 생일 축하해요~ 🎂🎉\n오늘 하루 정말 특별하게 보내세요! 항상 응원해요 💚\n\n설계사 ${agentName} 드림`,
+                        간결: `안녕하세요! 생일 축하드립니다! 🎂\n\n설계사 ${agentName} 드림`,
+                      },
+                      nearDone: {
+                        친근: `안녕하세요! 담당 설계사 ${agentName}입니다 😊\n가입하신 보험 납입이 거의 완료될 예정이에요 🎉\n오랫동안 성실하게 납입해 주셔서 감사합니다!\n\n설계사 ${agentName} 드림`,
+                        정중: `안녕하세요! 담당 설계사 ${agentName}입니다.\n가입하신 보험의 납입 완료가 임박하였습니다. 완납 후 혜택에 대해 안내드리겠습니다.\n\n설계사 ${agentName} 드림`,
+                        애교: `안녕하세요! 드디어 완납 임박이에요! 🔥\n정말 수고 많으셨어요! 완납 후 더 좋은 혜택 안내해 드릴게요 💚\n\n설계사 ${agentName} 드림`,
+                        간결: `안녕하세요! 보험 완납이 임박했습니다. 연락 주시면 안내해 드리겠습니다.\n\n설계사 ${agentName} 드림`,
+                      },
+                      gap: {
+                        친근: `안녕하세요! 담당 설계사 ${agentName}입니다 😊\n보험을 검토해보니 보장 공백이 확인됐어요.\n시간 되실 때 통화 한번 해도 될까요? 📞\n\n설계사 ${agentName} 드림`,
+                        정중: `안녕하세요! 담당 설계사 ${agentName}입니다.\n보험 검토 중 보장 공백이 확인되었습니다. 편하신 시간에 상담 부탁드립니다.\n\n설계사 ${agentName} 드림`,
+                        애교: `안녕하세요! 보장 공백을 발견했어요! 😮\n더 잘 지켜드리고 싶어서요~ 시간 되시면 연락 주세요 💚\n\n설계사 ${agentName} 드림`,
+                        간결: `안녕하세요! 보장 공백이 확인됐습니다. 연락 주시면 안내해 드리겠습니다. 📞\n\n설계사 ${agentName} 드림`,
+                      },
+                      expiry: {
+                        친근: `안녕하세요! 담당 설계사 ${agentName}입니다 😊\n가입하신 보험이 곧 만기가 돼요!\n미리 안내드리려고 연락드렸습니다.\n\n설계사 ${agentName} 드림`,
+                        정중: `안녕하세요! 담당 설계사 ${agentName}입니다.\n가입하신 보험의 만기가 도래하여 미리 안내드립니다. 편하신 시간에 상담 부탁드립니다.\n\n설계사 ${agentName} 드림`,
+                        애교: `안녕하세요! 보험 만기가 다가오고 있어요! ⏰\n보장 공백 없이 잘 챙겨드리고 싶어서요 💚\n\n설계사 ${agentName} 드림`,
+                        간결: `안녕하세요! 보험 만기가 임박했습니다. 연락 주시면 안내해 드리겠습니다.\n\n설계사 ${agentName} 드림`,
+                      },
+                    }
+                    const LABELS: Record<string, string> = { hello: '👋 첫 인사', greeting: '🌸 안부 인사', birthday: '🎂 생일 축하', nearDone: '🔥 완납 임박', gap: '⚠️ 보장 공백', expiry: '📋 만기 안내' }
+                    const currentKey = Object.keys(TEMPLATES).find(k => Object.values(TEMPLATES[k]).includes(bulkContent)) || null
+                    return (
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 12 }}>
+                        {Object.keys(TEMPLATES).map(key => {
+                          const isActive = currentKey === key
+                          return (
+                            <button key={key}
+                              onClick={() => {
+                                const namePrefix = bulkSelectedIds.length === 1
+                                  ? bulkFilteredCustomers.find((c:any) => c.id === bulkSelectedIds[0])?.name
+                                    ? `안녕하세요 ${bulkFilteredCustomers.find((c:any) => c.id === bulkSelectedIds[0])?.name}고객님! `
+                                    : '안녕하세요! '
+                                  : '안녕하세요! '
+                                const tpl = TEMPLATES[key][bulkTone] || TEMPLATES[key]['친근']
+                                setBulkContent(tpl.replace('안녕하세요!', namePrefix.trimEnd()))
+                              }}
+                              style={{ textAlign: 'left', padding: '9px 12px', borderRadius: 8, border: `1.5px solid ${isActive ? '#1D9E75' : '#EDEBE4'}`, background: isActive ? '#F0FDF9' : '#FAF9F5', cursor: 'pointer', fontSize: 13, color: '#1a1a1a', fontWeight: 500 }}>
+                              {LABELS[key]}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    )
+                  })()}
+
+                  {/* 톤 드롭다운 - 카드 아래 */}
+                  <select value={bulkTone} onChange={e => {
+                    const newTone = e.target.value
+                    setBulkTone(newTone)
+                    const TEMPLATES: Record<string, Record<string, string>> = {
+                      hello: { 친근: `안녕하세요! 담당 설계사 ${agentName}입니다 😊\n처음 인사 드려요! 보험 관련 궁금하신 점 있으시면 편하게 연락 주세요!\n\n설계사 ${agentName} 드림`, 정중: `안녕하세요! 담당 설계사 ${agentName}입니다.\n처음 인사 드립니다. 보험 관련 문의사항이 있으시면 언제든지 연락 주시기 바랍니다.\n\n설계사 ${agentName} 드림`, 애교: `안녕하세요! 담당 설계사 ${agentName}예요~ 😄\n앞으로 잘 부탁드려요! 궁금한 거 있으시면 언제든 연락 주세요 💚\n\n설계사 ${agentName} 드림`, 간결: `안녕하세요! 담당 설계사 ${agentName}입니다. 궁금한 점 편하게 연락 주세요.\n\n설계사 ${agentName} 드림` },
+                      greeting: { 친근: `안녕하세요! 담당 설계사 ${agentName}입니다 😊\n잘 지내고 계신가요? 좋은 하루 되세요!\n\n설계사 ${agentName} 드림`, 정중: `안녕하세요! 담당 설계사 ${agentName}입니다.\n안부 인사 드립니다. 항상 건강하게 지내시길 바랍니다.\n\n설계사 ${agentName} 드림`, 애교: `안녕하세요! 설계사 ${agentName}예요~ 😊\n요즘 어떻게 지내세요? 항상 응원하고 있어요 💚\n\n설계사 ${agentName} 드림`, 간결: `안녕하세요! 설계사 ${agentName}입니다. 안부 인사 드립니다.\n\n설계사 ${agentName} 드림` },
+                      birthday: { 친근: `안녕하세요! 오늘 생일이시죠? 🎂\n진심으로 축하드려요! 행복한 하루 보내세요 😊\n\n설계사 ${agentName} 드림`, 정중: `안녕하세요! 생신을 진심으로 축하드립니다 🎂\n항상 건강하시고 행복하신 날 되시길 바랍니다.\n\n설계사 ${agentName} 드림`, 애교: `안녕하세요! 생일 축하해요~ 🎂🎉\n오늘 하루 정말 특별하게 보내세요! 항상 응원해요 💚\n\n설계사 ${agentName} 드림`, 간결: `안녕하세요! 생일 축하드립니다! 🎂\n\n설계사 ${agentName} 드림` },
+                      nearDone: { 친근: `안녕하세요! 담당 설계사 ${agentName}입니다 😊\n가입하신 보험 납입이 거의 완료될 예정이에요 🎉\n오랫동안 성실하게 납입해 주셔서 감사합니다!\n\n설계사 ${agentName} 드림`, 정중: `안녕하세요! 담당 설계사 ${agentName}입니다.\n가입하신 보험의 납입 완료가 임박하였습니다. 완납 후 혜택에 대해 안내드리겠습니다.\n\n설계사 ${agentName} 드림`, 애교: `안녕하세요! 드디어 완납 임박이에요! 🔥\n정말 수고 많으셨어요! 완납 후 더 좋은 혜택 안내해 드릴게요 💚\n\n설계사 ${agentName} 드림`, 간결: `안녕하세요! 보험 완납이 임박했습니다. 연락 주시면 안내해 드리겠습니다.\n\n설계사 ${agentName} 드림` },
+                      gap: { 친근: `안녕하세요! 담당 설계사 ${agentName}입니다 😊\n보험을 검토해보니 보장 공백이 확인됐어요.\n시간 되실 때 통화 한번 해도 될까요? 📞\n\n설계사 ${agentName} 드림`, 정중: `안녕하세요! 담당 설계사 ${agentName}입니다.\n보험 검토 중 보장 공백이 확인되었습니다. 편하신 시간에 상담 부탁드립니다.\n\n설계사 ${agentName} 드림`, 애교: `안녕하세요! 보장 공백을 발견했어요! 😮\n더 잘 지켜드리고 싶어서요~ 시간 되시면 연락 주세요 💚\n\n설계사 ${agentName} 드림`, 간결: `안녕하세요! 보장 공백이 확인됐습니다. 연락 주시면 안내해 드리겠습니다. 📞\n\n설계사 ${agentName} 드림` },
+                      expiry: { 친근: `안녕하세요! 담당 설계사 ${agentName}입니다 😊\n가입하신 보험이 곧 만기가 돼요!\n미리 안내드리려고 연락드렸습니다.\n\n설계사 ${agentName} 드림`, 정중: `안녕하세요! 담당 설계사 ${agentName}입니다.\n가입하신 보험의 만기가 도래하여 미리 안내드립니다. 편하신 시간에 상담 부탁드립니다.\n\n설계사 ${agentName} 드림`, 애교: `안녕하세요! 보험 만기가 다가오고 있어요! ⏰\n보장 공백 없이 잘 챙겨드리고 싶어서요 💚\n\n설계사 ${agentName} 드림`, 간결: `안녕하세요! 보험 만기가 임박했습니다. 연락 주시면 안내해 드리겠습니다.\n\n설계사 ${agentName} 드림` },
+                    }
+                    const currentKey = Object.keys(TEMPLATES).find(k => Object.values(TEMPLATES[k]).includes(bulkContent))
+                    if (currentKey) setBulkContent(TEMPLATES[currentKey][newTone] || bulkContent)
+                  }}
                     style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #EDEBE4', background: '#FAF9F5', fontSize: 14, color: '#1a1a1a', marginBottom: 10, cursor: 'pointer' }}>
                     {['친근', '정중', '애교', '간결'].map(t => <option key={t} value={t}>{t}한 톤</option>)}
                   </select>
 
-                  {/* AI 추천 템플릿 카드 */}
-                  {!bulkContent && (
-                    <div style={{ marginBottom: 10 }}>
-                      <p style={{ fontSize: 12, color: '#999', marginBottom: 8 }}>💡 상황별 추천 문자 — 클릭하면 바로 입력돼요</p>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
-                        {[
-                          { label: '👋 첫 인사', text: '안녕하세요! 담당 설계사 드림입니다 😊\n처음 인사 드립니다. 보험 관련 궁금한 점이 있으시면 언제든지 편하게 연락 주세요!\n항상 도움이 되도록 최선을 다하겠습니다 🙏' },
-                          { label: '🌸 안부 인사', text: '안녕하세요! 담당 설계사 드림입니다 😊\n날씨가 많이 바뀌었는데 건강하게 잘 지내고 계신가요?\n좋은 하루 보내세요! 궁금한 점 있으시면 연락 주세요 📞' },
-                          { label: '🎂 생일 축하', text: '안녕하세요! 오늘 생일이시군요 🎂🎉\n진심으로 축하드립니다!\n항상 건강하고 행복한 날 되시길 바랍니다 😊' },
-                          { label: '🔥 완납 임박', text: '안녕하세요! 담당 설계사 드림입니다 😊\n가입하신 보험 납입이 거의 완료될 예정입니다 🎉\n오랫동안 성실하게 납입해 주셔서 감사드립니다!\n완납 후 혜택에 대해 안내드릴게요 📞' },
-                          { label: '⚠️ 보장 공백', text: '안녕하세요! 담당 설계사 드림입니다 😊\n고객님 보험을 검토하다 보장 공백이 확인됐습니다.\n시간이 되실 때 한번 통화 가능하실까요? 📞\n더 든든하게 지켜드리고 싶습니다!' },
-                          { label: '📋 만기 안내', text: '안녕하세요! 담당 설계사 드림입니다 😊\n가입하신 보험의 만기가 다가오고 있어 미리 안내드립니다.\n만기 이후 보장 공백이 생기지 않도록 함께 검토해 드릴게요 📞' },
-                        ].map(tpl => (
-                          <button key={tpl.label}
-                            onClick={() => setBulkContent(tpl.text)}
-                            style={{ textAlign: 'left', padding: '9px 12px', borderRadius: 8, border: '1px solid #EDEBE4', background: '#FAF9F5', cursor: 'pointer', fontSize: 13, color: '#1a1a1a', fontWeight: 500, transition: 'all 0.1s' }}
-                            onMouseEnter={e => { (e.target as HTMLElement).style.borderColor = '#1D9E75'; (e.target as HTMLElement).style.background = '#F0FDF9' }}
-                            onMouseLeave={e => { (e.target as HTMLElement).style.borderColor = '#EDEBE4'; (e.target as HTMLElement).style.background = '#FAF9F5' }}>
-                            {tpl.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
                   <textarea value={bulkContent} onChange={e => setBulkContent(e.target.value)}
-                    placeholder="발송할 문자 내용을 입력하세요"
+                    placeholder="상황별 추천 문자를 선택하거나 직접 입력하세요"
                     rows={7}
                     id="bulkTextarea"
                     style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #EDEBE4', fontSize: 14, color: '#1a1a1a', resize: 'none', lineHeight: 1.6, background: '#fff' }}
