@@ -731,19 +731,18 @@ export default function NotificationsPage() {
                     ))}
                   </div>
                   <p style={{ fontSize: 12, color: '#999', textAlign: 'right', marginTop: 4, marginBottom: 12 }}>{bulkContent.length}자</p>
-                  {bulkSelectedIds.length > 0 && (
-                    <button
-                      disabled={!bulkContent.trim()}
-                      onClick={() => {
-                        if (!bulkContent.trim()) { alert('문자 내용을 입력해주세요.'); return }
-                        if (confirm(`${bulkSelectedIds.length}명에게 단체문자를 발송합니다. 계속하시겠습니까?`)) {
-                          alert('단체문자 발송 기능은 SMS 연동 후 사용 가능합니다.')
-                        }
-                      }}
-                      style={{ width: '100%', padding: '14px 0', borderRadius: 10, border: 'none', background: bulkContent.trim() ? '#1D9E75' : '#D1D5DB', color: 'white', fontSize: 15, fontWeight: 700, cursor: bulkContent.trim() ? 'pointer' : 'not-allowed' }}>
-                      {bulkSelectedIds.length}명에게 발송하기
-                    </button>
-                  )}
+                  <button
+                    disabled={!bulkContent.trim() || bulkSelectedIds.length === 0}
+                    onClick={() => {
+                      if (!bulkContent.trim()) { alert('문자 내용을 입력해주세요.'); return }
+                      if (bulkSelectedIds.length === 0) { alert('발송할 고객을 선택해주세요.'); return }
+                      if (confirm(`${bulkSelectedIds.length}명에게 단체문자를 발송합니다. 계속하시겠습니까?`)) {
+                        alert('단체문자 발송 기능은 SMS 연동 후 사용 가능합니다.')
+                      }
+                    }}
+                    style={{ width: '100%', padding: '14px 0', borderRadius: 10, border: 'none', background: bulkContent.trim() && bulkSelectedIds.length > 0 ? '#1D9E75' : '#D1D5DB', color: 'white', fontSize: 15, fontWeight: 700, cursor: bulkContent.trim() && bulkSelectedIds.length > 0 ? 'pointer' : 'not-allowed' }}>
+                    {bulkSelectedIds.length > 0 ? `${bulkSelectedIds.length}명에게 발송하기` : '고객을 선택해주세요'}
+                  </button>
                 </div>
               </div>
             )}
