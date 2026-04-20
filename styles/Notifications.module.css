@@ -80,7 +80,7 @@
 ═══════════════════════════════════════════ */
 @media (min-width: 769px) {
 
-.pcGrid { display: block; padding: 8px 10px 16px; background: #FAF9F5; min-height: 100vh; }
+.pcGrid { display: block; padding: 0; }
 .pcCard { background: #fff; border-radius: 12px; border: 1px solid #EDEBE4; overflow: hidden; }
 .mobileLayout { display: none !important; }
 
