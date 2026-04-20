@@ -1,5 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { serialize } from 'cookie'
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end()
@@ -13,15 +12,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(401).json({ error: '비밀번호가 틀렸어요 🔐' })
   }
 
-  // 쿠키 발급 — 90일 유지
-  const cookie = serialize('dpa_bypass', secret, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 60 * 60 * 24 * 90,
-    path: '/',
-  })
+  // cookie 패키지 없이 직접 쿠키 설정 — 90일 유지
+  const maxAge = 60 * 60 * 24 * 90
+  const cookieValue = `dpa_bypass=${secret}; Max-Age=${maxAge}; Path=/; HttpOnly; SameSite=Lax${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
 
-  res.setHeader('Set-Cookie', cookie)
+  res.setHeader('Set-Cookie', cookieValue)
   return res.status(200).json({ ok: true })
 }
