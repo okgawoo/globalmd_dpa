@@ -701,7 +701,7 @@ export default function NotificationsPage() {
                       <span style={{ fontSize: 13, color: '#666' }}>AI 문자 작성중</span>
                       <div style={{ width: '60%', height: 4, background: '#EDEBE4', borderRadius: 4, overflow: 'hidden' }}>
                         <div style={{
-                          height: '100%', background: '#1D9E75', borderRadius: 4,
+                          height: '100%', background: '#ffffff', borderRadius: 4,
                           animation: 'slideBar 1.4s ease-in-out infinite',
                           width: '40%',
                         }} />
