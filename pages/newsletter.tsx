@@ -2,13 +2,43 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import styles from '../styles/Newsletter.module.css'
 
+// ─── 뉴스레터 데이터 ───────────────────────────────────────
 const NEWSLETTERS = [
+  {
+    id: 'w2026-17',
+    week: '2026년 4월 3주차',
+    date: '2026.04.21',
+    items: [
+      {
+        tag: '정책변화',
+        tagColor: '#B45309',
+        tagBg: '#FEF3E2',
+        title: 'GA 수수료 1200%룰, 7월 시행 확정 — 설계사 소득 구조 대전환',
+        summary: '금융위원회가 2026년 7월부터 GA 소속 설계사에게도 1200%룰을 전면 적용하기로 확정했습니다. 기존엔 전속 설계사에게만 해당됐지만 이제 GA도 계약 초년도 수수료 총액을 월납 보험료의 12배 이내로 제한받습니다. GA업계는 시행 시점을 6개월 유예해달라고 건의했지만 받아들여지지 않았습니다. 아울러 2027년부터는 수수료 4년 분급제가 단계적으로 도입됩니다.',
+        tip: '초년도 목돈 수수료 구조가 사라집니다. 고객 유지율이 곧 내 수입이 되는 구조로 바뀌는 만큼, 지금부터 기존 고객 관리에 더 공을 들이세요. 계약 유지율이 높을수록 장기유지 수수료가 쌓입니다!',
+      },
+      {
+        tag: '통계',
+        tagColor: '#185FA5',
+        tagBg: '#E6F1FB',
+        title: 'GA 설계사 30만명 돌파했지만 1인당 생산성은 8.5% 급감',
+        summary: '2025년 기준 생명·손해보험사 전속 설계사 수는 21만6000명으로 늘었지만, 이들이 거둔 수입보험료는 오히려 8.5% 감소했습니다. 대형 GA(설계사 500명 이상)의 수입수수료는 전년 대비 21.6% 증가해 외형은 커졌지만 1인당 생산성이 뚜렷하게 뒷걸음쳤습니다. 업계에서는 양적 팽창보다 질적 성장이 시급하다는 목소리가 높아지고 있습니다.',
+        tip: '경쟁이 치열해질수록 "많이 파는 설계사"보다 "잘 관리하는 설계사"가 살아남습니다. DPA로 고객 보장공백·완납임박 알림을 챙겨서 차별화된 서비스를 만들어보세요!',
+      },
+      {
+        tag: '신상품',
+        tagColor: '#1D9E75',
+        tagBg: '#E6F7F1',
+        title: 'KB손보, 보험료 낮추고 보장 넓힌 4월 신상품 출시',
+        summary: 'KB손해보험이 보험료 인하와 보장 확대를 동시에 구현한 신상품 "5·10·10 Young플러스 건강보험"을 4월에 출시했습니다. 주요 담보 보험료를 최대 2% 낮추면서 암진단·뇌혈관 등 핵심 보장을 강화한 것이 특징입니다. 젊은 고객층을 겨냥한 설계로, 납입 기간 대비 보장 효율이 높다는 평가입니다.',
+        tip: '30~40대 관심고객에게 "젊을 때 가입하면 이득"이라는 포인트로 접근해보세요. 보험료 부담 줄이면서 보장 넓히는 상품은 첫 설계 상담에 딱 좋은 소재입니다!',
+      },
+    ],
+  },
   {
     id: 'w2026-15',
     week: '2026년 4월 2주차',
     date: '2026.04.14',
-    title: '이번 주 꼭 알아야 할 보험 뉴스',
-    subtitle: '설계사님을 위한 DPA 주간 보험 브리핑',
     items: [
       {
         tag: '신상품',
@@ -23,7 +53,7 @@ const NEWSLETTERS = [
         tagColor: '#B45309',
         tagBg: '#FEF3E2',
         title: 'GA 설계사 1200%룰 확대, 7월 시행 앞두고 갈등 격화',
-        summary: '7월 본격 도입될 GA 설계사 1200%룰을 앞두고 일부 대형 GA에서 해촉 설계사에게 과거 성과보상금 환수를 요구하는 사례가 늘어 법적 분쟁 우려가 커지고 있습니다. 업계에서는 보상 체계 표준화와 사전 공시 강화가 시급하다고 지적합니다.',
+        summary: '7월 본격 도입될 GA 설계사 1200%룰을 앞두고 일부 대형 GA에서 해촉 설계사에게 과거 성과보상금 환수를 요구하는 사례가 늘어 법적 분쟁 우려가 커지고 있습니다.',
         tip: '7월 이후 수수료 구조가 달라집니다. 장기 유지율 관리가 곧 수익으로 연결되는 구조 변화에 미리 대비하세요!',
       },
       {
@@ -40,8 +70,6 @@ const NEWSLETTERS = [
     id: 'w2026-14',
     week: '2026년 4월 1주차',
     date: '2026.04.07',
-    title: '이번 주 꼭 알아야 할 보험 뉴스',
-    subtitle: '설계사님을 위한 DPA 주간 보험 브리핑',
     items: [
       {
         tag: '정책변화',
@@ -64,85 +92,100 @@ const NEWSLETTERS = [
         tagColor: '#B91C1C',
         tagBg: '#FCEBEB',
         title: '4세대 실손 보험료 20% 인상…1·2세대는 3~5%대',
-        summary: '2026년 실손보험 평균 보험료가 7.8% 인상됩니다. 특히 4세대는 20%대로 가장 큰 폭 인상되는 반면, 1세대는 3%대, 2세대는 5%대 수준입니다. 갱신 주기에 따라 적용 시점은 다릅니다.',
+        summary: '2026년 실손보험 평균 보험료가 7.8% 인상됩니다. 특히 4세대는 20%대로 가장 큰 폭 인상되는 반면, 1세대는 3%대, 2세대는 5%대 수준입니다.',
         tip: '갱신 예정 고객 리스트를 미리 확인하고 보험료 인상 전 안내 연락을 먼저 하세요. 고객 신뢰를 높이는 좋은 기회입니다!',
       },
     ],
   },
 ]
 
-// 세로바 + 텍스트 공통 컴포넌트
-function SectionTitle({ children, fontSize = 16, color = '#1a1a1a' }: { children: React.ReactNode; fontSize?: number; color?: string }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <span style={{ width: 3, height: fontSize + 2, background: '#1D9E75', borderRadius: 2, display: 'inline-block', flexShrink: 0 }} />
-      <span style={{ fontSize, fontWeight: 700, color, lineHeight: 1.4 }}>{children}</span>
-    </div>
-  )
-}
+// TAG 우선순위 색상
+const TAG_ORDER: Record<string, number> = { '신상품': 0, '정책변화': 1, '통계': 2, '주의사항': 3 }
 
 export default function Newsletter() {
   const router = useRouter()
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [expandedTip, setExpandedTip] = useState<number | null>(null)
 
   useEffect(() => {
-    if (selectedId) {
-      window.history.pushState({ newsletterId: selectedId }, '')
-    }
+    if (selectedId) window.history.pushState({ newsletterId: selectedId }, '')
   }, [selectedId])
 
   useEffect(() => {
-    const handlePopState = () => {
-      setSelectedId(null)
-    }
+    const handlePopState = () => setSelectedId(null)
     window.addEventListener('popstate', handlePopState)
     return () => window.removeEventListener('popstate', handlePopState)
   }, [])
 
   const selectedNewsletter = NEWSLETTERS.find(n => n.id === selectedId)
 
+  // ── 상세 화면 ──────────────────────────────────────────────
   if (selectedNewsletter) {
     return (
-      <div className={styles.wrap}>
-        {/* 상세 헤더 */}
-        <div className={styles.detailHeader}>
-          <button className={styles.backBtn} onClick={() => setSelectedId(null)}>← 목록</button>
-          <span className={styles.detailWeek}>{selectedNewsletter.week}</span>
+      <div style={{ width: '100%', background: '#FAF9F5', minHeight: '100vh' }}>
+
+        {/* 헤더 */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: '#fff', borderBottom: '1px solid #EDEBE4', position: 'sticky', top: 0, zIndex: 10 }}>
+          <button onClick={() => setSelectedId(null)}
+            style={{ background: 'none', border: 'none', fontSize: 14, color: '#1D9E75', cursor: 'pointer', padding: '4px 0', fontWeight: 500 }}>
+            ← 목록
+          </button>
+          <span style={{ fontSize: 13, color: '#9CA3AF' }}>{selectedNewsletter.week}</span>
         </div>
 
-        {/* 뉴스레터 헤더 */}
-        <div className={styles.newsletterHeader}>
-          <p className={styles.nlWeekLabel}>{selectedNewsletter.week}</p>
-          <div style={{ marginBottom: 8 }}>
-            <SectionTitle fontSize={18} color="#1a1a1a">{selectedNewsletter.title}</SectionTitle>
+        {/* 타이틀 */}
+        <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid #EDEBE4', background: '#fff' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+            <span style={{ width: 3, height: 14, background: '#1D9E75', borderRadius: 2, display: 'inline-block', flexShrink: 0 }} />
+            <span style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>이번 주 꼭 알아야 할 보험 뉴스</span>
           </div>
-          <p className={styles.nlSubtitle}>{selectedNewsletter.subtitle}</p>
+          <p style={{ fontSize: 12, color: '#9CA3AF', marginLeft: 11, marginTop: 4 }}>
+            DPA 주간 보험 브리핑 · {selectedNewsletter.date}
+          </p>
         </div>
 
-        <div className={styles.nlIntro}>
-          <p>안녕하세요 설계사님 👋</p>
-          <p>이번 주 보험업계 핵심 뉴스 {selectedNewsletter.items.length}가지를 정리했어요. 고객 상담에 바로 활용하세요!</p>
+        {/* 뉴스 아이템 — 노션 리스트 스타일 */}
+        <div style={{ background: '#fff', marginTop: 8 }}>
+          {selectedNewsletter.items.map((item, i) => (
+            <div key={i} style={{ borderBottom: i < selectedNewsletter.items.length - 1 ? '1px solid #F3F4F6' : 'none' }}>
+              {/* 메인 행 */}
+              <div style={{ padding: '14px 16px', cursor: 'pointer' }}
+                onClick={() => setExpandedTip(expandedTip === i ? null : i)}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                  {/* 번호 */}
+                  <span style={{ fontSize: 12, color: '#C7C7CC', fontWeight: 600, marginTop: 2, flexShrink: 0, width: 16, textAlign: 'center' }}>{i + 1}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    {/* 태그 + 제목 */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 5, flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 4, fontWeight: 700, color: item.tagColor, background: item.tagBg, flexShrink: 0 }}>
+                        {item.tag}
+                      </span>
+                      <span style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', lineHeight: 1.4 }}>{item.title}</span>
+                    </div>
+                    {/* 요약 */}
+                    <p style={{ fontSize: 13, color: '#555', lineHeight: 1.65, margin: 0 }}>{item.summary}</p>
+                  </div>
+                  {/* 펼치기 화살표 */}
+                  <span style={{ fontSize: 13, color: '#C7C7CC', flexShrink: 0, marginTop: 2, transition: 'transform 0.2s', transform: expandedTip === i ? 'rotate(90deg)' : 'none' }}>›</span>
+                </div>
+              </div>
+
+              {/* 설계사 팁 — 펼치면 나타남 */}
+              {expandedTip === i && (
+                <div style={{ margin: '0 16px 14px 42px', background: '#F0FDF9', borderRadius: 8, padding: '10px 12px', borderLeft: '3px solid #1D9E75' }}>
+                  <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
+                    <span style={{ fontSize: 13, flexShrink: 0 }}>💡</span>
+                    <span style={{ fontSize: 12, color: '#1D9E75', lineHeight: 1.65 }}>
+                      <strong>설계사 활용 팁</strong> {item.tip}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
 
-        {/* 뉴스 카드 */}
-        {selectedNewsletter.items.map((item, i) => (
-          <div key={i} className={styles.nlCard}>
-            <span className={styles.nlTag} style={{ color: item.tagColor, background: item.tagBg }}>
-              {item.tag}
-            </span>
-            <div style={{ marginBottom: 10 }}>
-              <SectionTitle fontSize={15} color="#111827">{item.title}</SectionTitle>
-            </div>
-            <p className={styles.nlCardSummary}>{item.summary}</p>
-            <div className={styles.nlTip}>
-              <span className={styles.nlTipIcon}>💡</span>
-              <span>설계사 활용 팁: {item.tip}</span>
-            </div>
-          </div>
-        ))}
-
-        {/* 푸터 */}
-        <div className={styles.nlFooter}>
+        <div style={{ padding: '20px 16px', textAlign: 'center', fontSize: 11, color: '#C7C7CC', lineHeight: 1.8 }}>
           <p>DPA 보험 브리핑 · 매주 월요일 발송</p>
           <p>본 뉴스레터는 DPA가 설계사님을 위해 자동으로 수집·요약한 내용입니다</p>
         </div>
@@ -150,41 +193,62 @@ export default function Newsletter() {
     )
   }
 
+  // ── 목록 화면 ──────────────────────────────────────────────
   return (
-    <div className={styles.wrap}>
+    <div style={{ width: '100%', background: '#FAF9F5', minHeight: '100vh' }}>
+
       {/* 헤더 */}
-      <div className={styles.listHeader}>
-        <div style={{ marginBottom: 6 }}>
-          <SectionTitle fontSize={16} color="#1a1a1a">📰 보험 브리핑</SectionTitle>
+      <div style={{ padding: '16px 16px 12px', background: '#fff', borderBottom: '1px solid #EDEBE4' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+          <span style={{ width: 3, height: 16, background: '#1D9E75', borderRadius: 2, display: 'inline-block', flexShrink: 0 }} />
+          <span style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>📰 보험 브리핑</span>
         </div>
-        <p className={styles.listSubtitle}>매주 월요일 업데이트</p>
+        <p style={{ fontSize: 12, color: '#9CA3AF', marginLeft: 11 }}>매주 월요일 업데이트 · 설계사를 위한 핵심 뉴스 요약</p>
       </div>
 
-      {/* 뉴스레터 목록 */}
-      {NEWSLETTERS.map((nl) => (
-        <div key={nl.id} className={styles.listCard} onClick={() => setSelectedId(nl.id)}>
-          <div className={styles.listCardLeft}>
-            <span className={styles.listWeek}>{nl.week}</span>
-            <div style={{ marginBottom: 8 }}>
-              <SectionTitle fontSize={14} color="#111827">{nl.title}</SectionTitle>
+      {/* 뉴스레터 목록 — 노션 게시판 스타일 */}
+      <div style={{ background: '#fff', marginTop: 8 }}>
+        {NEWSLETTERS.map((nl, idx) => (
+          <div key={nl.id}>
+            {/* 주차 구분선 헤더 */}
+            <div style={{ padding: '10px 16px 6px', background: '#FAF9F5', borderBottom: '1px solid #EDEBE4', borderTop: idx > 0 ? '6px solid #FAF9F5' : 'none' }}>
+              <span style={{ fontSize: 11, color: '#9CA3AF', fontWeight: 600 }}>{nl.week} · {nl.date}</span>
             </div>
-            <div className={styles.listTags}>
-              {nl.items.map((item, i) => (
-                <span key={i} className={styles.listTag} style={{ color: item.tagColor, background: item.tagBg }}>
+
+            {/* 뉴스 아이템 행들 */}
+            {nl.items.map((item, i) => (
+              <div key={i}
+                onClick={() => setSelectedId(nl.id)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 10,
+                  padding: '11px 16px',
+                  borderBottom: '1px solid #F3F4F6',
+                  cursor: 'pointer',
+                  transition: 'background 0.1s',
+                }}
+                onMouseEnter={e => (e.currentTarget.style.background = '#FAFAF8')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+              >
+                {/* 번호 */}
+                <span style={{ fontSize: 11, color: '#C7C7CC', width: 16, textAlign: 'center', flexShrink: 0 }}>{i + 1}</span>
+                {/* 태그 */}
+                <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 4, fontWeight: 700, color: item.tagColor, background: item.tagBg, flexShrink: 0, whiteSpace: 'nowrap' }}>
                   {item.tag}
                 </span>
-              ))}
-            </div>
+                {/* 제목 */}
+                <span style={{ fontSize: 13, color: '#1a1a1a', fontWeight: 500, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {item.title}
+                </span>
+                {/* 화살표 */}
+                <span style={{ fontSize: 14, color: '#D1D5DB', flexShrink: 0 }}>›</span>
+              </div>
+            ))}
           </div>
-          <div className={styles.listCardRight}>
-            <span className={styles.listDate}>{nl.date}</span>
-            <span className={styles.listArrow}>›</span>
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
 
       {/* 안내 */}
-      <div className={styles.listNotice}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 16px', margin: '8px 10px', background: '#F0FDF9', borderRadius: 10, fontSize: 12, color: '#1D9E75' }}>
         <span>🤖</span>
         <span>매주 월요일 AI가 보험업계 뉴스를 자동으로 수집·정리합니다</span>
       </div>
