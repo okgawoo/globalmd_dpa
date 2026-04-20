@@ -354,68 +354,326 @@ export default function NotificationsPage() {
 
   if (loading) return <div className={styles.loading}>불러오는 중...</div>
 
+  // PC 웹 선택된 이슈의 고객 목록
+  const [pcActiveIssue, setPcActiveIssue] = useState<IssueType | null>(null)
+  const [pcTab, setPcTab] = useState<'ai' | 'bulk' | 'history'>(() => {
+    if (typeof window !== 'undefined') return (sessionStorage.getItem('pc_notif_tab') as any) || 'ai'
+    return 'ai'
+  })
+  const pcActiveNotifs = pcActiveIssue ? notifMap[pcActiveIssue] : []
+
   return (
     <div className={styles.wrap}>
 
       {/* ═══════════════════════════════
-          PC: 기존 2단 그리드
+          PC: 새 레이아웃
       ═══════════════════════════════ */}
       <div className={styles.pcGrid}>
-        <div className={styles.listCol}>
-          {todayNotifs.length > 0 && (<><div className={styles.sectionLabel}>오늘</div>{todayNotifs.map(n => renderPcCard(n))}</>)}
-          {weekNotifs.length > 0 && (<><div className={styles.divider}></div><div className={styles.sectionLabel}>이번 주</div>{weekNotifs.map(n => renderPcCard(n))}</>)}
-          {allNotifs.length === 0 && <div className={styles.empty}>알림이 없어요 🎉</div>}
-        </div>
-        <div className={styles.phoneCol}>
-          {selected && (
+
+        {/* 잔여문자 - 탭 위 상단 고정 */}
+        <div className={styles.pcSmsUsageBar}>
+          {smsUsage ? (
             <>
-              <div className={styles.recipientRow}>
-                <div className={styles.avatar}>{selected.customer.name.slice(0,2)}</div>
-                <div>
-                  <div className={styles.recipientName}>{selected.customer.name}</div>
-                  <div className={styles.recipientPhone}>{selected.customer.phone || '연락처 없음'}</div>
-                </div>
-              </div>
-              <div className={styles.aiRow}><div className={styles.aiBadge}><div className={styles.aiDot}></div>AI 추천 스크립트</div></div>
-              <div className={styles.aiDesc}>상황에 맞는 문자를 추천해 드려요. 자유롭게 수정 후 발송하세요 😊</div>
-              <div className={styles.toneRow}>
-                {TONES.map(t => (<button key={t} className={[styles.toneBtn, tone === t ? styles.toneBtnActive : ''].join(' ')} onClick={() => changeTone(t)}>{t}</button>))}
+              <span style={{ fontSize: 13, color: '#666' }}>이번 달 문자 잔여</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: smsUsage.remaining < 100 ? '#E24B4A' : '#1D9E75' }}>{smsUsage.remaining}건</span>
+                <span style={{ fontSize: 12, color: '#999' }}>/ {smsUsage.limit}건</span>
               </div>
             </>
+          ) : (
+            <span style={{ fontSize: 13, color: '#999' }}>문자 사용량 로딩 중...</span>
           )}
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div className={styles.phoneWrapper}>
-              <div className={styles.phoneFrame}>
-                <div className={styles.phoneNotch}></div>
-                <div className={styles.phoneScreen}>
-                  <div className={styles.statusBar}><span className={styles.statusTime}>9:41</span><span className={styles.statusIcons}>●●● 🔋</span></div>
-                  <div className={styles.smsHeader}>
-                    <div className={styles.smsName} style={{ color: selected ? '#1C1C1E' : '#C7C7CC' }}>{selected ? selected.customer.name : '-'}</div>
-                    <div className={styles.smsType}>문자 메시지</div>
+        </div>
+
+        {/* 탭: AI추천 / 단체문자 / 발송이력 */}
+        <div className={styles.pcTabBar}>
+          {[
+            { key: 'ai', label: '🤖 AI 추천' },
+            { key: 'bulk', label: '📨 단체문자' },
+            { key: 'history', label: '📋 발송이력' },
+          ].map(tab => (
+            <button key={tab.key}
+              className={[styles.pcTab, pcTab === tab.key ? styles.pcTabActive : ''].join(' ')}
+              onClick={() => { setPcTab(tab.key as any); sessionStorage.setItem('pc_notif_tab', tab.key) }}>
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* ── AI 추천 탭 ── */}
+        {pcTab === 'ai' && (
+          <div className={styles.pcLayout}>
+
+            {/* 왼쪽: 카테고리 카드 */}
+            <div className={styles.pcLeftPanel}>
+              <p className={styles.pcSectionLabel}>카테고리 선택</p>
+              {(Object.keys(ISSUE_CONFIG) as IssueType[]).map(type => {
+                const cfg = ISSUE_CONFIG[type]
+                const count = notifMap[type].length
+                const isActive = pcActiveIssue === type
+                return (
+                  <div key={type}
+                    className={[styles.pcCatCard, isActive ? styles.pcCatCardActive : ''].join(' ')}
+                    onClick={() => { setPcActiveIssue(isActive ? null : type); setSelected(null); setScriptText('') }}>
+                    <div className={styles.pcCatLeft}>
+                      <div className={styles.pcCatIcon}>{cfg.icon}</div>
+                      <div>
+                        <div className={styles.pcCatName}>{cfg.label}</div>
+                        <div className={styles.pcCatDesc}>{cfg.desc}</div>
+                      </div>
+                    </div>
+                    <span className={styles.pcCatBadge} style={{
+                      background: count > 0 ? cfg.badgeBg : '#F1EFE8',
+                      color: count > 0 ? cfg.badgeColor : '#888'
+                    }}>{count}</span>
                   </div>
-                  <div className={styles.smsBody}>
-                    {selected ? (
-                      <div className={styles.bubbleWrap}>
-                        <div className={styles.bubble}>
-                          <textarea ref={textareaRef} className={styles.bubbleEdit} value={scriptText} onChange={e => setScriptText(e.target.value)} rows={8} />
-                          <div className={styles.bubbleTime}>오전 9:41</div>
+                )
+              })}
+            </div>
+
+            {/* 오른쪽: 고객 리스트 + 문자 작성 */}
+            <div className={styles.pcRightPanel}>
+
+              {/* 고객 리스트 */}
+              <div className={styles.pcCustomerList}>
+                {!pcActiveIssue ? (
+                  <div className={styles.pcEmptyHint}>왼쪽에서 카테고리를 선택해 주세요 👈</div>
+                ) : pcActiveNotifs.length === 0 ? (
+                  <div className={styles.pcEmptyHint}>해당 카테고리에 고객이 없어요 🎉</div>
+                ) : (
+                  <>
+                    <p className={styles.pcListTitle}>{ISSUE_CONFIG[pcActiveIssue].label} · {pcActiveNotifs.length}명</p>
+                    {pcActiveNotifs.map(n => {
+                      const cfg = ISSUE_CONFIG[pcActiveIssue]
+                      const isSel = selected?.id === n.id
+                      return (
+                        <div key={n.id}
+                          className={[styles.pcCustomerItem, isSel ? styles.pcCustomerItemActive : ''].join(' ')}
+                          onClick={() => selectNotif(n)}>
+                          <div className={styles.pcCustAvatar}>{n.customer.name.slice(0, 1)}</div>
+                          <div className={styles.pcCustInfo}>
+                            <div className={styles.pcCustName}>{n.customer.name}고객</div>
+                            <div className={styles.pcCustSub}>{n.customer.phone || '연락처 없음'}</div>
+                          </div>
+                          <span className={styles.pcCustBadge} style={{ background: cfg.badgeBg, color: cfg.badgeColor }}>{n.badge}</span>
+                        </div>
+                      )
+                    })}
+                  </>
+                )}
+              </div>
+
+              {/* 문자 작성 패널 - sticky */}
+              <div className={styles.pcComposePanel}>
+                {selected ? (
+                  <>
+                    {/* 수신자 정보 */}
+                    <div className={styles.pcComposeHeader}>
+                      <div className={styles.pcComposeAvatar}>{selected.customer.name.slice(0, 1)}</div>
+                      <div>
+                        <div className={styles.pcComposeName}>{selected.customer.name}고객님</div>
+                        <div className={styles.pcComposeMeta}>
+                          {selected.customer.phone || '연락처 없음'}
+                          <span className={styles.pcComposeBadge} style={{ background: ISSUE_CONFIG[selected.notifType as IssueType]?.badgeBg, color: ISSUE_CONFIG[selected.notifType as IssueType]?.badgeColor }}>
+                            {selected.badge}
+                          </span>
                         </div>
                       </div>
-                    ) : (
-                      <div className={styles.phoneEmpty}><div style={{ fontSize: 24, marginBottom: 6 }}>💬</div><div>왼쪽에서 알림을<br />선택해 주세요</div></div>
-                    )}
+                    </div>
+
+                    {/* 톤 선택 */}
+                    <div className={styles.pcToneRow}>
+                      {TONES.map(t => (
+                        <button key={t}
+                          className={[styles.pcToneBtn, tone === t ? styles.pcToneBtnActive : ''].join(' ')}
+                          onClick={() => changeTone(t)}>{t}</button>
+                      ))}
+                    </div>
+
+                    {/* 문자 입력창 */}
+                    <textarea
+                      ref={textareaRef}
+                      className={styles.pcTextarea}
+                      value={scriptText}
+                      onChange={e => setScriptText(e.target.value)}
+                      rows={7}
+                      placeholder="문자 내용을 입력하세요"
+                    />
+
+                    {/* 이모티콘 바 */}
+                    <div className={styles.pcEmojiBar}>
+                      <span className={styles.pcEmojiLabel}>자주 쓰는</span>
+                      {EMOJIS.map(e => (
+                        <button key={e} className={styles.pcEmojiBtn} onClick={() => insertEmoji(e)}>{e}</button>
+                      ))}
+                    </div>
+
+                    <div className={styles.pcCharCount}>{scriptText.length}자</div>
+
+                    {/* 발송 버튼 */}
+                    <div className={styles.pcBtnRow}>
+                      <button className={styles.pcBtnSend} onClick={handleSend} disabled={sending || !scriptText}>
+                        {sending ? '발송 중...' : '발송하기'}
+                      </button>
+                      <button className={styles.pcBtnCopy} onClick={handleCopy} disabled={!scriptText}>복사</button>
+                      <button className={styles.pcBtnKakao} onClick={async () => {
+                        await navigator.clipboard.writeText(scriptText)
+                        window.open('kakaotalk://', '_blank')
+                      }} disabled={!scriptText}>카카오</button>
+                    </div>
+                  </>
+                ) : (
+                  <div className={styles.pcComposeEmpty}>
+                    <div style={{ fontSize: 28, marginBottom: 8 }}>💬</div>
+                    <div>고객을 선택하면<br />문자를 작성할 수 있어요</div>
                   </div>
-                  <div className={styles.emojiRow}>{EMOJIS.map(e => (<button key={e} className={styles.emojiBtn} onClick={() => insertEmoji(e)} disabled={!selected}>{e}</button>))}</div>
-                </div>
-                <div className={styles.phoneHome}></div>
+                )}
               </div>
             </div>
           </div>
-          <div className={styles.actionBtns}>
-            <button className={styles.btnSend} onClick={handleSend} disabled={sending || !selected}>{sending ? '발송 중...' : '발송하기'}</button>
-            <button className={styles.btnCopy} onClick={handleCopy} disabled={!selected}>복사</button>
+        )}
+
+        {/* ── 단체문자 탭 ── */}
+        {pcTab === 'bulk' && (
+          <div className={styles.pcBulkWrap}>
+            {/* 단체문자는 모바일 로직 재활용 - 서브탭 포함 */}
+            <div style={{ display: 'flex', gap: 6, marginBottom: 12, background: '#EDEBE4', borderRadius: 10, padding: 4 }}>
+              {[{ key: 'send', label: '✉️ 발송하기' }, { key: 'history', label: '📋 발송이력' }].map(v => (
+                <button key={v.key}
+                  onClick={() => setBulkView(v.key as 'send' | 'history')}
+                  style={{ flex: 1, padding: '8px 0', fontSize: 14, fontWeight: bulkView === v.key ? 700 : 500, color: bulkView === v.key ? '#1a1a1a' : '#999', background: bulkView === v.key ? '#fff' : 'transparent', border: 'none', borderRadius: 8, cursor: 'pointer' }}>
+                  {v.label}
+                </button>
+              ))}
+            </div>
+
+            {bulkView === 'send' && (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                {/* 왼쪽: 필터 + 고객 리스트 */}
+                <div>
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+                    <select value={bulkCustomerType} onChange={e => setBulkCustomerType(e.target.value as any)}
+                      style={{ flex: 1, padding: '9px 8px', borderRadius: 8, border: '1px solid #EDEBE4', background: '#fff', fontSize: 13, color: '#1a1a1a', cursor: 'pointer' }}>
+                      <option value="전체">전체 고객</option>
+                      <option value="existing">마이고객</option>
+                      <option value="prospect">관심고객</option>
+                    </select>
+                    <select value={bulkAgeMin === null ? '전체' : `${bulkAgeMin}`}
+                      onChange={e => {
+                        const v = e.target.value
+                        if (v === '전체') { setBulkAgeMin(null); setBulkAgeMax(null) }
+                        else if (v === '20') { setBulkAgeMin(20); setBulkAgeMax(29) }
+                        else if (v === '30') { setBulkAgeMin(30); setBulkAgeMax(39) }
+                        else if (v === '40') { setBulkAgeMin(40); setBulkAgeMax(49) }
+                        else if (v === '50') { setBulkAgeMin(50); setBulkAgeMax(59) }
+                        else if (v === '60') { setBulkAgeMin(60); setBulkAgeMax(null) }
+                      }}
+                      style={{ flex: 1, padding: '9px 8px', borderRadius: 8, border: '1px solid #EDEBE4', background: '#fff', fontSize: 13, color: '#1a1a1a', cursor: 'pointer' }}>
+                      <option value="전체">전체 나이</option>
+                      <option value="20">20대</option>
+                      <option value="30">30대</option>
+                      <option value="40">40대</option>
+                      <option value="50">50대</option>
+                      <option value="60">60대 이상</option>
+                    </select>
+                    <select value={bulkGender} onChange={e => setBulkGender(e.target.value as any)}
+                      style={{ flex: 1, padding: '9px 8px', borderRadius: 8, border: '1px solid #EDEBE4', background: '#fff', fontSize: 13, color: '#1a1a1a', cursor: 'pointer' }}>
+                      <option value="전체">전체 성별</option>
+                      <option value="남">남성</option>
+                      <option value="여">여성</option>
+                    </select>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                    <p style={{ fontSize: 14, color: '#1a1a1a', fontWeight: 600 }}>대상 고객 <span style={{ color: '#1D9E75' }}>{bulkFilteredCustomers.length}명</span></p>
+                    <button onClick={() => setBulkSelectedIds(bulkSelectedIds.length === bulkFilteredCustomers.length ? [] : bulkFilteredCustomers.map((c: any) => c.id))}
+                      style={{ fontSize: 13, color: '#1D9E75', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
+                      {bulkSelectedIds.length === bulkFilteredCustomers.length && bulkFilteredCustomers.length > 0 ? '전체 해제' : '전체 선택'}
+                    </button>
+                  </div>
+                  <div style={{ background: '#fff', border: '1px solid #EDEBE4', borderRadius: 12, overflow: 'hidden', maxHeight: 400, overflowY: 'auto' }}>
+                    {bulkFilteredCustomers.length === 0 ? (
+                      <p style={{ fontSize: 13, color: '#999', textAlign: 'center', padding: '20px 0' }}>조건에 맞는 고객이 없어요</p>
+                    ) : bulkFilteredCustomers.map((c: any, i: number) => {
+                      const isSel = bulkSelectedIds.includes(c.id)
+                      return (
+                        <div key={c.id}
+                          onClick={() => setBulkSelectedIds(isSel ? bulkSelectedIds.filter(id => id !== c.id) : [...bulkSelectedIds, c.id])}
+                          style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderBottom: i < bulkFilteredCustomers.length - 1 ? '1px solid #EDEBE4' : 'none', background: isSel ? '#F0FDF4' : '#fff', cursor: 'pointer' }}>
+                          <div style={{ width: 20, height: 20, borderRadius: 6, border: `2px solid ${isSel ? '#1D9E75' : '#D1D5DB'}`, background: isSel ? '#1D9E75' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            {isSel && <span style={{ color: '#fff', fontSize: 12, fontWeight: 700 }}>✓</span>}
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <p style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', marginBottom: 2 }}>{c.name}</p>
+                            <p style={{ fontSize: 12, color: '#999' }}>{c.phone || '번호 없음'}</p>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+                {/* 오른쪽: 문자 내용 입력 */}
+                <div>
+                  <select value={bulkTone} onChange={e => setBulkTone(e.target.value)}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #EDEBE4', background: '#FAF9F5', fontSize: 14, color: '#1a1a1a', marginBottom: 10, cursor: 'pointer' }}>
+                    {['친근', '정중', '애교', '간결'].map(t => <option key={t} value={t}>{t}한 톤</option>)}
+                  </select>
+                  <textarea value={bulkContent} onChange={e => setBulkContent(e.target.value)}
+                    placeholder="발송할 문자 내용을 입력하세요"
+                    rows={7}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #EDEBE4', fontSize: 14, color: '#1a1a1a', resize: 'none', lineHeight: 1.6, background: '#fff' }}
+                  />
+                  <p style={{ fontSize: 12, color: '#999', textAlign: 'right', marginTop: 4, marginBottom: 12 }}>{bulkContent.length}자</p>
+                  {bulkSelectedIds.length > 0 && (
+                    <button
+                      disabled={!bulkContent.trim()}
+                      onClick={() => {
+                        if (!bulkContent.trim()) { alert('문자 내용을 입력해주세요.'); return }
+                        if (confirm(`${bulkSelectedIds.length}명에게 단체문자를 발송합니다. 계속하시겠습니까?`)) {
+                          alert('단체문자 발송 기능은 SMS 연동 후 사용 가능합니다.')
+                        }
+                      }}
+                      style={{ width: '100%', padding: '14px 0', borderRadius: 10, border: 'none', background: bulkContent.trim() ? '#1D9E75' : '#D1D5DB', color: 'white', fontSize: 15, fontWeight: 700, cursor: bulkContent.trim() ? 'pointer' : 'not-allowed' }}>
+                      {bulkSelectedIds.length}명에게 발송하기
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {bulkView === 'history' && (
+              <div style={{ background: '#fff', border: '1px solid #EDEBE4', borderRadius: 12, padding: '20px 14px', textAlign: 'center' }}>
+                <p style={{ fontSize: 14, color: '#999' }}>아직 발송 이력이 없어요 📭</p>
+                <p style={{ fontSize: 13, color: '#ccc', marginTop: 6 }}>단체문자를 발송하면 여기에 기록돼요</p>
+              </div>
+            )}
           </div>
-        </div>
+        )}
+
+        {/* ── 발송이력 탭 ── */}
+        {pcTab === 'history' && (
+          <div className={styles.pcHistoryWrap}>
+            {messages.length === 0 ? (
+              <div className={styles.pcEmptyHint}>아직 발송 이력이 없어요 📭</div>
+            ) : messages.map((m: any) => {
+              const typeLabel: Record<string, string> = { nearDone: '완납임박', gap: '보장공백', birthday: '생일', expiry: '만기임박', longNoContact: '장기미연락', anniversary: '계약기념일', 최근미팅: '미팅후속', 최근계약: '계약감사', 일반: '일반' }
+              const tCfg = ISSUE_CONFIG[m.message_type as IssueType] || { badgeBg: '#F1EFE8', badgeColor: '#5F5E5A' }
+              return (
+                <div key={m.id} className={styles.pcHistoryItem}>
+                  <div className={styles.pcHistoryLeft}>
+                    <div className={styles.pcHistoryName}>{m.dpa_customers?.name}고객</div>
+                    <div className={styles.pcHistoryScript}>{m.sent_script}</div>
+                  </div>
+                  <div className={styles.pcHistoryRight}>
+                    <span className={styles.pcHistoryBadge} style={{ background: tCfg.badgeBg, color: tCfg.badgeColor }}>{typeLabel[m.message_type] || m.message_type}</span>
+                    <span className={styles.pcHistoryBadge} style={{ background: m.is_sent ? '#E1F5EE' : '#F1EFE8', color: m.is_sent ? '#085041' : '#5F5E5A' }}>{m.is_sent ? '발송' : '카카오/복사'}</span>
+                    <span className={styles.pcHistoryDate}>{fmtDate(m.created_at)}</span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
       </div>
 
       {/* ═══════════════════════════════

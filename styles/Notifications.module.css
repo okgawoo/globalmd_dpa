@@ -1,296 +1,178 @@
-.wrap { padding: 0 0 2rem; width: 100%; }
-.loading { text-align: center; padding: 40px; color: #9CA3AF; }
+.wrap { width: 100%; margin: 0 auto; background: #FAF9F5; min-height: 100vh; }
 
-/* 탭 */
-.tabRow { display: flex; align-items: center; gap: 0; margin-bottom: 12px; border-bottom: 2px solid #EDEBE4; padding-bottom: 0; overflow-x: auto; -ms-overflow-style: none; scrollbar-width: none; }
-.tabRow::-webkit-scrollbar { display: none; }
-.tab { background: none; border: none; border-bottom: 2px solid transparent; padding: 10px 16px; font-size: 14px; color: #9CA3AF; margin-bottom: -1px; transition: all 0.15s; white-space: nowrap; flex-shrink: 0; cursor: pointer; font-family: inherit; }
-.tab:hover { color: #374151; }
-.tabActive { color: #1D9E75; border-bottom: 2px solid #1D9E75; font-weight: 600; }
-.tabBadge { background: #E24B4A; color: white; font-size: 10px; font-weight: 500; border-radius: 999px; padding: 1px 5px; margin-left: 4px; }
+/* 목록 헤더 */
+.listHeader { background: #FAF9F5; padding: 16px 10px 12px; }
+.listTitle { font-size: 16px; font-weight: 700; color: #1a1a1a; margin: 0 0 4px; }
+.listSubtitle { font-size: 13px; color: #666; margin: 0; }
 
-/* 2컬럼 - 왼쪽 넓게 */
-.grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; align-items: stretch; }
+/* 목록 카드 */
+.listCard { background: white; border: 1px solid #EDEBE4; border-radius: 14px; padding: 16px; margin: 10px; display: flex; justify-content: space-between; align-items: flex-start; cursor: pointer; transition: all 0.15s; gap: 12px; }
+.listCard:active { background: #F9FAFB; transform: scale(0.99); }
+.listCardLeft { flex: 1; min-width: 0; }
+.listWeek { font-size: 11px; color: #9CA3AF; margin-bottom: 4px; display: block; }
+.listCardTitle { font-size: 14px; font-weight: 600; color: #111827; margin: 0 0 8px; line-height: 1.4; }
+.listTags { display: flex; gap: 6px; flex-wrap: wrap; }
+.listTag { font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 600; white-space: nowrap; }
+.listCardRight { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0; }
+.listDate { font-size: 11px; color: #9CA3AF; white-space: nowrap; }
+.listArrow { font-size: 20px; color: #D1D5DB; }
 
-/* 왼쪽: 알림 리스트 */
-.listCol { background: white; border: 0.5px solid #EDEBE4; border-radius: 14px; padding: 16px; min-height: 400px; max-height: calc(100vh - 200px); overflow-y: auto; }
-.sectionLabel { font-size: 10px; font-weight: 500; color: #9CA3AF; letter-spacing: 0.06em; margin-bottom: 7px; text-transform: uppercase; }
-.divider { height: 0.5px; background: #EDEBE4; margin: 12px 0; }
-.empty { text-align: center; padding: 40px; color: #9CA3AF; font-size: 13px; }
+/* 안내 */
+.listNotice { display: flex; align-items: center; gap: 8px; padding: 12px 16px; margin: 4px 10px 20px; background: #F0FDF9; border-radius: 10px; font-size: 12px; color: #1D9E75; }
 
-/* 알림 카드 */
-.notifCard { border: 0.5px solid #EDEBE4; border-radius: 10px; padding: 11px 13px; margin-bottom: 4px; cursor: pointer; transition: border-color 0.15s; background: white; }
-.notifCard:hover { border-color: #1D9E75; }
-.selected { border: 1.5px solid #1D9E75 !important; background: #F0FBF7 !important; }
-.unread { border-left: 3px solid #1D9E75; }
-.cardRow { display: flex; align-items: center; gap: 9px; }
-.iconWrap { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 15px; }
-.iconAmber { background: #FAEEDA; }
-.iconTeal  { background: #E1F5EE; }
-.iconRed   { background: #FCEBEB; }
-.iconBlue  { background: #E6F1FB; }
-.iconGreen { background: #EAF3DE; }
-.cardBody { flex: 1; min-width: 0; }
-.cardTitle { font-size: 14px; font-weight: 500; color: #111827; margin-bottom: 2px; }
-.cardDesc  { font-size: 12px; color: #6B7280; line-height: 1.4; }
-.cardMeta  { margin-top: 5px; }
-.badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 500; }
-.badgeAmber { background: #FAEEDA; color: #854F0B; }
-.badgeTeal  { background: #E1F5EE; color: #0F6E56; }
-.badgeRed   { background: #FCEBEB; color: #A32D2D; }
-.badgeBlue  { background: #E6F1FB; color: #185FA5; }
-.badgeGreen { background: #EAF3DE; color: #3B6D11; }
-.badgeGray  { background: #F1EFE8; color: #5F5E5A; }
+/* 상세 헤더 */
+.detailHeader { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: white; border-bottom: 1px solid #EDEBE4; position: sticky; top: 0; z-index: 10; }
+.backBtn { background: none; border: none; font-size: 14px; color: #1D9E75; cursor: pointer; padding: 4px 0; font-weight: 500; }
+.detailWeek { font-size: 13px; color: #6B7280; }
 
-/* 이력보기 버튼 */
-.historyBtn { flex-shrink: 0; font-size: 11px; padding: 4px 10px; border: 0.5px solid #D1D5DB; border-radius: 6px; background: white; color: #6B7280; cursor: pointer; font-family: inherit; white-space: nowrap; }
-.historyBtn:hover { border-color: #1D9E75; color: #1D9E75; }
+/* 뉴스레터 헤더 */
+.newsletterHeader { background: #FAF9F5; padding: 16px 10px 12px; text-align: left; border-bottom: 1px solid #EDEBE4; }
+.nlWeekLabel { font-size: 12px; color: #999; margin: 0 0 8px; }
+.nlTitle { font-size: 18px; font-weight: 700; color: #1a1a1a; margin: 0 0 6px; line-height: 1.3; }
+.nlSubtitle { font-size: 13px; color: #666; margin: 0; }
 
-/* 카드 아래 인라인 이력 */
-.inlineHistory { background: #F9F9F7; border: 0.5px solid #EDEBE4; border-top: none; border-radius: 0 0 10px 10px; padding: 10px 13px; margin-bottom: 4px; }
-.inlineHistoryEmpty { font-size: 12px; color: #9CA3AF; text-align: center; padding: 8px; }
-.inlineHistoryItem { padding: 8px 0; border-bottom: 0.5px solid #EDEBE4; }
-.inlineHistoryItem:last-child { border-bottom: none; }
-.inlineHistoryRow { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
-.inlineHistoryType { font-size: 11px; color: #374151; font-weight: 500; flex: 1; }
-.inlineHistoryDate { font-size: 10px; color: #9CA3AF; }
-.inlineHistoryScript { font-size: 11px; color: #6B7280; line-height: 1.55; white-space: pre-wrap; background: white; border-radius: 6px; padding: 6px 8px; }
+/* 인트로 */
+.nlIntro { padding: 16px; background: white; border-bottom: 1px solid #EDEBE4; font-size: 13px; color: #374151; line-height: 1.7; }
+.nlIntro p { margin: 0 0 4px; }
+.nlIntro p:last-child { margin: 0; }
 
-/* 오른쪽: 스마트폰 목업 고정 */
-.phoneCol { position: sticky; top: 16px; display: flex; flex-direction: column; align-items: stretch; background: white; border: 0.5px solid #EDEBE4; border-radius: 14px; padding: 16px; min-height: calc(100vh - 200px); }
+/* 뉴스 카드 */
+.nlCard { background: white; border: 1px solid #EDEBE4; border-radius: 14px; padding: 16px; margin: 10px; }
+.nlTag { display: inline-block; font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 700; margin-bottom: 10px; }
+.nlCardTitle { font-size: 16px; font-weight: 700; color: #111827; margin: 0 0 10px; line-height: 1.4; }
+.nlCardSummary { font-size: 13px; color: #4B5563; line-height: 1.7; margin: 0 0 12px; }
+.nlTip { display: flex; gap: 8px; background: #F0FDF9; border-radius: 8px; padding: 10px 12px; font-size: 12px; color: #1D9E75; line-height: 1.6; align-items: flex-start; }
+.nlTipIcon { flex-shrink: 0; font-size: 14px; }
 
-/* 스마트폰 래퍼 - 중앙 정렬 */
-.phoneWrapper { width: 260px; flex-shrink: 0; align-self: center; }
-
-/* 수신자 */
-.recipientRow { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; width: 100%; }
-.avatar { width: 42px; height: 42px; border-radius: 50%; background: #E1F5EE; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: #0F6E56; flex-shrink: 0; }
-.recipientName  { font-size: 18px; font-weight: 700; color: #111827; line-height: 1.4; }
-.recipientPhone { font-size: 13px; color: #9CA3AF; margin-top: 3px; }
-
-/* AI 배지 */
-.aiRow { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; width: 100%; }
-.aiBadge { display: flex; align-items: center; gap: 5px; background: #EEEDFE; color: #3C3489; font-size: 11px; font-weight: 500; border-radius: 999px; padding: 4px 10px; animation: badgePulse 1.4s ease-in-out infinite; }
-.aiDot { width: 5px; height: 5px; border-radius: 50%; background: #7F77DD; animation: dotBlink 1.4s ease-in-out infinite; }
-.aiDotPulse { animation: dotBlink 1.4s ease-in-out infinite; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-@keyframes dotBlink { 0%,100%{opacity:1; transform:scale(1)} 50%{opacity:0.2; transform:scale(0.6)} }
-@keyframes badgePulse { 0%,100%{opacity:1} 50%{opacity:0.55} }
-.aiLoading { font-size: 10px; color: #7F77DD; }
-.aiDesc { font-size: 12px; color: #9CA3AF; margin-bottom: 14px; line-height: 1.7; width: 100%; }
-
-/* 톤 버튼 */
-.toneRow { display: flex; gap: 6px; margin-bottom: 14px; width: 100%; }
-.toneBtn { font-size: 13px; padding: 7px 0; border-radius: 999px; cursor: pointer; border: 0.5px solid #D1D5DB; background: white; color: #6B7280; flex: 1; text-align: center; font-family: inherit; }
-.toneBtn:hover { border-color: #1D9E75; color: #1D9E75; }
-.toneBtnActive { background: #1D9E75; color: white; border-color: #1D9E75; }
-
-/* 스마트폰 */
-.phoneFrame { background: #1C1C1E; border-radius: 44px; padding: 12px 10px 16px; }
-.phoneNotch { width: 36px; height: 5px; background: #3A3A3C; border-radius: 999px; margin: 0 auto 8px; }
-.phoneScreen { background: #F2F2F7; border-radius: 34px; overflow: hidden; }
-.statusBar { background: #F2F2F7; padding: 6px 14px 2px; display: flex; justify-content: space-between; }
-.statusTime  { font-size: 11px; font-weight: 600; color: #1C1C1E; }
-.statusIcons { font-size: 10px; color: #1C1C1E; }
-.smsHeader { background: #F2F2F7; padding: 4px 12px 8px; text-align: center; border-bottom: 0.5px solid #E5E5EA; }
-.smsName { font-size: 14px; font-weight: 500; }
-.smsType { font-size: 10px; color: #8E8E93; }
-.smsBody { background: white; padding: 12px 10px 8px; min-height: 300px; }
-.bubbleWrap { display: flex; justify-content: flex-end; }
-.bubble { background: #34C759; border-radius: 14px 14px 4px 14px; padding: 9px 11px; max-width: 92%; width: 92%; }
-.bubbleEdit { width: 100%; border: none; background: transparent; outline: none; font-size: 13px; color: white; line-height: 1.65; resize: none; font-family: inherit; min-height: 230px; overflow: hidden; -webkit-appearance: none; appearance: none; }
-.bubbleEdit::-webkit-scrollbar { display: none; }
-.bubbleEdit::placeholder { color: rgba(255,255,255,0.6); }
-.bubbleTime { font-size: 9px; color: rgba(255,255,255,0.7); text-align: right; margin-top: 4px; }
-.phoneEmpty { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 10px; color: #C7C7CC; font-size: 11px; text-align: center; line-height: 1.6; }
-.emojiRow { background: #F2F2F7; padding: 5px 6px; display: flex; flex-wrap: wrap; gap: 3px; border-top: 0.5px solid #E5E5EA; }
-.emojiBtn { background: none; border: none; cursor: pointer; font-size: 15px; padding: 2px; border-radius: 4px; }
-.emojiBtn:hover { background: #E5E5EA; }
-.emojiBtn:disabled { opacity: 0.3; cursor: not-allowed; }
-.phoneHome { width: 32px; height: 4px; background: #444; border-radius: 999px; margin: 8px auto 0; }
-
-/* 발송 버튼 */
-.actionBtns { display: flex; gap: 8px; margin-top: auto; padding-top: 24px; width: 100%; }
-.btnSend { flex: 2; padding: 11px; background: #1D9E75; color: white; border: none; border-radius: 10px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit; }
-.btnSend:disabled { background: #9CA3AF; cursor: not-allowed; }
-.btnSend:hover:not(:disabled) { background: #0F6E56; }
-.btnCopy { flex: 1; padding: 11px; background: none; color: #1D9E75; border: 0.5px solid #1D9E75; border-radius: 10px; font-size: 13px; cursor: pointer; font-family: inherit; }
-.btnCopy:disabled { opacity: 0.4; cursor: not-allowed; }
-
-/* 발송 이력 탭 */
-.historyList { display: flex; flex-direction: column; gap: 8px; }
-.historyCard { background: white; border: 0.5px solid #EDEBE4; border-radius: 10px; padding: 12px 14px; }
-.historyRow { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-.historyName { font-size: 13px; font-weight: 500; color: #111827; flex: 1; }
-.historyTime { font-size: 11px; color: #9CA3AF; }
-.historyScript { font-size: 12px; color: #6B7280; line-height: 1.6; white-space: pre-wrap; background: #F9F9F7; border-radius: 6px; padding: 8px 10px; }
-
-/* 설정 */
-.settingsCard { background: white; border: 0.5px solid #EDEBE4; border-radius: 14px; padding: 0 16px; }
-.settingRow { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 0.5px solid #EDEBE4; }
-.settingRow:last-child { border-bottom: none; }
-.settingLabel { font-size: 14px; color: #111827; }
-.settingSub { font-size: 11px; color: #9CA3AF; margin-top: 2px; }
-.toggle { width: 36px; height: 20px; border-radius: 999px; position: relative; flex-shrink: 0; }
-.toggleOn  { background: #1D9E75; }
-.toggleOff { background: #D1D5DB; }
-.toggleKnob { width: 16px; height: 16px; border-radius: 50%; background: white; position: absolute; top: 2px; }
-.toggleOn  .toggleKnob { left: 18px; }
-.toggleOff .toggleKnob { left: 2px; }
-
-/* 모바일 */
-@media (max-width: 768px) {
-  .grid { grid-template-columns: 1fr; }
-  .phoneCol { position: static; }
-}
-
-/* ─────────────────────────────
-   PC / 모바일 전환
-───────────────────────────── */
-.pcGrid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; align-items: stretch; }
-.mobileLayout { display: none; }
-
-@media (max-width: 768px) {
-  .pcGrid { display: none; }
-  .mobileLayout { display: block; }
-}
-
-/* ─────────────────────────────
-   모바일 툴바
-───────────────────────────── */
-.mobileToolbar { display: flex; align-items: center; justify-content: space-between; padding: 6px 0 10px; }
-.selectModeBtn { font-size: 12px; padding: 5px 12px; border-radius: 8px; border: 0.5px solid #1D9E75; color: #1D9E75; background: none; cursor: pointer; font-family: inherit; }
-
-/* ─────────────────────────────
-   선택 모드 배너
-───────────────────────────── */
-.selectBanner { display: flex; align-items: center; justify-content: space-between; background: #E1F5EE; border-radius: 10px; padding: 10px 14px; margin-bottom: 10px; }
-.bulkSendBtn { font-size: 12px; padding: 5px 14px; border-radius: 8px; border: none; background: #1D9E75; color: white; cursor: pointer; font-family: inherit; font-weight: 600; }
-.cancelSelectBtn { font-size: 12px; padding: 5px 12px; border-radius: 8px; border: 0.5px solid #D1D5DB; color: #6B7280; background: white; cursor: pointer; font-family: inherit; }
-
-/* ─────────────────────────────
-   모바일 섹션 라벨
-───────────────────────────── */
-.mobileSectionLabel { font-size: 11px; font-weight: 600; color: #6B7280; letter-spacing: 0.05em; margin-bottom: 8px; padding: 0 2px; }
-
-/* ─────────────────────────────
-   모바일 알림 카드
-───────────────────────────── */
-.mobileCard { background: white; border: 0.5px solid #EDEBE4; border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; cursor: pointer; transition: border-color 0.15s; }
-.mobileCard:active { background: #F9F9F7; }
-.mobileCardRow { display: flex; align-items: center; gap: 10px; }
-.mobileCheckbox { width: 20px; height: 20px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; transition: all 0.15s; }
-.mobileCardIcon { font-size: 20px; flex-shrink: 0; width: 32px; text-align: center; }
-.mobileCardBody { flex: 1; min-width: 0; }
-.mobileCardName { font-size: 14px; font-weight: 600; color: #111827; }
-.mobileCardDesc { font-size: 12px; color: #6B7280; margin-top: 2px; line-height: 1.4; }
-.mobileLastMsg { font-size: 10px; color: #9CA3AF; margin-top: 4px; }
-
-/* ─────────────────────────────
-   모바일 문자 버튼
-───────────────────────────── */
-.mobileSmsBtn { flex-shrink: 0; font-size: 12px; padding: 6px 14px; border-radius: 8px; border: 0.5px solid #1D9E75; color: #1D9E75; background: none; cursor: pointer; font-family: inherit; font-weight: 600; white-space: nowrap; }
-.mobileSmsBtn:active { background: #E1F5EE; }
-
-/* ── PC/모바일 전환 ── */
-.pcGrid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; align-items: stretch; }
-.mobileLayout { display: none; }
-@media (max-width: 768px) {
-  .pcGrid { display: none; }
-  .mobileLayout { display: block; padding-bottom: 80px; }
-}
-
-/* ── 모바일 헤더 ── */
-.mobileHeader { font-size: 16px; font-weight: 600; color: #111827; padding: 4px 0 14px; }
-
-/* ── 이슈 카드 ── */
-.issueList { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
-.issueCard { background: white; border: 0.5px solid #EDEBE4; border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: border-color 0.15s; }
-.issueCard:active { background: #F9F9F7; }
-.issueCardBody { flex: 1; min-width: 0; }
-.issueCardLabel { font-size: 14px; font-weight: 600; color: #111827; margin: 0 0 2px; }
-.issueCardDesc { font-size: 11px; color: #9CA3AF; margin: 0; }
-.issueCardCount { font-size: 20px; font-weight: 700; flex-shrink: 0; }
-.issueCardChevron { width: 7px; height: 7px; border-right: 1.5px solid #9CA3AF; border-top: 1.5px solid #9CA3AF; transform: rotate(45deg); flex-shrink: 0; margin-right: 2px; }
-
-/* ── 최근 이력 ── */
-.recentHistory { background: white; border: 0.5px solid #EDEBE4; border-radius: 14px; padding: 14px 16px; }
-.recentHistoryLabel { font-size: 11px; color: #9CA3AF; margin: 0 0 10px; letter-spacing: 0.04em; }
-.recentHistoryItem { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 0.5px solid #F3F4F6; }
-.recentHistoryItem:last-child { border-bottom: none; padding-bottom: 0; }
-.recentHistoryName { font-size: 13px; color: #111827; flex: 1; }
-.recentHistoryBadge { font-size: 10px; padding: 1px 7px; border-radius: 999px; flex-shrink: 0; }
-.recentHistoryDate { font-size: 11px; color: #9CA3AF; flex-shrink: 0; }
-
-/* ── 드릴다운 헤더 ── */
-.drillHeader { display: flex; align-items: center; gap: 10px; padding: 0 0 14px; }
-.backBtn { background: none; border: none; padding: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-.backChevron { width: 8px; height: 8px; border-left: 2px solid #374151; border-bottom: 2px solid #374151; transform: rotate(45deg); }
-.drillTitle { font-size: 15px; font-weight: 600; color: #111827; flex: 1; }
-.selectToggleBtn { font-size: 12px; padding: 5px 12px; border-radius: 8px; border: 0.5px solid #D1D5DB; background: white; color: #374151; cursor: pointer; font-family: inherit; }
-
-/* ── 선택 모드 배너 ── */
-.selectBanner { background: #E1F5EE; border-radius: 10px; padding: 10px 14px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
-.selectBannerText { font-size: 13px; font-weight: 600; color: #085041; }
-.selectAllBtn { font-size: 11px; padding: 4px 10px; border-radius: 6px; border: 0.5px solid #1D9E75; color: #1D9E75; background: white; cursor: pointer; font-family: inherit; }
-.bulkSendBtn { font-size: 11px; padding: 4px 12px; border-radius: 6px; border: none; background: #1D9E75; color: white; cursor: pointer; font-family: inherit; font-weight: 600; }
-
-/* ── 드릴다운 카드 ── */
-.drillCard { background: white; border: 0.5px solid #EDEBE4; border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; cursor: pointer; transition: all 0.15s; }
-.drillCard:active { background: #F9F9F7; }
-.drillCardRow { display: flex; align-items: center; gap: 10px; }
-.checkbox { width: 20px; height: 20px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; transition: all 0.15s; }
-.drillCardBody { flex: 1; min-width: 0; }
-.drillCardName { font-size: 14px; font-weight: 600; color: #111827; }
-.drillCardBadge { font-size: 10px; padding: 1px 7px; border-radius: 999px; flex-shrink: 0; }
-.drillCardSub { font-size: 11px; color: #9CA3AF; margin: 2px 0 0; }
-.drillCardHistory { font-size: 10px; color: #9CA3AF; margin: 4px 0 0; }
-.smsBtn { flex-shrink: 0; font-size: 12px; padding: 6px 14px; border-radius: 8px; border: 0.5px solid #1D9E75; color: #1D9E75; background: none; cursor: pointer; font-family: inherit; font-weight: 600; white-space: nowrap; }
-.smsBtn:active { background: #E1F5EE; }
-
-/* ── 드릴다운 초록 헤더 ── */
-.drillGreenHeader { display: flex; align-items: center; gap: 10px; background: #1D9E75; border-radius: 12px 12px 0 0; padding: 12px 14px; margin: 0 -10px; margin-bottom: 12px; }
-.backChevronWhite { width: 8px; height: 8px; border-left: 2px solid white; border-bottom: 2px solid white; transform: rotate(45deg); display: block; }
-.drillGreenTitle { font-size: 14px; font-weight: 600; color: white; flex: 1; }
-.selectToggleBtnWhite { font-size: 12px; padding: 4px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.6); background: transparent; color: white; cursor: pointer; font-family: inherit; }
-
-/* ── 단체발송 하단 고정 버튼 ── */
-.bulkSendFullBtn { width: 100%; font-size: 13px; padding: 12px; border-radius: 12px; border: none; background: #1D9E75; color: white; font-weight: 600; margin-top: 10px; cursor: pointer; font-family: inherit; }
-.bulkSendFullBtn:active { background: #0F6E56; }
-
-/* ── 드릴다운 심플 헤더 ── */
-.drillSimpleHeader { display: flex; align-items: center; gap: 10px; padding: 0 0 14px; border-bottom: 0.5px solid #EDEBE4; margin-bottom: 12px; }
-.drillSimpleTitle { font-size: 15px; font-weight: 600; color: #111827; flex: 1; }
-
-/* ── 전화번호 ── */
-.drillCardPhone { font-size: 11px; color: #9CA3AF; margin-left: 6px; }
-
-/* ── 이력 없음 ── */
-.recentHistoryEmpty { font-size: 12px; color: #9CA3AF; text-align: center; padding: 12px 0; }
-
-/* 전화번호 아래 줄 */
-.drillCardPhone { font-size: 11px; color: #9CA3AF; margin: 1px 0 0; display: block; }
+/* 푸터 */
+.nlFooter { text-align: center; padding: 20px 16px 32px; font-size: 11px; color: #9CA3AF; line-height: 1.8; }
+.nlFooter p { margin: 0; }
 
 @media (min-width: 769px) {
+  .wrap { max-width: none; width: 100%; }
+  .listCard { margin: 12px 0; }
+  .nlCard { margin: 12px 0; }
+
   /* 섹션제목 17/600 */
-  .sectionLabel,
-  .drillGreenTitle,
-  .drillSimpleTitle { font-size: 17px; font-weight: 600; letter-spacing: normal; text-transform: none; }
+  .listTitle,
+  .nlTitle,
+  .nlCardTitle,
+  .listCardTitle { font-size: 17px; font-weight: 600; }
   /* 본문 14/400 */
-  .tab,
-  .cardTitle,
-  .smsName,
-  .settingLabel,
-  .historyName { font-size: 14px; font-weight: 400; }
+  .nlIntro,
+  .nlCardSummary,
+  .backBtn { font-size: 14px; font-weight: 400; }
   /* 보조 12/400 */
-  .cardDesc,
-  .settingSub,
-  .aiDesc,
-  .empty,
-  .historyTime,
-  .historyScript,
-  .recipientPhone,
-  .mobileSectionLabel,
-  .recentHistoryEmpty,
-  .drillCardPhone { font-size: 12px; font-weight: 400; }
+  .listSubtitle,
+  .listWeek,
+  .listDate,
+  .listNotice,
+  .detailWeek,
+  .nlWeekLabel,
+  .nlSubtitle,
+  .nlTag,
+  .nlTip,
+  .nlFooter { font-size: 12px; font-weight: 400; }
+}
+
+/* ═══════════════════════════════════════════
+   PC 웹 전용 스타일 (min-width: 769px)
+═══════════════════════════════════════════ */
+@media (min-width: 769px) {
+
+.pcGrid { display: block; padding: 16px; background: #FAF9F5; min-height: 100vh; }
+.mobileLayout { display: none !important; }
+
+/* 잔여문자 바 */
+.pcSmsUsageBar { display: flex; align-items: center; justify-content: space-between; background: #fff; border: 1px solid #EDEBE4; border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; }
+
+/* 탭바 */
+.pcTabBar { display: flex; border-bottom: 1px solid #EDEBE4; margin-bottom: 16px; background: #fff; border-radius: 10px 10px 0 0; }
+.pcTab { flex: 1; padding: 12px 0; font-size: 14px; font-weight: 500; color: #999; background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; }
+.pcTabActive { color: #1D9E75; border-bottom: 2px solid #1D9E75; font-weight: 700; }
+
+/* AI추천 탭 2단 레이아웃 */
+.pcLayout { display: grid; grid-template-columns: 280px 1fr; gap: 16px; align-items: start; }
+
+/* 왼쪽 카테고리 패널 */
+.pcLeftPanel { display: flex; flex-direction: column; gap: 8px; }
+.pcSectionLabel { font-size: 11px; color: #999; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 4px; }
+
+.pcCatCard { background: #fff; border: 1px solid #EDEBE4; border-radius: 12px; padding: 12px 14px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: border-color 0.15s; }
+.pcCatCard:hover { border-color: #1D9E75; }
+.pcCatCardActive { border-color: #1D9E75 !important; background: #F0FDF9; }
+.pcCatLeft { display: flex; align-items: center; gap: 10px; }
+.pcCatIcon { font-size: 18px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; background: #FAF9F5; border-radius: 8px; }
+.pcCatName { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+.pcCatDesc { font-size: 12px; color: #999; margin-top: 2px; }
+.pcCatBadge { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 20px; min-width: 28px; text-align: center; }
+
+/* 오른쪽 패널 */
+.pcRightPanel { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+
+/* 고객 리스트 */
+.pcCustomerList { background: #fff; border: 1px solid #EDEBE4; border-radius: 12px; padding: 14px 16px; }
+.pcListTitle { font-size: 13px; font-weight: 600; color: #666; margin-bottom: 10px; }
+.pcEmptyHint { text-align: center; padding: 30px 16px; color: #999; font-size: 14px; }
+
+.pcCustomerItem { display: flex; align-items: center; gap: 10px; padding: 10px 8px; border-radius: 8px; cursor: pointer; border-bottom: 1px solid #EDEBE4; transition: background 0.1s; }
+.pcCustomerItem:last-child { border-bottom: none; }
+.pcCustomerItem:hover { background: #FAF9F5; }
+.pcCustomerItemActive { background: #F0FDF9 !important; }
+.pcCustAvatar { width: 32px; height: 32px; border-radius: 50%; background: #E1F5EE; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #1D9E75; font-weight: 700; flex-shrink: 0; }
+.pcCustInfo { flex: 1; min-width: 0; }
+.pcCustName { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+.pcCustSub { font-size: 12px; color: #999; margin-top: 1px; }
+.pcCustBadge { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
+
+/* 문자 작성 패널 */
+.pcComposePanel { background: #fff; border: 1px solid #EDEBE4; border-radius: 12px; padding: 16px; position: sticky; top: 16px; }
+.pcComposeHeader { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #EDEBE4; }
+.pcComposeAvatar { width: 38px; height: 38px; border-radius: 50%; background: #E1F5EE; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #1D9E75; font-weight: 700; flex-shrink: 0; }
+.pcComposeName { font-size: 15px; font-weight: 700; color: #1a1a1a; }
+.pcComposeMeta { font-size: 12px; color: #999; margin-top: 2px; display: flex; align-items: center; gap: 6px; }
+.pcComposeBadge { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 6px; }
+.pcComposeEmpty { text-align: center; padding: 40px 16px; color: #999; font-size: 14px; line-height: 1.6; }
+
+.pcToneRow { display: flex; gap: 6px; margin-bottom: 10px; }
+.pcToneBtn { font-size: 13px; padding: 5px 12px; border-radius: 20px; border: 1px solid #EDEBE4; color: #666; cursor: pointer; background: #FAF9F5; }
+.pcToneBtnActive { background: #1D9E75 !important; color: #fff !important; border-color: #1D9E75 !important; }
+
+.pcTextarea { width: 100%; border: 1px solid #EDEBE4; border-radius: 10px; padding: 12px 14px; font-size: 14px; color: #1a1a1a; background: #FAF9F5; resize: none; line-height: 1.7; font-family: inherit; min-height: 154px; }
+.pcTextarea:focus { outline: none; border-color: #1D9E75; }
+
+/* 이모티콘 바 */
+.pcEmojiBar { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; padding: 8px 10px; background: #F8F8F6; border-radius: 8px; margin-top: 8px; border: 1px solid #EDEBE4; }
+.pcEmojiLabel { font-size: 11px; color: #999; margin-right: 4px; white-space: nowrap; flex-shrink: 0; }
+.pcEmojiBtn { font-size: 16px; background: none; border: none; cursor: pointer; padding: 2px 3px; border-radius: 4px; line-height: 1; }
+.pcEmojiBtn:hover { background: #fff; }
+
+.pcCharCount { font-size: 12px; color: #999; text-align: right; margin-top: 6px; }
+
+.pcBtnRow { display: flex; gap: 8px; margin-top: 12px; }
+.pcBtnSend { flex: 1; background: #1D9E75; color: #fff; border: none; padding: 12px 0; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; }
+.pcBtnSend:disabled { background: #D1D5DB; cursor: not-allowed; }
+.pcBtnCopy { padding: 12px 14px; border: 1px solid #EDEBE4; border-radius: 10px; font-size: 14px; color: #666; cursor: pointer; background: #fff; white-space: nowrap; }
+.pcBtnKakao { padding: 12px 14px; border: 1px solid #FAE100; border-radius: 10px; font-size: 14px; color: #3A1D1D; background: #FAE100; cursor: pointer; white-space: nowrap; }
+.pcBtnCopy:disabled, .pcBtnKakao:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* 단체문자 탭 */
+.pcBulkWrap { background: #fff; border: 1px solid #EDEBE4; border-radius: 12px; padding: 16px; }
+
+/* 발송이력 탭 */
+.pcHistoryWrap { background: #fff; border: 1px solid #EDEBE4; border-radius: 12px; overflow: hidden; }
+.pcHistoryItem { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #EDEBE4; }
+.pcHistoryItem:last-child { border-bottom: none; }
+.pcHistoryLeft { flex: 1; min-width: 0; }
+.pcHistoryName { font-size: 14px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
+.pcHistoryScript { font-size: 13px; color: #666; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pcHistoryRight { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.pcHistoryBadge { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
+.pcHistoryDate { font-size: 12px; color: #999; }
+
+}
+
+/* 모바일에서 pcGrid 숨기기 */
+@media (max-width: 768px) {
+  .pcGrid { display: none !important; }
 }
