@@ -83,13 +83,14 @@
 .pcGrid { display: block; padding: 16px; background: #FAF9F5; min-height: 100vh; }
 .mobileLayout { display: none !important; }
 
-/* 잔여문자 바 */
-.pcSmsUsageBar { display: flex; align-items: center; justify-content: space-between; background: #fff; border: 1px solid #EDEBE4; border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; }
+/* 잔여문자 바 - 숨김 */
+.pcSmsUsageBar { display: none !important; }
 
-/* 탭바 */
-.pcTabBar { display: flex; border-bottom: 1px solid #EDEBE4; margin-bottom: 16px; background: #fff; border-radius: 10px 10px 0 0; }
-.pcTab { flex: 1; padding: 12px 0; font-size: 14px; font-weight: 500; color: #999; background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; }
-.pcTabActive { color: #1D9E75; border-bottom: 2px solid #1D9E75; font-weight: 700; }
+/* 탭바 - 고객관리 스타일 통일 */
+.pcTabBar { display: flex; border-bottom: 2px solid #EDEBE4; margin-bottom: 16px; background: transparent; }
+.pcTab { padding: 10px 20px; font-size: 15px; font-weight: 500; color: #999; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px; cursor: pointer; }
+.pcTab:hover { color: #1a1a1a; }
+.pcTabActive { color: #1D9E75 !important; border-bottom: 2px solid #1D9E75 !important; font-weight: 700; }
 
 /* AI추천 탭 2단 레이아웃 */
 .pcLayout { display: grid; grid-template-columns: 280px 1fr; gap: 16px; align-items: start; }

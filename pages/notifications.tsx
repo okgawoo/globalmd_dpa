@@ -371,21 +371,6 @@ export default function NotificationsPage() {
       ═══════════════════════════════ */}
       <div className={styles.pcGrid}>
 
-        {/* 잔여문자 - 탭 위 상단 고정 */}
-        <div className={styles.pcSmsUsageBar}>
-          {smsUsage ? (
-            <>
-              <span style={{ fontSize: 13, color: '#666' }}>이번 달 문자 잔여</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontSize: 14, fontWeight: 700, color: smsUsage.remaining < 100 ? '#E24B4A' : '#1D9E75' }}>{smsUsage.remaining}건</span>
-                <span style={{ fontSize: 12, color: '#999' }}>/ {smsUsage.limit}건</span>
-              </div>
-            </>
-          ) : (
-            <span style={{ fontSize: 13, color: '#999' }}>문자 사용량 로딩 중...</span>
-          )}
-        </div>
-
         {/* 탭: AI추천 / 단체문자 / 발송이력 */}
         <div className={styles.pcTabBar}>
           {[
@@ -434,6 +419,15 @@ export default function NotificationsPage() {
 
             {/* 오른쪽: 고객 리스트 (넓게 2블록) */}
             <div className={styles.pcRightWide}>
+              {/* 잔여문자 텍스트 */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}>
+                {smsUsage && (
+                  <span style={{ fontSize: 13, color: smsUsage.remaining < 100 ? '#E24B4A' : '#1a1a1a' }}>
+                    <span style={{ fontWeight: 700, color: smsUsage.remaining < 100 ? '#E24B4A' : '#1D9E75' }}>{smsUsage.remaining}건</span>
+                    <span style={{ color: '#999' }}> / {smsUsage.limit}건</span>
+                  </span>
+                )}
+              </div>
               {!pcActiveIssue ? (
                 <div className={styles.pcEmptyHint}>
                   <div style={{ fontSize: 32, marginBottom: 8 }}>👈</div>
