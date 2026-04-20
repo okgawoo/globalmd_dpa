@@ -593,7 +593,7 @@ export default function NotificationsPage() {
                       {bulkSelectedIds.length === bulkFilteredCustomers.length && bulkFilteredCustomers.length > 0 ? '전체 해제' : '전체 선택'}
                     </button>
                   </div>
-                  <div style={{ background: '#fff', border: '1px solid #EDEBE4', borderRadius: 12, overflow: 'hidden', maxHeight: 'calc(100vh - 420px)', overflowY: 'auto' }}>
+                  <div style={{ background: '#fff', border: '1px solid #EDEBE4', borderRadius: 12, overflow: 'hidden', maxHeight: 'calc(100vh - 500px)', overflowY: 'auto' }}>
                     {bulkFilteredCustomers.length === 0 ? (
                       <p style={{ fontSize: 13, color: '#999', textAlign: 'center', padding: '20px 0' }}>조건에 맞는 고객이 없어요</p>
                     ) : bulkFilteredCustomers.map((c: any, i: number) => {
