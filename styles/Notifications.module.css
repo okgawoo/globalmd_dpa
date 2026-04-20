@@ -73,13 +73,13 @@
   .pcSmsUsageBar { display: none !important; }
 
   /* 카드 위 상단바 (카테고리선택 + 잔여문자) */
-  .pcTopBar { display: flex; align-items: center; justify-content: space-between; padding: 4px 2px; margin-bottom: 8px; }
+  .pcTopBar { display: flex; align-items: center; justify-content: space-between; padding: 4px 2px; margin-bottom: 8px; margin-top: 4px; }
   .pcTopBarLeft { font-size: 13px; color: #666; font-weight: 500; }
   .pcTopBarRight { font-size: 13px; }
 
-  /* 탭바 - 고객관리 스타일 통일 */
-  .pcTabBar { display: flex; border-bottom: 1px solid #EDEBE4; margin-bottom: 0; background: #fff; padding: 0 4px; border-radius: 12px 12px 0 0; }
-  .pcTab { padding: 12px 18px; font-size: 15px; font-weight: 500; color: #666; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; }
+  /* 탭바 - 고객관리 동일 스타일 (카드 밖) */
+  .pcTabBar { display: flex; border-bottom: 2px solid #EDEBE4; margin-bottom: 12px; background: transparent; padding: 0; }
+  .pcTab { padding: 10px 18px 12px; font-size: 15px; font-weight: 500; color: #666; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px; cursor: pointer; }
   .pcTab:hover { color: #1a1a1a; }
   .pcTabActive { color: #1D9E75 !important; border-bottom: 2px solid #1D9E75 !important; font-weight: 700; }
 

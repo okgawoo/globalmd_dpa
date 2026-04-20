@@ -370,21 +370,8 @@ export default function NotificationsPage() {
           PC: 새 레이아웃
       ═══════════════════════════════ */}
       <div className={styles.pcGrid}>
-        {/* 잔여문자 - 카드 위, 카테고리 선택 텍스트와 동일선상 */}
-        <div className={styles.pcTopBar}>
-          <span className={styles.pcTopBarLeft}>카테고리 선택</span>
-          {smsUsage && (
-            <span className={styles.pcTopBarRight}>
-              <span style={{ fontWeight: 700, color: smsUsage.remaining < 100 ? '#E24B4A' : '#1D9E75' }}>{smsUsage.remaining}건</span>
-              <span style={{ color: '#999' }}> / {smsUsage.limit}건</span>
-            </span>
-          )}
-        </div>
 
-        {/* 흰색 카드 래퍼 - 다른 페이지 스타일 통일 */}
-        <div className={styles.pcCard}>
-
-        {/* 탭: AI추천 / 단체문자 / 발송이력 */}
+        {/* 탭바 - 카드 밖, 고객관리 스타일 */}
         <div className={styles.pcTabBar}>
           {[
             { key: 'ai', label: 'AI 추천' },
@@ -398,6 +385,20 @@ export default function NotificationsPage() {
             </button>
           ))}
         </div>
+
+        {/* 잔여문자 - 카드 위 */}
+        <div className={styles.pcTopBar}>
+          <span className={styles.pcTopBarLeft}>카테고리 선택</span>
+          {smsUsage && (
+            <span className={styles.pcTopBarRight}>
+              <span style={{ fontWeight: 700, color: smsUsage.remaining < 100 ? '#E24B4A' : '#1D9E75' }}>{smsUsage.remaining}건</span>
+              <span style={{ color: '#999' }}> / {smsUsage.limit}건</span>
+            </span>
+          )}
+        </div>
+
+        {/* 흰색 카드 래퍼 */}
+        <div className={styles.pcCard}>
 
         {/* ── AI 추천 탭 ── */}
         {pcTab === 'ai' && (
