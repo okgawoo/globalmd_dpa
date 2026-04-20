@@ -507,7 +507,7 @@ setCustomerSearch('')
             return (
               <div>
                 <div className={styles.sectionHeader}>
-                  <span className={styles.sectionTitle}>오늘 미팅 ({sorted.length}건)</span>
+                  <span style={{ display:'flex', alignItems:'center', gap:8, fontSize:13, fontWeight:600, color:'#1a1a1a' }}><span style={{ width:3, height:12, background:'#1D9E75', borderRadius:2, display:'inline-block', flexShrink:0 }}></span>오늘 미팅 ({sorted.length}건)</span>
                   <button className={styles.addBtn} onClick={() => setShowForm(true)}>+ 미팅 추가</button>
                 </div>
                 {sorted.length === 0 && <div className={styles.empty}>미팅이 없어요 😊</div>}
@@ -576,7 +576,7 @@ setCustomerSearch('')
           {meetingSubTab === 'past' && (
             <div>
               <div className={styles.sectionHeader}>
-                <span className={styles.sectionTitle}>지난 미팅 ({pastMeetings.length}건)</span>
+                <span style={{ display:'flex', alignItems:'center', gap:8, fontSize:13, fontWeight:600, color:'#1a1a1a' }}><span style={{ width:3, height:12, background:'#1D9E75', borderRadius:2, display:'inline-block', flexShrink:0 }}></span>지난 미팅 ({pastMeetings.length}건)</span>
               </div>
               {pastMeetings.length === 0 ? (
                 <div className={styles.empty}>지난 미팅 기록이 없어요</div>
@@ -598,7 +598,7 @@ setCustomerSearch('')
       {activeTab === 'flow' && (
         <div style={{paddingTop:16}}>
           <div className={styles.sectionHeader}>
-            <span className={styles.sectionTitle}>고객별 영업 진행 현황</span>
+            <span style={{ display:'flex', alignItems:'center', gap:8, fontSize:13, fontWeight:600, color:'#1a1a1a' }}><span style={{ width:3, height:12, background:'#1D9E75', borderRadius:2, display:'inline-block', flexShrink:0 }}></span>고객별 영업 진행 현황</span>
             <button className={styles.addBtn} onClick={() => setShowForm(true)}>+ 추가</button>
           </div>
 
@@ -658,7 +658,7 @@ setCustomerSearch('')
 
           {/* AI 추천 섹션 */}
           <div className={styles.sectionHeader}>
-            <span className={styles.sectionTitle}>AI추천 일정 ({nearDone.length + birthdayContacts.length + gapCustomers.length}명)</span>
+            <span style={{ display:'flex', alignItems:'center', gap:8, fontSize:13, fontWeight:600, color:'#1a1a1a' }}><span style={{ width:3, height:12, background:'#1D9E75', borderRadius:2, display:'inline-block', flexShrink:0 }}></span>AI추천 일정 ({nearDone.length + birthdayContacts.length + gapCustomers.length}명)</span>
           </div>
 
           {nearDone.map(c => (
@@ -709,7 +709,7 @@ setCustomerSearch('')
 
           {/* 직접 추가 연락 섹션 */}
           <div className={styles.sectionHeader} style={{marginTop:16}}>
-            <span className={styles.sectionTitle}>직접 추가 ({contactMeetings.length}건)</span>
+            <span style={{ display:'flex', alignItems:'center', gap:8, fontSize:13, fontWeight:600, color:'#1a1a1a' }}><span style={{ width:3, height:12, background:'#1D9E75', borderRadius:2, display:'inline-block', flexShrink:0 }}></span>직접 추가 ({contactMeetings.length}건)</span>
             <button className={styles.addBtn} onClick={() => { setForm(f => ({...f, type:'전화'})); setShowForm(true) }}>+ 연락 추가</button>
           </div>
 
