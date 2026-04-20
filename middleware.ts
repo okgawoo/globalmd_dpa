@@ -1,34 +1,58 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-const ADMIN_EMAIL = 'okgawoo@gmail.com'
+// 공개 접근 허용 경로
+const PUBLIC_PATHS = [
+  '/login',
+  '/auth',
+  '/support',
+  '/api/auth-check',
+]
 
-export async function middleware(req: NextRequest) {
-  if (req.nextUrl.pathname.startsWith('/admin')) {
-    // Supabase auth 쿠키에서 세션 확인
-    const token = req.cookies.get('sb-tmticcyqbaotrvmoqftv-auth-token')?.value
-      || req.cookies.get('supabase-auth-token')?.value
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
 
-    if (!token) {
-      return NextResponse.redirect(new URL('/', req.url))
-    }
-
-    try {
-      // JWT payload 디코딩 (검증 없이 이메일만 추출)
-      const payload = JSON.parse(atob(token.split('.')[1]))
-      const email = payload?.email || ''
-
-      if (email !== ADMIN_EMAIL) {
-        return NextResponse.redirect(new URL('/', req.url))
-      }
-    } catch {
-      return NextResponse.redirect(new URL('/', req.url))
-    }
+  // 공개 경로 통과
+  if (PUBLIC_PATHS.some(p => pathname.startsWith(p))) {
+    return NextResponse.next()
   }
 
-  return NextResponse.next()
+  // /c/[agentId] 전자명함 공개 통과
+  if (pathname.startsWith('/c/')) {
+    return NextResponse.next()
+  }
+
+  // API 경로 통과 (인증 관련 제외 이미 처리)
+  if (pathname.startsWith('/api/')) {
+    return NextResponse.next()
+  }
+
+  // 정적 파일 통과
+  if (
+    pathname.startsWith('/_next/') ||
+    pathname.startsWith('/icons/') ||
+    pathname.startsWith('/manifest') ||
+    pathname.includes('.')
+  ) {
+    return NextResponse.next()
+  }
+
+  // 쿠키 확인
+  const bypassCookie = request.cookies.get('dpa_bypass')
+  const secret = process.env.BYPASS_SECRET
+
+  if (secret && bypassCookie?.value === secret) {
+    return NextResponse.next()
+  }
+
+  // 쿠키 없으면 /auth 로 리다이렉트
+  const authUrl = new URL('/auth', request.url)
+  authUrl.searchParams.set('next', pathname)
+  return NextResponse.redirect(authUrl)
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico).*)',
+  ],
 }
