@@ -449,7 +449,7 @@ setCustomerSearch('')
         />
       )}
       {/* 탭 */}
-      <div style={{ display: 'flex', borderBottom: '1px solid #EDEBE4', marginBottom: 16, background: '#fff' }}>
+      <div style={{ display: 'flex', borderBottom: '2px solid #EDEBE4', marginBottom: 0, background: 'none' }}>
         {[
           { key: 'contact', label: '✨ AI추천 일정' },
           { key: 'meeting', label: '📅 미팅 일정' },
@@ -457,7 +457,7 @@ setCustomerSearch('')
         ].map(tab => (
           <button key={tab.key}
             onClick={() => { setActiveTab(tab.key as any); router.push(`/sales?tab=${tab.key}`, undefined, { shallow: true }) }}
-            style={{ flex: 1, padding: '10px 20px', fontSize: 14, fontWeight: activeTab === tab.key ? 700 : 500, color: activeTab === tab.key ? '#1D9E75' : '#999', background: 'none', border: 'none', borderBottom: activeTab === tab.key ? '2px solid #1D9E75' : '2px solid transparent', cursor: 'pointer' }}>
+            style={{ padding: '10px 20px', fontSize: 14, fontWeight: activeTab === tab.key ? 700 : 500, color: activeTab === tab.key ? '#1D9E75' : '#999', background: 'none', border: 'none', borderBottom: activeTab === tab.key ? '2px solid #1D9E75' : '2px solid transparent', marginBottom: '-2px', cursor: 'pointer' }}>
             {tab.label}
           </button>
         ))}
