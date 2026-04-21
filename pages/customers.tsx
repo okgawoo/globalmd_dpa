@@ -1142,7 +1142,7 @@ export default function Customers() {
                               <span className={styles.covLabel}>{g.label}</span>
                               <div className={styles.covItems}>
                                 {g.items.map((cv:any, ci:number) => (
-                                  <span key={ci} className={styles.covItem}>• {cv.coverage_name} <strong>{fmtAmount(cv.amount)}</strong></span>
+                                  <span key={ci} className={styles.covItem} style={{paddingLeft:2}}>• {cv.coverage_name} <strong>{fmtAmount(cv.amount)}</strong></span>
                                 ))}
                               </div>
                             </div>
@@ -1516,7 +1516,7 @@ export default function Customers() {
                                         <span className={styles.covLabel}>{g.label}</span>
                                         <div className={styles.covItems}>
                                           {g.items.map((cv: any, ci: number) => (
-                                            <span key={ci} className={styles.covItem}>• {cv.coverage_name} <strong>{fmtAmount(cv.amount)}</strong></span>
+                                            <span key={ci} className={styles.covItem} style={{paddingLeft:2}}>• {cv.coverage_name} <strong>{fmtAmount(cv.amount)}</strong></span>
                                           ))}
                                         </div>
                                       </div>
