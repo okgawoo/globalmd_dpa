@@ -524,7 +524,7 @@ export default function InputPage() {
       }
       data._warnings = warns
       setParsed(data)
-      setSelectedCustomerId('')
+      // selectedCustomerId 유지 (기존 고객 선택 시 초기화 방지)
     } catch (e) { alert('파싱 중 오류가 발생했어요!') }
     setParsing(false)
   }
@@ -847,22 +847,7 @@ export default function InputPage() {
             </div>
           ))}
 
-          {/* 엑셀 업로드 */}
-          <div className={styles.excelSection}>
-            <div className={styles.excelLabel}>또는 엑셀 파일로 업로드</div>
-            <div
-              className={[styles.dropZone, dragOver ? styles.dropZoneActive : ''].join(' ')}
-              onDragOver={e => { e.preventDefault(); setDragOver(true) }}
-              onDragLeave={() => setDragOver(false)}
-              onDrop={handleFileDrop}
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <div className={styles.dropIcon}>📂</div>
-              <div className={styles.dropText}>파일을 끌어다 놓거나 클릭해서 업로드</div>
-              <div className={styles.dropSub}>.xlsx, .xls 파일 지원</div>
-              <input ref={fileInputRef} type="file" accept=".xlsx,.xls" style={{ display: 'none' }} onChange={handleFileInput} />
-            </div>
-          </div>
+          {/* 엑셀 업로드 — 별도 탭으로 이동 예정 */}
 
           <button className={styles.parseBtn} onClick={handleParse} disabled={parsing || (!contractTexts.some(t => t.trim()) && !contractTextsLoss.some(t => t.trim()))}>
             {parsing ? 'AI 분석 중...' : '🤖 1단계: AI로 분석하기'}
