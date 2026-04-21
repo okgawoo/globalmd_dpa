@@ -360,6 +360,7 @@ export default function InputPage() {
   const [jobCustom, setJobCustom] = useState('')
   const [dragOver, setDragOver] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const parsedResultRef = useRef<HTMLDivElement>(null)
   const [saveMode, setSaveMode] = useState<'new' | 'existing'>('new')
   const [existingCustomers, setExistingCustomers] = useState<any[]>([])
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>('')
@@ -525,6 +526,8 @@ export default function InputPage() {
       data._warnings = warns
       setParsed(data)
       // selectedCustomerId 유지 (기존 고객 선택 시 초기화 방지)
+      // 분석 완료 후 결과 영역으로 자동 스크롤
+      setTimeout(() => parsedResultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 200)
     } catch (e) { alert('파싱 중 오류가 발생했어요!') }
     setParsing(false)
   }
@@ -854,13 +857,13 @@ export default function InputPage() {
           </button>
 
           {parsed && (
-            <div className={styles.parsedResult}>
+            <div ref={parsedResultRef} className={styles.parsedResult}>
               <div className={styles.parsedResultTitle}>✅ 분석 완료! 내용을 확인하고 수정해주세요</div>
 
               {/* ⚠️ 점검 필요 박스 */}
               {parsed._warnings?.length > 0 && (
                 <div style={{background:'#FEF9E7',border:'1.5px solid #F5C518',borderRadius:10,padding:'10px 14px',marginBottom:14}}>
-                  <div style={{fontSize:13,fontWeight:700,color:'#B7791F',marginBottom:6}}>⚠️ 점검 필요 ({parsed._warnings.length}건)</div>
+                  <div style={{fontSize:13,fontWeight:700,color:'#B7791F',marginBottom:6}}>ℹ️ 아래 정보를 확인하고 저장 버튼을 눌러주세요 ({parsed._warnings.length}건)</div>
                   {parsed._warnings.map((w: string, i: number) => (
                     <div key={i} style={{fontSize:12,color:'#92600A',marginBottom:3,display:'flex',alignItems:'flex-start',gap:4}}>
                       <span>•</span><span>{w}</span>

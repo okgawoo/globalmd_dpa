@@ -519,6 +519,9 @@ export default function Customers() {
     if (!ok) return
     await supabase.from('dpa_coverages').delete().eq('contract_id', ctId)
     await supabase.from('dpa_contracts').delete().eq('id', ctId)
+    // 화면 즉시 갱신: 삭제된 계약을 state에서도 제거
+    setSelectedContracts(prev => prev.filter(ct => ct.id !== ctId))
+    setSelectedCoverages(prev => prev.filter(cv => cv.contract_id !== ctId))
     fetchAll()
   }
 
@@ -1139,7 +1142,7 @@ export default function Customers() {
                               <span className={styles.covLabel}>{g.label}</span>
                               <div className={styles.covItems}>
                                 {g.items.map((cv:any, ci:number) => (
-                                  <span key={ci} className={styles.covItem}>{cv.coverage_name} <strong>{fmtAmount(cv.amount)}</strong></span>
+                                  <span key={ci} className={styles.covItem}>• {cv.coverage_name} <strong>{fmtAmount(cv.amount)}</strong></span>
                                 ))}
                               </div>
                             </div>
@@ -1513,7 +1516,7 @@ export default function Customers() {
                                         <span className={styles.covLabel}>{g.label}</span>
                                         <div className={styles.covItems}>
                                           {g.items.map((cv: any, ci: number) => (
-                                            <span key={ci} className={styles.covItem}>{cv.coverage_name} <strong>{fmtAmount(cv.amount)}</strong></span>
+                                            <span key={ci} className={styles.covItem}>• {cv.coverage_name} <strong>{fmtAmount(cv.amount)}</strong></span>
                                           ))}
                                         </div>
                                       </div>
