@@ -37,18 +37,8 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // 쿠키 확인
-  const bypassCookie = request.cookies.get('dpa_bypass')
-  const secret = process.env.BYPASS_SECRET
-
-  if (secret && bypassCookie?.value === secret) {
-    return NextResponse.next()
-  }
-
-  // 쿠키 없으면 /auth 로 리다이렉트
-  const authUrl = new URL('/auth', request.url)
-  authUrl.searchParams.set('next', pathname)
-  return NextResponse.redirect(authUrl)
+  // auth-check 비활성화 — 모든 접속 허용 (로그인은 각 페이지에서 Supabase Auth로 처리)
+  return NextResponse.next()
 }
 
 export const config = {
