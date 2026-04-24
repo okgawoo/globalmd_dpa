@@ -339,7 +339,7 @@ type Contract = {
 
 function emptyContract(): Contract {
   return {
-    company: '', companyCustom: '', product_name: '', insurance_type: '건강',
+    company: '삼성생명', companyCustom: '', product_name: '', insurance_type: '건강',
     monthly_fee: '', payment_status: '유지', payment_rate: '', payment_total: '', payment_done: '',
     contract_start: '', payment_years: '', expiry_age: '',
     coverages: [], showCoverageModal: false
@@ -363,8 +363,10 @@ export default function InputPage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const parsedResultRef = useRef<HTMLDivElement>(null)
   const [saveMode, setSaveMode] = useState<'new' | 'existing'>('new')
+  const saveModeRef = useRef<'new' | 'existing'>('new')
   const [existingCustomers, setExistingCustomers] = useState<any[]>([])
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>('')
+  const selectedCustomerIdRef = useRef<string>('')
   const [customerSearch, setCustomerSearch] = useState<string>('')
   const [contractTextsLoss, setContractTextsLoss] = useState<string[]>([''])
 
@@ -525,12 +527,6 @@ export default function InputPage() {
         })
       }
       data._warnings = warns
-      // 재파싱 시 수동으로 수정한 고객 정보 보존
-      if (parsed) {
-        if (parsed.name && parsed.name !== data.name) data.name = parsed.name
-        if (parsed.phone && parsed.phone !== data.phone) data.phone = parsed.phone
-        if (parsed.rrn && parsed.rrn !== data.rrn) { data.rrn = parsed.rrn; data.gender = parsed.gender; data.age = parsed.age }
-      }
       setParsed(data)
       // selectedCustomerId 유지 (기존 고객 선택 시 초기화 방지)
       // 분석 완료 후 결과 영역으로 자동 스크롤
@@ -541,7 +537,9 @@ export default function InputPage() {
 
   async function handleParseSave() {
     if (!parsed) return
-    if (saveMode === 'existing' && !selectedCustomerId) return alert('기존 고객을 선택해주세요!')
+    const currentSaveMode = saveModeRef.current
+    const currentCustomerId = selectedCustomerIdRef.current
+    if (currentSaveMode === 'existing' && !currentCustomerId) return alert('기존 고객을 선택해주세요!')
     setSaving(true)
     try {
       const { data: { user } } = await supabase.auth.getUser()
@@ -549,9 +547,9 @@ export default function InputPage() {
 
       let customerId: string
 
-      if (saveMode === 'existing') {
+      if (currentSaveMode === 'existing') {
         // 기존 고객에 보험만 추가
-        customerId = selectedCustomerId
+        customerId = currentCustomerId
       } else {
         // 새 고객으로 저장
         const birthDate = getBirthDateFromRRN(parsed.rrn || '')
@@ -741,10 +739,10 @@ export default function InputPage() {
           <div style={{marginBottom:16}}>
             <div style={{fontSize:13,fontWeight:600,color:'#1a1a1a',marginBottom:8,display:'flex',alignItems:'center',gap:8}}><span style={{display:'inline-block',width:3,height:12,background:'#1D9E75',borderRadius:2,flexShrink:0}}></span>저장 방식 선택</div>
             <div style={{display:'flex',gap:8,marginBottom:10}}>
-              <button onClick={() => setSaveMode('new')} style={{flex:1,padding:'10px 0',borderRadius:10,border:`2px solid ${saveMode==='new'?'#1D9E75':'#EDEBE4'}`,background:'#fff',color:saveMode==='new'?'#1D9E75':'#6B7280',fontWeight:saveMode==='new'?600:400,fontSize:13,cursor:'pointer'}}>
+              <button onClick={() => { setSaveMode('new'); saveModeRef.current = 'new' }} style={{flex:1,padding:'10px 0',borderRadius:10,border:`2px solid ${saveMode==='new'?'#1D9E75':'#EDEBE4'}`,background:'#fff',color:saveMode==='new'?'#1D9E75':'#6B7280',fontWeight:saveMode==='new'?600:400,fontSize:13,cursor:'pointer'}}>
                 + 새 고객으로 저장
               </button>
-              <button onClick={() => setSaveMode('existing')} style={{flex:1,padding:'10px 0',borderRadius:10,border:`2px solid ${saveMode==='existing'?'#1D9E75':'#EDEBE4'}`,background:'#fff',color:saveMode==='existing'?'#1D9E75':'#6B7280',fontWeight:saveMode==='existing'?600:400,fontSize:13,cursor:'pointer'}}>
+              <button onClick={() => { setSaveMode('existing'); saveModeRef.current = 'existing' }} style={{flex:1,padding:'10px 0',borderRadius:10,border:`2px solid ${saveMode==='existing'?'#1D9E75':'#EDEBE4'}`,background:'#fff',color:saveMode==='existing'?'#1D9E75':'#6B7280',fontWeight:saveMode==='existing'?600:400,fontSize:13,cursor:'pointer'}}>
                 👤 기존 고객에 추가
               </button>
             </div>
@@ -761,7 +759,7 @@ export default function InputPage() {
                     <div style={{padding:'12px',fontSize:13,color:'#9CA3AF',textAlign:'center'}}>검색 결과가 없어요</div>
                   ) : (
                     existingCustomers.filter(c => !customerSearch || c.name.includes(customerSearch)).map(c => (
-                      <div key={c.id} onClick={() => setSelectedCustomerId(c.id)}
+                      <div key={c.id} onClick={() => { setSelectedCustomerId(c.id); selectedCustomerIdRef.current = c.id }}
                         style={{padding:'10px 14px',fontSize:13,cursor:'pointer',background:selectedCustomerId===c.id?'#E8F8F2':'transparent',color:selectedCustomerId===c.id?'#1D9E75':'#374151',fontWeight:selectedCustomerId===c.id?600:400,borderBottom:'1px solid #F3F4F6'}}>
                         {c.name} {c.age ? `(${c.age}세)` : ''}
                         {selectedCustomerId === c.id && <span style={{float:'right'}}>✓</span>}
