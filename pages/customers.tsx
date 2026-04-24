@@ -268,12 +268,12 @@ export default function Customers() {
   const zoomStateRef = useRef({ scale: 1, tx: 0, ty: 0 })
   const { confirm, ConfirmDialog } = useConfirm()
   const [addInsMode, setAddInsMode] = useState(false)
-  const [insForm, setInsForm] = useState({ company: '삼성생명', product_name: '', insurance_type: '건강', monthly_fee: '', payment_status: '유지', payment_years: '', expiry_age: '', contract_start: '' })
+  const [insForm, setInsForm] = useState({ company: '', product_name: '', insurance_type: '건강', monthly_fee: '', payment_status: '유지', payment_years: '', expiry_age: '', contract_start: '' })
   const [insCoverages, setInsCoverages] = useState<any[]>([])
   const [newCov, setNewCov] = useState({ category: '암진단', coverage_name: '', amount: '' })
   // 고객 추가 시 보험 목록 (미리 쌓아두다가 한번에 저장)
-  const [addContracts, setAddContracts] = useState<any[]>([{company:'삼성생명',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}])
-  const [addInsForm, setAddInsForm] = useState({ company: '삼성생명', product_name: '', insurance_type: '건강', monthly_fee: '', payment_status: '유지', payment_years: '', expiry_age: '', contract_start: '' })
+  const [addContracts, setAddContracts] = useState<any[]>([{company:'',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}])
+  const [addInsForm, setAddInsForm] = useState({ company: '', product_name: '', insurance_type: '건강', monthly_fee: '', payment_status: '유지', payment_years: '', expiry_age: '', contract_start: '' })
   const [addInsCoverages, setAddInsCoverages] = useState<any[]>([])
   const [addNewCov, setAddNewCov] = useState({ category: '암진단', coverage_name: '', amount: '' })
   const [showAddInsForm, setShowAddInsForm] = useState(false)
@@ -567,7 +567,7 @@ export default function Customers() {
       }
       setAddMode(false)
       setAddForm(emptyCustomerForm)
-      setAddContracts([{company:'삼성생명',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}])
+      setAddContracts([{company:'',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}])
       setShowAddInsForm(false)
       await fetchAll()
       selectCustomer(cust)
@@ -596,7 +596,7 @@ export default function Customers() {
       )
     }
     setAddInsMode(false)
-    setInsForm({ company: '삼성생명', product_name: '', insurance_type: '건강', monthly_fee: '', payment_status: '유지', payment_years: '', expiry_age: '', contract_start: '' })
+    setInsForm({ company: '', product_name: '', insurance_type: '건강', monthly_fee: '', payment_status: '유지', payment_years: '', expiry_age: '', contract_start: '' })
     setInsCoverages([])
     setNewCov({ category: '암진단', coverage_name: '', amount: '' })
     fetchAll()
@@ -740,7 +740,7 @@ export default function Customers() {
       <div className={styles.tabBar}>
         <button
           className={[styles.iconTab, tab === 'existing' ? styles.activeIconTab : ''].join(' ')}
-          onClick={() => { handleTabChange('existing'); setAddMode(false); setAddForm(emptyCustomerForm); setAddContracts([{company:'삼성생명',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}]); closeSlide() }}
+          onClick={() => { handleTabChange('existing'); setAddMode(false); setAddForm(emptyCustomerForm); setAddContracts([{company:'',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}]); closeSlide() }}
           title="마이고객"
           >
           <span className={styles.tabIcon}><IconUsers active={tab === 'existing'} /></span>
@@ -748,7 +748,7 @@ export default function Customers() {
         </button>
         <button
           className={[styles.iconTab, tab === 'prospect' ? styles.activeIconTab : ''].join(' ')}
-          onClick={() => { handleTabChange('prospect'); setAddMode(false); setAddForm(emptyCustomerForm); setAddContracts([{company:'삼성생명',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}]); closeSlide() }}
+          onClick={() => { handleTabChange('prospect'); setAddMode(false); setAddForm(emptyCustomerForm); setAddContracts([{company:'',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}]); closeSlide() }}
           title="관심고객"
           >
           <span className={styles.tabIcon}><IconUser active={tab === 'prospect'} /></span>
@@ -979,13 +979,13 @@ export default function Customers() {
                 onMouseOut={e=>{(e.target as HTMLButtonElement).style.borderColor='#E5E7EB';(e.target as HTMLButtonElement).style.color='#9CA3AF';(e.target as HTMLButtonElement).style.background='#FAF9F5'}}
                 onClick={()=>{
                   if(!addForm.name) return alert('이름을 먼저 입력해주세요!')
-                  setAddContracts((v:any)=>[...v,{company:'삼성생명',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}])
+                  setAddContracts((v:any)=>[...v,{company:'',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}])
                 }}>+ 보험 추가</button>
 
               {/* 저장/취소 - 우측 정렬 */}
               <div style={{marginTop:20,paddingTop:16,borderTop:'1px solid #E5E7EB',display:'flex',justifyContent:'flex-end',gap:8}}>
                 <button onClick={saveAddCustomer} style={{padding:'8px 24px',background:'#1D9E75',color:'#fff',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>저장</button>
-                <button className={styles.cancelBtn} style={{borderColor:'#9CA3AF'}} onClick={() => { setAddMode(false); setAddContracts([{company:'삼성생명',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}]) }}>취소</button>
+                <button className={styles.cancelBtn} style={{borderColor:'#9CA3AF'}} onClick={() => { setAddMode(false); setAddContracts([{company:'',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}]) }}>취소</button>
               </div>
             </div>
           ) : selected ? (
