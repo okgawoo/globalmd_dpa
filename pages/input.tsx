@@ -339,7 +339,7 @@ type Contract = {
 
 function emptyContract(): Contract {
   return {
-    company: '삼성생명', companyCustom: '', product_name: '', insurance_type: '건강',
+    company: '', companyCustom: '', product_name: '', insurance_type: '건강',
     monthly_fee: '', payment_status: '유지', payment_rate: '', payment_total: '', payment_done: '',
     contract_start: '', payment_years: '', expiry_age: '',
     coverages: [], showCoverageModal: false
@@ -525,6 +525,12 @@ export default function InputPage() {
         })
       }
       data._warnings = warns
+      // 재파싱 시 수동으로 수정한 고객 정보 보존
+      if (parsed) {
+        if (parsed.name && parsed.name !== data.name) data.name = parsed.name
+        if (parsed.phone && parsed.phone !== data.phone) data.phone = parsed.phone
+        if (parsed.rrn && parsed.rrn !== data.rrn) { data.rrn = parsed.rrn; data.gender = parsed.gender; data.age = parsed.age }
+      }
       setParsed(data)
       // selectedCustomerId 유지 (기존 고객 선택 시 초기화 방지)
       // 분석 완료 후 결과 영역으로 자동 스크롤
