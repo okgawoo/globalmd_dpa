@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
 import styles from '../styles/Input.module.css'
+import InsuranceCompanySelect from '../components/InsuranceCompanySelect'
 
 function ScanCardTab({ onComplete }: { onComplete: () => void }) {
   const [cameraOpen, setCameraOpen] = useState(false)
@@ -257,7 +258,7 @@ type InputTab = 'paste' | 'scan' | 'manual'
 
 
 const JOBS = ['직장인 (회사원)', '자영업자', '공무원', '교사 / 교직원', '의료인', '전문직', '주부', '학생', '농업 / 어업', '프리랜서', '은퇴 / 무직', '기타']
-const COMPANIES = ['삼성생명', '한화생명', '교보생명', '신한라이프', 'DB생명', '흥국생명', '동양생명', '미래에셋생명', '푸본현대생명', '메트라이프', '삼성화재', '현대해상', 'DB손해보험', 'KB손해보험', '메리츠화재', '흥국화재', '롯데손해보험', 'MG손해보험', '기타']
+const COMPANIES = ['삼성생명', '한화생명', '교보생명', '신한라이프', 'DB생명', '흥국생명', '동양생명', '미래에셋생명', '푸본현대생명', '메트라이프', '삼성화재', '현대해상', 'DB손해보험', 'KB손해보험', '메리츠화재', '흥국화재', '롯데손해보험', 'MG손해보험', '한화손해보험', 'AIG손해보험', 'NH농협손해보험', '라이나손해보험', '하나손해보험', '라이나생명', '처브라이프', '카디프생명', '푸르덴셜생명', '현대라이프', '휴먼라이프', 'ABL생명', 'AIA생명', 'DGB생명', 'IBK연금보험', 'KB라이프', 'KDB생명', 'NH농협생명', 'PCA생명', '하나생명', '오렌지라이프', '기타']
 const INS_TYPES = ['건강', '실손', '운전자', '자동차', '암', '치아', '간병', 'CI', '종신', '기타']
 const CATEGORIES = ['암진단', '뇌혈관', '심장', '간병', '수술비', '실손', '비급여', '상해', '사고처리', '벌금', '특이사항']
 const BANKS = ['국민은행', '신한은행', '우리은행', '하나은행', 'IBK기업은행', 'NH농협은행', '카카오뱅크', '토스뱅크', '케이뱅크', 'SC제일은행', '씨티은행', '대구은행', '부산은행', '경남은행', '광주은행', '전북은행', '제주은행', '수협은행', '신협', '우체국', '기타']
@@ -659,9 +660,8 @@ export default function InputPage() {
                 {contracts.length > 1 && <button className={styles.removeBtn} onClick={() => removeContract(idx)}>삭제</button>}
               </div>
               <div className={styles.formGrid}>
-                <div className={styles.field}><label>보험사</label><select value={ct.company} onChange={e => updateContract(idx, 'company', e.target.value)}>{COMPANIES.map(c => <option key={c}>{c}</option>)}</select></div>
-                {ct.company === '기타' && <div className={styles.field}><label>보험사 직접 입력</label><input value={ct.companyCustom} onChange={e => updateContract(idx, 'companyCustom', e.target.value)} placeholder="보험사명" /></div>}
-                <div className={styles.field}><label>상품명</label><input value={ct.product_name} onChange={e => updateContract(idx, 'product_name', e.target.value)} placeholder="무배당 건강보험" /></div>
+                <div className={styles.field} style={{gridColumn:'1 / -1'}}><label>보험사</label><InsuranceCompanySelect value={ct.company} onChange={v => updateContract(idx, 'company', v)} /></div>
+                <div className={styles.field} style={{gridColumn:'1 / -1'}}><label>상품명</label><input value={ct.product_name} onChange={e => updateContract(idx, 'product_name', e.target.value)} placeholder="무배당 건강보험" /></div>
                 <div className={styles.field}><label>보험 종류</label><select value={ct.insurance_type} onChange={e => updateContract(idx, 'insurance_type', e.target.value)}>{INS_TYPES.map(t => <option key={t}>{t}</option>)}</select></div>
                 <div className={styles.field}><label>월보험료 (원)</label><input inputMode="numeric" value={ct.monthly_fee ? formatMoney(String(ct.monthly_fee)) : ''} onChange={e => updateContract(idx, 'monthly_fee', parseMoney(e.target.value))} placeholder="50,000" /></div>
                 <div className={styles.field}><label>납입 상태</label><select value={ct.payment_status} onChange={e => updateContract(idx, 'payment_status', e.target.value)}>{PAYMENT_STATUSES.map(s => <option key={s}>{s}</option>)}</select></div>
@@ -898,10 +898,8 @@ export default function InputPage() {
                 <div key={ctIdx} className={styles.parsedContractBlock}>
                   <div className={styles.parsedSection}>{ctIdx + 1}. {ct.company} · {ct.product_name}</div>
                   <div className={styles.parsedEditGrid}>
-                    <div className={styles.field}><label>보험사</label>
-                      <select value={ct.company || ''} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].company = e.target.value; setParsed({...parsed, contracts: c}) }} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid var(--border)',background:'var(--bg-card)',color:'var(--text-primary)'}}>
-                        {COMPANIES.map(c => <option key={c}>{c}</option>)}
-                      </select>
+                    <div className={styles.field} style={{gridColumn:'1 / -1'}}><label>보험사</label>
+                      <InsuranceCompanySelect value={ct.company || ''} onChange={v => { const c = [...parsed.contracts]; c[ctIdx].company = v; setParsed({...parsed, contracts: c}) }} />
                     </div>
                     <div className={styles.field}><label>상품명</label><input value={ct.product_name || ''} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].product_name = e.target.value; setParsed({...parsed, contracts: c}) }} /></div>
                     <div className={styles.field}><label>월보험료</label><input value={ct.monthly_fee ? Number(ct.monthly_fee).toLocaleString() : ''} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].monthly_fee = e.target.value.replace(/,/g, ''); setParsed({...parsed, contracts: c}) }} /></div>
