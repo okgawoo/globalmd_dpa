@@ -173,7 +173,7 @@ export default function AdminDashboard({
 
       {/* Page title */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold" style={{ color: 'hsl(var(--text-primary))' }}>
+        <h1 className="text-xl font-bold" style={{ color: 'hsl(var(--text-primary))' }}>
           대시보드
         </h1>
         <p className="mt-0.5 text-sm" style={{ color: 'hsl(var(--text-secondary))' }}>

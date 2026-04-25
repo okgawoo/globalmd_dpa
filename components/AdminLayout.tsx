@@ -237,7 +237,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
         {/* Header */}
         <header
-          className="flex items-center justify-between px-6 py-3"
+          className="flex items-center justify-between px-6 py-1.5"
         >
           {/* Brand descriptor */}
           <span style={{
