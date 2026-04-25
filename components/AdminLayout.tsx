@@ -252,7 +252,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
           {/* Right controls */}
           <div className="flex items-center gap-1">
-            <span className="mr-2 text-xs" style={{ color: 'hsl(var(--text-secondary))' }}>
+            <span className="mr-2 text-xs" style={{ color: 'hsl(var(--text-primary))' }}>
               {new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' })}
             </span>
 
