@@ -48,7 +48,7 @@ const TONE_OPTIONS = [
 ]
 
 function TabIcon({ tabKey, active }: { tabKey: SettingsTab; active: boolean }) {
-  const c = active ? 'hsl(var(--accent))' : 'hsl(var(--text-tertiary))'
+  const c = active ? '#1D9E75' : '#999'
   const s = { width: 15, height: 15, fill: 'none' as const, stroke: c, strokeWidth: 2, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const }
   if (tabKey === 'profile') return <svg {...s} viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
   if (tabKey === 'sms') return <svg {...s} viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
