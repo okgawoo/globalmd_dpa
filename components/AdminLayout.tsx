@@ -244,7 +244,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             fontSize: '13px',
             fontWeight: 500,
             fontStyle: 'italic',
-            color: 'hsl(var(--text-tertiary))',
+            color: 'hsl(var(--text-secondary))',
             letterSpacing: '0.01em',
           }}>
             insurance planner
@@ -252,7 +252,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
           {/* Right controls */}
           <div className="flex items-center gap-1">
-            <span className="mr-2 text-xs" style={{ color: 'hsl(var(--text-tertiary))' }}>
+            <span className="mr-2 text-xs" style={{ color: 'hsl(var(--text-secondary))' }}>
               {new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' })}
             </span>
 
@@ -306,7 +306,7 @@ function HeaderIconBtn({
       onClick={onClick}
       title={title}
       className="flex h-8 w-8 items-center justify-center rounded-md transition-all duration-100"
-      style={{ color: 'hsl(var(--text-secondary))', border: '1px solid transparent' }}
+      style={{ color: 'hsl(var(--text-primary))', border: '1px solid transparent' }}
       onMouseEnter={(e) => {
         e.currentTarget.style.background = 'hsl(var(--bg-elevated))'
         e.currentTarget.style.color = 'hsl(var(--text-primary))'
