@@ -47,6 +47,15 @@ const TONE_OPTIONS = [
   { key: '간결', label: '간결' },
 ]
 
+function TabIcon({ tabKey, active }: { tabKey: SettingsTab; active: boolean }) {
+  const c = active ? 'hsl(var(--accent))' : 'hsl(var(--text-tertiary))'
+  const s = { width: 15, height: 15, fill: 'none' as const, stroke: c, strokeWidth: 2, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const }
+  if (tabKey === 'profile') return <svg {...s} viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+  if (tabKey === 'sms') return <svg {...s} viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+  if (tabKey === 'notification') return <svg {...s} viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+  return <svg {...s} viewBox="0 0 24 24"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+}
+
 export default function SettingsPage() {
   const [tab, setTab] = useState<SettingsTab>('profile')
   const [agent, setAgent] = useState<any>(null)
@@ -92,6 +101,9 @@ export default function SettingsPage() {
   // 문자 기본 톤
   const [defaultTone, setDefaultTone] = useState('친근')
 
+  // SNS
+  const [sns, setSns] = useState({ kakao: '', instagram: '', x: '', facebook: '' })
+
   const { confirm, ConfirmDialog } = useConfirm()
 
   useEffect(() => { fetchAgent() }, [])
@@ -111,6 +123,7 @@ export default function SettingsPage() {
       // settings에서 복원
       const s = ag.settings || {}
       setDefaultTone(s.default_tone || '친근')
+      if (s.sns) setSns(prev => ({ ...prev, ...s.sns }))
       setSenderStatus(s.sender_verified ? 'verified' : 'none')
 
       if (s.notifications) {
@@ -153,6 +166,7 @@ export default function SettingsPage() {
     await supabase.from('dpa_agents').update({
       email: editEmail,
       phone: editPhone,
+      settings: { ...agent.settings, sns },
     }).eq('id', agent.id)
     await fetchAgent()
     setSavingProfile(false)
@@ -232,7 +246,9 @@ export default function SettingsPage() {
           <button key={t.key}
             className={[styles.tabBtn, tab === t.key ? styles.tabActive : ''].join(' ')}
             onClick={() => setTab(t.key)}>
-            <span className={styles.tabIcon}>{t.icon}</span>
+            <span className={styles.tabIcon}>
+              <TabIcon tabKey={t.key} active={tab === t.key} />
+            </span>
             <span className={styles.tabLabel}>{t.label}</span>
           </button>
         ))}
@@ -243,36 +259,125 @@ export default function SettingsPage() {
         {/* ═══ 내 정보 ═══ */}
         {tab === 'profile' && (
           <div className={styles.section}>
-            <h2 className={styles.sectionTitle}>👤 내 정보</h2>
-
-            <div className={styles.field}>
-              <label className={styles.fieldLabel}>이름</label>
-              <div className={styles.fieldRow}>
-                <input className={styles.fieldInput} value={agent?.name || ''} disabled
-                  style={{ background: '#F5F5F5', color: '#999' }} />
-                <button className={styles.btnOutline}
-                  onClick={() => alert('이름 변경은 고객센터로 문의해주세요.\n(보안을 위해 직접 변경이 불가합니다)')}>
-                  고객센터 문의
-                </button>
+            {/* 웹: 테이블 레이아웃 */}
+            <div className={styles.profileTable}>
+              <div className={styles.profileRow}>
+                <div className={styles.profileLabel}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  이름
+                </div>
+                <div className={styles.profileValue}>
+                  <span style={{ fontSize: 14, color: '#999' }}>{agent?.name || '-'}</span>
+                  <button className={styles.btnOutline} style={{ marginLeft: 'auto', padding: '4px 12px', fontSize: 12 }}
+                    onClick={() => alert('이름 변경은 고객센터로 문의해주세요.')}>
+                    고객센터 문의
+                  </button>
+                </div>
               </div>
-              <p className={styles.fieldHint}>보안을 위해 이름은 직접 변경할 수 없습니다.</p>
+              <div className={styles.profileRow}>
+                <div className={styles.profileLabel}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                  이메일
+                </div>
+                <div className={styles.profileValue}>
+                  <input className={styles.profileInput} value={editEmail}
+                    onChange={e => setEditEmail(e.target.value)} placeholder="이메일 주소" />
+                </div>
+              </div>
+              <div className={styles.profileRow}>
+                <div className={styles.profileLabel}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.56 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                  연락처
+                </div>
+                <div className={styles.profileValue}>
+                  <input className={styles.profileInput} value={editPhone}
+                    onChange={e => setEditPhone(formatPhone(e.target.value))} placeholder="010-0000-0000" />
+                </div>
+              </div>
+              <div className={styles.profileGroupLabel}>SNS 계정</div>
+              <div className={styles.profileRow}>
+                <div className={styles.profileLabel}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3C1E1E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2C6.48 2 2 5.92 2 10.8c0 3.07 1.77 5.78 4.5 7.44L5.5 22l4.46-2.37c.66.1 1.35.17 2.04.17 5.52 0 10-3.92 10-8.8S17.52 2 12 2z"/></svg>
+                  카카오톡
+                </div>
+                <div className={styles.profileValue}>
+                  <input className={styles.profileInput} value={sns.kakao}
+                    onChange={e => setSns(p => ({ ...p, kakao: e.target.value }))} placeholder="카카오톡 ID" />
+                </div>
+              </div>
+              <div className={styles.profileRow}>
+                <div className={styles.profileLabel}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                  인스타그램
+                </div>
+                <div className={styles.profileValue}>
+                  <input className={styles.profileInput} value={sns.instagram}
+                    onChange={e => setSns(p => ({ ...p, instagram: e.target.value }))} placeholder="@아이디" />
+                </div>
+              </div>
+              <div className={styles.profileRow}>
+                <div className={styles.profileLabel}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                  X
+                </div>
+                <div className={styles.profileValue}>
+                  <input className={styles.profileInput} value={sns.x}
+                    onChange={e => setSns(p => ({ ...p, x: e.target.value }))} placeholder="@아이디" />
+                </div>
+              </div>
+              <div className={styles.profileRow}>
+                <div className={styles.profileLabel}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                  페이스북
+                </div>
+                <div className={styles.profileValue}>
+                  <input className={styles.profileInput} value={sns.facebook}
+                    onChange={e => setSns(p => ({ ...p, facebook: e.target.value }))} placeholder="페이스북 ID" />
+                </div>
+              </div>
             </div>
 
-            <div className={styles.field}>
-              <label className={styles.fieldLabel}>이메일</label>
-              <input className={styles.fieldInput} value={editEmail}
-                onChange={e => setEditEmail(e.target.value)} placeholder="이메일 주소" />
+            {/* 모바일: 기존 필드 레이아웃 */}
+            <div className={styles.mobileOnly}>
+              <h2 className={styles.sectionTitle}>내 정보</h2>
+              <div className={styles.field}>
+                <label className={styles.fieldLabel}>이름</label>
+                <div className={styles.fieldRow}>
+                  <input className={styles.fieldInput} value={agent?.name || ''} disabled style={{ background: '#F5F5F5', color: '#999' }} />
+                  <button className={styles.btnOutline} onClick={() => alert('이름 변경은 고객센터로 문의해주세요.')}>고객센터 문의</button>
+                </div>
+              </div>
+              <div className={styles.field}>
+                <label className={styles.fieldLabel}>이메일</label>
+                <input className={styles.fieldInput} value={editEmail} onChange={e => setEditEmail(e.target.value)} placeholder="이메일 주소" />
+              </div>
+              <div className={styles.field}>
+                <label className={styles.fieldLabel}>연락처</label>
+                <input className={styles.fieldInput} value={editPhone} onChange={e => setEditPhone(formatPhone(e.target.value))} placeholder="010-0000-0000" />
+              </div>
+              <div className={styles.field}>
+                <label className={styles.fieldLabel}>카카오톡</label>
+                <input className={styles.fieldInput} value={sns.kakao} onChange={e => setSns(p => ({ ...p, kakao: e.target.value }))} placeholder="카카오톡 ID" />
+              </div>
+              <div className={styles.field}>
+                <label className={styles.fieldLabel}>인스타그램</label>
+                <input className={styles.fieldInput} value={sns.instagram} onChange={e => setSns(p => ({ ...p, instagram: e.target.value }))} placeholder="@아이디" />
+              </div>
+              <div className={styles.field}>
+                <label className={styles.fieldLabel}>X</label>
+                <input className={styles.fieldInput} value={sns.x} onChange={e => setSns(p => ({ ...p, x: e.target.value }))} placeholder="@아이디" />
+              </div>
+              <div className={styles.field}>
+                <label className={styles.fieldLabel}>페이스북</label>
+                <input className={styles.fieldInput} value={sns.facebook} onChange={e => setSns(p => ({ ...p, facebook: e.target.value }))} placeholder="페이스북 ID" />
+              </div>
             </div>
 
-            <div className={styles.field}>
-              <label className={styles.fieldLabel}>연락처</label>
-              <input className={styles.fieldInput} value={editPhone}
-                onChange={e => setEditPhone(formatPhone(e.target.value))} placeholder="010-0000-0000" />
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 4 }}>
+              <button className={styles.btnPrimary} onClick={saveProfile} disabled={savingProfile}>
+                {savingProfile ? '저장 중...' : '저장하기'}
+              </button>
             </div>
-
-            <button className={styles.btnPrimary} onClick={saveProfile} disabled={savingProfile}>
-              {savingProfile ? '저장 중...' : '저장하기'}
-            </button>
           </div>
         )}
 
@@ -281,7 +386,7 @@ export default function SettingsPage() {
           <div className={styles.section}>
 
             {/* 발신번호 인증 영역 */}
-            <h2 className={styles.sectionTitle}>📱 문자 발신번호 인증</h2>
+            <h2 className={styles.sectionTitle}>문자 발신번호 인증</h2>
 
             {/* STEP 1: 안내 */}
             {senderStatus !== 'verified' && smsAuthStep === 'intro' && (
@@ -768,7 +873,7 @@ export default function SettingsPage() {
 
             <div style={{ height: 24 }} />
 
-            <h2 className={styles.sectionTitle}>💬 문자 기본 톤</h2>
+            <h2 className={styles.sectionTitle}>문자 기본 톤</h2>
             <p className={styles.sectionDesc}>AI가 문자 스크립트를 생성할 때 기본으로 적용할 톤입니다.</p>
             <div className={styles.toneRow}>
               {TONE_OPTIONS.map(t => (
@@ -782,7 +887,7 @@ export default function SettingsPage() {
 
             <div style={{ height: 24 }} />
 
-            <h2 className={styles.sectionTitle}>📊 이번 달 문자 사용량</h2>
+            <h2 className={styles.sectionTitle}>이번 달 문자 사용량</h2>
             {smsUsage ? (
               <div className={styles.usageCard}>
                 <div className={styles.usageBar}>
@@ -805,7 +910,7 @@ export default function SettingsPage() {
         {/* ═══ 알림 설정 ═══ */}
         {tab === 'notification' && (
           <div className={styles.section}>
-            <h2 className={styles.sectionTitle}>🔔 알림 설정</h2>
+            <h2 className={styles.sectionTitle}>알림 설정</h2>
             <p className={styles.sectionDesc}>대시보드와 알림 페이지에 표시할 알림을 설정합니다.</p>
 
             <div className={styles.notifGroup}>
@@ -846,7 +951,7 @@ export default function SettingsPage() {
             </div>
 
             <div className={styles.notifGroup}>
-              <p className={styles.notifGroupLabel}>🎂 생일 알림 세부 설정</p>
+              <p className={styles.notifGroupLabel}>생일 알림 세부 설정</p>
               <p className={styles.notifDesc} style={{ marginBottom: 8 }}>언제 알림을 받을지 선택하세요 (복수 선택 가능)</p>
               <div className={styles.birthdayRow}>
                 {BIRTHDAY_OPTIONS.map(b => (
@@ -868,7 +973,7 @@ export default function SettingsPage() {
         {/* ═══ 데이터·해지 ═══ */}
         {tab === 'data' && (
           <div className={styles.section}>
-            <h2 className={styles.sectionTitle}>📦 데이터 내보내기</h2>
+            <h2 className={styles.sectionTitle}>데이터 내보내기</h2>
             <p className={styles.sectionDesc}>고객 정보, 보험 계약, 보장 항목을 CSV 파일로 다운로드합니다.</p>
             <button className={styles.btnOutline} style={{ marginTop: 8 }}>
               CSV 다운로드 (준비 중)
@@ -876,7 +981,7 @@ export default function SettingsPage() {
 
             <div style={{ height: 40 }} />
 
-            <h2 className={styles.sectionTitle} style={{ color: '#E53E3E' }}>🚪 서비스 해지</h2>
+            <h2 className={styles.sectionTitle} style={{ color: '#E53E3E' }}>서비스 해지</h2>
             <div className={styles.cancelCard}>
               <p className={styles.cancelText}>
                 해지 시 서버에 저장된 모든 데이터는 즉시 완전히 삭제되며 복구되지 않습니다.
