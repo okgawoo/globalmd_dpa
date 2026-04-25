@@ -377,7 +377,7 @@ export default function NotificationsPage() {
   }
 
   // PC 웹 전용 상태 (Hook 규칙: 조건문 이전에 선언)
-  const [pcActiveIssue, setPcActiveIssue] = useState<IssueType | null>(null)
+  const [pcActiveIssue, setPcActiveIssue] = useState<IssueType | null>('gap')
   const [pcTab, setPcTab] = useState<'ai' | 'bulk' | 'history'>(() => {
     if (typeof window !== 'undefined') return (sessionStorage.getItem('pc_notif_tab') as any) || 'ai'
     return 'ai'
@@ -453,7 +453,7 @@ export default function NotificationsPage() {
               })}
             </div>
 
-            {/* 오른쪽: 고객 리스트 (넓게 2블록) */}
+            {/* 오른쪽: 고객 리스트 */}
             <div className={styles.pcRightWide}>
               {!pcActiveIssue ? (
                 <div className={styles.pcEmptyHint}>
@@ -473,8 +473,9 @@ export default function NotificationsPage() {
                   {pcActiveNotifs.map(n => {
                     const cfg = ISSUE_CONFIG[pcActiveIssue]
                     const lastMsg = messages.filter((m: any) => m.customer_id === n.customer.id)[0]
+                    const isSel = selected?.id === n.id
                     return (
-                      <div key={n.id} className={styles.pcCustomerRow}>
+                      <div key={n.id} className={[styles.pcCustomerRow, isSel ? styles.pcCustomerRowActive : ''].join(' ')}>
                         <div className={styles.pcCustAvatar}>{n.customer.name.slice(0, 1)}</div>
                         <div className={styles.pcCustInfo}>
                           <div className={styles.pcCustName}>{n.customer.name}고객</div>
@@ -493,47 +494,52 @@ export default function NotificationsPage() {
                 </>
               )}
             </div>
-          </div>
-        )}
 
-        {/* ── PC 문자 작성 슬라이드 팝업 ── */}
-        {selected && pcTab === 'ai' && (
-          <>
-            <div className={styles.pcSlideOverlay} onClick={() => { setSelected(null); setScriptText('') }} />
-            <div className={styles.pcSlidePanel}>
-              <div className={styles.pcSlideHeader}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div className={styles.pcComposeAvatar}>{selected.customer.name.slice(0, 1)}</div>
-                  <div>
-                    <div className={styles.pcComposeName}>{selected.customer.name}고객님</div>
-                    <div className={styles.pcComposeMeta}>
-                      {selected.customer.phone || '연락처 없음'}
-                      <span className={styles.pcComposeBadge} style={{ background: ISSUE_CONFIG[selected.notifType as IssueType]?.badgeBg, color: ISSUE_CONFIG[selected.notifType as IssueType]?.badgeColor }}>
-                        {selected.badge}
-                      </span>
-                    </div>
-                  </div>
+            {/* 3열: 문자 작성 폼 (항상 표시) */}
+            <div className={styles.pcComposePanel}>
+              {!selected ? (
+                <div className={styles.pcComposePlaceholder}>
+                  <div style={{ fontSize: 36, marginBottom: 12 }}>✉️</div>
+                  <div style={{ fontWeight: 600, marginBottom: 6 }}>고객을 선택해주세요</div>
+                  <div style={{ fontSize: 13, color: '#aaa' }}>왼쪽 목록에서 고객을 클릭하면<br/>문자 작성 폼이 열려요</div>
                 </div>
-                <button className={styles.pcSlideClose} onClick={() => { setSelected(null); setScriptText('') }}>✕</button>
-              </div>
-              <div className={styles.pcToneRow}>
-                {TONES.map(t => (
-                  <button key={t} className={[styles.pcToneBtn, tone === t ? styles.pcToneBtnActive : ''].join(' ')} onClick={() => changeTone(t)}>{t}</button>
-                ))}
-              </div>
-              <textarea ref={textareaRef} className={styles.pcTextarea} value={scriptText} onChange={e => setScriptText(e.target.value)} rows={9} placeholder="문자 내용을 입력하세요" />
-              <div className={styles.pcEmojiBar}>
-                <span className={styles.pcEmojiLabel}>자주 쓰는</span>
-                {EMOJIS.map(e => (<button key={e} className={styles.pcEmojiBtn} onClick={() => insertEmoji(e)}>{e}</button>))}
-              </div>
-              <div className={styles.pcCharCount}>{scriptText.length}자</div>
-              <div className={styles.pcBtnRow}>
-                <button className={styles.pcBtnSend} onClick={handleSend} disabled={sending || !scriptText}>{sending ? '발송 중...' : '발송하기'}</button>
-                <button className={styles.pcBtnCopy} onClick={handleCopy} disabled={!scriptText}>복사</button>
-                <button className={styles.pcBtnKakao} onClick={async () => { await navigator.clipboard.writeText(scriptText); window.open('kakaotalk://', '_blank') }} disabled={!scriptText}>카카오</button>
-              </div>
+              ) : (
+                <>
+                  <div className={styles.pcSlideHeader}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div className={styles.pcComposeAvatar}>{selected.customer.name.slice(0, 1)}</div>
+                      <div>
+                        <div className={styles.pcComposeName}>{selected.customer.name}고객님</div>
+                        <div className={styles.pcComposeMeta}>
+                          {selected.customer.phone || '연락처 없음'}
+                          <span className={styles.pcComposeBadge} style={{ background: ISSUE_CONFIG[selected.notifType as IssueType]?.badgeBg, color: ISSUE_CONFIG[selected.notifType as IssueType]?.badgeColor }}>
+                            {selected.badge}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <button className={styles.pcSlideClose} onClick={() => { setSelected(null); setScriptText('') }}>✕</button>
+                  </div>
+                  <div className={styles.pcToneRow}>
+                    {TONES.map(t => (
+                      <button key={t} className={[styles.pcToneBtn, tone === t ? styles.pcToneBtnActive : ''].join(' ')} onClick={() => changeTone(t)}>{t}</button>
+                    ))}
+                  </div>
+                  <textarea ref={textareaRef} className={styles.pcTextarea} value={scriptText} onChange={e => setScriptText(e.target.value)} rows={9} placeholder="문자 내용을 입력하세요" />
+                  <div className={styles.pcEmojiBar}>
+                    <span className={styles.pcEmojiLabel}>자주 쓰는</span>
+                    {EMOJIS.map(e => (<button key={e} className={styles.pcEmojiBtn} onClick={() => insertEmoji(e)}>{e}</button>))}
+                  </div>
+                  <div className={styles.pcCharCount}>{scriptText.length}자</div>
+                  <div className={styles.pcBtnRow}>
+                    <button className={styles.pcBtnSend} onClick={handleSend} disabled={sending || !scriptText}>{sending ? '발송 중...' : '발송하기'}</button>
+                    <button className={styles.pcBtnCopy} onClick={handleCopy} disabled={!scriptText}>복사</button>
+                    <button className={styles.pcBtnKakao} onClick={async () => { await navigator.clipboard.writeText(scriptText); window.open('kakaotalk://', '_blank') }} disabled={!scriptText}>카카오</button>
+                  </div>
+                </>
+              )}
             </div>
-          </>
+          </div>
         )}
 
         {/* ── 단체문자 탭 ── */}

@@ -92,8 +92,8 @@
   .pcTab:hover { color: #1a1a1a; }
   .pcTabActive { color: #1D9E75 !important; border-bottom: 2px solid #1D9E75 !important; font-weight: 700; }
 
-  /* AI추천 탭 2단 레이아웃 */
-  .pcLayout { display: grid; grid-template-columns: 220px 1fr; gap: 16px; align-items: start; padding: 16px; }
+  /* AI추천 탭 3단 레이아웃 */
+  .pcLayout { display: grid; grid-template-columns: 220px 1fr 380px; gap: 16px; align-items: start; padding: 16px; }
 
   /* 왼쪽 카테고리 패널 */
   .pcLeftPanel { display: flex; flex-direction: column; gap: 8px; }
@@ -136,12 +136,16 @@
   .pcHistoryBadge { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
   .pcHistoryDate { font-size: 12px; color: #999; }
 
-  /* 슬라이드 오버레이 */
-  .pcSlideOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; }
+  /* 고객 행 선택 활성화 */
+  .pcCustomerRowActive { background: #F0FDF9 !important; border-radius: 8px; }
 
-  /* 슬라이드 팝업 패널 */
-  .pcSlidePanel { position: fixed; top: 0; right: 0; width: 420px; height: 100vh; background: #fff; z-index: 201; box-shadow: -4px 0 24px rgba(0,0,0,0.12); display: flex; flex-direction: column; overflow-y: auto; animation: slideInRight 0.25s ease; }
-  @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
+  /* 3열 문자 작성 패널 (항상 표시) */
+  .pcComposePanel { background: #fff; border: 1px solid #EDEBE4; border-radius: 12px; display: flex; flex-direction: column; overflow-y: auto; max-height: calc(100vh - 230px); min-height: 300px; }
+  .pcComposePlaceholder { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #999; font-size: 14px; text-align: center; padding: 32px 20px; }
+
+  /* 슬라이드 오버레이 (미사용 — 유지) */
+  .pcSlideOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; }
+  .pcSlidePanel { position: fixed; top: 0; right: 0; width: 420px; height: 100vh; background: #fff; z-index: 201; box-shadow: -4px 0 24px rgba(0,0,0,0.12); display: flex; flex-direction: column; overflow-y: auto; }
   .pcSlideHeader { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid #EDEBE4; background: #fff; position: sticky; top: 0; z-index: 1; }
   .pcSlideClose { font-size: 18px; color: #999; background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 6px; line-height: 1; }
   .pcSlideClose:hover { background: #F1EFE8; color: #1a1a1a; }
@@ -149,17 +153,17 @@
   .pcComposeName { font-size: 15px; font-weight: 700; color: #1a1a1a; }
   .pcComposeMeta { font-size: 12px; color: #999; margin-top: 2px; display: flex; align-items: center; gap: 6px; }
   .pcComposeBadge { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 6px; }
-  .pcToneRow { display: flex; gap: 6px; padding: 14px 20px 0; }
+  .pcToneRow { display: flex; gap: 6px; padding: 14px 16px 0; }
   .pcToneBtn { font-size: 13px; padding: 5px 12px; border-radius: 20px; border: 1px solid #EDEBE4; color: #666; cursor: pointer; background: #FAF9F5; }
   .pcToneBtnActive { background: #1D9E75 !important; color: #fff !important; border-color: #1D9E75 !important; }
-  .pcTextarea { width: calc(100% - 40px); margin: 10px 20px 0; border: 1px solid #EDEBE4; border-radius: 10px; padding: 12px 14px; font-size: 14px; color: #1a1a1a; background: #FAF9F5; resize: none; line-height: 1.7; font-family: inherit; min-height: 180px; }
+  .pcTextarea { width: calc(100% - 32px); margin: 10px 16px 0; border: 1px solid #EDEBE4; border-radius: 10px; padding: 12px 14px; font-size: 14px; color: #1a1a1a; background: #FAF9F5; resize: none; line-height: 1.7; font-family: inherit; min-height: 180px; }
   .pcTextarea:focus { outline: none; border-color: #1D9E75; }
-  .pcEmojiBar { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; padding: 8px 10px; background: #F8F8F6; border-radius: 8px; margin: 8px 20px 0; border: 1px solid #EDEBE4; }
+  .pcEmojiBar { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; padding: 8px 10px; background: #F8F8F6; border-radius: 8px; margin: 8px 16px 0; border: 1px solid #EDEBE4; }
   .pcEmojiLabel { font-size: 11px; color: #999; margin-right: 4px; white-space: nowrap; flex-shrink: 0; }
   .pcEmojiBtn { font-size: 16px; background: none; border: none; cursor: pointer; padding: 2px 3px; border-radius: 4px; line-height: 1; }
   .pcEmojiBtn:hover { background: #fff; }
-  .pcCharCount { font-size: 12px; color: #999; text-align: right; padding: 4px 20px 0; }
-  .pcBtnRow { display: flex; gap: 8px; padding: 12px 20px 20px; }
+  .pcCharCount { font-size: 12px; color: #999; text-align: right; padding: 4px 16px 0; }
+  .pcBtnRow { display: flex; gap: 8px; padding: 12px 16px 16px; }
   .pcBtnSend { flex: 1; background: #1D9E75; color: #fff; border: none; padding: 12px 0; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; }
   .pcBtnSend:disabled { background: #D1D5DB; cursor: not-allowed; }
   .pcBtnCopy { padding: 12px 14px; border: 1px solid #EDEBE4; border-radius: 10px; font-size: 14px; color: #666; cursor: pointer; background: #fff; white-space: nowrap; }
