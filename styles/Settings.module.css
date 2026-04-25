@@ -240,7 +240,15 @@
 /* ─── 웹 전용 ─── */
 @media (min-width: 769px) {
   .wrap { padding: 0; }
-  .content { padding: 28px 32px; max-width: 760px; background: hsl(var(--bg-panel)); min-height: calc(100vh - 48px); }
+  .content { padding: 20px 24px 32px; max-width: 760px; }
+
+  .section {
+    background: hsl(var(--bg-panel));
+    border-radius: 8px;
+    border: 1px solid hsl(var(--border-default));
+    padding: 24px;
+    margin-bottom: 16px;
+  }
 
   .mobileOnly { display: none; }
 
