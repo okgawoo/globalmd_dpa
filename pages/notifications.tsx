@@ -145,8 +145,7 @@ export default function NotificationsPage() {
 
   // 첫 로딩 완료 시 보장 공백 자동 선택 (고객은 미선택)
   useEffect(() => {
-    if (loading || autoSelectedRef.current) return
-    autoSelectedRef.current = true
+    if (loading) return
     setPcActiveIssue('gap')
   }, [loading])
   useEffect(() => {
