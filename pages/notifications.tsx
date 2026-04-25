@@ -40,7 +40,6 @@ function getBirthdayDays(birthDate: string): number | null {
   return null
 }
 
-// PC용 스크립트
 const SCRIPTS: Record<string, Record<ToneType, string>> = {
   birthday: { 정중: '{name} 님, 오늘 생신을 진심으로 축하드립니다.\n항상 건강하시고 행복하신 날 되시길 바랍니다.\n- 담당 설계사 드림', 친근: '안녕하세요 {name} 님! 😊\n오늘 생일이에요! 🎂\n항상 건강하고 행복하세요!', 애교: '{name} 님~ 생일 축하해요! 🎂🎉\n오늘 하루 정말 특별한 날 되세요!\n항상 곁에서 응원할게요 💚', 간결: '{name} 님, 생일 축하드립니다! 🎂' },
   birthday_d1: { 정중: '{name} 님, 내일 생신이시군요.\n미리 진심으로 축하드립니다.\n- 담당 설계사 드림', 친근: '안녕하세요 {name} 님! 😊\n내일 생일이시잖아요! 🎂\n미리 축하드려요!', 애교: '{name} 님~ 내일 생일이죠? 🎂\n미리 축하해요! 💚', 간결: '{name} 님, 내일 생일 미리 축하드립니다! 🎂' },
@@ -57,13 +56,16 @@ function fmtDate(dateStr: string): string {
 }
 
 const ISSUE_CONFIG: Record<IssueType, { icon: string; label: string; desc: string; color: string; badgeBg: string; badgeColor: string; borderColor: string }> = {
-  nearDone:    { icon: '🔥', label: '완납 임박',   desc: '납입률 90% 이상',     color: '#BA7517', badgeBg: '#FAEEDA', badgeColor: '#854F0B', borderColor: '#BA7517' },
-  gap:         { icon: '⚠️', label: '보장 공백',  desc: '뇌혈관 미가입',        color: '#A32D2D', badgeBg: '#FCEBEB', badgeColor: '#A32D2D', borderColor: '#E24B4A' },
-  birthday:    { icon: '🎂', label: '생일',        desc: '7일 이내',              color: '#0F6E56', badgeBg: '#E1F5EE', badgeColor: '#0F6E56', borderColor: '#1D9E75' },
-  expiry:      { icon: '📋', label: '만기 임박',   desc: '30일 이내',             color: '#185FA5', badgeBg: '#E6F1FB', badgeColor: '#185FA5', borderColor: '#378ADD' },
-  longNoContact: { icon: '📞', label: '장기 미연락', desc: '마지막 미팅 90일 이상', color: '#5F5E5A', badgeBg: '#F1EFE8', badgeColor: '#444441', borderColor: '#888780' },
-  anniversary: { icon: '🎉', label: '계약 기념일', desc: '1/3/5년 주기 7일 이내', color: '#534AB7', badgeBg: '#EEEDFE', badgeColor: '#3C3489', borderColor: '#7F77DD' },
+  nearDone:    { icon: '🔥', label: '완납 임박',   desc: '납입률 90% 이상',          color: '#BA7517', badgeBg: '#FAEEDA', badgeColor: '#854F0B', borderColor: '#BA7517' },
+  gap:         { icon: '⚠️', label: '보장 공백',  desc: '뇌혈관 미가입',              color: '#A32D2D', badgeBg: '#FCEBEB', badgeColor: '#A32D2D', borderColor: '#E24B4A' },
+  birthday:    { icon: '🎂', label: '생일',        desc: '7일 이내',                   color: '#0F6E56', badgeBg: '#E1F5EE', badgeColor: '#0F6E56', borderColor: '#1D9E75' },
+  expiry:      { icon: '📋', label: '만기 임박',   desc: '30일 이내',                  color: '#185FA5', badgeBg: '#E6F1FB', badgeColor: '#185FA5', borderColor: '#378ADD' },
+  longNoContact: { icon: '📞', label: '장기 미연락', desc: '마지막 미팅 90일 이상',    color: '#5F5E5A', badgeBg: '#F1EFE8', badgeColor: '#444441', borderColor: '#888780' },
+  anniversary: { icon: '🎉', label: '계약 기념일', desc: '1/3/5년 주기 7일 이내',      color: '#534AB7', badgeBg: '#EEEDFE', badgeColor: '#3C3489', borderColor: '#7F77DD' },
 }
+
+// 카테고리 표시 순서 (설계사 업무 우선순위 기준)
+const ISSUE_ORDER: IssueType[] = ['gap', 'expiry', 'nearDone', 'birthday', 'anniversary', 'longNoContact']
 
 export default function NotificationsPage() {
   const [customers, setCustomers] = useState<any[]>([])
@@ -75,13 +77,6 @@ export default function NotificationsPage() {
   const [agentName, setAgentName] = useState('')
   const [meetings, setMeetings] = useState<any[]>([])
 
-  // 페이지 탭
-  const [activeTab, setActiveTab] = useState<'ai' | 'bulk'>(() => {
-    if (typeof window !== 'undefined') {
-      return (sessionStorage.getItem('notif_tab') as 'ai' | 'bulk') || 'ai'
-    }
-    return 'ai'
-  })
   const [smsUsage, setSmsUsage] = useState<any>(null)
 
   // 단체문자 필터
@@ -99,7 +94,6 @@ export default function NotificationsPage() {
 
   async function generateBulkSms(situation: string, tone: string, forceClear?: boolean) {
     setBulkGenerating(true)
-    // 복수 선택 시 이름 없이 일반 인사말
     const customerName = bulkSelectedIds.length === 1
       ? customers.find((c: any) => c.id === bulkSelectedIds[0])?.name || ''
       : ''
@@ -119,6 +113,12 @@ export default function NotificationsPage() {
   const [bulkHistoryOpen, setBulkHistoryOpen] = useState<string | null>(null)
 
   // 모바일: 이슈 드릴다운
+  const [activeTab, setActiveTab] = useState<'ai' | 'bulk'>(() => {
+    if (typeof window !== 'undefined') {
+      return (sessionStorage.getItem('notif_tab') as 'ai' | 'bulk') || 'ai'
+    }
+    return 'ai'
+  })
   const [activeIssue, setActiveIssue] = useState<IssueType | null>(null)
   const [selectMode, setSelectMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
@@ -127,16 +127,28 @@ export default function NotificationsPage() {
   const [bulkSmsOpen, setBulkSmsOpen] = useState(false)
   const [bulkIndex, setBulkIndex] = useState(0)
 
-  // PC: 기존 상태
+  // PC 상태
   const [selected, setSelected] = useState<any>(null)
   const [tone, setTone] = useState<ToneType>('친근')
   const [scriptText, setScriptText] = useState('')
   const [aiLoading, setAiLoading] = useState(false)
   const [sending, setSending] = useState(false)
-  const [expandedId, setExpandedId] = useState<string | null>(null)
   const textareaRef = useRef<any>(null)
+  // PC 웹 전용 상태
+  const [pcActiveIssue, setPcActiveIssue] = useState<IssueType | null>(null)
+  const [pcTab, setPcTab] = useState<'ai' | 'bulk'>(() => {
+    if (typeof window !== 'undefined') return (sessionStorage.getItem('pc_notif_tab') as any) || 'ai'
+    return 'ai'
+  })
 
   useEffect(() => { fetchAll() }, [])
+
+  // 첫 로딩 완료 시 보장 공백 자동 선택 (고객은 미선택)
+  useEffect(() => {
+    if (loading || autoSelectedRef.current) return
+    autoSelectedRef.current = true
+    setPcActiveIssue('gap')
+  }, [loading])
   useEffect(() => {
     async function loadUsage() {
       try {
@@ -173,13 +185,11 @@ export default function NotificationsPage() {
 
   customers.forEach(c => {
     const cts = contracts.filter(ct => ct.customer_id === c.id)
-    // 완납 임박
     const nearDone = cts.filter(ct => calcPaymentRate(ct) >= 90 && ct.payment_status !== '완납')
     if (nearDone.length > 0) {
       const maxRate = Math.max(...nearDone.map(ct => calcPaymentRate(ct)))
       notifMap.nearDone.push({ id: `neardone-${c.id}`, customer: c, contracts: nearDone, rate: maxRate, notifType: 'nearDone', badge: `${maxRate}%` })
     }
-    // 보장 공백
     if (cts.length > 0) {
       const cvs = coverages.filter(cv => cts.some(ct => ct.id === cv.contract_id))
       const hasBrain = cvs.some(cv => cv.category === '뇌혈관')
@@ -188,7 +198,6 @@ export default function NotificationsPage() {
         notifMap.gap.push({ id: `gap-${c.id}`, customer: c, hasBrain, hasCare, notifType: 'gap', badge: '보장 공백' })
       }
     }
-    // 만기 임박
     cts.forEach(ct => {
       if (ct.expiry_age && ct.expiry_age !== '종신') {
         notifMap.expiry.push({ id: `expiry-${ct.id}`, customer: c, contract: ct, notifType: 'expiry', badge: '만기 임박' })
@@ -205,7 +214,6 @@ export default function NotificationsPage() {
     notifMap.birthday.push({ id: `birth-${c.id}`, customer: c, days, notifType: 'birthday', badge })
   })
 
-  // 장기 미연락 (마지막 미팅 90일 이상)
   const today = new Date()
   customers.forEach(c => {
     const cMeetings = meetings.filter((m: any) => m.customer_id === c.id)
@@ -217,7 +225,6 @@ export default function NotificationsPage() {
     }
   })
 
-  // 계약 기념일 (1/3/5년 주기 7일 이내)
   customers.forEach(c => {
     const cts = contracts.filter(ct => ct.customer_id === c.id && ct.contract_start)
     cts.forEach(ct => {
@@ -284,67 +291,12 @@ export default function NotificationsPage() {
   function openSms(customer: any) { setSmsCustomer(customer); setSmsOpen(true) }
   function startBulkSend() { setBulkIndex(0); setBulkSmsOpen(true) }
 
-  // ─── PC 알림 렌더 ───
-  const allNotifs = [...notifMap.nearDone, ...notifMap.gap, ...notifMap.birthday, ...notifMap.expiry]
-  const todayNotifs = allNotifs.filter(n => ['nearDone','gap'].includes(n.notifType) || (n.notifType === 'birthday' && n.days <= 1))
-  const weekNotifs = allNotifs.filter(n => !todayNotifs.includes(n))
-
-  function getPcStyle(n: any) {
-    const cfg = ISSUE_CONFIG[n.notifType as IssueType]
-    return { icon: cfg?.icon || '🔔', badge: n.badge, badgeCls: '', iconCls: '' }
-  }
-
-  function renderPcCard(n: any) {
-    const s = getPcStyle(n)
-    const cfg = ISSUE_CONFIG[n.notifType as IssueType]
-    const isSel = selected?.id === n.id
-    const isExpanded = expandedId === n.id
-    const custMsgs = messages.filter((m: any) => m.customer_id === n.customer.id)
-    return (
-      <div key={n.id}>
-        <div className={[styles.notifCard, isSel ? styles.selected : '', todayNotifs.includes(n) ? styles.unread : ''].join(' ')}
-          style={{ borderLeft: isSel ? undefined : `2.5px solid ${cfg?.borderColor || '#888'}` }}
-          onClick={() => selectNotif(n)}>
-          <div className={styles.cardRow}>
-            <div className={styles.iconWrap}>{s.icon}</div>
-            <div className={styles.cardBody}>
-              <div className={styles.cardTitle}>{n.customer.name}고객 {cfg?.label}</div>
-              <div className={styles.cardDesc}>{n.notifType === 'nearDone' ? `납입률 ${n.rate}%` : n.notifType === 'gap' ? `${!n.hasBrain?'뇌혈관':''} ${!n.hasCare?'간병인':''} 보장 없음` : n.notifType === 'birthday' ? '생일 축하 문자를 보내보세요!' : n.contract?.company}</div>
-              <div className={styles.cardMeta}><span className={styles.badge} style={{ background: cfg?.badgeBg, color: cfg?.badgeColor }}>{s.badge}</span></div>
-            </div>
-            <button className={styles.historyBtn} onClick={e => { e.stopPropagation(); setExpandedId(isExpanded ? null : n.id) }}>
-              {isExpanded ? '닫기' : '이력보기'}
-            </button>
-          </div>
-        </div>
-        {isExpanded && (
-          <div className={styles.inlineHistory}>
-            {custMsgs.length === 0 ? <div className={styles.inlineHistoryEmpty}>발송 이력이 없어요</div>
-              : custMsgs.map((m: any) => (
-                <div key={m.id} className={styles.inlineHistoryItem}>
-                  <div className={styles.inlineHistoryRow}>
-                    <span className={[styles.badge, m.is_sent ? styles.badgeTeal : styles.badgeGray].join(' ')}>{m.is_sent ? '발송' : '카카오/복사'}</span>
-                    <span className={styles.inlineHistoryType}>{m.message_type}</span>
-                    <span className={styles.inlineHistoryDate}>{fmtDate(m.created_at)}</span>
-                  </div>
-                  <div className={styles.inlineHistoryScript}>{m.sent_script}</div>
-                </div>
-              ))}
-          </div>
-        )}
-      </div>
-    )
-  }
-
   // 단체문자 대상 고객 필터링
   const bulkFilteredCustomers = customers.filter((c: any) => {
-    // 고객 유형 필터
     if (bulkCustomerType !== '전체' && c.customer_type !== bulkCustomerType) return false
-    // 성별 필터
     if (bulkGender !== '전체') {
       if (c.gender !== bulkGender) return false
     }
-    // 나이 필터
     if (bulkAgeMin !== null || bulkAgeMax !== null) {
       const bd = c.birth_date || ''
       if (!bd) return false
@@ -356,17 +308,6 @@ export default function NotificationsPage() {
     return true
   })
 
-  // 나이대 옵션
-  const AGE_OPTIONS = [
-    { label: '전체', min: null, max: null },
-    { label: '20대', min: 20, max: 29 },
-    { label: '30대', min: 30, max: 39 },
-    { label: '40대', min: 40, max: 49 },
-    { label: '50대', min: 50, max: 59 },
-    { label: '60대 이상', min: 60, max: null },
-  ]
-
-  // 마지막 발송일 포맷
   function fmtSmsDate(ts: string | null) {
     if (!ts) return null
     const d = new Date(ts)
@@ -376,13 +317,6 @@ export default function NotificationsPage() {
     return `${yy}${mm}${dd}`
   }
 
-  // PC 웹 전용 상태 (Hook 규칙: 조건문 이전에 선언)
-  const [pcActiveIssue, setPcActiveIssue] = useState<IssueType | null>(null)
-  const [pcTab, setPcTab] = useState<'ai' | 'bulk' | 'history'>(() => {
-    if (typeof window !== 'undefined') return (sessionStorage.getItem('pc_notif_tab') as any) || 'ai'
-    return 'ai'
-  })
-
   if (loading) return <div className={styles.loading}>불러오는 중...</div>
 
   const pcActiveNotifs = pcActiveIssue ? notifMap[pcActiveIssue] : []
@@ -391,16 +325,27 @@ export default function NotificationsPage() {
     <div className={styles.wrap}>
 
       {/* ═══════════════════════════════
-          PC: 새 레이아웃
+          PC 레이아웃 (3열)
       ═══════════════════════════════ */}
-      <div className={styles.pcGrid}>
+      <div className={styles.pcWrap}>
 
-        {/* 탭바 - 카드 밖, 고객관리 스타일 */}
+        {/* 페이지 헤더 */}
+        <div className={styles.pageHeader}>
+          <h1 className={styles.pageTitle}>문자 발송</h1>
+          {smsUsage && (
+            <div className={styles.usageBadge}>
+              이번 달 잔여&nbsp;
+              <strong style={{ color: smsUsage.remaining < 100 ? '#E24B4A' : '#1D9E75' }}>
+                {smsUsage.remaining}건
+              </strong>
+              <span> / {smsUsage.limit}건</span>
+            </div>
+          )}
+        </div>
+
+        {/* 탭바 */}
         <div className={styles.pcTabBar}>
-          {[
-            { key: 'ai', label: 'AI 추천' },
-            { key: 'bulk', label: '단체문자' },
-          ].map(tab => (
+          {[{ key: 'ai', label: 'AI 추천' }, { key: 'bulk', label: '단체문자' }].map(tab => (
             <button key={tab.key}
               className={[styles.pcTab, pcTab === tab.key ? styles.pcTabActive : ''].join(' ')}
               onClick={() => { setPcTab(tab.key as any); sessionStorage.setItem('pc_notif_tab', tab.key) }}>
@@ -409,83 +354,72 @@ export default function NotificationsPage() {
           ))}
         </div>
 
-        {/* 잔여문자 - 카드 위 */}
-        <div className={styles.pcTopBar}>
-          <span className={styles.pcTopBarLeft}>카테고리 선택</span>
-          {smsUsage && (
-            <span className={styles.pcTopBarRight}>
-              <span style={{ fontWeight: 700, color: smsUsage.remaining < 100 ? '#E24B4A' : '#1D9E75' }}>{smsUsage.remaining}건</span>
-              <span style={{ color: '#999' }}> / {smsUsage.limit}건</span>
-            </span>
-          )}
-        </div>
-
-        {/* 흰색 카드 래퍼 */}
-        <div className={styles.pcCard}>
-
-        {/* ── AI 추천 탭 ── */}
+        {/* ── AI 추천 탭: 3열 ── */}
         {pcTab === 'ai' && (
-          <div className={styles.pcLayout}>
+          <div className={styles.threeCol}>
 
-            {/* 왼쪽: 카테고리 카드 */}
-            <div className={styles.pcLeftPanel}>
-              {(Object.keys(ISSUE_CONFIG) as IssueType[]).map(type => {
+            {/* 열 1: 카테고리 */}
+            <div className={styles.colCat}>
+              {ISSUE_ORDER.map(type => {
                 const cfg = ISSUE_CONFIG[type]
                 const count = notifMap[type].length
                 const isActive = pcActiveIssue === type
                 return (
                   <div key={type}
-                    className={[styles.pcCatCard, isActive ? styles.pcCatCardActive : ''].join(' ')}
+                    className={[styles.catRow, isActive ? styles.catRowActive : ''].join(' ')}
                     onClick={() => { setPcActiveIssue(isActive ? null : type); setSelected(null); setScriptText('') }}>
-                    <div className={styles.pcCatLeft}>
-                      <div className={styles.pcCatIcon}>{cfg.icon}</div>
+                    <div className={styles.catRowLeft}>
+                      <span className={styles.catIcon}>{cfg.icon}</span>
                       <div>
-                        <div className={styles.pcCatName}>{cfg.label}</div>
-                        <div className={styles.pcCatDesc}>{cfg.desc}</div>
+                        <div className={styles.catName}>{cfg.label}</div>
+                        <div className={styles.catDesc}>{cfg.desc}</div>
                       </div>
                     </div>
-                    <span className={styles.pcCatBadge} style={{
-                      background: count > 0 ? cfg.badgeBg : '#F1EFE8',
-                      color: count > 0 ? cfg.badgeColor : '#888'
-                    }}>{count}</span>
+                    <span
+                      className={styles.catBadge}
+                      style={count > 0 ? { background: cfg.badgeBg, color: cfg.badgeColor } : {}}>
+                      {count}
+                    </span>
                   </div>
                 )
               })}
             </div>
 
-            {/* 오른쪽: 고객 리스트 (넓게 2블록) */}
-            <div className={styles.pcRightWide}>
+            {/* 열 2: 고객 리스트 */}
+            <div className={styles.colCusts}>
               {!pcActiveIssue ? (
-                <div className={styles.pcEmptyHint}>
-                  <div style={{ fontSize: 32, marginBottom: 8 }}>👈</div>
-                  <div>왼쪽에서 카테고리를 선택해 주세요</div>
+                <div className={styles.colEmpty}>
+                  <div style={{ fontSize: 28, marginBottom: 8 }}>👈</div>
+                  카테고리를 선택해 주세요
                 </div>
               ) : pcActiveNotifs.length === 0 ? (
-                <div className={styles.pcEmptyHint}>
-                  <div style={{ fontSize: 32, marginBottom: 8 }}>🎉</div>
-                  <div>해당 카테고리에 고객이 없어요</div>
+                <div className={styles.colEmpty}>
+                  <div style={{ fontSize: 28, marginBottom: 8 }}>🎉</div>
+                  해당 고객이 없어요
                 </div>
               ) : (
                 <>
-                  <p className={styles.pcListTitle}>
-                    {ISSUE_CONFIG[pcActiveIssue].icon} {ISSUE_CONFIG[pcActiveIssue].label} · {pcActiveNotifs.length}명
-                  </p>
+                  <div className={styles.colHeader}>
+                    {ISSUE_CONFIG[pcActiveIssue].icon}&nbsp;{ISSUE_CONFIG[pcActiveIssue].label}&nbsp;·&nbsp;{pcActiveNotifs.length}명
+                  </div>
                   {pcActiveNotifs.map(n => {
                     const cfg = ISSUE_CONFIG[pcActiveIssue]
+                    const isSel = selected?.id === n.id
                     const lastMsg = messages.filter((m: any) => m.customer_id === n.customer.id)[0]
                     return (
-                      <div key={n.id} className={styles.pcCustomerRow}>
-                        <div className={styles.pcCustAvatar}>{n.customer.name.slice(0, 1)}</div>
-                        <div className={styles.pcCustInfo}>
-                          <div className={styles.pcCustName}>{n.customer.name}고객</div>
-                          <div className={styles.pcCustSub}>{n.customer.phone || '연락처 없음'}</div>
+                      <div key={n.id}
+                        className={[styles.custRow, isSel ? styles.custRowActive : ''].join(' ')}
+                        onClick={() => selectNotif(n)}>
+                        <div className={styles.custAvatar}>{n.customer.name.slice(0, 1)}</div>
+                        <div className={styles.custInfo}>
+                          <div className={styles.custName}>{n.customer.name}</div>
+                          <div className={styles.custMeta}>{n.customer.phone || '연락처 없음'}</div>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: 'auto' }}>
-                          {lastMsg && (
-                            <span style={{ fontSize: 12, color: '#999' }}>{fmtDate(lastMsg.created_at)} 발송</span>
-                          )}
-                          <span className={styles.pcCustBadge} style={{ background: cfg.badgeBg, color: cfg.badgeColor }}>{n.badge}</span>
-                          <button className={styles.pcSmsBtn} onClick={() => { selectNotif(n) }}>문자 작성</button>
+                        <div className={styles.custRight}>
+                          <span className={styles.custBadge} style={{ background: cfg.badgeBg, color: cfg.badgeColor }}>
+                            {n.badge}
+                          </span>
+                          {lastMsg && <span className={styles.custLastSent}>{fmtDate(lastMsg.created_at)}</span>}
                         </div>
                       </div>
                     )
@@ -493,70 +427,106 @@ export default function NotificationsPage() {
                 </>
               )}
             </div>
-          </div>
-        )}
 
-        {/* ── PC 문자 작성 슬라이드 팝업 ── */}
-        {selected && pcTab === 'ai' && (
-          <>
-            <div className={styles.pcSlideOverlay} onClick={() => { setSelected(null); setScriptText('') }} />
-            <div className={styles.pcSlidePanel}>
-              <div className={styles.pcSlideHeader}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div className={styles.pcComposeAvatar}>{selected.customer.name.slice(0, 1)}</div>
-                  <div>
-                    <div className={styles.pcComposeName}>{selected.customer.name}고객님</div>
-                    <div className={styles.pcComposeMeta}>
-                      {selected.customer.phone || '연락처 없음'}
-                      <span className={styles.pcComposeBadge} style={{ background: ISSUE_CONFIG[selected.notifType as IssueType]?.badgeBg, color: ISSUE_CONFIG[selected.notifType as IssueType]?.badgeColor }}>
-                        {selected.badge}
-                      </span>
+            {/* 열 3: 문자 작성 (항상 표시) */}
+            <div className={styles.colCompose}>
+
+              {/* 헤더: 고객 선택 시 정보 표시, 미선택 시 안내 */}
+              {selected ? (
+                <div className={styles.composeHeader}>
+                  <div className={styles.composeHeaderLeft}>
+                    <div className={styles.composeAvatar}>{selected.customer.name.slice(0, 1)}</div>
+                    <div>
+                      <div className={styles.composeName}>{selected.customer.name}고객님</div>
+                      <div className={styles.composeMeta}>
+                        {selected.customer.phone || '연락처 없음'}
+                        <span className={styles.custBadge} style={{
+                          background: ISSUE_CONFIG[selected.notifType as IssueType]?.badgeBg,
+                          color: ISSUE_CONFIG[selected.notifType as IssueType]?.badgeColor,
+                        }}>
+                          {selected.badge}
+                        </span>
+                      </div>
                     </div>
                   </div>
+                  <button className={styles.composeCloseBtn} onClick={() => { setSelected(null); setScriptText('') }}>✕</button>
                 </div>
-                <button className={styles.pcSlideClose} onClick={() => { setSelected(null); setScriptText('') }}>✕</button>
+              ) : (
+                <div className={styles.composeNoSelectHint}>
+                  ← 고객을 선택하면 맞춤 문자가 작성돼요
+                </div>
+              )}
+
+              {/* 바디: 항상 표시 */}
+              <div className={styles.composeBody}>
+                <div className={styles.toneRow}>
+                  {TONES.map(t => (
+                    <button key={t}
+                      className={[styles.toneBtn, tone === t ? styles.toneBtnActive : ''].join(' ')}
+                      onClick={() => changeTone(t)}
+                      disabled={!selected}>
+                      {t}
+                    </button>
+                  ))}
+                </div>
+
+                <textarea
+                  ref={textareaRef}
+                  className={[styles.composeTextarea, !selected ? styles.composeTextareaDisabled : ''].join(' ')}
+                  value={scriptText}
+                  onChange={e => setScriptText(e.target.value)}
+                  rows={8}
+                  placeholder={selected ? '문자 내용을 입력하세요' : '왼쪽에서 고객을 선택해 주세요'}
+                  disabled={!selected}
+                />
+
+                <div className={styles.emojiBar}>
+                  <span className={styles.emojiLabel}>자주 쓰는</span>
+                  {EMOJIS.map(e => (
+                    <button key={e} className={styles.emojiBtn} onClick={() => insertEmoji(e)} disabled={!selected}>{e}</button>
+                  ))}
+                </div>
+
+                <div className={styles.charCount}>{scriptText.length}자</div>
               </div>
-              <div className={styles.pcToneRow}>
-                {TONES.map(t => (
-                  <button key={t} className={[styles.pcToneBtn, tone === t ? styles.pcToneBtnActive : ''].join(' ')} onClick={() => changeTone(t)}>{t}</button>
-                ))}
+
+              {/* 발송 버튼: 항상 표시 */}
+              <div className={styles.composeBtnRow}>
+                <button className={styles.btnSend} onClick={handleSend} disabled={sending || !scriptText || !selected}>
+                  {sending ? '발송 중...' : '발송하기'}
+                </button>
+                <button className={styles.btnCopy} onClick={handleCopy} disabled={!scriptText || !selected}>복사</button>
+                <button className={styles.btnKakao}
+                  onClick={async () => { await navigator.clipboard.writeText(scriptText); window.open('kakaotalk://', '_blank') }}
+                  disabled={!scriptText || !selected}>
+                  카카오
+                </button>
               </div>
-              <textarea ref={textareaRef} className={styles.pcTextarea} value={scriptText} onChange={e => setScriptText(e.target.value)} rows={9} placeholder="문자 내용을 입력하세요" />
-              <div className={styles.pcEmojiBar}>
-                <span className={styles.pcEmojiLabel}>자주 쓰는</span>
-                {EMOJIS.map(e => (<button key={e} className={styles.pcEmojiBtn} onClick={() => insertEmoji(e)}>{e}</button>))}
-              </div>
-              <div className={styles.pcCharCount}>{scriptText.length}자</div>
-              <div className={styles.pcBtnRow}>
-                <button className={styles.pcBtnSend} onClick={handleSend} disabled={sending || !scriptText}>{sending ? '발송 중...' : '발송하기'}</button>
-                <button className={styles.pcBtnCopy} onClick={handleCopy} disabled={!scriptText}>복사</button>
-                <button className={styles.pcBtnKakao} onClick={async () => { await navigator.clipboard.writeText(scriptText); window.open('kakaotalk://', '_blank') }} disabled={!scriptText}>카카오</button>
-              </div>
+
             </div>
-          </>
+
+          </div>
         )}
 
         {/* ── 단체문자 탭 ── */}
         {pcTab === 'bulk' && (
           <div className={styles.pcBulkWrap}>
-            {/* 단체문자는 모바일 로직 재활용 - 서브탭 포함 */}
-            <div style={{ display: 'flex', gap: 6, marginBottom: 12, background: '#EDEBE4', borderRadius: 10, padding: 4 }}>
+            <div className={styles.bulkSubTabRow}>
               {[{ key: 'send', label: '✉️ 발송하기' }, { key: 'history', label: '📋 발송이력' }].map(v => (
                 <button key={v.key}
                   onClick={() => setBulkView(v.key as 'send' | 'history')}
-                  style={{ flex: 1, padding: '8px 0', fontSize: 14, fontWeight: bulkView === v.key ? 700 : 500, color: bulkView === v.key ? '#1a1a1a' : '#999', background: bulkView === v.key ? '#fff' : 'transparent', border: 'none', borderRadius: 8, cursor: 'pointer' }}>
+                  className={[styles.bulkSubTab, bulkView === v.key ? styles.bulkSubTabActive : ''].join(' ')}>
                   {v.label}
                 </button>
               ))}
             </div>
 
             {bulkView === 'send' && (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <div className={styles.bulkGrid}>
                 {/* 왼쪽: 필터 + 고객 리스트 */}
                 <div>
-                  <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
-                    <select value={bulkCustomerType} onChange={e => setBulkCustomerType(e.target.value as any)}
-                      style={{ flex: 1, padding: '9px 8px', borderRadius: 8, border: '1px solid #EDEBE4', background: '#fff', fontSize: 13, color: '#1a1a1a', cursor: 'pointer' }}>
+                  <div className={styles.bulkFilterRow}>
+                    <select value={bulkCustomerType} onChange={e => setBulkCustomerType(e.target.value as any)} className={styles.bulkSelect}>
                       <option value="전체">전체 고객</option>
                       <option value="existing">마이고객</option>
                       <option value="prospect">관심고객</option>
@@ -571,7 +541,7 @@ export default function NotificationsPage() {
                         else if (v === '50') { setBulkAgeMin(50); setBulkAgeMax(59) }
                         else if (v === '60') { setBulkAgeMin(60); setBulkAgeMax(null) }
                       }}
-                      style={{ flex: 1, padding: '9px 8px', borderRadius: 8, border: '1px solid #EDEBE4', background: '#fff', fontSize: 13, color: '#1a1a1a', cursor: 'pointer' }}>
+                      className={styles.bulkSelect}>
                       <option value="전체">전체 나이</option>
                       <option value="20">20대</option>
                       <option value="30">30대</option>
@@ -579,158 +549,110 @@ export default function NotificationsPage() {
                       <option value="50">50대</option>
                       <option value="60">60대 이상</option>
                     </select>
-                    <select value={bulkGender} onChange={e => setBulkGender(e.target.value as any)}
-                      style={{ flex: 1, padding: '9px 8px', borderRadius: 8, border: '1px solid #EDEBE4', background: '#fff', fontSize: 13, color: '#1a1a1a', cursor: 'pointer' }}>
+                    <select value={bulkGender} onChange={e => setBulkGender(e.target.value as any)} className={styles.bulkSelect}>
                       <option value="전체">전체 성별</option>
                       <option value="남">남성</option>
                       <option value="여">여성</option>
                     </select>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                    <p style={{ fontSize: 14, color: '#1a1a1a', fontWeight: 600 }}>대상 고객 <span style={{ color: '#1D9E75' }}>{bulkFilteredCustomers.length}명</span></p>
+                  <div className={styles.bulkListHeader}>
+                    <span className={styles.bulkListCount}>대상 고객 <strong>{bulkFilteredCustomers.length}명</strong></span>
                     <button onClick={() => setBulkSelectedIds(bulkSelectedIds.length === bulkFilteredCustomers.length ? [] : bulkFilteredCustomers.map((c: any) => c.id))}
-                      style={{ fontSize: 13, color: '#1D9E75', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
+                      className={styles.bulkSelectAll}>
                       {bulkSelectedIds.length === bulkFilteredCustomers.length && bulkFilteredCustomers.length > 0 ? '전체 해제' : '전체 선택'}
                     </button>
                   </div>
-                  <div style={{ background: '#fff', border: '1px solid #EDEBE4', borderRadius: 12, overflow: 'hidden', maxHeight: 'calc(100vh - 523px)', overflowY: 'auto' }}>
+                  <div className={styles.bulkCustList}>
                     {bulkFilteredCustomers.length === 0 ? (
-                      <p style={{ fontSize: 13, color: '#999', textAlign: 'center', padding: '20px 0' }}>조건에 맞는 고객이 없어요</p>
+                      <p className={styles.bulkEmpty}>조건에 맞는 고객이 없어요</p>
                     ) : bulkFilteredCustomers.map((c: any, i: number) => {
                       const isSel = bulkSelectedIds.includes(c.id)
                       return (
                         <div key={c.id}
                           onClick={() => {
-                          const newIds = isSel ? bulkSelectedIds.filter(id => id !== c.id) : [...bulkSelectedIds, c.id]
-                          setBulkSelectedIds(newIds)
-                          // 고객 선택 변경 시 기존 내용에 이름이 포함돼 있으면 초기화
-                          if (bulkContent && bulkContent.includes('고객님')) {
-                            setBulkContent('')
-                          }
-                        }}
-                          style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderBottom: i < bulkFilteredCustomers.length - 1 ? '1px solid #EDEBE4' : 'none', background: isSel ? '#F0FDF4' : '#fff', cursor: 'pointer' }}>
-                          <div style={{ width: 20, height: 20, borderRadius: 6, border: `2px solid ${isSel ? '#1D9E75' : '#D1D5DB'}`, background: isSel ? '#1D9E75' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            {isSel && <span style={{ color: '#fff', fontSize: 12, fontWeight: 700 }}>✓</span>}
+                            const newIds = isSel ? bulkSelectedIds.filter(id => id !== c.id) : [...bulkSelectedIds, c.id]
+                            setBulkSelectedIds(newIds)
+                            if (bulkContent && bulkContent.includes('고객님')) setBulkContent('')
+                          }}
+                          className={[styles.bulkCustRow, isSel ? styles.bulkCustRowSel : ''].join(' ')}>
+                          <div className={[styles.bulkCheckbox, isSel ? styles.bulkCheckboxSel : ''].join(' ')}>
+                            {isSel && <span style={{ color: '#fff', fontSize: 11, fontWeight: 700, lineHeight: 1 }}>✓</span>}
                           </div>
-                          <div style={{ flex: 1 }}>
-                            <p style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', marginBottom: 2 }}>{c.name}</p>
-                            <p style={{ fontSize: 12, color: '#999' }}>{c.phone || '번호 없음'}</p>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <p className={styles.bulkCustName}>{c.name}</p>
+                            <p className={styles.bulkCustPhone}>{c.phone || '번호 없음'}</p>
                           </div>
                         </div>
                       )
                     })}
                   </div>
                 </div>
-                {/* 오른쪽: 문자 내용 입력 */}
-                <div style={{ paddingTop: 15 }}>
-                  {/* AI 추천 템플릿 카드 - 항상 표시 */}
-                  <p style={{ fontSize: 13, color: '#999', marginBottom: 8 }}>💡 상황별 추천 문자 — 클릭하면 바로 입력돼요</p>
+
+                {/* 오른쪽: 문자 내용 */}
+                <div>
+                  <p className={styles.bulkTemplateHint}>💡 상황별 추천 문자 — 클릭하면 바로 입력돼요</p>
                   {(() => {
                     const TEMPLATES: Record<string, Record<string, string>> = {
-                      hello: {
-                        친근: `안녕하세요! 담당 설계사 ${agentName}입니다 😊\n처음 인사 드려요! 보험 관련 궁금하신 점 있으시면 편하게 연락 주세요!\n\n설계사 ${agentName} 드림`,
-                        정중: `안녕하세요! 담당 설계사 ${agentName}입니다.\n처음 인사 드립니다. 보험 관련 문의사항이 있으시면 언제든지 연락 주시기 바랍니다.\n\n설계사 ${agentName} 드림`,
-                        애교: `안녕하세요! 담당 설계사 ${agentName}예요~ 😄\n앞으로 잘 부탁드려요! 궁금한 거 있으시면 언제든 연락 주세요 💚\n\n설계사 ${agentName} 드림`,
-                        간결: `안녕하세요! 담당 설계사 ${agentName}입니다. 궁금한 점 편하게 연락 주세요.\n\n설계사 ${agentName} 드림`,
-                      },
-                      greeting: {
-                        친근: `안녕하세요! 담당 설계사 ${agentName}입니다 😊\n잘 지내고 계신가요? 좋은 하루 되세요!\n\n설계사 ${agentName} 드림`,
-                        정중: `안녕하세요! 담당 설계사 ${agentName}입니다.\n안부 인사 드립니다. 항상 건강하게 지내시길 바랍니다.\n\n설계사 ${agentName} 드림`,
-                        애교: `안녕하세요! 설계사 ${agentName}예요~ 😊\n요즘 어떻게 지내세요? 항상 응원하고 있어요 💚\n\n설계사 ${agentName} 드림`,
-                        간결: `안녕하세요! 설계사 ${agentName}입니다. 안부 인사 드립니다.\n\n설계사 ${agentName} 드림`,
-                      },
-                      birthday: {
-                        친근: `안녕하세요! 오늘 생일이시죠? 🎂\n진심으로 축하드려요! 행복한 하루 보내세요 😊\n\n설계사 ${agentName} 드림`,
-                        정중: `안녕하세요! 생신을 진심으로 축하드립니다 🎂\n항상 건강하시고 행복하신 날 되시길 바랍니다.\n\n설계사 ${agentName} 드림`,
-                        애교: `안녕하세요! 생일 축하해요~ 🎂🎉\n오늘 하루 정말 특별하게 보내세요! 항상 응원해요 💚\n\n설계사 ${agentName} 드림`,
-                        간결: `안녕하세요! 생일 축하드립니다! 🎂\n\n설계사 ${agentName} 드림`,
-                      },
-                      nearDone: {
-                        친근: `안녕하세요! 담당 설계사 ${agentName}입니다 😊\n가입하신 보험 납입이 거의 완료될 예정이에요 🎉\n오랫동안 성실하게 납입해 주셔서 감사합니다!\n\n설계사 ${agentName} 드림`,
-                        정중: `안녕하세요! 담당 설계사 ${agentName}입니다.\n가입하신 보험의 납입 완료가 임박하였습니다. 완납 후 혜택에 대해 안내드리겠습니다.\n\n설계사 ${agentName} 드림`,
-                        애교: `안녕하세요! 드디어 완납 임박이에요! 🔥\n정말 수고 많으셨어요! 완납 후 더 좋은 혜택 안내해 드릴게요 💚\n\n설계사 ${agentName} 드림`,
-                        간결: `안녕하세요! 보험 완납이 임박했습니다. 연락 주시면 안내해 드리겠습니다.\n\n설계사 ${agentName} 드림`,
-                      },
-                      gap: {
-                        친근: `안녕하세요! 담당 설계사 ${agentName}입니다 😊\n보험을 검토해보니 보장 공백이 확인됐어요.\n시간 되실 때 통화 한번 해도 될까요? 📞\n\n설계사 ${agentName} 드림`,
-                        정중: `안녕하세요! 담당 설계사 ${agentName}입니다.\n보험 검토 중 보장 공백이 확인되었습니다. 편하신 시간에 상담 부탁드립니다.\n\n설계사 ${agentName} 드림`,
-                        애교: `안녕하세요! 보장 공백을 발견했어요! 😮\n더 잘 지켜드리고 싶어서요~ 시간 되시면 연락 주세요 💚\n\n설계사 ${agentName} 드림`,
-                        간결: `안녕하세요! 보장 공백이 확인됐습니다. 연락 주시면 안내해 드리겠습니다. 📞\n\n설계사 ${agentName} 드림`,
-                      },
-                      expiry: {
-                        친근: `안녕하세요! 담당 설계사 ${agentName}입니다 😊\n가입하신 보험이 곧 만기가 돼요!\n미리 안내드리려고 연락드렸습니다.\n\n설계사 ${agentName} 드림`,
-                        정중: `안녕하세요! 담당 설계사 ${agentName}입니다.\n가입하신 보험의 만기가 도래하여 미리 안내드립니다. 편하신 시간에 상담 부탁드립니다.\n\n설계사 ${agentName} 드림`,
-                        애교: `안녕하세요! 보험 만기가 다가오고 있어요! ⏰\n보장 공백 없이 잘 챙겨드리고 싶어서요 💚\n\n설계사 ${agentName} 드림`,
-                        간결: `안녕하세요! 보험 만기가 임박했습니다. 연락 주시면 안내해 드리겠습니다.\n\n설계사 ${agentName} 드림`,
-                      },
+                      hello: { 친근: `안녕하세요! 담당 설계사 ${agentName}입니다 😊\n처음 인사 드려요! 보험 관련 궁금하신 점 있으시면 편하게 연락 주세요!\n\n설계사 ${agentName} 드림`, 정중: `안녕하세요! 담당 설계사 ${agentName}입니다.\n처음 인사 드립니다. 보험 관련 문의사항이 있으시면 언제든지 연락 주시기 바랍니다.\n\n설계사 ${agentName} 드림`, 애교: `안녕하세요! 담당 설계사 ${agentName}예요~ 😄\n앞으로 잘 부탁드려요! 궁금한 거 있으시면 언제든 연락 주세요 💚\n\n설계사 ${agentName} 드림`, 간결: `안녕하세요! 담당 설계사 ${agentName}입니다. 궁금한 점 편하게 연락 주세요.\n\n설계사 ${agentName} 드림` },
+                      greeting: { 친근: `안녕하세요! 담당 설계사 ${agentName}입니다 😊\n잘 지내고 계신가요? 좋은 하루 되세요!\n\n설계사 ${agentName} 드림`, 정중: `안녕하세요! 담당 설계사 ${agentName}입니다.\n안부 인사 드립니다. 항상 건강하게 지내시길 바랍니다.\n\n설계사 ${agentName} 드림`, 애교: `안녕하세요! 설계사 ${agentName}예요~ 😊\n요즘 어떻게 지내세요? 항상 응원하고 있어요 💚\n\n설계사 ${agentName} 드림`, 간결: `안녕하세요! 설계사 ${agentName}입니다. 안부 인사 드립니다.\n\n설계사 ${agentName} 드림` },
+                      birthday: { 친근: `안녕하세요! 오늘 생일이시죠? 🎂\n진심으로 축하드려요! 행복한 하루 보내세요 😊\n\n설계사 ${agentName} 드림`, 정중: `안녕하세요! 생신을 진심으로 축하드립니다 🎂\n항상 건강하시고 행복하신 날 되시길 바랍니다.\n\n설계사 ${agentName} 드림`, 애교: `안녕하세요! 생일 축하해요~ 🎂🎉\n오늘 하루 정말 특별하게 보내세요! 항상 응원해요 💚\n\n설계사 ${agentName} 드림`, 간결: `안녕하세요! 생일 축하드립니다! 🎂\n\n설계사 ${agentName} 드림` },
+                      nearDone: { 친근: `안녕하세요! 담당 설계사 ${agentName}입니다 😊\n가입하신 보험 납입이 거의 완료될 예정이에요 🎉\n오랫동안 성실하게 납입해 주셔서 감사합니다!\n\n설계사 ${agentName} 드림`, 정중: `안녕하세요! 담당 설계사 ${agentName}입니다.\n가입하신 보험의 납입 완료가 임박하였습니다.\n\n설계사 ${agentName} 드림`, 애교: `안녕하세요! 드디어 완납 임박이에요! 🔥\n정말 수고 많으셨어요! 💚\n\n설계사 ${agentName} 드림`, 간결: `안녕하세요! 보험 완납이 임박했습니다.\n\n설계사 ${agentName} 드림` },
+                      gap: { 친근: `안녕하세요! 담당 설계사 ${agentName}입니다 😊\n보험을 검토해보니 보장 공백이 확인됐어요.\n시간 되실 때 통화 한번 해도 될까요? 📞\n\n설계사 ${agentName} 드림`, 정중: `안녕하세요! 담당 설계사 ${agentName}입니다.\n보험 검토 중 보장 공백이 확인되었습니다.\n\n설계사 ${agentName} 드림`, 애교: `안녕하세요! 보장 공백을 발견했어요! 😮\n더 잘 지켜드리고 싶어서요~ 💚\n\n설계사 ${agentName} 드림`, 간결: `안녕하세요! 보장 공백이 확인됐습니다. 연락 주세요. 📞\n\n설계사 ${agentName} 드림` },
+                      expiry: { 친근: `안녕하세요! 담당 설계사 ${agentName}입니다 😊\n가입하신 보험이 곧 만기가 돼요!\n\n설계사 ${agentName} 드림`, 정중: `안녕하세요! 담당 설계사 ${agentName}입니다.\n가입하신 보험의 만기가 도래하여 안내드립니다.\n\n설계사 ${agentName} 드림`, 애교: `안녕하세요! 보험 만기가 다가오고 있어요! ⏰\n잘 챙겨드리고 싶어서요 💚\n\n설계사 ${agentName} 드림`, 간결: `안녕하세요! 보험 만기가 임박했습니다.\n\n설계사 ${agentName} 드림` },
                     }
                     const LABELS: Record<string, string> = { hello: '👋 첫 인사', greeting: '🌸 안부 인사', birthday: '🎂 생일 축하', nearDone: '🔥 완납 임박', gap: '⚠️ 보장 공백', expiry: '📋 만기 안내' }
-                    const currentKey = null // AI 생성 방식
                     return (
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 6 }}>
-                        {Object.keys(TEMPLATES).map(key => {
-                          const isActive = currentKey === key
-                          return (
-                            <button key={key}
-                              onClick={() => generateBulkSms(key, bulkTone)}
-                              style={{ textAlign: 'left', padding: '9px 12px', borderRadius: 8, border: `1.5px solid ${isActive ? '#1D9E75' : '#EDEBE4'}`, background: isActive ? '#F0FDF9' : '#FAF9F5', cursor: 'pointer', fontSize: 13, color: '#1a1a1a', fontWeight: 500 }}>
-                              {LABELS[key]}
-                            </button>
-                          )
-                        })}
+                      <div className={styles.bulkTemplateGrid}>
+                        {Object.keys(TEMPLATES).map(key => (
+                          <button key={key}
+                            onClick={() => generateBulkSms(key, bulkTone)}
+                            className={styles.bulkTemplateBtn}>
+                            {LABELS[key]}
+                          </button>
+                        ))}
                       </div>
                     )
                   })()}
 
-                  {/* 톤 드롭다운 - 카드 아래 */}
                   <select value={bulkTone} onChange={e => {
                     const newTone = e.target.value
                     setBulkTone(newTone)
-                    // AI API로 생성
-                    const SITUATION_LABELS: Record<string, string> = { hello: '첫 인사', greeting: '안부 인사', birthday: '생일 축하', nearDone: '완납 임박', gap: '보장 공백', expiry: '만기 안내' }
-                    if (bulkContent && bulkContent.includes('\n')) {
-                      generateBulkSms('greeting', newTone)
-                    }
-                  }}
-                    style={{ width: '100%', padding: '6px 10px', borderRadius: 8, border: '1px solid #EDEBE4', background: '#FAF9F5', fontSize: 13, color: '#1a1a1a', marginBottom: 8, cursor: 'pointer' }}>
+                    if (bulkContent && bulkContent.includes('\n')) generateBulkSms('greeting', newTone)
+                  }} className={styles.bulkToneSelect}>
                     {['친근', '정중', '애교', '간결'].map(t => <option key={t} value={t}>{t}한 톤</option>)}
                   </select>
 
                   {bulkGenerating ? (
-                    <div style={{ width: '100%', height: 168, border: '1px solid #EDEBE4', borderRadius: 8, background: '#FAF9F5', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-                      <span style={{ fontSize: 13, color: '#666' }}>AI 문자 작성중</span>
-                      <div style={{ width: '60%', height: 4, background: '#EDEBE4', borderRadius: 4, overflow: 'hidden' }}>
-                        <div style={{
-                          height: '100%', background: '#ffffff', borderRadius: 4,
-                          animation: 'slideBar 1.4s ease-in-out infinite',
-                          width: '40%',
-                        }} />
-                      </div>
+                    <div className={styles.bulkGenerating}>
+                      <span>AI 문자 작성중</span>
+                      <div className={styles.bulkGeneratingBar}><div className={styles.bulkGeneratingFill} /></div>
                       <style>{`@keyframes slideBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(280%); } }`}</style>
                     </div>
                   ) : (
-                    <div style={{ border: '1px solid #EDEBE4', borderRadius: 8, background: '#fff', overflow: 'hidden' }}>
-                      <textarea value={bulkContent.replace(/\n\n설계사 .+ 드림$/, '')} onChange={e => {
-                        const sign = bulkContent.match(/\n\n설계사 .+ 드림$/)?.[0] || ''
-                        setBulkContent(e.target.value + sign)
-                      }}
+                    <div className={styles.bulkTextareaWrap}>
+                      <textarea
+                        value={bulkContent.replace(/\n\n설계사 .+ 드림$/, '')}
+                        onChange={e => {
+                          const sign = bulkContent.match(/\n\n설계사 .+ 드림$/)?.[0] || ''
+                          setBulkContent(e.target.value + sign)
+                        }}
                         placeholder="상황별 추천 문자를 선택하거나 직접 입력하세요"
                         rows={6}
                         id="bulkTextarea"
-                        style={{ width: '100%', padding: '10px 12px', border: 'none', fontSize: 14, color: '#1a1a1a', resize: 'none', lineHeight: 1.6, background: '#fff', outline: 'none' }}
+                        className={styles.bulkTextarea}
                       />
                       {bulkContent.match(/\n\n설계사 .+ 드림$/) && (
-                        <div style={{ borderTop: '1px dashed #EDEBE4', padding: '6px 12px', textAlign: 'right', fontSize: 13, color: '#666', background: '#FAF9F5' }}>
+                        <div className={styles.bulkTextareaSign}>
                           {bulkContent.match(/설계사 .+ 드림/)?.[0]}
                         </div>
                       )}
                     </div>
                   )}
-                  {/* 이모지 바 */}
-                  <div className={styles.pcEmojiBar} style={{ margin: '6px 0' }}>
-                    <span className={styles.pcEmojiLabel}>자주 쓰는</span>
+
+                  <div className={styles.emojiBar} style={{ margin: '6px 0' }}>
+                    <span className={styles.emojiLabel}>자주 쓰는</span>
                     {EMOJIS.map(e => (
-                      <button key={e} className={styles.pcEmojiBtn} onClick={() => {
+                      <button key={e} className={styles.emojiBtn} onClick={() => {
                         const el = document.getElementById('bulkTextarea') as HTMLTextAreaElement
                         if (!el) { setBulkContent(s => s + e); return }
                         const start = el.selectionStart; const end = el.selectionEnd
@@ -740,7 +662,8 @@ export default function NotificationsPage() {
                       }}>{e}</button>
                     ))}
                   </div>
-                  <p style={{ fontSize: 12, color: '#999', textAlign: 'right', marginTop: 4, marginBottom: 12 }}>{bulkContent.length}자</p>
+                  <p className={styles.bulkCharCount}>{bulkContent.length}자</p>
+
                   <button
                     disabled={!bulkContent.trim() || bulkSelectedIds.length === 0}
                     onClick={() => {
@@ -750,7 +673,8 @@ export default function NotificationsPage() {
                         alert('단체문자 발송 기능은 SMS 연동 후 사용 가능합니다.')
                       }
                     }}
-                    style={{ width: '100%', padding: '14px 0', borderRadius: 10, border: 'none', background: bulkContent.trim() && bulkSelectedIds.length > 0 ? '#1D9E75' : '#D1D5DB', color: 'white', fontSize: 15, fontWeight: 700, cursor: bulkContent.trim() && bulkSelectedIds.length > 0 ? 'pointer' : 'not-allowed' }}>
+                    className={styles.bulkSendBtn}
+                    style={{ background: bulkContent.trim() && bulkSelectedIds.length > 0 ? '#1D9E75' : undefined }}>
                     {bulkSelectedIds.length > 0 ? `${bulkSelectedIds.length}명에게 발송하기` : '고객을 선택해주세요'}
                   </button>
                 </div>
@@ -758,16 +682,15 @@ export default function NotificationsPage() {
             )}
 
             {bulkView === 'history' && (
-              <div style={{ background: '#fff', border: '1px solid #EDEBE4', borderRadius: 12, padding: '20px 14px', textAlign: 'center' }}>
-                <p style={{ fontSize: 14, color: '#999' }}>아직 발송 이력이 없어요 📭</p>
-                <p style={{ fontSize: 13, color: '#ccc', marginTop: 6 }}>단체문자를 발송하면 여기에 기록돼요</p>
+              <div className={styles.bulkHistoryEmpty}>
+                <p>아직 발송 이력이 없어요 📭</p>
+                <p>단체문자를 발송하면 여기에 기록돼요</p>
               </div>
             )}
           </div>
         )}
 
-        </div>{/* pcCard 닫기 */}
-      </div>
+      </div>{/* pcWrap 닫기 */}
 
       {/* ═══════════════════════════════
           모바일 전용 레이아웃
@@ -790,8 +713,6 @@ export default function NotificationsPage() {
         {/* ── 단체문자 탭 ── */}
         {!activeIssue && activeTab === 'bulk' && (
           <div>
-
-            {/* 1. 잔여 횟수 (최상단) */}
             {smsUsage && (
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', border: '1px solid #EDEBE4', borderRadius: 10, padding: '10px 14px', margin: '8px 10px 10px' }}>
                 <span style={{ fontSize: 13, color: '#666' }}>이번 달 문자 잔여</span>
@@ -801,8 +722,6 @@ export default function NotificationsPage() {
                 </div>
               </div>
             )}
-
-            {/* 서브탭: 발송하기 / 발송이력 */}
             <div style={{ display: 'flex', gap: 6, margin: '8px 10px 10px', background: '#EDEBE4', borderRadius: 10, padding: 4 }}>
               {[{ key: 'send', label: '✉️ 발송하기' }, { key: 'history', label: '📋 발송이력' }].map(v => (
                 <button key={v.key}
@@ -814,28 +733,17 @@ export default function NotificationsPage() {
             </div>
 
             {bulkView === 'send' && <>
-            {/* 2. 문자 내용 입력 */}
             <div style={{ background: '#fff', border: '1px solid #EDEBE4', borderRadius: 12, padding: '14px 12px', margin: '0 10px 10px' }}>
               <p style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a', marginBottom: 10 }}>✉️ 문자 내용</p>
-              {/* 톤 선택 드롭다운 */}
-              <select
-                value={bulkTone}
-                onChange={e => setBulkTone(e.target.value)}
+              <select value={bulkTone} onChange={e => setBulkTone(e.target.value)}
                 style={{ width: '100%', padding: '6px 10px', borderRadius: 8, border: '1px solid #EDEBE4', background: '#FAF9F5', fontSize: 13, color: '#1a1a1a', marginBottom: 8, cursor: 'pointer' }}>
                 {['친근', '정중', '애교', '간결'].map(t => <option key={t} value={t}>{t}한 톤</option>)}
               </select>
-              {/* 내용 입력 */}
-              <textarea
-                value={bulkContent}
-                onChange={e => setBulkContent(e.target.value)}
-                placeholder="발송할 문자 내용을 입력하세요"
-                rows={4}
-                style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #EDEBE4', fontSize: 14, color: '#1a1a1a', resize: 'none', lineHeight: 1.6, background: '#fff' }}
-              />
+              <textarea value={bulkContent} onChange={e => setBulkContent(e.target.value)}
+                placeholder="발송할 문자 내용을 입력하세요" rows={4}
+                style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #EDEBE4', fontSize: 14, color: '#1a1a1a', resize: 'none', lineHeight: 1.6, background: '#fff' }} />
               <p style={{ fontSize: 12, color: '#999', textAlign: 'right', marginTop: 4 }}>{bulkContent.length}자</p>
             </div>
-
-            {/* 3. 대상 필터 (드롭다운 1줄) */}
             <div style={{ display: 'flex', gap: 6, margin: '0 10px 10px' }}>
               <select value={bulkCustomerType} onChange={e => setBulkCustomerType(e.target.value as any)}
                 style={{ flex: 1, padding: '9px 8px', borderRadius: 8, border: '1px solid #EDEBE4', background: '#fff', fontSize: 13, color: '#1a1a1a', cursor: 'pointer' }}>
@@ -843,8 +751,7 @@ export default function NotificationsPage() {
                 <option value="existing">마이고객</option>
                 <option value="prospect">관심고객</option>
               </select>
-              <select
-                value={bulkAgeMin === null ? '전체' : `${bulkAgeMin}`}
+              <select value={bulkAgeMin === null ? '전체' : `${bulkAgeMin}`}
                 onChange={e => {
                   const v = e.target.value
                   if (v === '전체') { setBulkAgeMin(null); setBulkAgeMax(null) }
@@ -869,18 +776,13 @@ export default function NotificationsPage() {
                 <option value="여">여성</option>
               </select>
             </div>
-
-            {/* 4. 대상 고객 수 + 전체선택 */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 10px 8px' }}>
               <p style={{ fontSize: 14, color: '#1a1a1a', fontWeight: 600 }}>대상 고객 <span style={{ color: '#1D9E75' }}>{bulkFilteredCustomers.length}명</span></p>
-              <button
-                onClick={() => setBulkSelectedIds(bulkSelectedIds.length === bulkFilteredCustomers.length ? [] : bulkFilteredCustomers.map((c: any) => c.id))}
+              <button onClick={() => setBulkSelectedIds(bulkSelectedIds.length === bulkFilteredCustomers.length ? [] : bulkFilteredCustomers.map((c: any) => c.id))}
                 style={{ fontSize: 13, color: '#1D9E75', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
                 {bulkSelectedIds.length === bulkFilteredCustomers.length && bulkFilteredCustomers.length > 0 ? '전체 해제' : '전체 선택'}
               </button>
             </div>
-
-            {/* 5. 고객 리스트 */}
             <div style={{ background: '#fff', border: '1px solid #EDEBE4', borderRadius: 12, margin: '0 10px 12px', overflow: 'hidden' }}>
               {bulkFilteredCustomers.length === 0 ? (
                 <p style={{ fontSize: 13, color: '#999', textAlign: 'center', padding: '20px 0' }}>조건에 맞는 고객이 없어요</p>
@@ -892,13 +794,10 @@ export default function NotificationsPage() {
                 return (
                   <div key={c.id}
                     onClick={() => {
-                          const newIds = isSel ? bulkSelectedIds.filter(id => id !== c.id) : [...bulkSelectedIds, c.id]
-                          setBulkSelectedIds(newIds)
-                          // 고객 선택 변경 시 기존 내용에 이름이 포함돼 있으면 초기화
-                          if (bulkContent && bulkContent.includes('고객님')) {
-                            setBulkContent('')
-                          }
-                        }}
+                      const newIds = isSel ? bulkSelectedIds.filter(id => id !== c.id) : [...bulkSelectedIds, c.id]
+                      setBulkSelectedIds(newIds)
+                      if (bulkContent && bulkContent.includes('고객님')) setBulkContent('')
+                    }}
                     style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderBottom: i < bulkFilteredCustomers.length - 1 ? '1px solid #EDEBE4' : 'none', background: isSel ? '#F0FDF4' : '#fff', cursor: 'pointer' }}>
                     <div style={{ width: 20, height: 20, borderRadius: 6, border: `2px solid ${isSel ? '#1D9E75' : '#D1D5DB'}`, background: isSel ? '#1D9E75' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       {isSel && <span style={{ color: '#fff', fontSize: 12, fontWeight: 700 }}>✓</span>}
@@ -908,23 +807,16 @@ export default function NotificationsPage() {
                       <p style={{ fontSize: 12, color: '#999' }}>{c.phone || '번호 없음'}</p>
                     </div>
                     <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-                      {smsCount > 0 && (
-                        <span style={{ fontSize: 11, padding: '2px 7px', borderRadius: 6, background: '#E1F5EE', color: '#065F46', fontWeight: 700 }}>{smsCount}회</span>
-                      )}
-                      {lastSent && (
-                        <span style={{ fontSize: 11, padding: '2px 7px', borderRadius: 6, background: '#F1EFE8', color: '#5F5E5A', fontWeight: 600 }}>{lastSent}</span>
-                      )}
+                      {smsCount > 0 && <span style={{ fontSize: 11, padding: '2px 7px', borderRadius: 6, background: '#E1F5EE', color: '#065F46', fontWeight: 700 }}>{smsCount}회</span>}
+                      {lastSent && <span style={{ fontSize: 11, padding: '2px 7px', borderRadius: 6, background: '#F1EFE8', color: '#5F5E5A', fontWeight: 600 }}>{lastSent}</span>}
                     </div>
                   </div>
                 )
               })}
             </div>
-
-            {/* 6. 발송 버튼 (하단 고정) */}
             {bulkSelectedIds.length > 0 && (
               <div style={{ position: 'fixed', bottom: 60, left: 0, right: 0, padding: '10px 10px', background: '#FAF9F5', borderTop: '1px solid #EDEBE4', zIndex: 100 }}>
-                <button
-                  disabled={!bulkContent.trim()}
+                <button disabled={!bulkContent.trim()}
                   onClick={() => {
                     if (!bulkContent.trim()) { alert('문자 내용을 입력해주세요.'); return }
                     if (confirm(`${bulkSelectedIds.length}명에게 단체문자를 발송합니다. 계속하시겠습니까?`)) {
@@ -938,10 +830,8 @@ export default function NotificationsPage() {
             )}
             </>}
 
-            {/* 발송이력 뷰 */}
             {bulkView === 'history' && (
               <div style={{ marginBottom: 20 }}>
-                {/* 추후 dpa_sms_campaigns에서 로드 */}
                 <div style={{ background: '#fff', border: '1px solid #EDEBE4', borderRadius: 12, overflow: 'hidden' }}>
                   <div style={{ padding: '20px 14px', textAlign: 'center' }}>
                     <p style={{ fontSize: 14, color: '#999' }}>아직 발송 이력이 없어요 📭</p>
@@ -950,53 +840,12 @@ export default function NotificationsPage() {
                 </div>
               </div>
             )}
-            {/* 7. 단체문자 발송 이력 */}
-            {(() => {
-              const campaigns = [] as any[] // 추후 dpa_sms_campaigns에서 로드
-              if (campaigns.length === 0) return null
-              return (
-                <div style={{ background: '#fff', border: '1px solid #EDEBE4', borderRadius: 12, marginBottom: 80, overflow: 'hidden' }}>
-                  <div onClick={() => setBulkHistoryExpanded(v => !v)}
-                    style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', cursor: 'pointer' }}>
-                    <p style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a' }}>📋 단체문자 발송 이력</p>
-                    <span style={{ fontSize: 12, color: '#999' }}>{bulkHistoryExpanded ? '접기' : '펼치기'}</span>
-                  </div>
-                  {bulkHistoryExpanded && campaigns.map((c: any, i: number) => {
-                    const d = new Date(c.created_at)
-                    const days = ['일','월','화','수','목','금','토']
-                    const dateStr = `${d.getMonth()+1}.${d.getDate()}(${days[d.getDay()]})`
-                    const filterStr = [
-                      c.filter_customer_type !== '전체' ? (c.filter_customer_type === 'existing' ? '마이고객' : '관심고객') : '전체',
-                      c.filter_age_min ? `${c.filter_age_min}대` : null,
-                      c.filter_gender !== '전체' ? c.filter_gender : null,
-                    ].filter(Boolean).join(' · ')
-                    return (
-                      <div key={c.id} style={{ padding: '10px 14px', borderTop: '1px solid #EDEBE4', cursor: 'pointer' }}
-                        onClick={() => alert(c.content)}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                            <span style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>{dateStr}</span>
-                            <span style={{ fontSize: 12, color: '#666' }}>{filterStr}</span>
-                          </div>
-                          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                            <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 6, background: '#E1F5EE', color: '#065F46', fontWeight: 700 }}>{c.sent_count}명</span>
-                            <span style={{ fontSize: 11, color: '#999' }}>{c.tone}</span>
-                          </div>
-                        </div>
-                        <p style={{ fontSize: 12, color: '#999', marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.content}</p>
-                      </div>
-                    )
-                  })}
-                </div>
-              )
-            })()}
           </div>
         )}
 
         {/* ── 메인: 이슈 카드 목록 ── */}
         {!activeIssue && activeTab === 'ai' && (
           <>
-            {/* 잔여 문자 */}
             {smsUsage && (
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', border: '1px solid #EDEBE4', borderRadius: 10, padding: '10px 14px', margin: '8px 10px 10px' }}>
                 <span style={{ fontSize: 13, color: '#666' }}>이번 달 문자 잔여</span>
@@ -1006,7 +855,6 @@ export default function NotificationsPage() {
                 </div>
               </div>
             )}
-            {/* 이슈 카드 */}
             <div className={styles.issueList}>
               {(Object.keys(ISSUE_CONFIG) as IssueType[]).map(type => {
                 const cfg = ISSUE_CONFIG[type]
@@ -1024,8 +872,6 @@ export default function NotificationsPage() {
                 )
               })}
             </div>
-
-            {/* 최근 발송 이력 - 항상 표시 */}
             <div className={styles.recentHistory}>
               <p className={styles.recentHistoryLabel}>최근 발송 이력</p>
               {messages.length === 0 ? (
@@ -1054,15 +900,12 @@ export default function NotificationsPage() {
         {/* ── 드릴다운: 이슈별 고객 리스트 ── */}
         {activeIssue && (
           <>
-            {/* 헤더 (뒤로가기) - 심플 */}
             <div className={styles.drillSimpleHeader}>
               <button className={styles.backBtn} onClick={() => { setActiveIssue(null); setSelectMode(false); setSelectedIds([]) }}>
                 <div className={styles.backChevron} />
               </button>
               <span className={styles.drillSimpleTitle}>{ISSUE_CONFIG[activeIssue].icon} {ISSUE_CONFIG[activeIssue].label} {activeNotifs.length}명</span>
             </div>
-
-            {/* 선택된 고객 있을 때만 단체발송 배너 표시 */}
             {selectedIds.length > 0 && (
               <div className={styles.selectBanner}>
                 <span className={styles.selectBannerText}>{selectedIds.length}명 선택됨</span>
@@ -1070,12 +913,10 @@ export default function NotificationsPage() {
                   <button className={styles.selectAllBtn} onClick={() => setSelectedIds(selectedIds.length === activeNotifs.length ? [] : activeNotifs.map(n => n.id))}>
                     {selectedIds.length === activeNotifs.length ? '전체 해제' : '전체 선택'}
                   </button>
-                  <button className={styles.bulkSendBtn} onClick={startBulkSend}>단체 발송</button>
+                  <button className={styles.bulkSendBtnMobile} onClick={startBulkSend}>단체 발송</button>
                 </div>
               </div>
             )}
-
-            {/* 고객 카드 리스트 */}
             {activeNotifs.length === 0 ? (
               <div className={styles.empty}>해당 알림이 없어요 🎉</div>
             ) : activeNotifs.map(n => {
@@ -1110,7 +951,6 @@ export default function NotificationsPage() {
                 </div>
               )
             })}
-
           </>
         )}
       </div>
@@ -1156,3 +996,4 @@ export default function NotificationsPage() {
     </div>
   )
 }
+
