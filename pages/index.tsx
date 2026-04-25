@@ -3,6 +3,8 @@ import SmsSlidePanel from '../components/SmsSlide'
 import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
 import styles from '../styles/Dashboard.module.css'
+import { useAdmin } from '../lib/AdminContext'
+import AdminDashboard from '../components/AdminDashboard'
 
 function calcPaymentRate(ct: any): number {
   if (ct.payment_status === '완납') return 100
@@ -23,6 +25,7 @@ function calcPaymentRate(ct: any): number {
 
 export default function Dashboard() {
   const router = useRouter()
+  const { isAdmin } = useAdmin()
   const [customers, setCustomers] = useState<any[]>([])
   const [contracts, setContracts] = useState<any[]>([])
   const [coverages, setCoverages] = useState<any[]>([])
@@ -648,6 +651,24 @@ export default function Dashboard() {
 
       {/* ── 웹(데스크탑) ERP 대시보드 ── */}
       <div className={styles.desktopDash}>
+      {isAdmin ? (
+        <AdminDashboard
+          customers={customers}
+          contracts={contracts}
+          meetings={meetings}
+          agentName={agentName}
+          meetingStats={meetingStats}
+          smsStats={smsStats}
+          nearDoneCustomers={nearDoneCustomers}
+          birthdayCustomers={birthdayCustomers}
+          gapCustomers={gapCustomers}
+          expiryCustomers={expiryCustomers}
+          anniversaryCustomers={anniversaryCustomers}
+          noContactCustomers={noContactCustomers}
+          totalMonthly={totalMonthly}
+          newThisMonth={newThisMonth}
+        />
+      ) : (<div className={styles.webDash}>
         <div className={styles.webDash}>
           {/* 상단 인사말 바 */}
           <div className={styles.webTopBar}>
@@ -661,26 +682,32 @@ export default function Dashboard() {
             <div className={styles.webStatCard} style={{ borderTopColor: '#378ADD' }} onClick={() => router.push('/customers')}>
               <div className={styles.webStatLabel}>총 고객</div>
               <div className={styles.webStatValue}>{customers.length}</div>
+              <div className={styles.webStatSub}>마이 {myCustomers}명·관심 {prospectCustomers}명</div>
             </div>
             <div className={styles.webStatCard} style={{ borderTopColor: '#1D4ED8' }} onClick={() => router.push('/customers?type=existing')}>
               <div className={styles.webStatLabel}>마이고객</div>
               <div className={styles.webStatValue}>{myCustomers}</div>
+              <div className={styles.webStatSub}>계약 완료 고객</div>
             </div>
             <div className={styles.webStatCard} style={{ borderTopColor: '#B45309' }} onClick={() => router.push('/customers?type=prospect')}>
               <div className={styles.webStatLabel}>관심고객</div>
               <div className={styles.webStatValue}>{prospectCustomers}</div>
+              <div className={styles.webStatSub}>예비 가입 고객</div>
             </div>
             <div className={styles.webStatCard} style={{ borderTopColor: '#8B5CF6' }} onClick={() => router.push('/customers')}>
               <div className={styles.webStatLabel}>이번달 신규</div>
               <div className={styles.webStatValue}>{newThisMonth}</div>
+              <div className={styles.webStatSub}>신규 등록 고객</div>
             </div>
             <div className={styles.webStatCard} style={{ borderTopColor: '#1D9E75' }} onClick={() => router.push('/customers')}>
               <div className={styles.webStatLabel}>보험 계약</div>
               <div className={styles.webStatValue}>{contracts.length}</div>
+              <div className={styles.webStatSub}>전체 계약 건수</div>
             </div>
             <div className={styles.webStatCard} style={{ borderTopColor: '#0891B2' }}>
               <div className={styles.webStatLabel}>월납입 합계</div>
               <div className={styles.webStatValue}>{formatMonthlyWeb(totalMonthly)}</div>
+              <div className={styles.webStatSub}>전체 고객 기준</div>
             </div>
           </div>
 
@@ -818,6 +845,7 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+      </div>)}
       </div>
 
     </div>
