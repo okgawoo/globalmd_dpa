@@ -16,9 +16,26 @@
 
 ## 작업 경로 (절대 규칙)
 - **메인 프로젝트 경로만 사용: `C:\Users\OKGA-HOME\Documents\GitHub\globalmd_dpa`**
-- 워크트리(`.claude/worktrees/` 하위) 절대 사용 금지
+- 워크트리(`.claude/worktrees/` 하위) 절대 사용 금지 — 생성조차 금지
 - 작업 전 현재 경로가 메인 프로젝트인지 반드시 확인
 - localhost:3000 dev 서버가 메인 프로젝트에서 실행되므로 워크트리 수정은 반영 안 됨
+
+## 브랜치 규칙 (절대 규칙)
+- **모든 작업은 `develop` 브랜치에서 진행**
+- `main` 브랜치 직접 푸시 절대 금지
+- 작업 흐름: `develop` → PR → `main` (오빠 확인 후 머지)
+- 작업 시작 전 `git checkout develop` 확인 필수
+
+## 색상 직접 사용 규칙 (CSS 변수 금지)
+- 새 컴포넌트/파일 작성 시 `hsl(var(--token))` CSS 변수 사용 금지
+- 직접 색상값 하드코딩 사용:
+  - Primary (accent): `#5E6AD2`
+  - Background: `#F7F8FA`
+  - Panel/Card BG: `#FFFFFF`
+  - Border: `#E5E7EB`
+  - Text primary: `#1A1A2E`
+  - Text secondary: `#636B78`
+  - Text muted: `#8892A0`
 
 ## 워크트리 작업 원칙 (반드시 준수)
 1. **작업 경로 엄수**
