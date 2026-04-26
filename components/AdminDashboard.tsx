@@ -1,4 +1,4 @@
-import { useRouter } from 'next/router'
+﻿import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 import { Wallet, Users, FileText, CreditCard, ArrowRight, UserCheck, Star, UserPlus, CalendarPlus, MessageSquare, TrendingUp, ClipboardList } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
@@ -37,46 +37,46 @@ function StatCard({
       onClick={onClick}
       className="rounded-lg p-5 transition-all duration-100"
       style={{
-        background: 'hsl(var(--bg-panel))',
-        border: '1px solid hsl(var(--border-default))',
+        background: '#FFFFFF',
+        border: '1px solid #E5E7EB',
         boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
         cursor: onClick ? 'pointer' : 'default',
       }}
       onMouseEnter={(e) => {
         if (onClick) {
           const el = e.currentTarget as HTMLDivElement
-          el.style.borderColor = 'hsl(var(--border-hover))'
-          el.style.background = 'hsl(var(--bg-elevated))'
+          el.style.borderColor = '#C0C7D1'
+          el.style.background = '#EFEFF1'
         }
       }}
       onMouseLeave={(e) => {
         if (onClick) {
           const el = e.currentTarget as HTMLDivElement
-          el.style.borderColor = 'hsl(var(--border-default))'
-          el.style.background = 'hsl(var(--bg-panel))'
+          el.style.borderColor = '#E5E7EB'
+          el.style.background = '#FFFFFF'
         }
       }}
     >
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
-          <p className="font-medium mb-1" style={{ fontSize: 13, color: 'hsl(var(--text-secondary))' }}>
+          <p className="font-medium mb-1" style={{ fontSize: 13, color: '#636B78' }}>
             {title}
           </p>
-          <p className="text-2xl font-bold tabular-nums" style={{ color: 'hsl(var(--text-primary))' }}>
+          <p className="text-2xl font-bold tabular-nums" style={{ color: '#1A1A2E' }}>
             {value}
           </p>
-          <p className="mt-1" style={{ fontSize: 13, color: 'hsl(var(--text-tertiary))' }}>
+          <p className="mt-1" style={{ fontSize: 13, color: '#8892A0' }}>
             {sub}
           </p>
         </div>
         <div
           className="ml-4 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md"
           style={{
-            background: 'hsl(var(--icon-bg))',
-            border: '1px solid hsl(var(--accent) / 0.2)',
+            background: '#ECEDF8',
+            border: '1px solid rgba(94,106,210,0.2)',
           }}
         >
-          <Icon className="h-4 w-4" style={{ color: 'hsl(var(--icon-fg))' }} />
+          <Icon className="h-4 w-4" style={{ color: '#5E6AD2' }} />
         </div>
       </div>
     </div>
@@ -98,20 +98,20 @@ function SectionCard({
     <div
       className={cn('rounded-lg overflow-hidden flex flex-col', className)}
       style={{
-        background: 'hsl(var(--bg-panel))',
-        border: '1px solid hsl(var(--border-default))',
+        background: '#FFFFFF',
+        border: '1px solid #E5E7EB',
       }}
     >
       <div
         className="flex items-center justify-between px-5 py-3.5 flex-shrink-0"
-        style={{ borderBottom: '1px solid hsl(var(--border-default))' }}
+        style={{ borderBottom: '1px solid #E5E7EB' }}
       >
         <div>
-          <h2 className="text-sm font-semibold" style={{ color: 'hsl(var(--text-primary))' }}>
+          <h2 className="text-sm font-semibold" style={{ color: '#1A1A2E' }}>
             {title}
           </h2>
           {sub && (
-            <p className="text-xs mt-0.5" style={{ color: 'hsl(var(--text-tertiary))' }}>
+            <p className="text-xs mt-0.5" style={{ color: '#8892A0' }}>
               {sub}
             </p>
           )}
@@ -120,9 +120,9 @@ function SectionCard({
           <button
             onClick={onViewAll}
             className="flex items-center gap-1 text-xs transition-all duration-100 border-0 bg-transparent p-0"
-            style={{ color: 'hsl(var(--text-tertiary))' }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = 'hsl(var(--accent))' }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = 'hsl(var(--text-tertiary))' }}
+            style={{ color: '#8892A0' }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = '#5E6AD2' }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = '#8892A0' }}
           >
             전체보기 <ArrowRight className="h-3 w-3" />
           </button>
@@ -191,19 +191,19 @@ export default function AdminDashboard({
   ]
 
   return (
-    <div className="px-6 pb-8 pt-5" style={{ background: 'hsl(var(--bg-app))' }}>
+    <div className="px-6 pb-8 pt-5" style={{ background: '#F7F8FA' }}>
 
       {/* Page title */}
       <div className="mb-6 flex items-end justify-between">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: 'hsl(var(--text-primary))' }}>
+          <h1 className="text-xl font-bold" style={{ color: '#1A1A2E' }}>
             대시보드
           </h1>
-          <p className="mt-0.5 text-sm" style={{ color: 'hsl(var(--text-secondary))' }}>
+          <p className="mt-0.5 text-sm" style={{ color: '#636B78' }}>
             안녕하세요, {agentName} {agentRole === 'admin' ? '대표님' : '설계사님'}
           </p>
         </div>
-        <span className="text-sm" style={{ color: 'hsl(var(--text-primary))' }}>
+        <span className="text-sm" style={{ color: '#1A1A2E' }}>
           {new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' })}
         </span>
       </div>
@@ -226,7 +226,7 @@ export default function AdminDashboard({
           <div className="py-1">
             {issues.map(({ label, count, sort }, i) => (
               <div key={sort}>
-                {i > 0 && <div style={{ height: 1, background: 'hsl(var(--border-default))', margin: '0 12px' }} />}
+                {i > 0 && <div style={{ height: 1, background: '#E5E7EB', margin: '0 12px' }} />}
                 <div
                   onClick={count > 0 ? () => router.push(`/customers?sort=${sort}`) : undefined}
                   className="flex items-center justify-between mx-2 px-3 py-2.5 text-sm transition-all duration-150 rounded-md"
@@ -234,7 +234,7 @@ export default function AdminDashboard({
                   onMouseEnter={(e) => {
                     if (count > 0) {
                       const el = e.currentTarget as HTMLDivElement
-                      el.style.background = 'hsl(var(--bg-elevated))'
+                      el.style.background = '#EFEFF1'
                     }
                   }}
                   onMouseLeave={(e) => {
@@ -242,15 +242,15 @@ export default function AdminDashboard({
                     el.style.background = 'transparent'
                   }}
                 >
-                  <span style={{ color: count === 0 ? 'hsl(var(--text-tertiary))' : 'hsl(var(--text-primary))', fontWeight: count > 0 ? 510 : 400 }}>
+                  <span style={{ color: count === 0 ? '#8892A0' : '#1A1A2E', fontWeight: count > 0 ? 510 : 400 }}>
                     {label}
                   </span>
                   <span
                     className="tabular-nums text-xs font-semibold px-2 py-0.5 rounded"
                     style={{
-                      background: count > 0 ? 'hsl(var(--icon-bg))' : 'hsl(var(--bg-elevated))',
-                      color: count > 0 ? 'hsl(var(--icon-fg))' : 'hsl(var(--text-tertiary))',
-                      border: count > 0 ? '1px solid hsl(var(--accent) / 0.2)' : '1px solid hsl(var(--border-default))',
+                      background: count > 0 ? '#ECEDF8' : '#EFEFF1',
+                      color: count > 0 ? '#5E6AD2' : '#8892A0',
+                      border: count > 0 ? '1px solid rgba(94,106,210,0.2)' : '1px solid #E5E7EB',
                     }}
                   >
                     {count}명
@@ -268,9 +268,9 @@ export default function AdminDashboard({
           <SectionCard title="이번달 미팅" onViewAll={() => router.push('/sales?tab=meeting')}>
             <div className="grid grid-cols-4">
               {meetingCols.map(({ label, value }, i) => (
-                <div key={label} className="flex flex-col items-center py-4" style={{ borderRight: i < meetingCols.length - 1 ? '1px solid hsl(var(--border-default))' : undefined }}>
-                  <p className="text-xl font-bold tabular-nums" style={{ color: 'hsl(var(--text-primary))' }}>{value}</p>
-                  <p className="mt-1 text-xs" style={{ color: 'hsl(var(--text-tertiary))' }}>{label}</p>
+                <div key={label} className="flex flex-col items-center py-4" style={{ borderRight: i < meetingCols.length - 1 ? '1px solid #E5E7EB' : undefined }}>
+                  <p className="text-xl font-bold tabular-nums" style={{ color: '#1A1A2E' }}>{value}</p>
+                  <p className="mt-1 text-xs" style={{ color: '#8892A0' }}>{label}</p>
                 </div>
               ))}
             </div>
@@ -279,7 +279,7 @@ export default function AdminDashboard({
           {/* 영업일정 */}
           <SectionCard title="영업일정" onViewAll={() => router.push('/sales?tab=meeting&sub=today')} className="flex-1" scrollable>
             {todayMeetings.length === 0 ? (
-              <p className="px-5 py-4 text-sm" style={{ color: 'hsl(var(--text-tertiary))' }}>오늘 미팅 없음</p>
+              <p className="px-5 py-4 text-sm" style={{ color: '#8892A0' }}>오늘 미팅 없음</p>
             ) : (
               todayMeetings.map((m: any, i: number) => {
                 const cust = customers.find((c: any) => c.id === m.customer_id)
@@ -289,16 +289,16 @@ export default function AdminDashboard({
                     key={m.id}
                     onClick={() => router.push(`/sales?tab=meeting&sub=today&meetingId=${m.id}`)}
                     className="flex items-center justify-between mx-2 px-3 py-2.5 text-sm cursor-pointer transition-all duration-150 rounded-md"
-                    onMouseEnter={(e) => { const el = e.currentTarget as HTMLDivElement; el.style.background = 'hsl(var(--bg-elevated))' }}
+                    onMouseEnter={(e) => { const el = e.currentTarget as HTMLDivElement; el.style.background = '#EFEFF1' }}
                     onMouseLeave={(e) => { const el = e.currentTarget as HTMLDivElement; el.style.background = 'transparent' }}
                   >
                     <div className="flex items-center gap-2">
-                      <span style={{ color: 'hsl(var(--text-primary))', fontWeight: 510 }}>{cust?.name ?? '이름 없음'}</span>
-                      <span className="text-[11px] px-1.5 py-0.5 rounded" style={{ background: 'hsl(var(--bg-elevated))', color: 'hsl(var(--text-tertiary))', border: '1px solid hsl(var(--border-default))' }}>
+                      <span style={{ color: '#1A1A2E', fontWeight: 510 }}>{cust?.name ?? '이름 없음'}</span>
+                      <span className="text-[11px] px-1.5 py-0.5 rounded" style={{ background: '#EFEFF1', color: '#8892A0', border: '1px solid #E5E7EB' }}>
                         {badge}
                       </span>
                     </div>
-                    <span className="tabular-nums text-xs" style={{ color: 'hsl(var(--text-tertiary))' }}>{m.meeting_time ?? '시간 미정'}</span>
+                    <span className="tabular-nums text-xs" style={{ color: '#8892A0' }}>{m.meeting_time ?? '시간 미정'}</span>
                   </div>
                 )
               })
@@ -311,24 +311,24 @@ export default function AdminDashboard({
           <div className="px-4 pt-4 pb-2" style={{ height: 260 }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={monthlyData} barSize={22} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-                <XAxis dataKey="label" tick={{ fontSize: 12, fill: 'hsl(var(--text-tertiary))' }} axisLine={false} tickLine={false} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: 'hsl(var(--text-tertiary))' }} axisLine={false} tickLine={false} />
+                <XAxis dataKey="label" tick={{ fontSize: 12, fill: '#8892A0' }} axisLine={false} tickLine={false} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: '#8892A0' }} axisLine={false} tickLine={false} />
                 <Tooltip
-                  cursor={{ fill: 'hsl(var(--bg-elevated))' }}
-                  contentStyle={{ background: 'hsl(var(--bg-panel))', border: '1px solid hsl(var(--border-default))', borderRadius: 6, fontSize: 12, color: 'hsl(var(--text-primary))' }}
+                  cursor={{ fill: '#EFEFF1' }}
+                  contentStyle={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 6, fontSize: 12, color: '#1A1A2E' }}
                   formatter={(v: any) => [String(v), '명']}
                 />
                 <Bar dataKey="count" radius={[4, 4, 0, 0]}>
                   {monthlyData.map((_, i) => (
-                    <Cell key={i} fill={i === monthlyData.length - 1 ? 'hsl(var(--accent))' : 'hsl(var(--accent) / 0.35)'} />
+                    <Cell key={i} fill={i === monthlyData.length - 1 ? '#5E6AD2' : 'rgba(94,106,210,0.35)'} />
                   ))}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
           <div className="px-5 pb-4">
-            <p className="text-xs" style={{ color: 'hsl(var(--text-tertiary))' }}>
-              이번 달 신규 <span style={{ color: 'hsl(var(--accent))', fontWeight: 600 }}>{monthlyData[monthlyData.length - 1]?.count ?? 0}명</span>
+            <p className="text-xs" style={{ color: '#8892A0' }}>
+              이번 달 신규 <span style={{ color: '#5E6AD2', fontWeight: 600 }}>{monthlyData[monthlyData.length - 1]?.count ?? 0}명</span>
             </p>
           </div>
         </SectionCard>
@@ -344,10 +344,10 @@ export default function AdminDashboard({
                   <col style={{ width: '16%' }} /><col style={{ width: '13%' }} /><col style={{ width: '9%' }} />
                   <col style={{ width: '18%' }} /><col style={{ width: '10%' }} /><col style={{ width: '10%' }} /><col style={{ width: '10%' }} />
                 </colgroup>
-                <thead style={{ position: 'sticky', top: 0, zIndex: 1, background: 'hsl(var(--bg-panel))' }}>
-                  <tr style={{ borderBottom: '1px solid hsl(var(--border-default))' }}>
+                <thead style={{ position: 'sticky', top: 0, zIndex: 1, background: '#FFFFFF' }}>
+                  <tr style={{ borderBottom: '1px solid #E5E7EB' }}>
                     {['이름', '구분', '성별', '연락처', '나이', '계약수', '등록일'].map((h) => (
-                      <th key={h} className="px-5 py-2.5 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: 'hsl(var(--text-tertiary))' }}>{h}</th>
+                      <th key={h} className="px-5 py-2.5 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#8892A0' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -359,19 +359,19 @@ export default function AdminDashboard({
                         key={c.id}
                         onClick={() => router.push(`/customers?id=${c.id}`)}
                         className="cursor-pointer transition-all duration-150"
-                        style={{ borderBottom: '1px solid hsl(var(--border-default))' }}
-                        onMouseEnter={(e) => { const el = e.currentTarget as HTMLTableRowElement; el.style.background = 'hsl(var(--bg-elevated))' }}
+                        style={{ borderBottom: '1px solid #E5E7EB' }}
+                        onMouseEnter={(e) => { const el = e.currentTarget as HTMLTableRowElement; el.style.background = '#EFEFF1' }}
                         onMouseLeave={(e) => { const el = e.currentTarget as HTMLTableRowElement; el.style.background = 'transparent' }}
                       >
-                        <td className="px-5 py-3" style={{ color: 'hsl(var(--text-primary))', fontWeight: 510 }}>{c.name}</td>
+                        <td className="px-5 py-3" style={{ color: '#1A1A2E', fontWeight: 510 }}>{c.name}</td>
                         <td className="px-5 py-3">
-                          <span className="text-[11px] px-1.5 py-0.5 rounded" style={{ background: 'hsl(var(--bg-elevated))', color: 'hsl(var(--text-secondary))', border: '1px solid hsl(var(--border-default))' }}>
+                          <span className="text-[11px] px-1.5 py-0.5 rounded" style={{ background: '#EFEFF1', color: '#636B78', border: '1px solid #E5E7EB' }}>
                             {c.customer_type === 'prospect' ? '관심고객' : '마이고객'}
                           </span>
                         </td>
-                        <td className="px-5 py-3 text-sm" style={{ color: 'hsl(var(--text-secondary))' }}>{c.gender ?? '-'}</td>
-                        <td className="px-5 py-3 tabular-nums text-sm" style={{ color: 'hsl(var(--text-secondary))' }}>{c.phone ?? '-'}</td>
-                        <td className="px-5 py-3 tabular-nums text-sm" style={{ color: 'hsl(var(--text-secondary))' }}>
+                        <td className="px-5 py-3 text-sm" style={{ color: '#636B78' }}>{c.gender ?? '-'}</td>
+                        <td className="px-5 py-3 tabular-nums text-sm" style={{ color: '#636B78' }}>{c.phone ?? '-'}</td>
+                        <td className="px-5 py-3 tabular-nums text-sm" style={{ color: '#636B78' }}>
                           {(() => {
                             if (c.birth_date) {
                               const today = new Date(); const birth = new Date(c.birth_date)
@@ -383,8 +383,8 @@ export default function AdminDashboard({
                             return c.age ? `${c.age}세` : '-'
                           })()}
                         </td>
-                        <td className="px-5 py-3 tabular-nums text-sm" style={{ color: 'hsl(var(--text-secondary))' }}>{custContracts.length}건</td>
-                        <td className="px-5 py-3 tabular-nums text-sm" style={{ color: 'hsl(var(--text-tertiary))' }}>
+                        <td className="px-5 py-3 tabular-nums text-sm" style={{ color: '#636B78' }}>{custContracts.length}건</td>
+                        <td className="px-5 py-3 tabular-nums text-sm" style={{ color: '#8892A0' }}>
                           {new Date(c.created_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}
                         </td>
                       </tr>
@@ -411,14 +411,14 @@ export default function AdminDashboard({
                 key={label}
                 onClick={() => router.push(href)}
                 className="flex flex-col items-center justify-center gap-1 rounded-lg py-2 transition-all duration-100"
-                style={{ background: 'hsl(var(--bg-app))', border: '1px solid hsl(var(--border-default))', cursor: 'pointer' }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = 'hsl(var(--accent-bg))'; e.currentTarget.style.borderColor = 'hsl(var(--accent) / 0.3)' }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = 'hsl(var(--bg-app))'; e.currentTarget.style.borderColor = 'hsl(var(--border-default))' }}
+                style={{ background: '#F7F8FA', border: '1px solid #E5E7EB', cursor: 'pointer' }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = '#ECEDF8'; e.currentTarget.style.borderColor = 'rgba(94,106,210,0.3)' }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = '#F7F8FA'; e.currentTarget.style.borderColor = '#E5E7EB' }}
               >
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg" style={{ background: 'hsl(var(--icon-bg))', border: '1px solid hsl(var(--accent) / 0.2)' }}>
-                  <Icon className="h-3.5 w-3.5" style={{ color: 'hsl(var(--icon-fg))' }} />
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg" style={{ background: '#ECEDF8', border: '1px solid rgba(94,106,210,0.2)' }}>
+                  <Icon className="h-3.5 w-3.5" style={{ color: '#5E6AD2' }} />
                 </div>
-                <span className="text-xs font-medium text-center leading-tight" style={{ color: 'hsl(var(--text-primary))' }}>{label}</span>
+                <span className="text-xs font-medium text-center leading-tight" style={{ color: '#1A1A2E' }}>{label}</span>
               </button>
             ))}
           </div>
@@ -427,7 +427,7 @@ export default function AdminDashboard({
 
       {/* Footer */}
       <div className="mt-6 flex items-center justify-between" style={{ paddingRight: 72 }}>
-        <span style={{ fontSize: 12, color: 'hsl(var(--text-secondary))' }}>
+        <span style={{ fontSize: 12, color: '#636B78' }}>
           © 2026 iPlanner · GlobalMD Inc. All rights reserved.
         </span>
         <div className="flex items-center gap-4">
@@ -435,9 +435,9 @@ export default function AdminDashboard({
             <button
               key={item}
               className="text-xs transition-colors duration-100"
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'hsl(var(--text-secondary))', padding: 0 }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = 'hsl(var(--text-primary))' }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = 'hsl(var(--text-secondary))' }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#636B78', padding: 0 }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = '#1A1A2E' }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = '#636B78' }}
             >
               {item}
             </button>
@@ -447,3 +447,4 @@ export default function AdminDashboard({
     </div>
   )
 }
+

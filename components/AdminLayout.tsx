@@ -116,7 +116,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <div
       className={cn('admin-root flex min-h-screen', dark ? 'admin-dark' : '')}
-      style={{ background: 'hsl(var(--bg-app))', color: 'hsl(var(--text-primary) / 0.82)' }}
+      style={{ background: '#F7F8FA', color: 'rgba(26,26,46,0.82)' }}
     >
       {ConfirmDialog}
 
@@ -124,8 +124,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       <aside
         className="fixed left-0 top-0 z-40 flex h-screen w-60 flex-col"
         style={{
-          background: 'hsl(var(--bg-panel))',
-          borderRight: '1px solid hsl(var(--border-default))',
+          background: '#FFFFFF',
+          borderRight: '1px solid #E5E7EB',
           boxShadow: '2px 0 12px rgba(0,0,0,0.06)',
         }}
       >
@@ -134,16 +134,16 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           <div
             className="flex h-8 w-8 items-center justify-center rounded-lg flex-shrink-0"
             style={{
-              background: 'linear-gradient(135deg, hsl(var(--accent)), hsl(237 70% 50%))',
-              boxShadow: '0 2px 8px hsl(var(--accent) / 0.35)',
+              background: 'linear-gradient(135deg, #5E6AD2, #3F48B8)',
+              boxShadow: '0 2px 8px rgba(94,106,210,0.35)',
             }}
           >
             <span style={{ color: '#fff', fontSize: '15px', fontWeight: 800, fontStyle: 'italic', letterSpacing: '-0.5px', lineHeight: 1 }}>i</span>
           </div>
-          <span style={{ fontSize: '16px', fontWeight: 700, color: 'hsl(var(--text-primary) / 0.82)', letterSpacing: '-0.4px', lineHeight: 1 }}>아이플래너</span>
+          <span style={{ fontSize: '16px', fontWeight: 700, color: 'rgba(26,26,46,0.82)', letterSpacing: '-0.4px', lineHeight: 1 }}>아이플래너</span>
         </div>
 
-        <div style={{ height: 1, background: 'hsl(var(--border-default))', margin: '0 12px' }} />
+        <div style={{ height: 1, background: '#E5E7EB', margin: '0 12px' }} />
 
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto px-2 py-3">
@@ -157,20 +157,20 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                     className={cn('flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-all duration-100', isActive ? 'font-medium' : 'font-normal')}
                     style={
                       isActive
-                        ? { background: 'hsl(var(--icon-bg))', color: 'hsl(var(--icon-fg))', border: '1px solid hsl(var(--accent) / 0.2)' }
-                        : { color: 'hsl(var(--text-primary) / 0.82)', border: '1px solid transparent' }
+                        ? { background: '#ECEDF8', color: '#5E6AD2', border: '1px solid rgba(94,106,210,0.2)' }
+                        : { color: 'rgba(26,26,46,0.82)', border: '1px solid transparent' }
                     }
                     onMouseEnter={(e) => {
                       if (!isActive) {
-                        e.currentTarget.style.background = 'hsl(var(--bg-elevated))'
-                        e.currentTarget.style.color = 'hsl(var(--text-primary) / 0.82)'
-                        e.currentTarget.style.borderColor = 'hsl(var(--border-hover))'
+                        e.currentTarget.style.background = '#EFEFF1'
+                        e.currentTarget.style.color = 'rgba(26,26,46,0.82)'
+                        e.currentTarget.style.borderColor = '#C0C7D1'
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (!isActive) {
                         e.currentTarget.style.background = 'transparent'
-                        e.currentTarget.style.color = 'hsl(var(--text-primary) / 0.82)'
+                        e.currentTarget.style.color = 'rgba(26,26,46,0.82)'
                         e.currentTarget.style.borderColor = 'transparent'
                       }
                     }}
@@ -185,7 +185,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
           {/* Account section */}
           <div className="mt-4">
-            <div style={{ height: 1, background: 'hsl(var(--border-default))', margin: '0 12px 8px' }} />
+            <div style={{ height: 1, background: '#E5E7EB', margin: '0 12px 8px' }} />
             <ul className="space-y-0.5">
               {accountItems.map((item) => {
                 const isActive = router.pathname === item.href
@@ -196,20 +196,20 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                       className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-all duration-100"
                       style={
                         isActive
-                          ? { background: 'hsl(var(--icon-bg))', color: 'hsl(var(--icon-fg))', border: '1px solid hsl(var(--accent) / 0.2)' }
-                          : { color: 'hsl(var(--text-primary) / 0.82)', border: '1px solid transparent' }
+                          ? { background: '#ECEDF8', color: '#5E6AD2', border: '1px solid rgba(94,106,210,0.2)' }
+                          : { color: 'rgba(26,26,46,0.82)', border: '1px solid transparent' }
                       }
                       onMouseEnter={(e) => {
                         if (!isActive) {
-                          e.currentTarget.style.background = 'hsl(var(--bg-elevated))'
-                          e.currentTarget.style.color = 'hsl(var(--text-primary) / 0.82)'
-                          e.currentTarget.style.borderColor = 'hsl(var(--border-hover))'
+                          e.currentTarget.style.background = '#EFEFF1'
+                          e.currentTarget.style.color = 'rgba(26,26,46,0.82)'
+                          e.currentTarget.style.borderColor = '#C0C7D1'
                         }
                       }}
                       onMouseLeave={(e) => {
                         if (!isActive) {
                           e.currentTarget.style.background = 'transparent'
-                          e.currentTarget.style.color = 'hsl(var(--text-primary) / 0.82)'
+                          e.currentTarget.style.color = 'rgba(26,26,46,0.82)'
                           e.currentTarget.style.borderColor = 'transparent'
                         }
                       }}
@@ -226,25 +226,25 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
         {/* Bottom – user profile + admin + logout */}
         <div className="p-3">
-          <div style={{ height: 1, background: 'hsl(var(--border-default))', marginBottom: 10 }} />
+          <div style={{ height: 1, background: '#E5E7EB', marginBottom: 10 }} />
 
           {/* User profile card */}
           {userInfo && (
             <div
               className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg mb-2"
-              style={{ background: 'hsl(var(--bg-elevated))', border: '1px solid hsl(var(--border-default))' }}
+              style={{ background: '#EFEFF1', border: '1px solid #E5E7EB' }}
             >
               <div
                 className="flex h-7 w-7 items-center justify-center rounded-full flex-shrink-0 text-xs font-bold"
-                style={{ background: 'linear-gradient(135deg, hsl(var(--accent)), hsl(245 70% 58%))', color: '#fff' }}
+                style={{ background: 'linear-gradient(135deg, #5E6AD2, #5855C8)', color: '#fff' }}
               >
                 {userInfo.initial}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium truncate" style={{ color: 'hsl(var(--text-primary) / 0.82)', lineHeight: 1.4 }}>
+                <p className="text-xs font-medium truncate" style={{ color: 'rgba(26,26,46,0.82)', lineHeight: 1.4 }}>
                   {userInfo.email.split('@')[0]}
                 </p>
-                <p className="truncate" style={{ fontSize: 11, color: 'hsl(var(--text-tertiary))', lineHeight: 1.4 }}>
+                <p className="truncate" style={{ fontSize: 11, color: '#8892A0', lineHeight: 1.4 }}>
                   {userInfo.email}
                 </p>
               </div>
@@ -256,20 +256,20 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-all duration-100 mb-0.5"
             style={
               router.pathname === '/admin'
-                ? { background: 'hsl(var(--icon-bg))', color: 'hsl(var(--icon-fg))', border: '1px solid hsl(var(--accent) / 0.2)' }
-                : { color: 'hsl(var(--text-primary) / 0.82)', border: '1px solid transparent' }
+                ? { background: '#ECEDF8', color: '#5E6AD2', border: '1px solid rgba(94,106,210,0.2)' }
+                : { color: 'rgba(26,26,46,0.82)', border: '1px solid transparent' }
             }
             onMouseEnter={(e) => {
               if (router.pathname !== '/admin') {
-                e.currentTarget.style.background = 'hsl(var(--bg-elevated))'
-                e.currentTarget.style.color = 'hsl(var(--text-primary) / 0.82)'
-                e.currentTarget.style.borderColor = 'hsl(var(--border-hover))'
+                e.currentTarget.style.background = '#EFEFF1'
+                e.currentTarget.style.color = 'rgba(26,26,46,0.82)'
+                e.currentTarget.style.borderColor = '#C0C7D1'
               }
             }}
             onMouseLeave={(e) => {
               if (router.pathname !== '/admin') {
                 e.currentTarget.style.background = 'transparent'
-                e.currentTarget.style.color = 'hsl(var(--text-primary) / 0.82)'
+                e.currentTarget.style.color = 'rgba(26,26,46,0.82)'
                 e.currentTarget.style.borderColor = 'transparent'
               }
             }}
@@ -280,9 +280,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           <button
             onClick={handleLogout}
             className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-all duration-100"
-            style={{ color: 'hsl(var(--text-primary) / 0.82)', border: 'none', background: 'transparent' }}
+            style={{ color: 'rgba(26,26,46,0.82)', border: 'none', background: 'transparent' }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'hsl(var(--bg-elevated))'
+              e.currentTarget.style.background = '#EFEFF1'
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'transparent'
@@ -299,21 +299,21 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
         {/* Header */}
         <header ref={headerRef} className="flex items-center justify-between px-6 py-1.5" style={{ boxShadow: '0 1px 6px rgba(0,0,0,0.05)' }}>
-          <span style={{ fontSize: '13px', fontWeight: 500, fontStyle: 'italic', color: 'hsl(var(--text-secondary))', letterSpacing: '0.01em' }}>
+          <span style={{ fontSize: '13px', fontWeight: 500, fontStyle: 'italic', color: '#636B78', letterSpacing: '0.01em' }}>
             insurance planner
           </span>
 
           <div className="flex items-center gap-2">
-            <span style={{ fontSize: '11px', fontWeight: 700, color: 'hsl(var(--accent))', border: '1.5px solid hsl(var(--accent))', borderRadius: '999px', padding: '2px 10px', letterSpacing: '0.04em' }}>
+            <span style={{ fontSize: '11px', fontWeight: 700, color: '#5E6AD2', border: '1.5px solid #5E6AD2', borderRadius: '999px', padding: '2px 10px', letterSpacing: '0.04em' }}>
               PRO
             </span>
 
-            <span className="text-xs" style={{ color: 'hsl(var(--text-secondary))' }}>
-              SMS <span style={{ color: 'hsl(var(--text-primary) / 0.82)', fontWeight: 600 }}>999</span>
-              <span style={{ color: 'hsl(var(--text-tertiary))' }}> / 1,000</span>
+            <span className="text-xs" style={{ color: '#636B78' }}>
+              SMS <span style={{ color: 'rgba(26,26,46,0.82)', fontWeight: 600 }}>999</span>
+              <span style={{ color: '#8892A0' }}> / 1,000</span>
             </span>
 
-            <div style={{ width: 1, height: 14, background: 'hsl(var(--border-default))', margin: '0 4px' }} />
+            <div style={{ width: 1, height: 14, background: '#E5E7EB', margin: '0 4px' }} />
 
             <HeaderIconBtn onClick={toggleTheme} title={dark ? '라이트 모드' : '다크 모드'}>
               {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
@@ -329,7 +329,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
             <button
               className="ml-1 flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold"
-              style={{ background: 'linear-gradient(135deg, hsl(var(--accent)), hsl(245 70% 58%))', color: '#fff' }}
+              style={{ background: 'linear-gradient(135deg, #5E6AD2, #5855C8)', color: '#fff' }}
             >
               {userInfo?.initial ?? 'A'}
             </button>
@@ -342,7 +342,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             ref={announcementRef}
             onClick={announcement.url ? () => router.push(announcement.url!) : undefined}
             style={{
-              background: 'hsl(var(--accent))',
+              background: '#5E6AD2',
               color: '#fff',
               padding: '9px 48px',
               display: 'flex',
@@ -417,8 +417,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           bottom: 96,
           width: 400,
           borderRadius: 20,
-          background: 'hsl(var(--bg-panel))',
-          border: '1px solid hsl(var(--border-default))',
+          background: '#FFFFFF',
+          border: '1px solid #E5E7EB',
           boxShadow: '0 24px 60px rgba(0,0,0,0.18), 0 4px 20px rgba(0,0,0,0.1)',
           transform: supportOpen ? 'translateX(0) scale(1)' : 'translateX(calc(100% + 32px)) scale(0.96)',
           opacity: supportOpen ? 1 : 0,
@@ -429,30 +429,30 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         {/* Panel Header */}
         <div
           className="flex items-center justify-between px-5 py-4 flex-shrink-0"
-          style={{ borderBottom: '1px solid hsl(var(--border-default))' }}
+          style={{ borderBottom: '1px solid #E5E7EB' }}
         >
           <div className="flex items-center gap-2.5">
             <div
               className="flex h-8 w-8 items-center justify-center rounded-xl"
               style={{
-                background: 'linear-gradient(135deg, hsl(var(--accent)), hsl(245 70% 58%))',
-                boxShadow: '0 2px 8px hsl(var(--accent) / 0.35)',
+                background: 'linear-gradient(135deg, #5E6AD2, #5855C8)',
+                boxShadow: '0 2px 8px rgba(94,106,210,0.35)',
               }}
             >
               <Headphones className="h-4 w-4" style={{ color: '#fff' }} />
             </div>
             <div>
-              <p className="text-sm font-semibold" style={{ color: 'hsl(var(--text-primary) / 0.82)' }}>스마트 고객센터</p>
-              <p style={{ fontSize: 12, color: 'hsl(var(--text-tertiary))' }}>무엇이든 물어보세요</p>
+              <p className="text-sm font-semibold" style={{ color: 'rgba(26,26,46,0.82)' }}>스마트 고객센터</p>
+              <p style={{ fontSize: 12, color: '#8892A0' }}>무엇이든 물어보세요</p>
             </div>
           </div>
           <button
             onClick={() => setSupportOpen(false)}
             className="flex h-8 w-8 items-center justify-center rounded-md transition-all duration-100"
-            style={{ color: 'hsl(var(--text-secondary))', border: '1px solid transparent' }}
+            style={{ color: '#636B78', border: '1px solid transparent' }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'hsl(var(--bg-elevated))'
-              e.currentTarget.style.borderColor = 'hsl(var(--border-hover))'
+              e.currentTarget.style.background = '#EFEFF1'
+              e.currentTarget.style.borderColor = '#C0C7D1'
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'transparent'
@@ -479,10 +479,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           right: 28,
           width: 52,
           height: 52,
-          background: 'linear-gradient(135deg, hsl(var(--accent)), hsl(245 72% 58%))',
+          background: 'linear-gradient(135deg, #5E6AD2, #5855C8)',
           boxShadow: supportOpen
             ? '0 4px 12px rgba(0,0,0,0.18)'
-            : '0 8px 28px hsl(var(--accent) / 0.5), 0 2px 8px rgba(0,0,0,0.12)',
+            : '0 8px 28px rgba(94,106,210,0.5), 0 2px 8px rgba(0,0,0,0.12)',
           border: 'none',
           cursor: 'pointer',
           transition: 'all 0.25s cubic-bezier(0.34,1.2,0.64,1)',
@@ -516,9 +516,9 @@ function HeaderIconBtn({
       onClick={onClick}
       title={title}
       className="flex h-8 w-8 items-center justify-center rounded-md transition-all duration-100"
-      style={{ color: 'hsl(var(--text-primary) / 0.82)', border: 'none', background: 'transparent' }}
+      style={{ color: 'rgba(26,26,46,0.82)', border: 'none', background: 'transparent' }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = 'hsl(var(--bg-elevated))'
+        e.currentTarget.style.background = '#EFEFF1'
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.background = 'transparent'
