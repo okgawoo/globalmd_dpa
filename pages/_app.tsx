@@ -1,4 +1,5 @@
 import '../styles/globals.css'
+import '../styles/admin.css'
 import type { AppProps } from 'next/app'
 import Layout from '../components/Layout'
 import { useEffect, useState } from 'react'
@@ -6,6 +7,15 @@ import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
 import { subscribeToPush } from '../lib/pushSubscription'
 import Head from 'next/head'
+import { AdminProvider, useAdmin } from '../lib/AdminContext'
+import AdminLayout from '../components/AdminLayout'
+
+function LayoutSwitcher({ children, demoStatus }: { children: React.ReactNode; demoStatus: { expired: boolean; daysLeft: number | null } }) {
+  const { isAdmin, loading } = useAdmin()
+  if (loading) return null
+  if (isAdmin) return <AdminLayout>{children}</AdminLayout>
+  return <Layout>{children}</Layout>
+}
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter()
@@ -109,9 +119,11 @@ export default function App({ Component, pageProps }: AppProps) {
           ⚠️ 무료 체험 {demoStatus.daysLeft === 0 ? '오늘 만료' : `D-${demoStatus.daysLeft}`} — 계속 사용하려면 요금제를 선택해주세요
         </div>
       )}
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
+      <AdminProvider>
+        <LayoutSwitcher demoStatus={demoStatus}>
+          <Component {...pageProps} />
+        </LayoutSwitcher>
+      </AdminProvider>
     </>
   )
 }

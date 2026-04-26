@@ -1,0 +1,112 @@
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Google Fonts: Pretendard (한글) + Inter (영문) ─── */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
+
+/* ─── Light Mode (default) ─── */
+:root {
+  --bg-app: 240 5% 96%;
+  --bg-panel: 0 0% 100%;
+  --bg-elevated: 240 5% 94%;
+  --bg-hover: 240 5% 92%;
+
+  --text-primary: 220 13% 10%;
+  --text-secondary: 215 13% 45%;
+  --text-tertiary: 215 13% 60%;
+
+  --border-default: 214 20% 88%;
+  --border-hover: 214 20% 80%;
+
+  --accent: 237 47% 59%;
+  --accent-foreground: 0 0% 100%;
+  --accent-bg: 237 47% 95%;
+  --icon-bg: var(--accent-bg);
+  --icon-fg: var(--accent);
+
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 98%;
+
+  --radius: 0.5rem;
+
+  /* Tailwind token aliases */
+  --background: var(--bg-app);
+  --foreground: var(--text-primary);
+  --card: var(--bg-panel);
+  --card-foreground: var(--text-primary);
+  --muted: var(--bg-elevated);
+  --muted-foreground: var(--text-secondary);
+  --border: var(--border-default);
+  --input: var(--border-default);
+  --primary: var(--accent);
+  --primary-foreground: var(--accent-foreground);
+  --ring: var(--accent);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+}
+
+/* ─── Dark Mode — Creative Tim 색상 재현 ─── */
+.admin-dark {
+  --bg-app:      0 0% 15%;   /* #252525 — 대시보드 배경 */
+  --bg-panel:    0 0% 15%;   /* #262626 — 카드/사이드바 */
+  --bg-elevated: 0 0% 20%;   /* #333333 — 인풋/배지/hover bg */
+  --bg-hover:    0 0% 25%;   /* #404040 — 강조 hover */
+
+  --text-primary:   0 0% 96%;   /* #f5f5f5 */
+  --text-secondary: 0 0% 62%;   /* #9e9e9e */
+  --text-tertiary:  0 0% 45%;   /* #737373 */
+
+  --border-default: 0 0% 30%;   /* #4d4d4d — 구분선 */
+  --border-hover:   0 0% 40%;   /* #666666 */
+
+  --accent:            239 84% 67%;   /* #6366f1 — 인디고, 차콜과 잘 맞음 */
+  --accent-foreground: 0 0% 100%;
+  --accent-bg:         239 45% 22%;   /* #1e2052 — 인디고 배지/배경 */
+  --icon-bg: var(--accent);
+  --icon-fg: 0 0% 100%;
+
+  --destructive: 0 65% 52%;
+  --destructive-foreground: 0 0% 98%;
+
+  /* Tailwind token aliases */
+  --background: var(--bg-app);
+  --foreground: var(--text-primary);
+  --card: var(--bg-panel);
+  --card-foreground: var(--text-primary);
+  --muted: var(--bg-elevated);
+  --muted-foreground: var(--text-secondary);
+  --border: var(--border-default);
+  --input: var(--border-default);
+  --primary: var(--accent);
+  --primary-foreground: var(--accent-foreground);
+  --ring: var(--accent);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+}
+
+/* ─── Base styles ─── */
+.admin-root {
+  font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-feature-settings: "cv01", "ss03";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Scrollbar (dark mode) ─── */
+.admin-dark ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.admin-dark ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.admin-dark ::-webkit-scrollbar-thumb {
+  background: hsl(var(--border-hover));
+  border-radius: 3px;
+}
+.admin-dark ::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--text-tertiary));
+}
+
+/* ─── Tabular numbers utility ─── */
+.tabular { font-variant-numeric: tabular-nums; }
