@@ -1,8 +1,8 @@
-﻿import { useRouter } from 'next/router'
+import { ReactNode } from 'react'
+import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 import { Wallet, Users, FileText, CreditCard, ArrowRight, UserCheck, Star, UserPlus, CalendarPlus, MessageSquare, TrendingUp, ClipboardList } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
-import { cn } from '../lib/utils'
 
 interface Props {
   customers: any[]
@@ -35,12 +35,14 @@ function StatCard({
   return (
     <div
       onClick={onClick}
-      className="rounded-lg p-5 transition-all duration-100"
       style={{
         background: '#FFFFFF',
         border: '1px solid #E5E7EB',
+        borderRadius: 8,
+        padding: 20,
         boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
         cursor: onClick ? 'pointer' : 'default',
+        transition: 'all 0.1s',
       }}
       onMouseEnter={(e) => {
         if (onClick) {
@@ -57,26 +59,33 @@ function StatCard({
         }
       }}
     >
-      <div className="flex items-start justify-between">
-        <div className="flex-1 min-w-0">
-          <p className="font-medium mb-1" style={{ fontSize: 13, color: '#636B78' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p style={{ fontSize: 13, color: '#636B78', fontWeight: 500, marginBottom: 4 }}>
             {title}
           </p>
-          <p className="text-2xl font-bold tabular-nums" style={{ color: '#1A1A2E' }}>
+          <p style={{ fontSize: 24, fontWeight: 700, color: '#1A1A2E', fontVariantNumeric: 'tabular-nums' }}>
             {value}
           </p>
-          <p className="mt-1" style={{ fontSize: 13, color: '#8892A0' }}>
+          <p style={{ marginTop: 4, fontSize: 13, color: '#8892A0' }}>
             {sub}
           </p>
         </div>
         <div
-          className="ml-4 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md"
           style={{
+            marginLeft: 16,
+            display: 'flex',
+            height: 36,
+            width: 36,
+            flexShrink: 0,
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: 6,
             background: '#ECEDF8',
             border: '1px solid rgba(94,106,210,0.2)',
           }}
         >
-          <Icon className="h-4 w-4" style={{ color: '#5E6AD2' }} />
+          <Icon style={{ width: 16, height: 16, color: '#5E6AD2' }} />
         </div>
       </div>
     </div>
@@ -85,33 +94,44 @@ function StatCard({
 
 /* ── Section Card wrapper ── */
 function SectionCard({
-  title, sub, onViewAll, children, className, scrollable,
+  title, sub, onViewAll, children, scrollable,
+  style: extraStyle,
 }: {
   title: string
   sub?: string
   onViewAll?: () => void
   children: ReactNode
-  className?: string
   scrollable?: boolean
+  style?: React.CSSProperties
 }) {
   return (
     <div
-      className={cn('rounded-lg overflow-hidden flex flex-col', className)}
       style={{
         background: '#FFFFFF',
         border: '1px solid #E5E7EB',
+        borderRadius: 8,
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        ...extraStyle,
       }}
     >
       <div
-        className="flex items-center justify-between px-5 py-3.5 flex-shrink-0"
-        style={{ borderBottom: '1px solid #E5E7EB' }}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '14px 20px',
+          flexShrink: 0,
+          borderBottom: '1px solid #E5E7EB',
+        }}
       >
         <div>
-          <h2 className="text-sm font-semibold" style={{ color: '#1A1A2E' }}>
+          <h2 style={{ fontSize: 14, fontWeight: 600, color: '#1A1A2E', margin: 0 }}>
             {title}
           </h2>
           {sub && (
-            <p className="text-xs mt-0.5" style={{ color: '#8892A0' }}>
+            <p style={{ fontSize: 12, marginTop: 2, color: '#8892A0', margin: '2px 0 0' }}>
               {sub}
             </p>
           )}
@@ -119,23 +139,31 @@ function SectionCard({
         {onViewAll && (
           <button
             onClick={onViewAll}
-            className="flex items-center gap-1 text-xs transition-all duration-100 border-0 bg-transparent p-0"
-            style={{ color: '#8892A0' }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              fontSize: 12,
+              border: 'none',
+              background: 'transparent',
+              padding: 0,
+              cursor: 'pointer',
+              color: '#8892A0',
+              transition: 'color 0.1s',
+            }}
             onMouseEnter={(e) => { e.currentTarget.style.color = '#5E6AD2' }}
             onMouseLeave={(e) => { e.currentTarget.style.color = '#8892A0' }}
           >
-            전체보기 <ArrowRight className="h-3 w-3" />
+            전체보기 <ArrowRight style={{ width: 12, height: 12 }} />
           </button>
         )}
       </div>
       {scrollable ? (
-        <div className="flex-1 overflow-y-auto">{children}</div>
+        <div style={{ flex: 1, overflowY: 'auto' }}>{children}</div>
       ) : children}
     </div>
   )
 }
-
-import { ReactNode } from 'react'
 
 export default function AdminDashboard({
   customers, contracts, meetings, agentName, agentRole,
@@ -191,25 +219,25 @@ export default function AdminDashboard({
   ]
 
   return (
-    <div className="px-6 pb-8 pt-5" style={{ background: '#F7F8FA' }}>
+    <div style={{ padding: '20px 24px 32px', background: '#F7F8FA', minHeight: '100%' }}>
 
       {/* Page title */}
-      <div className="mb-6 flex items-end justify-between">
+      <div style={{ marginBottom: 24, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
         <div>
-          <h1 className="text-xl font-bold" style={{ color: '#1A1A2E' }}>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: '#1A1A2E', margin: 0 }}>
             대시보드
           </h1>
-          <p className="mt-0.5 text-sm" style={{ color: '#636B78' }}>
+          <p style={{ marginTop: 2, fontSize: 14, color: '#636B78', margin: '2px 0 0' }}>
             안녕하세요, {agentName} {agentRole === 'admin' ? '대표님' : '설계사님'}
           </p>
         </div>
-        <span className="text-sm" style={{ color: '#1A1A2E' }}>
+        <span style={{ fontSize: 14, color: '#1A1A2E' }}>
           {new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' })}
         </span>
       </div>
 
       {/* Stat cards */}
-      <div className="grid gap-3 grid-cols-2 lg:grid-cols-6">
+      <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(6, 1fr)' }}>
         <StatCard title="총 고객" value={String(customers.length)} sub={`마이 ${myCustomers}명 · 관심 ${prospectCustomers}명`} icon={Users} onClick={() => router.push('/customers')} />
         <StatCard title="마이고객" value={String(myCustomers)} sub="계약 완료 고객" icon={UserCheck} onClick={() => router.push('/customers?type=existing')} />
         <StatCard title="관심고객" value={String(prospectCustomers)} sub="예비 가입 고객" icon={Star} onClick={() => router.push('/customers?type=prospect')} />
@@ -218,36 +246,45 @@ export default function AdminDashboard({
         <StatCard title="월납입 합계" value={fmt(totalMonthly)} sub="전체 고객 기준" icon={CreditCard} />
       </div>
 
-      {/* Middle */}
-      <div className="mt-4 grid gap-4 lg:grid-cols-3">
+      {/* Middle row */}
+      <div style={{ marginTop: 16, display: 'grid', gap: 16, gridTemplateColumns: 'repeat(3, 1fr)' }}>
 
         {/* 오늘의 할일 */}
         <SectionCard title="오늘의 할일" sub="액션이 필요한 고객" onViewAll={() => router.push('/customers')}>
-          <div className="py-1">
+          <div style={{ paddingTop: 4, paddingBottom: 4 }}>
             {issues.map(({ label, count, sort }, i) => (
               <div key={sort}>
                 {i > 0 && <div style={{ height: 1, background: '#E5E7EB', margin: '0 12px' }} />}
                 <div
                   onClick={count > 0 ? () => router.push(`/customers?sort=${sort}`) : undefined}
-                  className="flex items-center justify-between mx-2 px-3 py-2.5 text-sm transition-all duration-150 rounded-md"
-                  style={{ cursor: count > 0 ? 'pointer' : 'default' }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    margin: '0 8px',
+                    padding: '10px 12px',
+                    fontSize: 14,
+                    transition: 'all 0.15s',
+                    borderRadius: 6,
+                    cursor: count > 0 ? 'pointer' : 'default',
+                  }}
                   onMouseEnter={(e) => {
-                    if (count > 0) {
-                      const el = e.currentTarget as HTMLDivElement
-                      el.style.background = '#EFEFF1'
-                    }
+                    if (count > 0) (e.currentTarget as HTMLDivElement).style.background = '#EFEFF1'
                   }}
                   onMouseLeave={(e) => {
-                    const el = e.currentTarget as HTMLDivElement
-                    el.style.background = 'transparent'
+                    (e.currentTarget as HTMLDivElement).style.background = 'transparent'
                   }}
                 >
                   <span style={{ color: count === 0 ? '#8892A0' : '#1A1A2E', fontWeight: count > 0 ? 510 : 400 }}>
                     {label}
                   </span>
                   <span
-                    className="tabular-nums text-xs font-semibold px-2 py-0.5 rounded"
                     style={{
+                      fontVariantNumeric: 'tabular-nums',
+                      fontSize: 12,
+                      fontWeight: 600,
+                      padding: '2px 8px',
+                      borderRadius: 4,
                       background: count > 0 ? '#ECEDF8' : '#EFEFF1',
                       color: count > 0 ? '#5E6AD2' : '#8892A0',
                       border: count > 0 ? '1px solid rgba(94,106,210,0.2)' : '1px solid #E5E7EB',
@@ -261,44 +298,63 @@ export default function AdminDashboard({
           </div>
         </SectionCard>
 
-        {/* Right col */}
-        <div className="flex flex-col gap-4 h-full">
+        {/* Middle right col */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, height: '100%' }}>
 
           {/* 이번달 미팅 */}
           <SectionCard title="이번달 미팅" onViewAll={() => router.push('/sales?tab=meeting')}>
-            <div className="grid grid-cols-4">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)' }}>
               {meetingCols.map(({ label, value }, i) => (
-                <div key={label} className="flex flex-col items-center py-4" style={{ borderRight: i < meetingCols.length - 1 ? '1px solid #E5E7EB' : undefined }}>
-                  <p className="text-xl font-bold tabular-nums" style={{ color: '#1A1A2E' }}>{value}</p>
-                  <p className="mt-1 text-xs" style={{ color: '#8892A0' }}>{label}</p>
+                <div
+                  key={label}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    padding: '16px 0',
+                    borderRight: i < meetingCols.length - 1 ? '1px solid #E5E7EB' : undefined,
+                  }}
+                >
+                  <p style={{ fontSize: 20, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#1A1A2E', margin: 0 }}>{value}</p>
+                  <p style={{ marginTop: 4, fontSize: 12, color: '#8892A0', margin: '4px 0 0' }}>{label}</p>
                 </div>
               ))}
             </div>
           </SectionCard>
 
           {/* 영업일정 */}
-          <SectionCard title="영업일정" onViewAll={() => router.push('/sales?tab=meeting&sub=today')} className="flex-1" scrollable>
+          <SectionCard title="영업일정" onViewAll={() => router.push('/sales?tab=meeting&sub=today')} scrollable style={{ flex: 1 }}>
             {todayMeetings.length === 0 ? (
-              <p className="px-5 py-4 text-sm" style={{ color: '#8892A0' }}>오늘 미팅 없음</p>
+              <p style={{ padding: '16px 20px', fontSize: 14, color: '#8892A0' }}>오늘 미팅 없음</p>
             ) : (
-              todayMeetings.map((m: any, i: number) => {
+              todayMeetings.map((m: any) => {
                 const cust = customers.find((c: any) => c.id === m.customer_id)
                 const badge = cust?.customer_type === 'prospect' ? '관심' : '마이'
                 return (
                   <div
                     key={m.id}
                     onClick={() => router.push(`/sales?tab=meeting&sub=today&meetingId=${m.id}`)}
-                    className="flex items-center justify-between mx-2 px-3 py-2.5 text-sm cursor-pointer transition-all duration-150 rounded-md"
-                    onMouseEnter={(e) => { const el = e.currentTarget as HTMLDivElement; el.style.background = '#EFEFF1' }}
-                    onMouseLeave={(e) => { const el = e.currentTarget as HTMLDivElement; el.style.background = 'transparent' }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      margin: '0 8px',
+                      padding: '10px 12px',
+                      fontSize: 14,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s',
+                      borderRadius: 6,
+                    }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = '#EFEFF1' }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'transparent' }}
                   >
-                    <div className="flex items-center gap-2">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <span style={{ color: '#1A1A2E', fontWeight: 510 }}>{cust?.name ?? '이름 없음'}</span>
-                      <span className="text-[11px] px-1.5 py-0.5 rounded" style={{ background: '#EFEFF1', color: '#8892A0', border: '1px solid #E5E7EB' }}>
+                      <span style={{ fontSize: 11, padding: '2px 6px', borderRadius: 4, background: '#EFEFF1', color: '#8892A0', border: '1px solid #E5E7EB' }}>
                         {badge}
                       </span>
                     </div>
-                    <span className="tabular-nums text-xs" style={{ color: '#8892A0' }}>{m.meeting_time ?? '시간 미정'}</span>
+                    <span style={{ fontVariantNumeric: 'tabular-nums', fontSize: 12, color: '#8892A0' }}>{m.meeting_time ?? '시간 미정'}</span>
                   </div>
                 )
               })
@@ -308,7 +364,7 @@ export default function AdminDashboard({
 
         {/* 월별 신규 고객 */}
         <SectionCard title="월별 신규 고객" sub="최근 6개월 등록 현황">
-          <div className="px-4 pt-4 pb-2" style={{ height: 260 }}>
+          <div style={{ padding: '16px 16px 8px', height: 260 }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={monthlyData} barSize={22} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
                 <XAxis dataKey="label" tick={{ fontSize: 12, fill: '#8892A0' }} axisLine={false} tickLine={false} />
@@ -326,20 +382,22 @@ export default function AdminDashboard({
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <div className="px-5 pb-4">
-            <p className="text-xs" style={{ color: '#8892A0' }}>
+          <div style={{ padding: '0 20px 16px' }}>
+            <p style={{ fontSize: 12, color: '#8892A0', margin: 0 }}>
               이번 달 신규 <span style={{ color: '#5E6AD2', fontWeight: 600 }}>{monthlyData[monthlyData.length - 1]?.count ?? 0}명</span>
             </p>
           </div>
         </SectionCard>
       </div>
 
-      {/* 최근 등록 고객 */}
-      <div className="mt-4 grid gap-4 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+      {/* Bottom row */}
+      <div style={{ marginTop: 16, display: 'grid', gap: 16, gridTemplateColumns: 'repeat(3, 1fr)' }}>
+
+        {/* 최근 등록 고객 */}
+        <div style={{ gridColumn: 'span 2' }}>
           <SectionCard title="최근 등록 고객" sub={`총 ${customers.length}명`} onViewAll={() => router.push('/customers')}>
             <div style={{ maxHeight: 180, overflowY: 'auto', padding: '0 8px' }}>
-              <table className="w-full text-sm" style={{ tableLayout: 'fixed' }}>
+              <table style={{ width: '100%', fontSize: 14, tableLayout: 'fixed', borderCollapse: 'collapse' }}>
                 <colgroup>
                   <col style={{ width: '16%' }} /><col style={{ width: '13%' }} /><col style={{ width: '9%' }} />
                   <col style={{ width: '18%' }} /><col style={{ width: '10%' }} /><col style={{ width: '10%' }} /><col style={{ width: '10%' }} />
@@ -347,44 +405,43 @@ export default function AdminDashboard({
                 <thead style={{ position: 'sticky', top: 0, zIndex: 1, background: '#FFFFFF' }}>
                   <tr style={{ borderBottom: '1px solid #E5E7EB' }}>
                     {['이름', '구분', '성별', '연락처', '나이', '계약수', '등록일'].map((h) => (
-                      <th key={h} className="px-5 py-2.5 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#8892A0' }}>{h}</th>
+                      <th key={h} style={{ padding: '10px 20px', textAlign: 'left', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#8892A0' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {recentCustomers.map((c: any, i: number) => {
+                  {recentCustomers.map((c: any) => {
                     const custContracts = contracts.filter((ct: any) => ct.customer_id === c.id)
                     return (
                       <tr
                         key={c.id}
                         onClick={() => router.push(`/customers?id=${c.id}`)}
-                        className="cursor-pointer transition-all duration-150"
-                        style={{ borderBottom: '1px solid #E5E7EB' }}
-                        onMouseEnter={(e) => { const el = e.currentTarget as HTMLTableRowElement; el.style.background = '#EFEFF1' }}
-                        onMouseLeave={(e) => { const el = e.currentTarget as HTMLTableRowElement; el.style.background = 'transparent' }}
+                        style={{ borderBottom: '1px solid #E5E7EB', cursor: 'pointer', transition: 'all 0.15s' }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = '#EFEFF1' }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = 'transparent' }}
                       >
-                        <td className="px-5 py-3" style={{ color: '#1A1A2E', fontWeight: 510 }}>{c.name}</td>
-                        <td className="px-5 py-3">
-                          <span className="text-[11px] px-1.5 py-0.5 rounded" style={{ background: '#EFEFF1', color: '#636B78', border: '1px solid #E5E7EB' }}>
+                        <td style={{ padding: '12px 20px', color: '#1A1A2E', fontWeight: 510 }}>{c.name}</td>
+                        <td style={{ padding: '12px 20px' }}>
+                          <span style={{ fontSize: 11, padding: '2px 6px', borderRadius: 4, background: '#EFEFF1', color: '#636B78', border: '1px solid #E5E7EB' }}>
                             {c.customer_type === 'prospect' ? '관심고객' : '마이고객'}
                           </span>
                         </td>
-                        <td className="px-5 py-3 text-sm" style={{ color: '#636B78' }}>{c.gender ?? '-'}</td>
-                        <td className="px-5 py-3 tabular-nums text-sm" style={{ color: '#636B78' }}>{c.phone ?? '-'}</td>
-                        <td className="px-5 py-3 tabular-nums text-sm" style={{ color: '#636B78' }}>
+                        <td style={{ padding: '12px 20px', fontSize: 14, color: '#636B78' }}>{c.gender ?? '-'}</td>
+                        <td style={{ padding: '12px 20px', fontVariantNumeric: 'tabular-nums', fontSize: 14, color: '#636B78' }}>{c.phone ?? '-'}</td>
+                        <td style={{ padding: '12px 20px', fontVariantNumeric: 'tabular-nums', fontSize: 14, color: '#636B78' }}>
                           {(() => {
                             if (c.birth_date) {
                               const today = new Date(); const birth = new Date(c.birth_date)
                               let age = today.getFullYear() - birth.getFullYear()
-                              const m = today.getMonth() - birth.getMonth()
-                              if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--
+                              const mo = today.getMonth() - birth.getMonth()
+                              if (mo < 0 || (mo === 0 && today.getDate() < birth.getDate())) age--
                               return `${age}세`
                             }
                             return c.age ? `${c.age}세` : '-'
                           })()}
                         </td>
-                        <td className="px-5 py-3 tabular-nums text-sm" style={{ color: '#636B78' }}>{custContracts.length}건</td>
-                        <td className="px-5 py-3 tabular-nums text-sm" style={{ color: '#8892A0' }}>
+                        <td style={{ padding: '12px 20px', fontVariantNumeric: 'tabular-nums', fontSize: 14, color: '#636B78' }}>{custContracts.length}건</td>
+                        <td style={{ padding: '12px 20px', fontVariantNumeric: 'tabular-nums', fontSize: 14, color: '#8892A0' }}>
                           {new Date(c.created_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}
                         </td>
                       </tr>
@@ -397,8 +454,8 @@ export default function AdminDashboard({
         </div>
 
         {/* 빠른 액션 */}
-        <SectionCard title="빠른 액션" sub="자주 쓰는 메뉴" className="h-full">
-          <div className="flex-1 grid grid-cols-3 gap-2 px-2.5 py-2.5" style={{ gridAutoRows: '1fr' }}>
+        <SectionCard title="빠른 액션" sub="자주 쓰는 메뉴" style={{ height: '100%' }}>
+          <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, padding: 10, gridAutoRows: '1fr' }}>
             {[
               { label: '새 고객 등록', icon: UserPlus, href: '/input' },
               { label: '상담 일정', icon: CalendarPlus, href: '/consultations' },
@@ -410,15 +467,26 @@ export default function AdminDashboard({
               <button
                 key={label}
                 onClick={() => router.push(href)}
-                className="flex flex-col items-center justify-center gap-1 rounded-lg py-2 transition-all duration-100"
-                style={{ background: '#F7F8FA', border: '1px solid #E5E7EB', cursor: 'pointer' }}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 4,
+                  borderRadius: 8,
+                  padding: '8px 4px',
+                  background: '#F7F8FA',
+                  border: '1px solid #E5E7EB',
+                  cursor: 'pointer',
+                  transition: 'all 0.1s',
+                }}
                 onMouseEnter={(e) => { e.currentTarget.style.background = '#ECEDF8'; e.currentTarget.style.borderColor = 'rgba(94,106,210,0.3)' }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = '#F7F8FA'; e.currentTarget.style.borderColor = '#E5E7EB' }}
               >
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg" style={{ background: '#ECEDF8', border: '1px solid rgba(94,106,210,0.2)' }}>
-                  <Icon className="h-3.5 w-3.5" style={{ color: '#5E6AD2' }} />
+                <div style={{ display: 'flex', height: 28, width: 28, alignItems: 'center', justifyContent: 'center', borderRadius: 8, background: '#ECEDF8', border: '1px solid rgba(94,106,210,0.2)' }}>
+                  <Icon style={{ width: 14, height: 14, color: '#5E6AD2' }} />
                 </div>
-                <span className="text-xs font-medium text-center leading-tight" style={{ color: '#1A1A2E' }}>{label}</span>
+                <span style={{ fontSize: 11, fontWeight: 500, textAlign: 'center', lineHeight: 1.3, color: '#1A1A2E' }}>{label}</span>
               </button>
             ))}
           </div>
@@ -426,16 +494,15 @@ export default function AdminDashboard({
       </div>
 
       {/* Footer */}
-      <div className="mt-6 flex items-center justify-between" style={{ paddingRight: 72 }}>
+      <div style={{ marginTop: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: 72 }}>
         <span style={{ fontSize: 12, color: '#636B78' }}>
           © 2026 iPlanner · GlobalMD Inc. All rights reserved.
         </span>
-        <div className="flex items-center gap-4">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           {['이용약관', '개인정보처리방침', '고객센터'].map((item) => (
             <button
               key={item}
-              className="text-xs transition-colors duration-100"
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#636B78', padding: 0 }}
+              style={{ fontSize: 12, background: 'none', border: 'none', cursor: 'pointer', color: '#636B78', padding: 0, transition: 'color 0.1s' }}
               onMouseEnter={(e) => { e.currentTarget.style.color = '#1A1A2E' }}
               onMouseLeave={(e) => { e.currentTarget.style.color = '#636B78' }}
             >
@@ -447,4 +514,3 @@ export default function AdminDashboard({
     </div>
   )
 }
-
