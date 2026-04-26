@@ -1,8 +1,4 @@
-<<<<<<< Updated upstream
-import { ReactNode, useState, useEffect } from 'react'
-=======
 import { ReactNode, useState, useEffect, useRef } from 'react'
->>>>>>> Stashed changes
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { cn } from '../lib/utils'
@@ -10,12 +6,8 @@ import { supabase } from '../lib/supabase'
 import { useConfirm } from '../lib/useConfirm'
 import {
   LayoutDashboard, FileEdit, Users, Bell, Mail,
-<<<<<<< Updated upstream
-  BarChart2, TrendingUp, Settings, LogOut, Sun, Moon, User, CalendarDays,
-=======
   BarChart2, TrendingUp, Settings, LogOut, Sun, Moon, CalendarDays, ShieldCheck,
   Headphones, X,
->>>>>>> Stashed changes
 } from 'lucide-react'
 
 const navItems = [
@@ -48,10 +40,6 @@ const pageLabels: Record<string, string> = {
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const router = useRouter()
   const { confirm, ConfirmDialog } = useConfirm()
-<<<<<<< Updated upstream
-  const currentLabel = pageLabels[router.pathname] ?? 'iPlanner'
-  const [dark, setDark] = useState(false)
-=======
   const [dark, setDark] = useState(false)
   const [supportOpen, setSupportOpen] = useState(false)
   const [userInfo, setUserInfo] = useState<{ email: string; initial: string } | null>(null)
@@ -59,15 +47,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const mainColRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLElement>(null)
   const announcementRef = useRef<HTMLDivElement>(null)
->>>>>>> Stashed changes
 
   useEffect(() => {
     const saved = localStorage.getItem('admin_theme')
     if (saved === 'dark') setDark(true)
   }, [])
 
-<<<<<<< Updated upstream
-=======
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) {
@@ -115,7 +100,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     }
   }
 
->>>>>>> Stashed changes
   const toggleTheme = () => {
     const next = !dark
     setDark(next)
@@ -132,11 +116,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <div
       className={cn('admin-root flex min-h-screen', dark ? 'admin-dark' : '')}
-<<<<<<< Updated upstream
-      style={{ background: 'hsl(var(--bg-app))', color: 'hsl(var(--text-primary))' }}
-=======
       style={{ background: 'hsl(var(--bg-app))', color: 'hsl(var(--text-primary) / 0.82)' }}
->>>>>>> Stashed changes
     >
       {ConfirmDialog}
 
@@ -146,10 +126,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         style={{
           background: 'hsl(var(--bg-panel))',
           borderRight: '1px solid hsl(var(--border-default))',
-<<<<<<< Updated upstream
-=======
           boxShadow: '2px 0 12px rgba(0,0,0,0.06)',
->>>>>>> Stashed changes
         }}
       >
         {/* Logo */}
@@ -161,33 +138,11 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               boxShadow: '0 2px 8px hsl(var(--accent) / 0.35)',
             }}
           >
-<<<<<<< Updated upstream
-            <span style={{
-              color: '#fff',
-              fontSize: '15px',
-              fontWeight: 800,
-              fontStyle: 'italic',
-              letterSpacing: '-0.5px',
-              lineHeight: 1,
-            }}>i</span>
-          </div>
-          <span style={{
-            fontSize: '16px',
-            fontWeight: 700,
-            color: 'hsl(var(--text-primary))',
-            letterSpacing: '-0.4px',
-            lineHeight: 1,
-          }}>아이플래너</span>
-        </div>
-
-        {/* Divider */}
-=======
             <span style={{ color: '#fff', fontSize: '15px', fontWeight: 800, fontStyle: 'italic', letterSpacing: '-0.5px', lineHeight: 1 }}>i</span>
           </div>
           <span style={{ fontSize: '16px', fontWeight: 700, color: 'hsl(var(--text-primary) / 0.82)', letterSpacing: '-0.4px', lineHeight: 1 }}>아이플래너</span>
         </div>
 
->>>>>>> Stashed changes
         <div style={{ height: 1, background: 'hsl(var(--border-default))', margin: '0 12px' }} />
 
         {/* Nav */}
@@ -199,60 +154,28 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 <li key={item.href}>
                   <Link
                     href={item.href}
-<<<<<<< Updated upstream
-                    className={cn(
-                      'flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-all duration-100',
-                      isActive
-                        ? 'font-medium'
-                        : 'font-normal'
-                    )}
-                    style={
-                      isActive
-                        ? {
-                            background: 'hsl(var(--accent-bg))',
-                            color: 'hsl(var(--accent))',
-                            border: '1px solid hsl(var(--accent) / 0.2)',
-                          }
-                        : {
-                            color: 'hsl(var(--text-secondary))',
-                            border: '1px solid transparent',
-                          }
-=======
                     className={cn('flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-all duration-100', isActive ? 'font-medium' : 'font-normal')}
                     style={
                       isActive
                         ? { background: 'hsl(var(--icon-bg))', color: 'hsl(var(--icon-fg))', border: '1px solid hsl(var(--accent) / 0.2)' }
                         : { color: 'hsl(var(--text-primary) / 0.82)', border: '1px solid transparent' }
->>>>>>> Stashed changes
                     }
                     onMouseEnter={(e) => {
                       if (!isActive) {
                         e.currentTarget.style.background = 'hsl(var(--bg-elevated))'
-<<<<<<< Updated upstream
-                        e.currentTarget.style.color = 'hsl(var(--text-primary))'
-=======
                         e.currentTarget.style.color = 'hsl(var(--text-primary) / 0.82)'
->>>>>>> Stashed changes
                         e.currentTarget.style.borderColor = 'hsl(var(--border-hover))'
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (!isActive) {
                         e.currentTarget.style.background = 'transparent'
-<<<<<<< Updated upstream
-                        e.currentTarget.style.color = 'hsl(var(--text-secondary))'
-=======
                         e.currentTarget.style.color = 'hsl(var(--text-primary) / 0.82)'
->>>>>>> Stashed changes
                         e.currentTarget.style.borderColor = 'transparent'
                       }
                     }}
                   >
-<<<<<<< Updated upstream
-                    <item.icon className="h-[14px] w-[14px] flex-shrink-0" />
-=======
                     <item.icon className="h-4 w-4 flex-shrink-0" />
->>>>>>> Stashed changes
                     <span style={{ fontWeight: isActive ? 510 : 400 }}>{item.name}</span>
                   </Link>
                 </li>
@@ -261,18 +184,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           </ul>
 
           {/* Account section */}
-<<<<<<< Updated upstream
-          <div className="mt-5">
-            <p
-              className="px-3 pb-1.5 pt-2 text-[11px] font-semibold uppercase tracking-wider"
-              style={{ color: 'hsl(var(--text-tertiary))' }}
-            >
-              계정
-            </p>
-=======
           <div className="mt-4">
             <div style={{ height: 1, background: 'hsl(var(--border-default))', margin: '0 12px 8px' }} />
->>>>>>> Stashed changes
             <ul className="space-y-0.5">
               {accountItems.map((item) => {
                 const isActive = router.pathname === item.href
@@ -283,49 +196,25 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                       className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-all duration-100"
                       style={
                         isActive
-<<<<<<< Updated upstream
-                          ? {
-                              background: 'hsl(var(--accent-bg))',
-                              color: 'hsl(var(--accent))',
-                              border: '1px solid hsl(var(--accent) / 0.2)',
-                            }
-                          : {
-                              color: 'hsl(var(--text-secondary))',
-                              border: '1px solid transparent',
-                            }
-=======
                           ? { background: 'hsl(var(--icon-bg))', color: 'hsl(var(--icon-fg))', border: '1px solid hsl(var(--accent) / 0.2)' }
                           : { color: 'hsl(var(--text-primary) / 0.82)', border: '1px solid transparent' }
->>>>>>> Stashed changes
                       }
                       onMouseEnter={(e) => {
                         if (!isActive) {
                           e.currentTarget.style.background = 'hsl(var(--bg-elevated))'
-<<<<<<< Updated upstream
-                          e.currentTarget.style.color = 'hsl(var(--text-primary))'
-=======
                           e.currentTarget.style.color = 'hsl(var(--text-primary) / 0.82)'
->>>>>>> Stashed changes
                           e.currentTarget.style.borderColor = 'hsl(var(--border-hover))'
                         }
                       }}
                       onMouseLeave={(e) => {
                         if (!isActive) {
                           e.currentTarget.style.background = 'transparent'
-<<<<<<< Updated upstream
-                          e.currentTarget.style.color = 'hsl(var(--text-secondary))'
-=======
                           e.currentTarget.style.color = 'hsl(var(--text-primary) / 0.82)'
->>>>>>> Stashed changes
                           e.currentTarget.style.borderColor = 'transparent'
                         }
                       }}
                     >
-<<<<<<< Updated upstream
-                      <item.icon className="h-[14px] w-[14px] flex-shrink-0" />
-=======
                       <item.icon className="h-4 w-4 flex-shrink-0" />
->>>>>>> Stashed changes
                       <span>{item.name}</span>
                     </Link>
                   </li>
@@ -335,27 +224,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           </div>
         </nav>
 
-<<<<<<< Updated upstream
-        {/* Bottom – logout */}
-        <div className="p-3">
-          <div style={{ height: 1, background: 'hsl(var(--border-default))', marginBottom: 10 }} />
-          <button
-            onClick={handleLogout}
-            className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-all duration-100"
-            style={{ color: 'hsl(var(--text-secondary))', border: '1px solid transparent' }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'hsl(var(--bg-elevated))'
-              e.currentTarget.style.color = 'hsl(var(--text-primary))'
-              e.currentTarget.style.borderColor = 'hsl(var(--border-hover))'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent'
-              e.currentTarget.style.color = 'hsl(var(--text-secondary))'
-              e.currentTarget.style.borderColor = 'transparent'
-            }}
-          >
-            <LogOut className="h-[14px] w-[14px] flex-shrink-0" />
-=======
         {/* Bottom – user profile + admin + logout */}
         <div className="p-3">
           <div style={{ height: 1, background: 'hsl(var(--border-default))', marginBottom: 10 }} />
@@ -421,39 +289,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             }}
           >
             <LogOut className="h-4 w-4 flex-shrink-0" />
->>>>>>> Stashed changes
             <span>로그아웃</span>
           </button>
         </div>
       </aside>
 
       {/* ── Main ── */}
-<<<<<<< Updated upstream
-      <div className="ml-60 flex flex-1 flex-col min-w-0">
-
-        {/* Header */}
-        <header
-          className="flex items-center justify-between px-6 py-1.5"
-        >
-          {/* Brand descriptor */}
-          <span style={{
-            fontSize: '13px',
-            fontWeight: 500,
-            fontStyle: 'italic',
-            color: 'hsl(var(--text-secondary))',
-            letterSpacing: '0.01em',
-          }}>
-            insurance planner
-          </span>
-
-          {/* Right controls */}
-          <div className="flex items-center gap-1">
-            <span className="mr-2 text-xs" style={{ color: 'hsl(var(--text-primary))' }}>
-              {new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' })}
-            </span>
-
-            {/* Theme toggle */}
-=======
       <div ref={mainColRef} className="ml-60 flex flex-1 flex-col min-w-0">
 
         {/* Header */}
@@ -474,7 +315,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
             <div style={{ width: 1, height: 14, background: 'hsl(var(--border-default))', margin: '0 4px' }} />
 
->>>>>>> Stashed changes
             <HeaderIconBtn onClick={toggleTheme} title={dark ? '라이트 모드' : '다크 모드'}>
               {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </HeaderIconBtn>
@@ -487,34 +327,15 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               <Settings className="h-4 w-4" />
             </HeaderIconBtn>
 
-<<<<<<< Updated upstream
-            {/* Avatar */}
-            <button
-              className="ml-1 flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold transition-all duration-100"
-              style={{
-                background: 'hsl(var(--accent))',
-                color: '#fff',
-              }}
-            >
-              A
-=======
             <button
               className="ml-1 flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold"
               style={{ background: 'linear-gradient(135deg, hsl(var(--accent)), hsl(245 70% 58%))', color: '#fff' }}
             >
               {userInfo?.initial ?? 'A'}
->>>>>>> Stashed changes
             </button>
           </div>
         </header>
 
-<<<<<<< Updated upstream
-        {/* Content */}
-        <main className="flex-1 overflow-y-auto">
-          {children}
-        </main>
-      </div>
-=======
         {/* Announcement Bar */}
         {announcement && (
           <div
@@ -676,7 +497,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           }
         </div>
       </button>
->>>>>>> Stashed changes
     </div>
   )
 }
@@ -696,25 +516,12 @@ function HeaderIconBtn({
       onClick={onClick}
       title={title}
       className="flex h-8 w-8 items-center justify-center rounded-md transition-all duration-100"
-<<<<<<< Updated upstream
-      style={{ color: 'hsl(var(--text-primary))', border: '1px solid transparent' }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.background = 'hsl(var(--bg-elevated))'
-        e.currentTarget.style.color = 'hsl(var(--text-primary))'
-        e.currentTarget.style.borderColor = 'hsl(var(--border-hover))'
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.background = 'transparent'
-        e.currentTarget.style.color = 'hsl(var(--text-secondary))'
-        e.currentTarget.style.borderColor = 'transparent'
-=======
       style={{ color: 'hsl(var(--text-primary) / 0.82)', border: 'none', background: 'transparent' }}
       onMouseEnter={(e) => {
         e.currentTarget.style.background = 'hsl(var(--bg-elevated))'
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.background = 'transparent'
->>>>>>> Stashed changes
       }}
     >
       {children}
