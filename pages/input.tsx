@@ -3,115 +3,40 @@ import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
 import styles from '../styles/Input.module.css'
 import InsuranceCompanySelect from '../components/InsuranceCompanySelect'
+import { ClipboardList, Camera, PenLine, FileUp } from 'lucide-react'
 
 function ScanCardTab({ onComplete }: { onComplete: () => void }) {
-  const [cameraOpen, setCameraOpen] = useState(false)
-  const [cameraClosing, setCameraClosing] = useState(false)
   const [scanning, setScanning] = useState(false)
   const [result, setResult] = useState<any>(null)
   const [saving, setSaving] = useState(false)
-  const [capturedImage, setCapturedImage] = useState<string | null>(null)
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const streamRef = useRef<MediaStream | null>(null)
-  const resultRef = useRef<HTMLDivElement>(null)
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null)
+  const [dragOver, setDragOver] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const stopCamera = useCallback(() => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(t => t.stop())
-      streamRef.current = null
+  async function handleImageFile(file: File) {
+    if (!file.type.startsWith('image/')) return alert('이미지 파일만 업로드할 수 있어요.')
+    const reader = new FileReader()
+    reader.onload = async (e) => {
+      const dataUrl = e.target?.result as string
+      setUploadedImage(dataUrl)
+      setScanning(true)
+      try {
+        const res = await fetch('/api/scan-card', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: dataUrl }),
+        })
+        const data = await res.json()
+        if (data.error) { alert('스캔 오류: ' + data.error); setScanning(false); return }
+        if (!data.name && !data.phone && !data.email && !data.company) {
+          alert('명함 정보를 인식하지 못했어요. 다른 이미지를 사용해보세요.')
+          setScanning(false); return
+        }
+        setResult(data)
+      } catch { alert('명함 분석 중 오류가 발생했어요!') }
+      setScanning(false)
     }
-  }, [])
-
-  useEffect(() => { return () => { stopCamera() } }, [stopCamera])
-
-  async function openCamera() {
-    try {
-      setCameraOpen(true)
-      window.history.pushState({ camera: true }, '')
-      await new Promise(r => setTimeout(r, 100))
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } }
-      })
-      streamRef.current = stream
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream
-        await videoRef.current.play()
-      }
-    } catch (e) {
-      setCameraOpen(false)
-      alert('카메라 접근이 거부되었어요. 설정에서 카메라 권한을 허용해주세요.')
-    }
-  }
-
-  function closeCamera() {
-    setCameraClosing(true)
-    setTimeout(() => {
-      stopCamera()
-      setCameraOpen(false)
-      setCameraClosing(false)
-    }, 300)
-  }
-
-  useEffect(() => {
-    function handlePopState() {
-      if (cameraOpen) {
-        closeCamera()
-      } else if (result) {
-        setResult(null)
-        setCapturedImage(null)
-      }
-    }
-    window.addEventListener('popstate', handlePopState)
-    return () => window.removeEventListener('popstate', handlePopState)
-  }, [cameraOpen, result, stopCamera])
-
-  function capturePhoto() {
-    if (!videoRef.current || !canvasRef.current) return
-    const video = videoRef.current
-    const canvas = canvasRef.current
-    // 명함 영역만 크롭 (SVG 마스크와 동일한 비율: x=8%, y=35%, w=84%, h=22%)
-    const sx = video.videoWidth * 0.08
-    const sy = video.videoHeight * 0.35
-    const sw = video.videoWidth * 0.84
-    const sh = video.videoHeight * 0.22
-    canvas.width = sw
-    canvas.height = sh
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-    ctx.drawImage(video, sx, sy, sw, sh, 0, 0, sw, sh)
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.9)
-    setCapturedImage(dataUrl)
-    stopCamera()
-    setCameraOpen(false)
-    handleScan(dataUrl)
-  }
-
-  async function handleScan(imageData: string) {
-    setScanning(true)
-    try {
-      const res = await fetch('/api/scan-card', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: imageData }),
-      })
-      const data = await res.json()
-      if (data.error) {
-        alert('스캔 오류: ' + data.error)
-        setScanning(false)
-        return
-      }
-      if (!data.name && !data.phone && !data.email && !data.company) {
-        alert('명함 정보를 인식하지 못했어요. 다시 촬영해주세요.')
-        setScanning(false)
-        return
-      }
-      setResult(data)
-      window.history.pushState({ scanResult: true }, '')
-    } catch (e) {
-      alert('명함 스캔 중 오류가 발생했어요!')
-    }
-    setScanning(false)
+    reader.readAsDataURL(file)
   }
 
   async function handleSave() {
@@ -120,141 +45,126 @@ function ScanCardTab({ onComplete }: { onComplete: () => void }) {
     try {
       const { data: { user } } = await supabase.auth.getUser()
       await supabase.from('dpa_customers').insert({
-        name: result.name,
-        phone: result.phone || null,
-        email: result.email || null,
-        address: result.address || null,
-        workplace: result.company || null,
-        job: result.position || null,
-        grade: '일반',
-        customer_type: 'prospect',
-        agent_id: user?.id,
+        name: result.name, phone: result.phone || null,
+        email: result.email || null, address: result.address || null,
+        workplace: result.company || null, job: result.position || null,
+        grade: '일반', customer_type: 'prospect', agent_id: user?.id,
       })
       onComplete()
-    } catch (e) {
-      alert('저장 중 오류가 발생했어요!')
-    }
+    } catch { alert('저장 중 오류가 발생했어요!') }
     setSaving(false)
   }
 
-  function resetScan() {
-    setResult(null)
-    setCapturedImage(null)
-    setScanning(false)
-  }
+  function reset() { setResult(null); setUploadedImage(null); setScanning(false) }
 
-  // 카메라 오버레이 UI (삼성페이 스타일)
-  if (cameraOpen) {
-    return (
-      <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',zIndex:9999,background:'#000',animation:cameraClosing?'slideOutRight 0.3s ease-in forwards':'slideInRight 0.3s ease-out'}}>
-        <style>{`@keyframes slideInRight{from{transform:translateX(100%)}to{transform:translateX(0)}}@keyframes slideOutRight{from{transform:translateX(0)}to{transform:translateX(100%)}}`}</style>
-        <video ref={videoRef} style={{position:'absolute',top:0,left:0,width:'100%',height:'100%',objectFit:'cover'}} playsInline muted />
-        {/* 흰색 반투명 오버레이 + 명함 비율 라운드 사각형 */}
-        <svg style={{position:'absolute',top:0,left:0,width:'100%',height:'100%',pointerEvents:'none'}}>
-          <defs>
-            <mask id="cardMask">
-              <rect width="100%" height="100%" fill="white"/>
-              <rect x="8%" y="35%" width="84%" height="22%" rx="14" ry="14" fill="black"/>
-            </mask>
-          </defs>
-          <rect width="100%" height="100%" fill="rgba(255,255,255,0.7)" mask="url(#cardMask)"/>
-          {/* 코너 가이드 (삼성페이 스타일) */}
-          <rect x="8%" y="35%" width="84%" height="22%" rx="14" ry="14" fill="none" stroke="rgba(0,0,0,0.15)" strokeWidth="1"/>
-        </svg>
-        {/* 뒤로가기 */}
-        <div style={{position:'absolute',top:16,left:16,zIndex:1,cursor:'pointer'}} onClick={closeCamera}>
-          <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M18 4L8 14L18 24" stroke="#333" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        </div>
-        {/* 가이드 텍스트 */}
-        <div style={{position:'absolute',top:'28%',left:0,right:0,textAlign:'center',color:'#333',fontSize:15,fontWeight:500}}>
-          명함을 사각형 안에 맞춰주세요
-        </div>
-        {/* 하단 촬영 버튼 */}
-        <div style={{position:'absolute',bottom:0,left:0,right:0,padding:'32px 0 48px',display:'flex',justifyContent:'center'}}>
-          <button onClick={capturePhoto} style={{width:68,height:68,borderRadius:'50%',background:'#1D9E75',border:'4px solid rgba(29,158,117,0.3)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',boxShadow:'0 2px 12px rgba(29,158,117,0.3)'}}>
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><circle cx="12" cy="13" r="4" stroke="#fff" strokeWidth="2"/></svg>
-          </button>
-        </div>
-        <canvas ref={canvasRef} style={{display:'none'}} />
-      </div>
-    )
-  }
+  const FIELDS = [
+    { label: '이름', key: 'name' },
+    { label: '회사', key: 'company' },
+    { label: '직함', key: 'position' },
+    { label: '휴대폰', key: 'phone' },
+    { label: '유선전화', key: 'phone2' },
+    { label: '이메일', key: 'email' },
+    { label: '주소', key: 'address' },
+    { label: '팩스', key: 'fax' },
+  ]
 
-  // 스캔 결과 화면
-  if (result) {
-    setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
-    return (
-      <div ref={resultRef} style={{padding:'16px 0'}}>
-        <div style={{textAlign:'center',marginBottom:16}}>
-          <div style={{fontSize:15,fontWeight:600,color:'#1D9E75',marginBottom:4}}>명함 스캔 완료!</div>
-          <div style={{fontSize:13,color:'#888'}}>내용을 확인하고 수정해주세요</div>
-        </div>
-        {capturedImage && (
-          <div style={{marginBottom:16,borderRadius:12,overflow:'hidden',border:'1px solid #e8e6e1'}}>
-            <img src={capturedImage} alt="명함" style={{width:'100%',display:'block'}} />
+  return (
+    <div className={styles.formWrap}>
+
+      {/* ── 이미지 업로드 ── */}
+      <div className={styles.formSection}>명함 이미지 업로드</div>
+
+      {!uploadedImage ? (
+        /* 빈 상태 — 큰 드롭존 */
+        <div
+          className={[styles.dropZone, dragOver ? styles.dropZoneActive : ''].join(' ')}
+          style={{ minHeight: 180 }}
+          onDragOver={e => { e.preventDefault(); setDragOver(true) }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={e => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files[0]; if (f) handleImageFile(f) }}
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <div style={{ width: 48, height: 48, borderRadius: 12, background: 'hsl(var(--primary) / 0.1)', border: '1px solid hsl(var(--primary) / 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>
+            <Camera style={{ width: 22, height: 22, color: 'hsl(var(--primary))' }} />
           </div>
-        )}
-        <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:16}}>
-          {[
-            {label:'이름', key:'name'},
-            {label:'회사', key:'company'},
-            {label:'직함', key:'position'},
-            {label:'휴대폰', key:'phone'},
-            {label:'유선전화', key:'phone2'},
-            {label:'이메일', key:'email'},
-            {label:'주소', key:'address'},
-            {label:'팩스', key:'fax'},
-          ].map(f => (
-            <div key={f.key} style={{display:'flex',alignItems:'center',gap:8}}>
-              <label style={{fontSize:13,color:'#888',width:60,flexShrink:0,textAlign:'right'}}>{f.label}</label>
-              <input
-                value={result[f.key] || ''}
-                onChange={e => setResult({ ...result, [f.key]: e.target.value })}
-                style={{flex:1,fontSize:14,padding:'8px 12px',borderRadius:8,border:'1px solid #e8e6e1',background:'#FAF9F5'}}
-                placeholder={f.label}
-              />
-            </div>
-          ))}
+          <div style={{ fontSize: 14, fontWeight: 600, color: 'hsl(var(--card-foreground))', marginBottom: 6 }}>명함 이미지를 드래그하거나 클릭하세요</div>
+          <div style={{ fontSize: 13, color: 'hsl(var(--muted-foreground))' }}>.jpg, .png, .webp 파일 지원</div>
+          <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }}
+            onChange={e => { const f = e.target.files?.[0]; if (f) handleImageFile(f) }} />
         </div>
-        <div style={{display:'flex',gap:8}}>
-          <button onClick={resetScan} style={{flex:1,padding:'12px 0',borderRadius:10,border:'1px solid #e8e6e1',background:'#fff',fontSize:14,fontWeight:500,cursor:'pointer',color:'#666'}}>
-            다시 촬영
-          </button>
-          <button onClick={handleSave} disabled={saving} style={{flex:1,padding:'12px 0',borderRadius:10,border:'none',background:'#1D9E75',color:'#fff',fontSize:14,fontWeight:600,cursor:'pointer',opacity:saving?0.6:1}}>
+      ) : (
+        /* 이미지 있을 때 — 컴팩트 교체 바 + 미리보기 */
+        <>
+          <div
+            className={[styles.dropZone, dragOver ? styles.dropZoneActive : ''].join(' ')}
+            style={{ flexDirection: 'row', padding: '10px 16px', gap: 8, minHeight: 'unset' }}
+            onDragOver={e => { e.preventDefault(); setDragOver(true) }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={e => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files[0]; if (f) { reset(); handleImageFile(f) } }}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <Camera style={{ width: 15, height: 15, color: 'hsl(var(--primary))', flexShrink: 0 }} />
+            <span style={{ fontSize: 13, color: 'hsl(var(--muted-foreground))' }}>다른 이미지로 교체 — 클릭 또는 드래그</span>
+            <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }}
+              onChange={e => { const f = e.target.files?.[0]; if (f) { reset(); handleImageFile(f) } }} />
+          </div>
+          <div style={{ marginTop: 12, borderRadius: 8, overflow: 'hidden', border: '1px solid hsl(var(--border))', background: 'hsl(var(--background))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <img src={uploadedImage} alt="명함" style={{ width: '100%', maxHeight: 260, objectFit: 'contain', display: 'block' }} />
+          </div>
+        </>
+      )}
+
+      {/* ── 인식 결과 ── */}
+      <div className={styles.formSection}>인식 결과</div>
+
+      {/* 빈 상태 */}
+      {!scanning && !result && (
+        <div className={styles.pastePanelEmpty} style={{ minHeight: 120 }}>
+          <div style={{ fontSize: 24, opacity: 0.3 }}>🪪</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: 'hsl(var(--card-foreground))' }}>명함을 업로드하면 자동으로 인식됩니다</div>
+          <div style={{ fontSize: 13, color: 'hsl(var(--muted-foreground))' }}>이름, 연락처, 회사 등을 AI가 자동으로 추출해요</div>
+        </div>
+      )}
+
+      {/* 분석 중 */}
+      {scanning && (
+        <div className={styles.pastePanelEmpty} style={{ minHeight: 120 }}>
+          <div style={{ fontSize: 24 }}>🔍</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: 'hsl(var(--primary))' }}>AI가 명함을 분석하고 있어요...</div>
+          <div style={{ fontSize: 13, color: 'hsl(var(--muted-foreground))' }}>잠시만 기다려주세요</div>
+        </div>
+      )}
+
+      {/* 결과 — 2열 그리드 */}
+      {result && !scanning && (
+        <>
+          <div className={styles.formGrid}>
+            {FIELDS.map(f => (
+              <div key={f.key} className={styles.field}
+                style={f.key === 'address' ? { gridColumn: '1 / -1' } : {}}>
+                <label>{f.label}</label>
+                <input
+                  value={result[f.key] || ''}
+                  onChange={e => setResult({ ...result, [f.key]: e.target.value })}
+                  placeholder={f.label}
+                />
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            style={{ marginTop: 8, width: '100%', padding: '11px', borderRadius: 8, border: 'none', background: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))', fontSize: 14, fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.6 : 1, fontFamily: 'inherit' }}
+          >
             {saving ? '저장 중...' : '관심고객으로 저장'}
           </button>
-        </div>
-      </div>
-    )
-  }
-
-  // 스캔 중
-  if (scanning) {
-    return (
-      <div style={{padding:'60px 0',textAlign:'center'}}>
-        <div style={{fontSize:32,marginBottom:12}}>🔍</div>
-        <div style={{fontSize:15,fontWeight:500,color:'#1D9E75'}}>AI가 명함을 분석하고 있어요...</div>
-        <div style={{fontSize:13,color:'#888',marginTop:4}}>잠시만 기다려주세요</div>
-      </div>
-    )
-  }
-
-  // 초기 화면
-  return (
-    <div style={{padding:'40px 0',textAlign:'center'}}>
-      <div style={{fontSize:48,marginBottom:16}}>📷</div>
-      <div style={{fontSize:16,fontWeight:600,marginBottom:6}}>명함을 촬영해서 고객을 등록하세요</div>
-      <div style={{fontSize:13,color:'#888',marginBottom:24,lineHeight:1.5}}>
-        명함을 촬영하면 AI가 자동으로<br/>이름, 연락처, 이메일 등을 인식합니다
-      </div>
-      <button onClick={openCamera} style={{padding:'14px 36px',borderRadius:12,background:'#1D9E75',color:'#fff',border:'none',fontSize:15,fontWeight:600,cursor:'pointer'}}>
-        명함촬영
-      </button>
+        </>
+      )}
     </div>
   )
 }
 
-type InputTab = 'paste' | 'scan' | 'manual'
+type InputTab = 'paste' | 'file' | 'scan' | 'manual'
 
 
 const JOBS = ['직장인 (회사원)', '자영업자', '공무원', '교사 / 교직원', '의료인', '전문직', '주부', '학생', '농업 / 어업', '프리랜서', '은퇴 / 무직', '기타']
@@ -353,9 +263,6 @@ export default function InputPage() {
   const [guideOpen, setGuideOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [done, setDone] = useState(false)
-  const [pasteText, setPasteText] = useState('')
-  const [contractCount, setContractCount] = useState<number>(1)
-  const [contractTexts, setContractTexts] = useState<string[]>([''])
   const [parsing, setParsing] = useState(false)
   const [parsed, setParsed] = useState<any>(null)
   const [jobCustom, setJobCustom] = useState('')
@@ -368,7 +275,11 @@ export default function InputPage() {
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>('')
   const selectedCustomerIdRef = useRef<string>('')
   const [customerSearch, setCustomerSearch] = useState<string>('')
-  const [contractTextsLoss, setContractTextsLoss] = useState<string[]>([''])
+  // paste 탭 — 단계별 입력
+  const [currentText, setCurrentText] = useState('')
+  const [currentTextLoss, setCurrentTextLoss] = useState('')
+  const [confirmedContracts, setConfirmedContracts] = useState<any[]>([])
+  const [parsedCustomer, setParsedCustomer] = useState<any>(null)
 
   // 페이지 로드 시 고객 목록 미리 불러오기
   useEffect(() => {
@@ -381,7 +292,7 @@ export default function InputPage() {
   }, [])
 
   useEffect(() => {
-    if (queryTab === 'scan' || queryTab === 'manual' || queryTab === 'paste') {
+    if (queryTab === 'paste' || queryTab === 'file' || queryTab === 'scan' || queryTab === 'manual') {
       setInputTab(queryTab as InputTab)
     }
   }, [queryTab])
@@ -496,97 +407,101 @@ export default function InputPage() {
   }
 
   async function handleParse() {
-    const combinedText = contractTexts.some(t => t.trim()) || contractTextsLoss.some(t => t.trim())
-      ? contractTexts.map((t, i) => {
-          const fixed = t.trim() ? `[계약 ${i + 1}번 - 정액형]\n${t.trim()}` : ''
-          const loss = contractTextsLoss[i]?.trim() ? `[계약 ${i + 1}번 - 실손형]\n${contractTextsLoss[i].trim()}` : ''
-          return [fixed, loss].filter(Boolean).join('\n\n')
-        }).filter(Boolean).join('\n\n')
-      : pasteText
-    if (!combinedText.trim()) return alert('텍스트를 붙여넣어 주세요!')
+    const combined = [
+      currentText.trim() ? `[정액형]\n${currentText.trim()}` : '',
+      currentTextLoss.trim() ? `[실손형]\n${currentTextLoss.trim()}` : '',
+    ].filter(Boolean).join('\n\n')
+    if (!combined.trim()) return alert('텍스트를 붙여넣어 주세요!')
     setParsing(true)
     try {
       const res = await fetch('/api/parse', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: combinedText }),
+        body: JSON.stringify({ text: combined }),
       })
       const data = await res.json()
-      // ⚠️ 자동 검증 - 점검 필요 항목 추출
+      // 검증 경고
       const warns: string[] = []
-      if (!data.name) warns.push('고객명이 인식되지 않았어요')
-      if (!data.age || !data.gender || data.gender === '미상') warns.push('나이/성별이 인식되지 않았어요 → 주민번호 확인 필요')
-      if (!data.phone) warns.push('연락처가 인식되지 않았어요')
-      if (data.contracts?.length > 0) {
-        data.contracts.forEach((ct: any, i: number) => {
-          const num = `${i + 1}번 계약 (${ct.company || '보험사 미상'})`
-          if (!ct.monthly_fee || ct.monthly_fee === 0) warns.push(`${num} → 월보험료 0원, 확인 필요`)
-          if (!ct.contract_start) warns.push(`${num} → 가입연월 없음`)
-          if (!ct.payment_years) warns.push(`${num} → 납입기간 없음`)
-          if (!ct.coverages || ct.coverages.length === 0) warns.push(`${num} → 보장내역 없음`)
-        })
+      const isFirst = confirmedContracts.length === 0 && !parsedCustomer
+      if (isFirst) {
+        if (!data.name) warns.push('고객명이 인식되지 않았어요')
+        if (!data.age || !data.gender || data.gender === '미상') warns.push('나이/성별이 인식되지 않았어요')
+        if (!data.phone) warns.push('연락처가 인식되지 않았어요')
+      }
+      const ct = data.contracts?.[0]
+      if (ct) {
+        if (!ct.monthly_fee || ct.monthly_fee === 0) warns.push(`월보험료 0원 — 확인 필요`)
+        if (!ct.contract_start) warns.push('가입연월이 없어요')
+        if (!ct.payment_years) warns.push('납입기간이 없어요')
+        if (!ct.coverages || ct.coverages.length === 0) warns.push('보장내역이 없어요')
       }
       data._warnings = warns
+      // 첫 분석에서 고객 정보 저장
+      if (isFirst) setParsedCustomer(data)
       setParsed(data)
-      // selectedCustomerId 유지 (기존 고객 선택 시 초기화 방지)
-      // 분석 완료 후 결과 영역으로 자동 스크롤
-      setTimeout(() => parsedResultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 200)
     } catch (e) { alert('파싱 중 오류가 발생했어요!') }
     setParsing(false)
   }
 
+  function handleConfirmContract() {
+    const ct = parsed?.contracts?.[0]
+    if (!ct) return
+    setConfirmedContracts(prev => [...prev, { ...ct }])
+    setParsed(null)
+    setCurrentText('')
+    setCurrentTextLoss('')
+  }
+
   async function handleParseSave() {
-    if (!parsed) return
     const currentSaveMode = saveModeRef.current
     const currentCustomerId = selectedCustomerIdRef.current
     if (currentSaveMode === 'existing' && !currentCustomerId) return alert('기존 고객을 선택해주세요!')
+    // 현재 분석 중인 계약도 포함
+    const allContracts = [
+      ...confirmedContracts,
+      ...(parsed?.contracts?.[0] ? [parsed.contracts[0]] : []),
+    ]
+    if (allContracts.length === 0) return alert('저장할 계약이 없어요!')
+    const customerData = parsedCustomer || parsed
+    if (!customerData && currentSaveMode === 'new') return alert('고객 정보가 없어요!')
     setSaving(true)
     try {
       const { data: { user } } = await supabase.auth.getUser()
       const agentId = user?.id
-
       let customerId: string
-
       if (currentSaveMode === 'existing') {
-        // 기존 고객에 보험만 추가
         customerId = currentCustomerId
       } else {
-        // 새 고객으로 저장
-        const birthDate = getBirthDateFromRRN(parsed.rrn || '')
+        const birthDate = getBirthDateFromRRN(customerData.rrn || '')
         const { data: cust } = await supabase.from('dpa_customers').insert({
-          name: parsed.name || '이름미상', age: parsed.age || null,
-          gender: parsed.gender || '미상', grade: '일반',
-          phone: parsed.phone || null, address: parsed.address || null,
-          job: parsed.job || null, workplace: parsed.workplace || null,
-          bank_name: parsed.bank_name || null, bank_account: parsed.bank_account || null,
-          driver_license: parsed.driver_license || null,
-          resident_number: parsed.rrn || null,
-          birth_date: birthDate,
-          customer_type: 'existing',
-          agent_id: agentId,
+          name: customerData.name || '이름미상', age: customerData.age || null,
+          gender: customerData.gender || '미상', grade: '일반',
+          phone: customerData.phone || null, address: customerData.address || null,
+          job: customerData.job || null, workplace: customerData.workplace || null,
+          bank_name: customerData.bank_name || null, bank_account: customerData.bank_account || null,
+          driver_license: customerData.driver_license || null,
+          resident_number: customerData.rrn || null,
+          birth_date: birthDate, customer_type: 'existing', agent_id: agentId,
         }).select().single()
         if (!cust) throw new Error('고객 저장 실패')
         customerId = cust.id
       }
-
-      if (parsed.contracts) {
-        for (const ct of parsed.contracts) {
-          const { data: contract } = await supabase.from('dpa_contracts').insert({
-            customer_id: customerId, agent_id: agentId,
-            company: ct.company || '', product_name: ct.product_name || '',
-            monthly_fee: parseInt(String(ct.monthly_fee || '').replace(/,/g, '')) || 0, payment_status: ct.payment_status || '유지',
-            payment_rate: ct.payment_rate || 0, insurance_type: ct.insurance_type || '',
-            contract_start: ct.contract_start || '', payment_years: ct.payment_years || '',
-            expiry_age: ct.expiry_age || '', input_method: 'paste',
-          }).select().single()
-
-          if (contract && ct.coverages) {
-            for (const cv of ct.coverages) {
-              await supabase.from('dpa_coverages').insert({
-                contract_id: contract.id, category: cv.category || '',
-                coverage_name: cv.name || '', amount: parseInt(String(cv.amount || '').replace(/,/g, '')) || 0, status: '정상',
-              })
-            }
+      for (const ct of allContracts) {
+        const { data: contract } = await supabase.from('dpa_contracts').insert({
+          customer_id: customerId, agent_id: agentId,
+          company: ct.company || '', product_name: ct.product_name || '',
+          monthly_fee: parseInt(String(ct.monthly_fee || '').replace(/,/g, '')) || 0,
+          payment_status: ct.payment_status || '유지', payment_rate: ct.payment_rate || 0,
+          insurance_type: ct.insurance_type || '', contract_start: ct.contract_start || '',
+          payment_years: ct.payment_years || '', expiry_age: ct.expiry_age || '',
+          input_method: 'paste',
+        }).select().single()
+        if (contract && ct.coverages) {
+          for (const cv of ct.coverages) {
+            await supabase.from('dpa_coverages').insert({
+              contract_id: contract.id, category: cv.category || '',
+              coverage_name: cv.name || '', amount: parseInt(String(cv.amount || '').replace(/,/g, '')) || 0, status: '정상',
+            })
           }
         }
       }
@@ -616,26 +531,44 @@ export default function InputPage() {
     setDone(false)
     setForm({ name: '', rrn: '', age: '', gender: '여', job: '직장인 (회사원)', phone: '', grade: '일반', address: '', workplace: '', bank_name: '', bank_account: '', driver_license: '' })
     setContracts([emptyContract()])
-    setParsed(null); setPasteText(''); setContractTexts(['']); setContractTextsLoss(['']); setContractCount(1); setJobCustom('')
+    setParsed(null); setCurrentText(''); setCurrentTextLoss(''); setConfirmedContracts([]); setParsedCustomer(null); setJobCustom('')
   }
 
   if (done) return (
-    <div className={styles.doneWrap}>
-      <div className={styles.doneIcon}>✅</div>
-      <div className={styles.doneText}>저장 완료!</div>
-      <div className={styles.doneActions}>
-        <a href="/customers" className={styles.btnPrimary}>고객 목록 보기</a>
-        <button className={styles.btnSecondary} onClick={resetForm}>추가 입력</button>
+    <div className={styles.page}>
+      <div className={styles.doneWrap}>
+        <div className={styles.doneIcon}>✅</div>
+        <div className={styles.doneText}>저장 완료!</div>
+        <div className={styles.doneActions}>
+          <a href="/customers" className={styles.btnPrimary}>고객 목록 보기</a>
+          <button className={styles.btnSecondary} onClick={resetForm}>추가 입력</button>
+        </div>
       </div>
     </div>
   )
 
   return (
+    <div className={styles.page}>
+    <div className={styles.pageHeader}>
+      <div>
+        <h1 className={styles.pageTitle}>데이터 입력</h1>
+        <p className={styles.pageSub}>고객 정보와 보험 계약을 등록하세요</p>
+      </div>
+    </div>
     <div className={styles.wrap}>
       <div className={styles.tabBar}>
-        <button className={[styles.tab, inputTab === 'paste' ? styles.activeTab : ''].join(' ')} onClick={() => handleTabChange('paste')}>📋 텍스트 붙여넣기</button>
-        <button className={[styles.tab, inputTab === 'scan' ? styles.activeTab : ''].join(' ')} onClick={() => handleTabChange('scan')}>📷 명함 입력</button>
-        <button className={[styles.tab, inputTab === 'manual' ? styles.activeTab : ''].join(' ')} onClick={() => handleTabChange('manual')}>✏️ 수동 입력</button>
+        <button className={[styles.tab, inputTab === 'paste' ? styles.activeTab : ''].join(' ')} onClick={() => handleTabChange('paste')}>
+          <ClipboardList className={styles.tabIcon} />텍스트 붙여넣기
+        </button>
+        <button className={[styles.tab, inputTab === 'file' ? styles.activeTab : ''].join(' ')} onClick={() => handleTabChange('file')}>
+          <FileUp className={styles.tabIcon} />파일 업로드
+        </button>
+        <button className={[styles.tab, inputTab === 'scan' ? styles.activeTab : ''].join(' ')} onClick={() => handleTabChange('scan')}>
+          <Camera className={styles.tabIcon} />명함 입력
+        </button>
+        <button className={[styles.tab, inputTab === 'manual' ? styles.activeTab : ''].join(' ')} onClick={() => handleTabChange('manual')}>
+          <PenLine className={styles.tabIcon} />수동 입력
+        </button>
       </div>
 
       {inputTab === 'manual' && (
@@ -648,10 +581,10 @@ export default function InputPage() {
             <div className={styles.field}><label>성별 <span className={styles.autoTag}>자동</span></label><select value={form.gender} onChange={e => setF('gender', e.target.value)}><option>여</option><option>남</option></select></div>
             <div className={styles.field}><label>은행명</label><select value={form.bank_name} onChange={e => setF('bank_name', e.target.value)}><option value="">선택</option>{BANKS.map(b => <option key={b}>{b}</option>)}</select></div>
             <div className={styles.field}><label>계좌번호</label><input value={form.bank_account} onChange={e => setF('bank_account', e.target.value)} placeholder="1002-3628-09746" /></div>
-            <div className={styles.field}><label>주소</label><input value={form.address} onChange={e => setF('address', e.target.value)} placeholder="서울시 강남구..." /></div>
+            <div className={styles.field} style={{gridColumn:'1 / -1'}}><label>주소</label><input value={form.address} onChange={e => setF('address', e.target.value)} placeholder="서울시 강남구..." /></div>
             <div className={styles.field}><label>직업</label><select value={form.job} onChange={e => setF('job', e.target.value)}>{JOBS.map(j => <option key={j}>{j}</option>)}</select></div>
-            {form.job === '기타' && <div className={styles.field}><label>직업 직접 입력</label><input value={jobCustom} onChange={e => setJobCustom(e.target.value)} placeholder="직업을 입력해주세요" /></div>}
             <div className={styles.field}><label>직장/소속</label><input value={form.workplace} onChange={e => setF('workplace', e.target.value)} placeholder="서울시청" /></div>
+            {form.job === '기타' && <div className={styles.field} style={{gridColumn:'1 / -1'}}><label>직업 직접 입력</label><input value={jobCustom} onChange={e => setJobCustom(e.target.value)} placeholder="직업을 입력해주세요" /></div>}
             <div className={styles.field}><label>운전면허</label><input value={form.driver_license} onChange={e => setF('driver_license', e.target.value)} placeholder="26-06-009864-70" /></div>
             <div className={styles.field}><label>등급</label><select value={form.grade} onChange={e => setF('grade', e.target.value)}><option>일반</option><option>VIP</option></select></div>
           </div>
@@ -703,7 +636,7 @@ export default function InputPage() {
                       <div className={styles.field}><label>금액 (원)</label><input inputMode="numeric" value={newCov.amount ? formatMoney(String(newCov.amount)) : ''} onChange={e => setNewCov(n => ({ ...n, amount: parseMoney(e.target.value) }))} placeholder="예: 30,000,000" /></div>
                     </div>
                     <div style={{display:'flex',gap:8,marginTop:8,alignItems:'flex-start'}}>
-                      <button style={{flex:1,padding:'7px',fontSize:13,background:'#1D9E75',color:'#fff',border:'none',borderRadius:8,fontWeight:600,cursor:'pointer'}} onClick={() => addCoverage(idx)}>추가하기</button>
+                      <button style={{flex:1,padding:'7px',fontSize:13,background:'hsl(var(--primary))',color:'hsl(var(--primary-foreground))',border:'none',borderRadius:6,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}} onClick={() => addCoverage(idx)}>추가하기</button>
                       <button className={styles.covCloseBtn} onClick={() => setActiveCovModal(null)}>닫기</button>
                     </div>
                   </div>
@@ -733,234 +666,295 @@ export default function InputPage() {
       )}
 
       {inputTab === 'paste' && (
-        <div className={styles.formWrap}>
+        <div className={styles.pasteLayout}>
 
-          {/* 신규/기존 고객 선택 - 맨 위에 먼저 */}
-          <div style={{marginBottom:16}}>
-            <div style={{fontSize:13,fontWeight:600,color:'#1a1a1a',marginBottom:8,display:'flex',alignItems:'center',gap:8}}><span style={{display:'inline-block',width:3,height:12,background:'#1D9E75',borderRadius:2,flexShrink:0}}></span>저장 방식 선택</div>
-            <div style={{display:'flex',gap:8,marginBottom:10}}>
-              <button onClick={() => { setSaveMode('new'); saveModeRef.current = 'new' }} style={{flex:1,padding:'10px 0',borderRadius:10,border:`2px solid ${saveMode==='new'?'#1D9E75':'#EDEBE4'}`,background:'#fff',color:saveMode==='new'?'#1D9E75':'#6B7280',fontWeight:saveMode==='new'?600:400,fontSize:13,cursor:'pointer'}}>
-                + 새 고객으로 저장
-              </button>
-              <button onClick={() => { setSaveMode('existing'); saveModeRef.current = 'existing' }} style={{flex:1,padding:'10px 0',borderRadius:10,border:`2px solid ${saveMode==='existing'?'#1D9E75':'#EDEBE4'}`,background:'#fff',color:saveMode==='existing'?'#1D9E75':'#6B7280',fontWeight:saveMode==='existing'?600:400,fontSize:13,cursor:'pointer'}}>
-                👤 기존 고객에 추가
-              </button>
-            </div>
-            {saveMode === 'existing' && (
-              <div>
-                <input
-                  value={customerSearch}
-                  onChange={e => setCustomerSearch(e.target.value)}
-                  placeholder="고객 이름 검색..."
-                  style={{width:'100%',fontSize:13,padding:'8px 12px',borderRadius:8,border:'1px solid #E5E7EB',background:'#fff',marginBottom:6,boxSizing:'border-box'}}
-                />
-                <div style={{maxHeight:160,overflowY:'auto',border:'1px solid #E5E7EB',borderRadius:8,background:'#fff'}}>
-                  {existingCustomers.filter(c => !customerSearch || c.name.includes(customerSearch)).length === 0 ? (
-                    <div style={{padding:'12px',fontSize:13,color:'#9CA3AF',textAlign:'center'}}>검색 결과가 없어요</div>
-                  ) : (
-                    existingCustomers.filter(c => !customerSearch || c.name.includes(customerSearch)).map(c => (
-                      <div key={c.id} onClick={() => { setSelectedCustomerId(c.id); selectedCustomerIdRef.current = c.id }}
-                        style={{padding:'10px 14px',fontSize:13,cursor:'pointer',background:selectedCustomerId===c.id?'#E8F8F2':'transparent',color:selectedCustomerId===c.id?'#1D9E75':'#374151',fontWeight:selectedCustomerId===c.id?600:400,borderBottom:'1px solid #F3F4F6'}}>
-                        {c.name} {c.age ? `(${c.age}세)` : ''}
-                        {selectedCustomerId === c.id && <span style={{float:'right'}}>✓</span>}
-                      </div>
-                    ))
-                  )}
+          {/* ── 왼쪽: 입력 패널 ── */}
+          <div className={styles.pastePanel}>
+
+            {/* 저장 방식 — 첫 계약에만 표시 */}
+            {confirmedContracts.length === 0 && (
+              <div style={{marginBottom:16}}>
+                <div className={styles.formSection}>저장 방식 선택</div>
+                <div style={{display:'flex',gap:8,marginBottom:20}}>
+                  <button onClick={() => { setSaveMode('new'); saveModeRef.current = 'new' }}
+                    style={{flex:1,padding:'11px 0',borderRadius:8,border:`1.5px solid ${saveMode==='new'?'hsl(var(--primary))':'hsl(var(--border))'}`,background:saveMode==='new'?'hsl(var(--primary) / 0.06)':'transparent',color:saveMode==='new'?'hsl(var(--primary))':'hsl(var(--muted-foreground))',fontWeight:saveMode==='new'?600:400,fontSize:13,cursor:'pointer',transition:'all 120ms',fontFamily:'inherit'}}>
+                    + 새 고객으로 저장
+                  </button>
+                  <button onClick={() => { setSaveMode('existing'); saveModeRef.current = 'existing' }}
+                    style={{flex:1,padding:'11px 0',borderRadius:8,border:`1.5px solid ${saveMode==='existing'?'hsl(var(--primary))':'hsl(var(--border))'}`,background:saveMode==='existing'?'hsl(var(--primary) / 0.06)':'transparent',color:saveMode==='existing'?'hsl(var(--primary))':'hsl(var(--muted-foreground))',fontWeight:saveMode==='existing'?600:400,fontSize:13,cursor:'pointer',transition:'all 120ms',fontFamily:'inherit'}}>
+                    👤 기존 고객에 추가
+                  </button>
                 </div>
-                {selectedCustomerId && (
-                  <div style={{marginTop:6,fontSize:12,color:'#1D9E75',fontWeight:600}}>
-                    ✓ {existingCustomers.find(c => c.id === selectedCustomerId)?.name} 선택됨
+                {saveMode === 'existing' && (
+                  <div>
+                    <input value={customerSearch} onChange={e => setCustomerSearch(e.target.value)} placeholder="고객 이름 검색..."
+                      style={{width:'100%',fontSize:13,padding:'8px 12px',borderRadius:6,border:'1px solid hsl(var(--border))',background:'hsl(var(--background))',color:'hsl(var(--card-foreground))',marginBottom:6,boxSizing:'border-box',fontFamily:'inherit'}} />
+                    <div style={{maxHeight:150,overflowY:'auto',border:'1px solid hsl(var(--border))',borderRadius:8,background:'hsl(var(--card))'}}>
+                      {existingCustomers.filter(c => !customerSearch || c.name.includes(customerSearch)).length === 0
+                        ? <div style={{padding:'12px',fontSize:13,color:'hsl(var(--muted-foreground))',textAlign:'center'}}>검색 결과가 없어요</div>
+                        : existingCustomers.filter(c => !customerSearch || c.name.includes(customerSearch)).map(c => (
+                          <div key={c.id} onClick={() => { setSelectedCustomerId(c.id); selectedCustomerIdRef.current = c.id }}
+                            style={{padding:'9px 14px',fontSize:13,cursor:'pointer',background:selectedCustomerId===c.id?'hsl(var(--primary) / 0.08)':'transparent',color:selectedCustomerId===c.id?'hsl(var(--primary))':'hsl(var(--card-foreground))',fontWeight:selectedCustomerId===c.id?600:400,borderBottom:'1px solid hsl(var(--border))'}}>
+                            {c.name} {c.age ? `(${c.age}세)` : ''}{selectedCustomerId===c.id && <span style={{float:'right'}}>✓</span>}
+                          </div>
+                        ))}
+                    </div>
+                    {selectedCustomerId && (
+                      <div style={{marginTop:6,fontSize:12,color:'hsl(var(--primary))',fontWeight:600}}>
+                        ✓ {existingCustomers.find(c => c.id === selectedCustomerId)?.name} 선택됨
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
             )}
-          </div>
-          {/* 가이드 아이콘 버튼 + 팝업 */}
-          {/* 가이드 + 계약 수 입력 */}
-          <div className={styles.guideRow}>
-            <span className={styles.guideLabel}>보장 내역 붙여넣기</span>
-            <button className={styles.guideBtn} onClick={() => setGuideOpen(v => !v)} title="도움말">❓</button>
-            {guideOpen && (
-              <>
-                <div style={{position:'fixed',inset:0,zIndex:499}} onClick={() => setGuideOpen(false)} />
-                <div className={styles.guidePopup} onClick={e => e.stopPropagation()}>
-                  <div className={styles.guidePopupHeader}>
-                    <span>📋 보장 내역 붙여넣기 방법</span>
-                    <button onClick={() => setGuideOpen(false)} className={styles.guideCloseBtn}>✕</button>
+
+            {/* 현재 계약 라벨 */}
+            <div className={styles.guideRow}>
+              <span className={styles.guideLabel}>
+                {confirmedContracts.length > 0 ? `${confirmedContracts.length + 1}번째 계약 입력` : '보장 내역 붙여넣기'}
+              </span>
+              <button className={styles.guideBtn} onClick={() => setGuideOpen(v => !v)} title="도움말">❓</button>
+              {guideOpen && (
+                <>
+                  <div style={{position:'fixed',inset:0,zIndex:499}} onClick={() => setGuideOpen(false)} />
+                  <div className={styles.guidePopup} onClick={e => e.stopPropagation()}>
+                    <div className={styles.guidePopupHeader}>
+                      <span>보장 내역 붙여넣기 방법</span>
+                      <button onClick={() => setGuideOpen(false)} className={styles.guideCloseBtn}>✕</button>
+                    </div>
+                    <div className={styles.pasteGuideStep}>① 보험사 프로그램에서 계약 보장내역을 복사하세요</div>
+                    <div className={styles.pasteGuideStep}>② 정액형 / 실손형 칸에 각각 <b>Ctrl+V</b> 로 붙여넣기</div>
+                    <div className={styles.pasteGuideStep}>③ AI 분석 후 오른쪽에서 결과 확인 및 수정</div>
+                    <div className={styles.pasteGuideStep}>④ 확인 후 다음 계약 또는 저장하기</div>
                   </div>
-                  <div className={styles.pasteGuideStep}>① 보험사 프로그램에서 계약 수를 확인하세요</div>
-                  <div className={styles.pasteGuideStep}>② 아래 계약 수를 입력하면 칸이 자동으로 생성돼요</div>
-                  <div className={styles.pasteGuideStep}>③ 각 계약별로 보장 내역을 긁어서 <b>Ctrl + C → Ctrl + V</b></div>
-                  <div className={styles.pasteGuideStep}>④ 모두 붙여넣기 완료 후 AI 분석하기 클릭!</div>
-                </div>
-              </>
+                </>
+              )}
+            </div>
+
+            {/* 텍스트 입력 — 정액형 / 실손형 */}
+            <div style={{display:'flex',gap:8,marginBottom:12}}>
+              <div style={{flex:1}}>
+                <div style={{fontSize:13,fontWeight:600,color:'hsl(var(--primary))',marginBottom:4,textTransform:'uppercase',letterSpacing:'0.04em'}}>정액형</div>
+                <textarea className={styles.pasteArea} value={currentText} onChange={e => setCurrentText(e.target.value)}
+                  placeholder="정액형 보장내역 붙여넣기 (Ctrl+V)" rows={12} />
+              </div>
+              <div style={{flex:1}}>
+                <div style={{fontSize:13,fontWeight:600,color:'hsl(var(--muted-foreground))',marginBottom:4,textTransform:'uppercase',letterSpacing:'0.04em'}}>실손형</div>
+                <textarea className={styles.pasteArea} value={currentTextLoss} onChange={e => setCurrentTextLoss(e.target.value)}
+                  placeholder="실손형 보장내역 붙여넣기 (Ctrl+V)" rows={12} />
+              </div>
+            </div>
+
+            <button className={styles.parseBtn} onClick={handleParse}
+              disabled={parsing || (!currentText.trim() && !currentTextLoss.trim())}>
+              {parsing ? 'AI 분석 중...' : 'AI로 분석하기'}
+            </button>
+          </div>
+
+          {/* ── 오른쪽: 결과 패널 ── */}
+          <div className={styles.pastePanel}>
+
+            {/* 확인된 계약 목록 */}
+            {confirmedContracts.length > 0 && (
+              <div style={{marginBottom:12}}>
+                <div className={styles.parsedSection}>확인된 계약 ({confirmedContracts.length}건)</div>
+                {confirmedContracts.map((ct, i) => (
+                  <div key={i} style={{display:'flex',alignItems:'center',gap:8,padding:'8px 12px',marginBottom:4,background:'hsl(var(--primary) / 0.06)',border:'1px solid hsl(var(--primary) / 0.15)',borderRadius:6,fontSize:13}}>
+                    <span style={{fontSize:11,color:'hsl(var(--primary))'}}>✅</span>
+                    <span style={{color:'hsl(var(--card-foreground))',fontWeight:510,flex:1,minWidth:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+                      {ct.company || '보험사 미상'} · {ct.product_name || '상품명 미상'}
+                    </span>
+                    <span style={{color:'hsl(var(--muted-foreground))',fontSize:12,flexShrink:0,tabularNums:true}}>
+                      {ct.monthly_fee ? `${Number(ct.monthly_fee).toLocaleString()}원` : '-'}
+                    </span>
+                  </div>
+                ))}
+              </div>
             )}
-          </div>
 
-          {/* 계약 수 입력 */}
-          <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12,padding:'10px 14px',background:'var(--green-light)',borderRadius:10}}>
-            <span style={{fontSize:13,color:'var(--green)',fontWeight:600}}>📋 보험 계약 수</span>
-            <div style={{display:'flex',alignItems:'center',gap:6,marginLeft:'auto'}}>
-              <button onClick={() => handleContractCount(contractCount - 1)} style={{width:28,height:28,borderRadius:6,border:'1px solid var(--border)',background:'var(--bg-card)',fontSize:16,cursor:'pointer',color:'var(--text-primary)'}}>−</button>
-              <input
-                type="number" min={1} max={20}
-                value={contractCount}
-                onChange={e => handleContractCount(parseInt(e.target.value) || 1)}
-                style={{width:44,textAlign:'center',fontSize:14,fontWeight:700,border:'1px solid var(--border)',borderRadius:6,padding:'4px',background:'var(--bg-card)',color:'var(--text-primary)'}}
-              />
-              <button onClick={() => handleContractCount(contractCount + 1)} style={{width:28,height:28,borderRadius:6,border:'1px solid var(--border)',background:'var(--bg-card)',fontSize:16,cursor:'pointer',color:'var(--text-primary)'}}>+</button>
-              <span style={{fontSize:12,color:'var(--text-secondary)'}}>건</span>
-            </div>
-          </div>
-
-          {/* 계약별 textarea */}
-          {contractTexts.map((text, idx) => (
-            <div key={idx} style={{marginBottom:16,padding:'12px 14px',background:'var(--bg-card)',borderRadius:12,border:'1px solid var(--border)'}}>
-              <div style={{fontSize:13,fontWeight:700,color:'var(--text-primary)',marginBottom:10}}>
-                📋 {idx + 1}번 계약
-              </div>
-              <div style={{display:'flex',gap:8}}>
-                <div style={{flex:1}}>
-                  <div style={{fontSize:12,fontWeight:600,color:'#1D9E75',marginBottom:4}}>정액형 보장</div>
-                  <textarea
-                    className={styles.pasteArea}
-                    value={text}
-                    onChange={e => {
-                      const arr = [...contractTexts]
-                      arr[idx] = e.target.value
-                      setContractTexts(arr)
-                    }}
-                    placeholder={`${idx + 1}번 보험 정액형 보장내역 붙여넣기 (Ctrl+V)`}
-                    rows={5}
-                    style={{marginBottom:0}}
-                  />
-                </div>
-                <div style={{flex:1}}>
-                  <div style={{fontSize:12,fontWeight:600,color:'#6366F1',marginBottom:4}}>실손형 보장</div>
-                  <textarea
-                    className={styles.pasteArea}
-                    value={contractTextsLoss[idx] || ''}
-                    onChange={e => {
-                      const arr = [...contractTextsLoss]
-                      arr[idx] = e.target.value
-                      setContractTextsLoss(arr)
-                    }}
-                    placeholder={`${idx + 1}번 보험 실손형 보장내역 붙여넣기 (Ctrl+V)`}
-                    rows={5}
-                    style={{marginBottom:0}}
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-
-          {/* 엑셀 업로드 — 별도 탭으로 이동 예정 */}
-
-          <button className={styles.parseBtn} onClick={handleParse} disabled={parsing || (!contractTexts.some(t => t.trim()) && !contractTextsLoss.some(t => t.trim()))}>
-            {parsing ? 'AI 분석 중...' : '🤖 1단계: AI로 분석하기'}
-          </button>
-
-          {parsed && (
-            <div ref={parsedResultRef} className={styles.parsedResult}>
-              <div className={styles.parsedResultTitle}>✅ 분석 완료! 내용을 확인하고 수정해주세요</div>
-
-              {/* ⚠️ 점검 필요 박스 */}
-              {parsed._warnings?.length > 0 && (
-                <div style={{background:'#FEF9E7',border:'1.5px solid #F5C518',borderRadius:10,padding:'10px 14px',marginBottom:14}}>
-                  <div style={{fontSize:13,fontWeight:700,color:'#B7791F',marginBottom:6}}>ℹ️ 아래 정보를 확인하고 저장 버튼을 눌러주세요 ({parsed._warnings.length}건)</div>
-                  {parsed._warnings.map((w: string, i: number) => (
-                    <div key={i} style={{fontSize:12,color:'#92600A',marginBottom:3,display:'flex',alignItems:'flex-start',gap:4}}>
-                      <span>•</span><span>{w}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* 선택된 고객 표시 (기존 고객인 경우) */}
-              {saveMode === 'existing' && selectedCustomerId && (
-                <div style={{background:'#E8F8F2',border:'1.5px solid #1D9E75',borderRadius:10,padding:'10px 14px',marginBottom:12,fontSize:13,color:'#1D9E75',fontWeight:600}}>
-                  👤 {existingCustomers.find(c => c.id === selectedCustomerId)?.name} 님 보험에 추가됩니다
-                </div>
-              )}
-
-              <div className={styles.parsedSection}>고객 정보</div>
-              {saveMode === 'new' && (
-              <div className={styles.parsedEditGrid}>
-                <div className={styles.field}><label>고객명</label><input value={parsed.name || ''} onChange={e => setParsed({...parsed, name: e.target.value})} placeholder="고객명" /></div>
-                <div className={styles.field}><label>주민등록번호</label><input value={parsed.rrn || ''} onChange={e => {
-                  const formatted = formatRRN(e.target.value)
-                  setParsed({...parsed, rrn: formatted, gender: getGenderFromRRN(formatted), age: getAgeFromRRN(formatted)})
-                }} placeholder="000000-0000000" maxLength={14} /></div>
-                <div className={styles.field}><label>성별</label><input value={parsed.gender || ''} onChange={e => setParsed({...parsed, gender: e.target.value})} placeholder="남/여" /></div>
-                <div className={styles.field}><label>나이</label><input value={parsed.age || ''} onChange={e => setParsed({...parsed, age: e.target.value})} placeholder="나이" /></div>
-                <div className={styles.field}><label>연락처</label><input value={parsed.phone || ''} onChange={e => setParsed({...parsed, phone: e.target.value})} placeholder="010-0000-0000" /></div>
-                <div className={styles.field}><label>직업</label><input value={parsed.job || ''} onChange={e => setParsed({...parsed, job: e.target.value})} placeholder="공무원" /></div>
-              </div>
-              )}
-
-              {parsed.contracts?.map((ct: any, ctIdx: number) => (
-                <div key={ctIdx} className={styles.parsedContractBlock}>
-                  <div className={styles.parsedSection}>{ctIdx + 1}. {ct.company} · {ct.product_name}</div>
-                  <div className={styles.parsedEditGrid}>
-                    <div className={styles.field} style={{gridColumn:'1 / -1'}}><label>보험사</label>
-                      <InsuranceCompanySelect value={ct.company || ''} onChange={v => { const c = [...parsed.contracts]; c[ctIdx].company = v; setParsed({...parsed, contracts: c}) }} />
-                    </div>
-                    <div className={styles.field}><label>상품명</label><input value={ct.product_name || ''} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].product_name = e.target.value; setParsed({...parsed, contracts: c}) }} /></div>
-                    <div className={styles.field}><label>월보험료</label><input value={ct.monthly_fee ? Number(ct.monthly_fee).toLocaleString() : ''} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].monthly_fee = e.target.value.replace(/,/g, ''); setParsed({...parsed, contracts: c}) }} /></div>
-                    <div className={styles.field}><label>납입상태</label>
-                      <select value={ct.payment_status || '유지'} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].payment_status = e.target.value; setParsed({...parsed, contracts: c}) }} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid var(--border)',background:'var(--bg-card)',color:'var(--text-primary)'}}>
-                        {PAYMENT_STATUSES.map(s => <option key={s}>{s}</option>)}
-                      </select>
-                    </div>
-                    <div className={styles.field}><label>가입연월</label>
-                      <div style={{display:'flex',gap:4}}>
-                        <select value={parseContractStart(ct.contract_start||'').year} onChange={e=>{const m=parseContractStart(ct.contract_start||'').month;const c=[...parsed.contracts];c[ctIdx].contract_start=joinContractStart(e.target.value,m);setParsed({...parsed,contracts:c})}} style={{flex:1,fontSize:13,padding:'6px 6px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
-                          <option value="">년</option>
-                          {YEARS.map(y=><option key={y}>{y}</option>)}
-                        </select>
-                        <select value={parseContractStart(ct.contract_start||'').month} onChange={e=>{const y=parseContractStart(ct.contract_start||'').year;const c=[...parsed.contracts];c[ctIdx].contract_start=joinContractStart(y,e.target.value);setParsed({...parsed,contracts:c})}} style={{flex:1,fontSize:13,padding:'6px 6px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
-                          <option value="">월</option>
-                          {MONTHS.map(m=><option key={m}>{m}</option>)}
-                        </select>
-                      </div>
-                    </div>
-                    <div className={styles.field}><label>납입기간</label>
-                      <select value={ct.payment_years||''} onChange={e=>{const c=[...parsed.contracts];c[ctIdx].payment_years=e.target.value;setParsed({...parsed,contracts:c})}} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid var(--border)',background:'var(--bg-card)',color:'var(--text-primary)'}}>
-                        <option value="">선택</option>
-                        {PAYMENT_YEARS.map(p=><option key={p}>{p}</option>)}
-                      </select>
-                    </div>
-                    <div className={styles.field}><label>만기</label>
-                      <select value={ct.expiry_age||''} onChange={e=>{const c=[...parsed.contracts];c[ctIdx].expiry_age=e.target.value;setParsed({...parsed,contracts:c})}} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid var(--border)',background:'var(--bg-card)',color:'var(--text-primary)'}}>
-                        <option value="">선택</option>
-                        {EXPIRY_AGES.map(a=><option key={a}>{a}</option>)}
-                      </select>
-                    </div>
-                  </div>
-                  <div className={styles.parsedCovList}>
-                    {ct.coverages?.map((cv: any, cvIdx: number) => (
-                      <div key={cvIdx} className={styles.covItem}>
-                        <span className={styles.covCat}>{cv.category}</span>
-                        <input className={styles.covNameInput} value={cv.name || ''} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].coverages[cvIdx].name = e.target.value; setParsed({...parsed, contracts: c}) }} />
-                        <input className={styles.covAmtInput} value={cv.amount ? Number(cv.amount).toLocaleString() : ''} onChange={e => { const c = [...parsed.contracts]; c[ctIdx].coverages[cvIdx].amount = e.target.value.replace(/,/g, ''); setParsed({...parsed, contracts: c}) }} />
-                        <button className={styles.covDel} onClick={() => { const c = [...parsed.contracts]; c[ctIdx].coverages.splice(cvIdx, 1); setParsed({...parsed, contracts: c}) }}>✕</button>
+            {/* 현재 분석 결과 */}
+            {parsed && (
+              <div ref={parsedResultRef}>
+                {/* 경고 */}
+                {parsed._warnings?.length > 0 && (
+                  <div style={{background:'hsl(45 100% 96%)',border:'1px solid hsl(45 90% 70%)',borderRadius:8,padding:'10px 14px',marginBottom:12}}>
+                    <div style={{fontSize:12,fontWeight:600,color:'hsl(35 80% 35%)',marginBottom:4}}>확인 필요 ({parsed._warnings.length}건)</div>
+                    {parsed._warnings.map((w: string, i: number) => (
+                      <div key={i} style={{fontSize:12,color:'hsl(35 70% 40%)',marginBottom:2,display:'flex',gap:4}}>
+                        <span>•</span><span>{w}</span>
                       </div>
                     ))}
                   </div>
-                </div>
-              ))}
+                )}
 
-              <button className={styles.saveParsedBtn} onClick={handleParseSave} disabled={saving}>
-                {saving ? '저장 중...' : '✅ 2단계: 확인 후 저장하기'}
-              </button>
+                {/* 기존 고객 선택 표시 */}
+                {saveMode === 'existing' && selectedCustomerId && (
+                  <div style={{background:'hsl(var(--primary) / 0.08)',border:'1px solid hsl(var(--primary) / 0.25)',borderRadius:8,padding:'8px 12px',marginBottom:12,fontSize:13,color:'hsl(var(--primary))',fontWeight:600}}>
+                    👤 {existingCustomers.find(c => c.id === selectedCustomerId)?.name} 님 계약에 추가
+                  </div>
+                )}
+
+                {/* 고객 정보 — 첫 계약만 표시 */}
+                {confirmedContracts.length === 0 && saveMode === 'new' && (
+                  <>
+                    <div className={styles.parsedSection}>고객 정보</div>
+                    <div className={styles.parsedEditGrid}>
+                      <div className={styles.field}><label>고객명</label><input value={parsed.name||''} onChange={e=>setParsed({...parsed,name:e.target.value})} placeholder="고객명" /></div>
+                      <div className={styles.field}><label>주민등록번호</label><input value={parsed.rrn||''} onChange={e=>{const f=formatRRN(e.target.value);setParsed({...parsed,rrn:f,gender:getGenderFromRRN(f),age:getAgeFromRRN(f)})}} placeholder="000000-0000000" maxLength={14} /></div>
+                      <div className={styles.field}><label>성별</label><input value={parsed.gender||''} onChange={e=>setParsed({...parsed,gender:e.target.value})} placeholder="남/여" /></div>
+                      <div className={styles.field}><label>나이</label><input value={parsed.age||''} onChange={e=>setParsed({...parsed,age:e.target.value})} placeholder="나이" /></div>
+                      <div className={styles.field}><label>연락처</label><input value={parsed.phone||''} onChange={e=>setParsed({...parsed,phone:e.target.value})} placeholder="010-0000-0000" /></div>
+                      <div className={styles.field}><label>직업</label><input value={parsed.job||''} onChange={e=>setParsed({...parsed,job:e.target.value})} placeholder="공무원" /></div>
+                    </div>
+                  </>
+                )}
+
+                {/* 계약 정보 */}
+                {parsed.contracts?.slice(0,1).map((ct: any, ctIdx: number) => (
+                  <div key={ctIdx} className={styles.parsedContractBlock}>
+                    <div className={styles.parsedSection}>{confirmedContracts.length + 1}번. {ct.company} · {ct.product_name}</div>
+                    <div className={styles.parsedEditGrid}>
+                      <div className={styles.field} style={{gridColumn:'1 / -1'}}><label>보험사</label>
+                        <InsuranceCompanySelect value={ct.company||''} onChange={v=>{const c=[...parsed.contracts];c[ctIdx].company=v;setParsed({...parsed,contracts:c})}} />
+                      </div>
+                      <div className={styles.field}><label>상품명</label><input value={ct.product_name||''} onChange={e=>{const c=[...parsed.contracts];c[ctIdx].product_name=e.target.value;setParsed({...parsed,contracts:c})}} /></div>
+                      <div className={styles.field}><label>월보험료</label><input value={ct.monthly_fee?Number(ct.monthly_fee).toLocaleString():''} onChange={e=>{const c=[...parsed.contracts];c[ctIdx].monthly_fee=e.target.value.replace(/,/g,'');setParsed({...parsed,contracts:c})}} /></div>
+                      <div className={styles.field}><label>납입상태</label>
+                        <select value={ct.payment_status||'유지'} onChange={e=>{const c=[...parsed.contracts];c[ctIdx].payment_status=e.target.value;setParsed({...parsed,contracts:c})}}
+                          style={{width:'100%',fontSize:13,padding:'8px 10px',borderRadius:6,border:'1px solid hsl(var(--border))',background:'hsl(var(--background))',color:'hsl(var(--card-foreground))',fontFamily:'inherit'}}>
+                          {PAYMENT_STATUSES.map(s=><option key={s}>{s}</option>)}
+                        </select>
+                      </div>
+                      <div className={styles.field}><label>가입연월</label>
+                        <div style={{display:'flex',gap:4}}>
+                          <select value={parseContractStart(ct.contract_start||'').year} onChange={e=>{const m=parseContractStart(ct.contract_start||'').month;const c=[...parsed.contracts];c[ctIdx].contract_start=joinContractStart(e.target.value,m);setParsed({...parsed,contracts:c})}}
+                            style={{flex:1,fontSize:13,padding:'8px 6px',borderRadius:6,border:'1px solid hsl(var(--border))',background:'hsl(var(--background))',color:'hsl(var(--card-foreground))',fontFamily:'inherit'}}>
+                            <option value="">년</option>{YEARS.map(y=><option key={y}>{y}</option>)}
+                          </select>
+                          <select value={parseContractStart(ct.contract_start||'').month} onChange={e=>{const y=parseContractStart(ct.contract_start||'').year;const c=[...parsed.contracts];c[ctIdx].contract_start=joinContractStart(y,e.target.value);setParsed({...parsed,contracts:c})}}
+                            style={{flex:1,fontSize:13,padding:'8px 6px',borderRadius:6,border:'1px solid hsl(var(--border))',background:'hsl(var(--background))',color:'hsl(var(--card-foreground))',fontFamily:'inherit'}}>
+                            <option value="">월</option>{MONTHS.map(m=><option key={m}>{m}</option>)}
+                          </select>
+                        </div>
+                      </div>
+                      <div className={styles.field}><label>납입기간</label>
+                        <select value={ct.payment_years||''} onChange={e=>{const c=[...parsed.contracts];c[ctIdx].payment_years=e.target.value;setParsed({...parsed,contracts:c})}}
+                          style={{width:'100%',fontSize:13,padding:'8px 10px',borderRadius:6,border:'1px solid hsl(var(--border))',background:'hsl(var(--background))',color:'hsl(var(--card-foreground))',fontFamily:'inherit'}}>
+                          <option value="">선택</option>{PAYMENT_YEARS.map(p=><option key={p}>{p}</option>)}
+                        </select>
+                      </div>
+                      <div className={styles.field}><label>만기</label>
+                        <select value={ct.expiry_age||''} onChange={e=>{const c=[...parsed.contracts];c[ctIdx].expiry_age=e.target.value;setParsed({...parsed,contracts:c})}}
+                          style={{width:'100%',fontSize:13,padding:'8px 10px',borderRadius:6,border:'1px solid hsl(var(--border))',background:'hsl(var(--background))',color:'hsl(var(--card-foreground))',fontFamily:'inherit'}}>
+                          <option value="">선택</option>{EXPIRY_AGES.map(a=><option key={a}>{a}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                    <div className={styles.parsedCovList}>
+                      {ct.coverages?.map((cv: any, cvIdx: number) => (
+                        <div key={cvIdx} className={styles.covItem}>
+                          <span className={styles.covCat}>{cv.category}</span>
+                          <input className={styles.covNameInput} value={cv.name||''} onChange={e=>{const c=[...parsed.contracts];c[ctIdx].coverages[cvIdx].name=e.target.value;setParsed({...parsed,contracts:c})}} />
+                          <input className={styles.covAmtInput} value={cv.amount?Number(cv.amount).toLocaleString():''} onChange={e=>{const c=[...parsed.contracts];c[ctIdx].coverages[cvIdx].amount=e.target.value.replace(/,/g,'');setParsed({...parsed,contracts:c})}} />
+                          <button className={styles.covDel} onClick={()=>{const c=[...parsed.contracts];c[ctIdx].coverages.splice(cvIdx,1);setParsed({...parsed,contracts:c})}}>✕</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+
+                {/* 액션 버튼 */}
+                <div style={{display:'flex',gap:8,marginTop:14}}>
+                  <button onClick={() => setParsed(null)} className={styles.btnSecondary} style={{flex:'0 0 auto',padding:'9px 14px',fontSize:13}}>
+                    ← 재분석
+                  </button>
+                  <button onClick={handleConfirmContract} className={styles.btnSecondary}
+                    style={{flex:1,padding:'9px 14px',fontSize:13,borderColor:'hsl(var(--primary) / 0.3)',color:'hsl(var(--primary))'}}>
+                    + 다음 계약 추가
+                  </button>
+                  <button onClick={handleParseSave} disabled={saving}
+                    style={{flex:1,padding:'9px 14px',fontSize:13,fontWeight:600,background:'hsl(var(--primary))',color:'hsl(var(--primary-foreground))',border:'none',borderRadius:8,cursor:'pointer',fontFamily:'inherit',opacity:saving?0.6:1}}>
+                    {saving ? '저장 중...' : '💾 저장하기'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* 빈 상태 — 분석 전 */}
+            {!parsed && confirmedContracts.length === 0 && (
+              <div className={styles.pastePanelEmpty}>
+                <div style={{fontSize:28,opacity:0.3}}>📊</div>
+                <div style={{fontSize:14,fontWeight:600,color:'hsl(var(--card-foreground))'}}>분석 결과가 여기 표시됩니다</div>
+                <div style={{fontSize:13,color:'hsl(var(--muted-foreground))'}}>왼쪽에 보장내역을 붙여넣고<br/>AI 분석을 실행해주세요</div>
+              </div>
+            )}
+
+            {/* 확인된 계약만 있고 현재 분석 없음 — 저장 버튼 */}
+            {!parsed && confirmedContracts.length > 0 && (
+              <div style={{marginTop:4}}>
+                <div style={{fontSize:13,color:'hsl(var(--muted-foreground))',textAlign:'center',marginBottom:10}}>
+                  다음 계약을 입력하거나, 저장하세요
+                </div>
+                <button onClick={handleParseSave} disabled={saving} className={styles.saveParsedBtn}>
+                  {saving ? '저장 중...' : `💾 전체 저장하기 (${confirmedContracts.length}건)`}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {inputTab === 'file' && (
+        <div className={styles.formWrap}>
+
+          <div className={styles.formSection}>업로드 가이드</div>
+          <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:20}}>
+            {[
+              { step:'①', text:'아이플래너 양식 엑셀 파일을 준비하세요' },
+              { step:'②', text:'아래 영역에 파일을 드래그하거나 클릭해서 선택하세요' },
+              { step:'③', text:'업로드 후 고객 정보와 계약 내역을 자동으로 등록합니다' },
+              { step:'④', text:'등록 완료 후 고객 관리 페이지에서 확인하세요' },
+            ].map(({ step, text }) => (
+              <div key={step} style={{display:'flex',gap:10,alignItems:'flex-start'}}>
+                <span style={{fontSize:13,fontWeight:700,color:'hsl(var(--primary))',flexShrink:0,minWidth:20}}>{step}</span>
+                <span style={{fontSize:13,color:'hsl(var(--muted-foreground))',lineHeight:1.6}}>{text}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className={styles.formSection}>파일 업로드</div>
+          <div
+            className={[styles.dropZone, dragOver ? styles.dropZoneActive : ''].join(' ')}
+            style={{minHeight:180}}
+            onDragOver={e => { e.preventDefault(); setDragOver(true) }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={handleFileDrop}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <div style={{width:48,height:48,borderRadius:12,background:'hsl(var(--primary) / 0.1)',border:'1px solid hsl(var(--primary) / 0.2)',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:14}}>
+              <FileUp style={{width:22,height:22,color:'hsl(var(--primary))'}} />
             </div>
-          )}
+            <div style={{fontSize:14,fontWeight:600,color:'hsl(var(--card-foreground))',marginBottom:6}}>엑셀 파일을 드래그하거나 클릭하세요</div>
+            <div style={{fontSize:13,color:'hsl(var(--muted-foreground))'}}>
+              .xlsx, .xls, .csv 파일 지원 · 아이플래너 양식에 맞춰주세요
+            </div>
+            <input ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv" style={{display:'none'}} onChange={handleFileInput} />
+          </div>
+
+          <div style={{marginTop:16,padding:'14px 16px',background:'hsl(var(--primary) / 0.05)',border:'1px solid hsl(var(--primary) / 0.15)',borderRadius:8}}>
+            <div style={{fontSize:13,fontWeight:600,color:'hsl(var(--primary))',marginBottom:4}}>준비 중인 기능</div>
+            <div style={{fontSize:13,color:'hsl(var(--muted-foreground))',lineHeight:1.6}}>
+              엑셀 대량 업로드 기능은 현재 개발 중이에요. 빠른 시일 내에 제공할게요!
+            </div>
+          </div>
         </div>
       )}
 
       {inputTab === 'scan' && (
         <ScanCardTab onComplete={() => { setDone(true); setTimeout(() => router.push('/customers'), 1500) }} />
       )}
+    </div>
     </div>
   )
 }

@@ -1,7 +1,8 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useLayoutEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
 import styles from '../styles/Consultations.module.css'
+import AdminLayout from '../components/AdminLayout'
 import { ChevronLeft, ChevronRight, Edit2, X, Check, MapPin, Clock } from 'lucide-react'
 
 /* ─── Constants ─── */
@@ -48,19 +49,19 @@ const MEETING_TYPES = [
   { value: '첫 만남',      desc: '신규 고객 초면',          color: 'hsl(214 80% 58%)' },
   { value: '니즈 분석',    desc: '고객 상황/필요 파악',      color: 'hsl(270 55% 58%)' },
   { value: '상품 설명',    desc: '보험 상품 제안/설명',      color: 'hsl(237 47% 59%)' },
-  { value: '계약 체결',    desc: '청약서 작성',              color: 'hsl(237 47% 59%)' },
-  { value: '계약 후 관리', desc: '가입 후 안부/유지 관리',  color: 'hsl(195 50% 42%)' },
+  { value: '계약 체결',    desc: '청약서 작성',              color: 'hsl(142 55% 42%)' },
+  { value: '계약 후 관리', desc: '가입 후 안부/유지 관리',  color: 'hsl(168 55% 38%)' },
   { value: '보험금 청구',  desc: '사고/질병 발생 시 도움',  color: 'hsl(30 75% 52%)' },
   { value: '갱신 상담',    desc: '만기/갱신 시점 상담',     color: 'hsl(45 80% 44%)' },
   { value: '추가 가입',    desc: '기존 고객 추가 상품 제안', color: 'hsl(320 55% 55%)' },
   { value: '불만 처리',    desc: '민원/불만 고객 응대',     color: 'hsl(0 65% 50%)' },
 ]
 const TYPE_COLOR: Record<string, string> = Object.fromEntries(MEETING_TYPES.map(t => [t.value, t.color]))
-const STATUS_OPTIONS = ['예정', '완료', '취소']
+const STATUS_OPTIONS = ['대기', '확정', '완료', '취소']
 const DAYS_KR = ['일', '월', '화', '수', '목', '금', '토']
 const EMPTY_FORM = {
   customer_id: '', meeting_date: new Date().toISOString().split('T')[0],
-  meeting_time: '', location: '', meeting_type: '첫 만남', notes: '', status: '예정',
+  meeting_time: '', location: '', meeting_type: '첫 만남', notes: '', status: '대기',
 }
 
 /* ─── Week bounds ─── */
@@ -71,6 +72,64 @@ function getWeekBounds() {
   const sun = new Date(mon);   sun.setDate(mon.getDate() + 6)
   return { start: mon.toISOString().split('T')[0], end: sun.toISOString().split('T')[0] }
 }
+
+/* ─── Mock 미팅 리포트 (미팅 리포트 페이지 개발 전 목업) ─── */
+const MOCK_REPORTS = [
+  {
+    id: 'mock-r1', meeting_type: '첫 만남',
+    title: '초기 보장 현황 분석',
+    date: '2026.04.15',
+    sections: [
+      {
+        heading: '현재 보장 현황',
+        items: [
+          { label: '암진단', value: '미가입', warn: true },
+          { label: '뇌혈관', value: '미가입', warn: true },
+          { label: '실손의료비', value: '가입 (2019년)', warn: false },
+          { label: '사망보험', value: '가입 (1억)', warn: false },
+        ],
+      },
+      {
+        heading: '상담 내용',
+        text: '현재 암·뇌혈관 미가입 상태로 보장 공백이 크게 나타남. 월 납입 부담을 고려해 단계별 가입을 제안함.\n\n1단계: 암진단 위주 상품 가입\n2단계: 뇌혈관 보강 계획.',
+      },
+      {
+        heading: '다음 단계',
+        items: [
+          { label: '다음 일정', value: '2026.04.22 니즈 분석 미팅', warn: false },
+          { label: '준비 사항', value: '기존 보험증권 지참 요청', warn: false },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'mock-r2', meeting_type: '니즈 분석',
+    title: '니즈 분석 보고서',
+    date: '2026.04.22',
+    sections: [
+      {
+        heading: '가족 현황',
+        items: [
+          { label: '가족 구성', value: '배우자 + 자녀 2명', warn: false },
+          { label: '주소득자', value: '본인 (월 소득 약 450만원)', warn: false },
+          { label: '배우자', value: '전업주부', warn: false },
+        ],
+      },
+      {
+        heading: '니즈 분석 결과',
+        text: '소득 보장 우선 필요. 배우자 전업주부로 본인 유고 시 소득 단절 위험 높음.\n단기적으로 소득보장 보험 가입 후, 이후 가족 건강보험 순차 가입 목표.',
+      },
+      {
+        heading: '제안 방향',
+        items: [
+          { label: '1순위', value: '소득보장 / 취업불능보험', warn: false },
+          { label: '2순위', value: '암·뇌혈관 진단비', warn: false },
+          { label: '3순위', value: '자녀 상해보험', warn: false },
+        ],
+      },
+    ],
+  },
+]
 
 /* ─── Page ─── */
 export default function Consultations() {
@@ -87,14 +146,16 @@ export default function Consultations() {
 
   /* Popup */
   const [showPopup, setShowPopup]         = useState(false)
-  const [popupRightTab, setPopupRightTab] = useState<'coverage' | 'history'>('coverage')
-  const [scheduleTab, setScheduleTab]     = useState<'today' | 'week' | 'month'>('week')
+  const [popupRightTab, setPopupRightTab] = useState<'coverage' | 'history' | 'report'>('coverage')
   const [form, setForm]                   = useState({ ...EMPTY_FORM })
   const [editId, setEditId]               = useState<string | null>(null)
   const [saving, setSaving]               = useState(false)
   const [custSearch, setCustSearch]       = useState('')
   const [showCustDrop, setShowCustDrop]   = useState(false)
+  const [custActiveIdx, setCustActiveIdx] = useState(-1)
   const dropRef                           = useRef<HTMLDivElement>(null)
+  const dropListRef                       = useRef<HTMLDivElement>(null)
+  const layoutRef                         = useRef<HTMLDivElement>(null)
 
   /* Note editing (inside popup timeline) */
   const [editNoteId, setEditNoteId] = useState<string | null>(null)
@@ -105,23 +166,76 @@ export default function Consultations() {
   const [popupCoverages, setPopupCoverages] = useState<any[]>([])
   const [coverageLoading, setCoverageLoading] = useState(false)
 
+  /* 미팅 리포트 패널 */
+  const [showReportPanel, setShowReportPanel] = useState(false)
+  const [popupMeetings, setPopupMeetings]     = useState<any[]>([])
+  const [reportLoading, setReportLoading]     = useState(false)
+
+  /* 점선 연결 */
+  const popupRef          = useRef<HTMLDivElement>(null)
+  const tlItemRefs        = useRef<Record<string, HTMLDivElement | null>>({})
+  const reportTitleRef    = useRef<HTMLDivElement | null>(null)
+  const [selectedHistoryType, setSelectedHistoryType] = useState<string | null>(null)
+  const [connLines, setConnLines] = useState<{ x1: number; y1: number; x2: number; y2: number }[]>([])
+
+  useLayoutEffect(() => {
+    if (!showReportPanel || !selectedHistoryType || !popupRef.current) { setConnLines([]); return }
+    const recalc = () => {
+      if (!popupRef.current) return
+      const popup = popupRef.current.getBoundingClientRect()
+      const tlEl = tlItemRefs.current[selectedHistoryType]
+      const rpEl = reportTitleRef.current
+      if (!tlEl || !rpEl) { setConnLines([]); return }
+      const tl = tlEl.getBoundingClientRect()
+      const rp = rpEl.getBoundingClientRect()
+      setConnLines([{
+        x1: tl.right - popup.left,
+        y1: tl.top + tl.height / 2 - popup.top,
+        x2: rp.left - popup.left,
+        y2: rp.top + rp.height / 2 - popup.top,
+      }])
+    }
+    const t = setTimeout(recalc, 310)
+    recalc()
+    return () => clearTimeout(t)
+  }, [showReportPanel, selectedHistoryType, form.customer_id])
+
   useEffect(() => { fetchAll() }, [])
+
+  /* Layout height — fill remaining viewport below layout top */
+  useLayoutEffect(() => {
+    function updateLayoutH() {
+      const el = layoutRef.current
+      if (!el) return
+      const top = el.getBoundingClientRect().top
+      el.style.height = `${window.innerHeight - top - 76}px`
+    }
+    updateLayoutH()
+    window.addEventListener('resize', updateLayoutH)
+    return () => window.removeEventListener('resize', updateLayoutH)
+  }, [loading])
 
   /* 고객 선택 시 계약/보장 데이터 fetch */
   useEffect(() => {
     if (!form.customer_id) { setPopupContracts([]); setPopupCoverages([]); return }
     setCoverageLoading(true)
     ;(async () => {
-      const { data: cts } = await supabase.from('dpa_contracts').select('*').eq('customer_id', form.customer_id).order('contract_start')
+      const { data: cts } = await supabase.from('dpa_contracts').select('*').eq('customer_id', form.customer_id).order('created_at', { ascending: true })
       const ids = (cts || []).map((c: any) => c.id)
       const { data: cvs } = ids.length > 0
-        ? await supabase.from('dpa_coverages').select('*').in('contract_id', ids)
+        ? await supabase.from('dpa_coverages').select('*').in('contract_id', ids).order('section', { ascending: true }).order('sort_order', { ascending: true })
         : { data: [] }
       setPopupContracts(cts || [])
       setPopupCoverages(cvs || [])
       setCoverageLoading(false)
     })()
   }, [form.customer_id])
+
+  /* 패널 닫히거나 고객 바뀌면 선택 초기화 */
+  useEffect(() => {
+    if (!showReportPanel) setSelectedHistoryType(null)
+  }, [showReportPanel])
+  useEffect(() => { setSelectedHistoryType(null) }, [form.customer_id])
 
   /* Close customer dropdown on outside click */
   useEffect(() => {
@@ -143,10 +257,12 @@ export default function Consultations() {
     setLoading(true)
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { router.push('/login'); return }
-    setAgentId(user.id)
+    const { data: agentRow } = await supabase.from('dpa_agents').select('id').eq('user_id', user.id).single()
+    const agentRowId = agentRow?.id || user.id   // dpa_consultations용
+    setAgentId(agentRowId)
     const [{ data: custs }, { data: cons }] = await Promise.all([
-      supabase.from('dpa_customers').select('id, name, customer_type, phone, email, memo').eq('agent_id', user.id).order('name'),
-      supabase.from('dpa_consultations').select('*').eq('agent_id', user.id).order('meeting_date').order('meeting_time'),
+      supabase.from('dpa_customers').select('id, name, customer_type, phone, email, memo, age, birth_date, gender, job, workplace, driver_license, address, grade').eq('agent_id', user.id).order('name'),
+      supabase.from('dpa_consultations').select('*').eq('agent_id', agentRowId).order('meeting_date').order('meeting_time'),
     ])
     setCustomers(custs || [])
     setConsultations(cons || [])
@@ -177,6 +293,7 @@ export default function Consultations() {
     setShowPopup(false); setEditId(null)
     setForm({ ...EMPTY_FORM }); setCustSearch('')
     setEditNoteId(null)
+    setShowReportPanel(false); setPopupMeetings([])
   }
 
   async function saveConsultation() {
@@ -184,14 +301,22 @@ export default function Consultations() {
     if (!form.meeting_date) return alert('날짜를 입력해주세요.')
     setSaving(true)
     const payload = { ...form, agent_id: agentId }
+    let error: any = null
     if (editId) {
-      await supabase.from('dpa_consultations').update(payload).eq('id', editId)
+      const res = await supabase.from('dpa_consultations').update(payload).eq('id', editId)
+      error = res.error
     } else {
-      await supabase.from('dpa_consultations').insert(payload)
+      const res = await supabase.from('dpa_consultations').insert(payload)
+      error = res.error
+    }
+    setSaving(false)
+    if (error) {
+      console.error('저장 오류:', error)
+      alert(`저장 실패: ${error.message}`)
+      return
     }
     closePopup()
     await fetchAll()
-    setSaving(false)
   }
 
   async function deleteConsultation(id: string) {
@@ -237,72 +362,19 @@ export default function Consultations() {
     .filter(c => c.meeting_date >= weekStart && c.meeting_date <= weekEnd)
     .sort((a, b) => a.meeting_date.localeCompare(b.meeting_date) || (a.meeting_time || '').localeCompare(b.meeting_time || ''))
 
-  const monthConsults = consultations
-    .filter(c => c.meeting_date.startsWith(todayStr.slice(0, 7)))
-    .sort((a, b) => a.meeting_date.localeCompare(b.meeting_date) || (a.meeting_time || '').localeCompare(b.meeting_time || ''))
-
-  const activeConsults = scheduleTab === 'today' ? todayConsults : scheduleTab === 'week' ? weekConsults : monthConsults
+  const restOfWeekConsults = weekConsults.filter(c => c.meeting_date !== todayStr)
 
   /* ─── Popup data ─── */
   const selectedCust       = customers.find(c => c.id === form.customer_id)
   const selectedCustName   = selectedCust?.name || ''
   const filteredCusts      = customers.filter(c =>
     !custSearch || c.name.includes(custSearch) || (c.phone || '').includes(custSearch)
-  ).slice(0, 8)
+  )
 
   function getCustomerTimeline(customerId: string) {
     return [...consultations]
       .filter(c => c.customer_id === customerId)
       .sort((a, b) => a.meeting_date.localeCompare(b.meeting_date) || (a.meeting_time || '').localeCompare(b.meeting_time || ''))
-  }
-
-  /* ─── Schedule group renderer ─── */
-  function renderScheduleGroup(list: any[]) {
-    if (list.length === 0) return <div className={styles.schedEmpty}>예정된 일정이 없어요</div>
-    let lastDate = ''
-    return (
-      <>
-        {list.map((c: any) => {
-          const cust    = customers.find(cu => cu.id === c.customer_id)
-          const color   = TYPE_COLOR[c.meeting_type] || 'hsl(237 47% 59%)'
-          const showHdr = c.meeting_date !== lastDate
-          lastDate      = c.meeting_date
-          const isToday = c.meeting_date === todayStr
-          const d       = new Date(c.meeting_date + 'T00:00:00')
-          const dLabel  = d.toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric', weekday: 'short' })
-          return (
-            <div key={c.id}>
-              {showHdr && (
-                <div className={[styles.schedDateHeader, isToday ? styles.schedDateToday : ''].join(' ')}>
-                  {dLabel}
-                  {isToday && <span className={styles.schedTodayLabel}>오늘</span>}
-                </div>
-              )}
-              <div className={styles.schedItem} onClick={() => openEditPopup(c)}>
-                <span className={styles.schedTypeDot} style={{ background: color }} />
-                <div className={styles.schedItemBody}>
-                  <div className={styles.schedItemTop}>
-                    <span className={styles.schedCustName}>{cust?.name || '?'}</span>
-                    <span className={styles.typeBadge} style={{ background: color + '22', color, border: `1px solid ${color}44` }}>
-                      {c.meeting_type}
-                    </span>
-                    <span className={[styles.statusChip, c.status === '완료' ? styles.statusDone : c.status === '취소' ? styles.statusCancel : styles.statusScheduled].join(' ')}>
-                      {c.status}
-                    </span>
-                  </div>
-                  {(c.meeting_time || c.location) && (
-                    <div className={styles.schedItemMeta}>
-                      {c.meeting_time && <><Clock style={{ width: 11, height: 11 }} /><span>{c.meeting_time}</span></>}
-                      {c.location && <><MapPin style={{ width: 11, height: 11 }} /><span>{c.location}</span></>}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )
-        })}
-      </>
-    )
   }
 
   /* ─── Render ─── */
@@ -315,7 +387,7 @@ export default function Consultations() {
         <p className={styles.pageSub}>고객 상담 일정을 관리하고 이력을 기록하세요</p>
       </div>
 
-      <div className={styles.layout}>
+      <div className={styles.layout} ref={layoutRef}>
 
         {/* ════════ LEFT — Calendar ════════ */}
         <div className={styles.card}>
@@ -396,45 +468,102 @@ export default function Consultations() {
           </div>
         </div>
 
-        {/* ════════ RIGHT — Schedule List ════════ */}
+        {/* ════════ RIGHT — Today + Week stacked ════════ */}
         <div className={styles.rightPanelCard}>
 
-          {/* Header */}
-          <div className={styles.schedPanelHeader}>
-            <span className={styles.schedPanelTitle}>일정 목록</span>
-            <span className={styles.countBadge}>{activeConsults.length}</span>
-          </div>
+            <div className={styles.dashContent}>
 
-          {/* Tabs */}
-          <div className={styles.schedTabs}>
-            <button
-              className={[styles.schedTab, scheduleTab === 'today' ? styles.schedTabActive : ''].join(' ')}
-              onClick={() => setScheduleTab('today')}
-            >
-              오늘
-              {todayConsults.length > 0 && <span className={styles.schedTabCount}>{todayConsults.length}</span>}
-            </button>
-            <button
-              className={[styles.schedTab, scheduleTab === 'week' ? styles.schedTabActive : ''].join(' ')}
-              onClick={() => setScheduleTab('week')}
-            >
-              이번 주
-              {weekConsults.length > 0 && <span className={styles.schedTabCount}>{weekConsults.length}</span>}
-            </button>
-            <button
-              className={[styles.schedTab, scheduleTab === 'month' ? styles.schedTabActive : ''].join(' ')}
-              onClick={() => setScheduleTab('month')}
-            >
-              이번 달
-              {monthConsults.length > 0 && <span className={styles.schedTabCount}>{monthConsults.length}</span>}
-            </button>
-          </div>
+              {/* ── 오늘 일정 ── */}
+              <div className={[styles.dashSectionTitle, styles.dashSectionTitleToday].join(' ')}>
+                오늘 일정
+                {todayConsults.length > 0 && (
+                  <span className={styles.countBadge}>{todayConsults.length}</span>
+                )}
+              </div>
+              {todayConsults.length === 0 ? (
+                <div className={styles.dashEmptyRow}>예정된 상담이 없어요</div>
+              ) : (
+                <div className={styles.dashList}>
+                  {todayConsults.map((c: any) => {
+                    const cust  = customers.find(cu => cu.id === c.customer_id)
+                    const color = TYPE_COLOR[c.meeting_type] || 'hsl(237 47% 59%)'
+                    return (
+                      <div key={c.id} className={styles.dashItem} onClick={() => openEditPopup(c)}>
+                        <span className={styles.dashDot} style={{ background: color }} />
+                        <div className={styles.dashItemBody}>
+                          <div className={styles.dashItemTop}>
+                            <span className={styles.dashCustName}>{cust?.name || '?'}</span>
+                            <span className={styles.typeBadge} style={{ background: color + '22', color, border: `1px solid ${color}44` }}>
+                              {c.meeting_type}
+                            </span>
+                            <span className={[styles.statusChip, c.status === '완료' ? styles.statusDone : c.status === '취소' ? styles.statusCancel : c.status === '확정' ? styles.statusConfirmed : styles.statusScheduled].join(' ')}>
+                              {c.status}
+                            </span>
+                          </div>
+                          <div className={styles.dashItemMeta}>
+                            {c.meeting_time && <><Clock style={{ width: 12, height: 12 }} />{c.meeting_time}</>}
+                            {c.location && <><MapPin style={{ width: 12, height: 12 }} />{c.location}</>}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
 
-          {/* Scrollable grouped list */}
-          <div className={styles.schedScrollBody}>
-            {renderScheduleGroup(activeConsults)}
-          </div>
+              {/* ── 섹션 구분선 ── */}
+              <div className={styles.dashSectionDivider} />
 
+              {/* ── 이번 주 일정 ── */}
+              <div className={styles.dashSectionTitle}>
+                이번 주 일정
+                {restOfWeekConsults.length > 0 && (
+                  <span className={styles.countBadge}>{restOfWeekConsults.length}</span>
+                )}
+              </div>
+              {restOfWeekConsults.length === 0 ? (
+                <div className={styles.dashEmptyRow}>이번 주 다른 일정이 없어요</div>
+              ) : (
+                <div className={styles.dashList}>
+                  {(() => {
+                    let lastDate = ''
+                    return restOfWeekConsults.map((c: any) => {
+                      const cust      = customers.find(cu => cu.id === c.customer_id)
+                      const color     = TYPE_COLOR[c.meeting_type] || 'hsl(237 47% 59%)'
+                      const showDate  = c.meeting_date !== lastDate
+                      lastDate        = c.meeting_date
+                      const dateLabel = new Date(c.meeting_date + 'T00:00:00').toLocaleDateString('ko-KR', { weekday: 'short', month: 'numeric', day: 'numeric' })
+                      return (
+                        <div key={c.id}>
+                          {showDate && (
+                            <div className={styles.weekDateHeader}>{dateLabel}</div>
+                          )}
+                          <div className={styles.dashItem} onClick={() => openEditPopup(c)}>
+                            <span className={styles.dashDot} style={{ background: color }} />
+                            <div className={styles.dashItemBody}>
+                              <div className={styles.dashItemTop}>
+                                <span className={styles.dashCustName}>{cust?.name || '?'}</span>
+                                <span className={styles.typeBadge} style={{ background: color + '22', color, border: `1px solid ${color}44` }}>
+                                  {c.meeting_type}
+                                </span>
+                                <span className={[styles.statusChip, c.status === '완료' ? styles.statusDone : c.status === '취소' ? styles.statusCancel : c.status === '확정' ? styles.statusConfirmed : styles.statusScheduled].join(' ')}>
+                                  {c.status}
+                                </span>
+                              </div>
+                              <div className={styles.dashItemMeta}>
+                                {c.meeting_time && <><Clock style={{ width: 12, height: 12 }} />{c.meeting_time}</>}
+                                {c.location && <><MapPin style={{ width: 12, height: 12 }} />{c.location}</>}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })
+                  })()}
+                </div>
+              )}
+
+            </div>
         </div>
       </div>
 
@@ -442,13 +571,13 @@ export default function Consultations() {
 
       {showPopup && (
         <div className={styles.popupOverlay} onClick={e => { if (e.target === e.currentTarget) closePopup() }}>
-          <div className={styles.popup}>
+          <div ref={popupRef} className={[styles.popup, showReportPanel ? styles.popupExpanded : ''].join(' ')} style={{ position: 'relative' }}>
 
             {/* ── Popup Left: Form ── */}
             <div className={styles.popupLeft}>
               <div className={styles.popupHeader}>
-                <span className={styles.popupTitle}>일정 등록</span>
-                <button className={styles.popupClose} onClick={closePopup}>
+                <span className={styles.popupTitle}>{editId ? '일정 수정' : '일정 등록'}</span>
+                <button className={styles.popupClose} onClick={closePopup} style={{ marginLeft: 'auto' }}>
                   <X style={{ width: 16, height: 16 }} />
                 </button>
               </div>
@@ -463,17 +592,42 @@ export default function Consultations() {
                       className={styles.custInput}
                       placeholder="이름 또는 연락처 검색..."
                       value={custSearch || selectedCustName}
-                      onChange={e => { setCustSearch(e.target.value); setForm(f => ({ ...f, customer_id: '' })); setShowCustDrop(true) }}
-                      onFocus={() => setShowCustDrop(true)}
+                      onChange={e => { setCustSearch(e.target.value); setForm(f => ({ ...f, customer_id: '' })); setShowCustDrop(true); setCustActiveIdx(-1) }}
+                      onFocus={() => { setShowCustDrop(true); setCustActiveIdx(-1) }}
+                      onKeyDown={e => {
+                        if (!showCustDrop || filteredCusts.length === 0) return
+                        if (e.key === 'ArrowDown') {
+                          e.preventDefault()
+                          const next = Math.min(custActiveIdx + 1, filteredCusts.length - 1)
+                          setCustActiveIdx(next)
+                          dropListRef.current?.children[next]?.scrollIntoView({ block: 'nearest' })
+                        } else if (e.key === 'ArrowUp') {
+                          e.preventDefault()
+                          const prev = Math.max(custActiveIdx - 1, 0)
+                          setCustActiveIdx(prev)
+                          dropListRef.current?.children[prev]?.scrollIntoView({ block: 'nearest' })
+                        } else if (e.key === 'Enter' && custActiveIdx >= 0) {
+                          e.preventDefault()
+                          const c = filteredCusts[custActiveIdx]
+                          setForm(f => ({ ...f, customer_id: c.id }))
+                          setCustSearch(c.name); setShowCustDrop(false); setCustActiveIdx(-1)
+                          setPopupRightTab('coverage')
+                        } else if (e.key === 'Escape') {
+                          setShowCustDrop(false); setCustActiveIdx(-1)
+                        }
+                      }}
                     />
                     {showCustDrop && filteredCusts.length > 0 && (
-                      <div className={styles.custDropdown}>
-                        {filteredCusts.map(c => (
-                          <div key={c.id} className={styles.custOption} onClick={() => {
-                            setForm(f => ({ ...f, customer_id: c.id }))
-                            setCustSearch(c.name); setShowCustDrop(false)
-                            setPopupRightTab('coverage')
-                          }}>
+                      <div className={styles.custDropdown} ref={dropListRef}>
+                        {filteredCusts.map((c, i) => (
+                          <div key={c.id}
+                            className={[styles.custOption, i === custActiveIdx ? styles.custOptionActive : ''].join(' ')}
+                            onMouseEnter={() => setCustActiveIdx(i)}
+                            onClick={() => {
+                              setForm(f => ({ ...f, customer_id: c.id }))
+                              setCustSearch(c.name); setShowCustDrop(false); setCustActiveIdx(-1)
+                              setPopupRightTab('coverage')
+                            }}>
                             <span className={styles.custOptionName}>{c.name}</span>
                             <span className={styles.custOptionMeta}>{c.customer_type === 'prospect' ? '관심' : '일반'} · {c.phone || '-'}</span>
                           </div>
@@ -483,34 +637,82 @@ export default function Consultations() {
                   </div>
                 </div>
 
-                {/* Date / Time */}
-                <div className={styles.formRow}>
-                  <div className={styles.formField}>
-                    <label className={styles.label}>날짜 *</label>
-                    <input type="date" className={styles.input} value={form.meeting_date}
-                      onChange={e => setForm(f => ({ ...f, meeting_date: e.target.value }))} />
-                  </div>
-                  <div className={styles.formField}>
-                    <label className={styles.label}>시간</label>
-                    <input type="time" className={styles.input} value={form.meeting_time}
-                      onChange={e => setForm(f => ({ ...f, meeting_time: e.target.value }))} />
+                {/* Date */}
+                <div className={styles.formField}>
+                  <label className={styles.label}>날짜 *</label>
+                  <div className={styles.timePicker}>
+                    {(() => {
+                      const [dY, dM, dD] = form.meeting_date ? form.meeting_date.split('-') : ['2026', '01', '01']
+                      const curYear = new Date().getFullYear()
+                      return <>
+                        <select className={styles.timeSelect} style={{ flex: '1.7' }} value={dY}
+                          onChange={e => setForm(f => ({ ...f, meeting_date: `${e.target.value}-${dM}-${dD}` }))}>
+                          {[curYear - 1, curYear, curYear + 1, curYear + 2].map(y => (
+                            <option key={y} value={String(y)}>{y}년</option>
+                          ))}
+                        </select>
+                        <select className={styles.timeSelect} value={dM}
+                          onChange={e => setForm(f => ({ ...f, meeting_date: `${dY}-${e.target.value}-${dD}` }))}>
+                          {Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0')).map(m => (
+                            <option key={m} value={m}>{parseInt(m)}월</option>
+                          ))}
+                        </select>
+                        <select className={styles.timeSelect} value={dD}
+                          onChange={e => setForm(f => ({ ...f, meeting_date: `${dY}-${dM}-${e.target.value}` }))}>
+                          {Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, '0')).map(d => (
+                            <option key={d} value={d}>{parseInt(d)}일</option>
+                          ))}
+                        </select>
+                      </>
+                    })()}
                   </div>
                 </div>
 
-                {/* Location / Type */}
+                {/* Time / Location */}
                 <div className={styles.formRow}>
+                  <div className={styles.formField}>
+                    <label className={styles.label}>시간</label>
+                    <div className={styles.timePicker}>
+                      <select className={styles.timeSelect}
+                        value={form.meeting_time ? form.meeting_time.split(':')[0] : ''}
+                        onChange={e => {
+                          const min = form.meeting_time ? form.meeting_time.split(':')[1] : '00'
+                          setForm(f => ({ ...f, meeting_time: e.target.value ? `${e.target.value}:${min}` : '' }))
+                        }}>
+                        <option value="">시간</option>
+                        {Array.from({ length: 24 }, (_, i) => i).map(h => {
+                          const hh = String(h).padStart(2, '0')
+                          return <option key={hh} value={hh}>{hh}</option>
+                        })}
+                      </select>
+                      <span className={styles.timeColon}>:</span>
+                      <select className={styles.timeSelect}
+                        value={form.meeting_time ? form.meeting_time.split(':')[1] : ''}
+                        onChange={e => {
+                          const hour = form.meeting_time ? form.meeting_time.split(':')[0] : ''
+                          if (hour) setForm(f => ({ ...f, meeting_time: `${hour}:${e.target.value}` }))
+                        }}>
+                        <option value="">분</option>
+                        {['00', '10', '20', '30', '40', '50'].map(m => (
+                          <option key={m} value={m}>{m}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
                   <div className={styles.formField}>
                     <label className={styles.label}>장소</label>
                     <input type="text" className={styles.input} placeholder="카페, 사무실, 자택..."
                       value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} />
                   </div>
-                  <div className={styles.formField}>
-                    <label className={styles.label}>상담 유형 *</label>
-                    <select className={styles.input} value={form.meeting_type}
-                      onChange={e => setForm(f => ({ ...f, meeting_type: e.target.value }))}>
-                      {MEETING_TYPES.map(t => <option key={t.value} value={t.value}>{t.value}</option>)}
-                    </select>
-                  </div>
+                </div>
+
+                {/* Type */}
+                <div className={styles.formField}>
+                  <label className={styles.label}>상담 유형 *</label>
+                  <select className={styles.input} value={form.meeting_type}
+                    onChange={e => setForm(f => ({ ...f, meeting_type: e.target.value }))}>
+                    {MEETING_TYPES.map(t => <option key={t.value} value={t.value}>{t.value}</option>)}
+                  </select>
                 </div>
 
                 {/* Status */}
@@ -528,11 +730,11 @@ export default function Consultations() {
                 </div>
 
                 {/* Notes — 크게 */}
-                <div className={styles.formField} style={{ flex: 1 }}>
+                <div className={styles.formField} style={{ flex: 1, minHeight: 0 }}>
                   <label className={styles.label}>상담 메모</label>
                   <textarea
                     className={styles.textarea}
-                    rows={8}
+                    style={{ flex: 1, resize: 'none' }}
                     placeholder="상담 내용, 고객 반응, 다음 액션 등 자유롭게 기록하세요..."
                     value={form.notes}
                     onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
@@ -547,20 +749,22 @@ export default function Consultations() {
                     삭제
                   </button>
                 )}
-                <button className={styles.cancelBtn} onClick={closePopup}>취소</button>
                 <button className={styles.saveBtn} onClick={saveConsultation} disabled={saving}>
                   {saving ? '저장 중...' : editId ? '수정 완료' : '+ 등록'}
                 </button>
+                <button className={styles.cancelBtn} onClick={closePopup}>취소</button>
               </div>
             </div>
 
             {/* ── Popup Right: Coverage / History ── */}
             <div className={styles.popupRight}>
               <div className={styles.popupRightTabs}>
-                <button className={[styles.popupRightTab, popupRightTab === 'coverage' ? styles.popupRightTabActive : ''].join(' ')}
-                  onClick={() => setPopupRightTab('coverage')}>보장 내역</button>
-                <button className={[styles.popupRightTab, popupRightTab === 'history' ? styles.popupRightTabActive : ''].join(' ')}
-                  onClick={() => setPopupRightTab('history')}>상담 이력</button>
+                <button className={[styles.popupRightTab, popupRightTab === 'coverage' && !showReportPanel ? styles.popupRightTabActive : ''].join(' ')}
+                  onClick={() => { setPopupRightTab('coverage'); setShowReportPanel(false) }}>보장 내역</button>
+                <button className={[styles.popupRightTab, popupRightTab === 'history' && !showReportPanel ? styles.popupRightTabActive : ''].join(' ')}
+                  onClick={() => { setPopupRightTab('history'); setShowReportPanel(false) }}>상담 이력</button>
+                <button className={[styles.popupRightTab, showReportPanel ? styles.popupRightTabActive : ''].join(' ')}
+                  onClick={() => { setPopupRightTab('history'); setShowReportPanel(r => !r) }}>고객 리포트</button>
               </div>
 
               <div className={styles.popupRightBody}>
@@ -580,20 +784,66 @@ export default function Consultations() {
                     <div className={styles.coverageWrap}>
                       {/* 고객 기본 정보 */}
                       <div className={styles.coverageCustCard}>
-                        <div className={styles.coverageCustName}>{selectedCust.name}</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 6 }}>
+                          <span className={[styles.custTypeTag, selectedCust.customer_type === 'prospect' ? styles.custTypeTagProspect : styles.custTypeTagMy].join(' ')}>
+                            {selectedCust.customer_type === 'prospect' ? '관심' : '마이'}
+                          </span>
+                          <span className={styles.coverageCustName} style={{ marginBottom: 0 }}>{selectedCust.name}</span>
+                          {selectedCust.grade === 'VIP' && (
+                            <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: 'hsl(45 90% 92%)', color: 'hsl(45 70% 30%)' }}>VIP</span>
+                          )}
+                        </div>
                         <div className={styles.coverageCustMeta}>
                           {selectedCust.phone && <span>{selectedCust.phone}</span>}
                           {selectedCust.email && <span>{selectedCust.email}</span>}
-                          <span className={[styles.typeBadge, selectedCust.customer_type === 'vip' ? styles.typeVip : ''].join(' ')}>
-                            {selectedCust.customer_type === 'vip' ? 'VIP' : selectedCust.customer_type === 'prospect' ? '관심' : '일반'}
-                          </span>
                         </div>
                         {selectedCust.memo && <p className={styles.coverageMemo}>{selectedCust.memo}</p>}
-                        {popupContracts.length > 0 && (
-                          <div style={{ marginTop: 6, fontSize: 12, color: 'hsl(var(--accent))', fontWeight: 600 }}>
-                            총 월납입 {popupContracts.reduce((s, ct) => s + (ct.monthly_fee || 0), 0).toLocaleString()}원
+
+                        {/* 인적사항 그리드 */}
+                        <div className={styles.custInfoGrid}>
+                          <div className={[styles.custInfoCell, styles.custInfoCellL].join(' ')}>
+                            <span className={styles.custInfoLabel}>연락처</span>
+                            <span className={styles.custInfoValue}>{selectedCust.phone || <span className={styles.custInfoEmpty}>-</span>}</span>
                           </div>
-                        )}
+                          <div className={[styles.custInfoCell, styles.custInfoCellR].join(' ')}>
+                            <span className={styles.custInfoLabel}>나이</span>
+                            <span className={styles.custInfoValue}>
+                              {selectedCust.age || (selectedCust.birth_date ? new Date().getFullYear() - new Date(selectedCust.birth_date).getFullYear() : null)
+                                ? `${selectedCust.age || (new Date().getFullYear() - new Date(selectedCust.birth_date).getFullYear())}세`
+                                : <span className={styles.custInfoEmpty}>-</span>}
+                            </span>
+                          </div>
+                          <div className={[styles.custInfoCell, styles.custInfoCellL].join(' ')}>
+                            <span className={styles.custInfoLabel}>성별</span>
+                            <span className={styles.custInfoValue}>{selectedCust.gender || <span className={styles.custInfoEmpty}>-</span>}</span>
+                          </div>
+                          <div className={[styles.custInfoCell, styles.custInfoCellR].join(' ')}>
+                            <span className={styles.custInfoLabel}>직업</span>
+                            <span className={styles.custInfoValue}>{selectedCust.job || <span className={styles.custInfoEmpty}>-</span>}</span>
+                          </div>
+                          <div className={[styles.custInfoCell, styles.custInfoCellL].join(' ')}>
+                            <span className={styles.custInfoLabel}>직장/소속</span>
+                            <span className={styles.custInfoValue}>{selectedCust.workplace || <span className={styles.custInfoEmpty}>-</span>}</span>
+                          </div>
+                          <div className={[styles.custInfoCell, styles.custInfoCellR].join(' ')}>
+                            <span className={styles.custInfoLabel}>운전면허</span>
+                            <span className={styles.custInfoValue}>{selectedCust.driver_license || <span className={styles.custInfoEmpty}>-</span>}</span>
+                          </div>
+                          <div className={styles.custInfoCellFull}>
+                            <span className={styles.custInfoLabel}>주소</span>
+                            <span className={styles.custInfoValue}>{selectedCust.address || <span className={styles.custInfoEmpty}>-</span>}</span>
+                          </div>
+                          <div className={[styles.custInfoCell, styles.custInfoCellL].join(' ')}>
+                            <span className={styles.custInfoLabel}>계약 수</span>
+                            <span className={styles.custInfoValue}>{popupContracts.length}건</span>
+                          </div>
+                          <div className={[styles.custInfoCell, styles.custInfoCellR].join(' ')}>
+                            <span className={styles.custInfoLabel}>총 월납입</span>
+                            <span className={[styles.custInfoValue, styles.custInfoGreen].join(' ')}>
+                              {popupContracts.reduce((s, ct) => s + (ct.monthly_fee || 0), 0).toLocaleString()}원
+                            </span>
+                          </div>
+                        </div>
                       </div>
 
                       {/* 계약 없음 */}
@@ -608,45 +858,42 @@ export default function Consultations() {
                       {popupContracts.map((ct, idx) => {
                         const cvs = popupCoverages.filter(cv => cv.contract_id === ct.id)
                         const groups = COVERAGE_GROUPS
-                          .map(g => ({ ...g, items: cvs.filter((cv: any) => cv.category === g.key) }))
+                          .map(g => ({ ...g, items: cvs.filter((cv: any) => cv.category === g.key).sort((a: any, b: any) => a.coverage_name.localeCompare(b.coverage_name, 'ko', { numeric: true })) }))
                           .filter(g => g.items.length > 0)
                         const rate = calcPaymentRate(ct)
                         const isWarn = rate >= 90 && ct.payment_status !== '완납'
                         return (
-                          <div key={ct.id} style={{ background: isWarn ? 'hsl(38 90% 97%)' : 'hsl(var(--bg-panel))', border: `1px solid ${isWarn ? 'hsl(38 80% 75%)' : 'hsl(var(--border-default))'}`, borderRadius: 10, padding: '10px 12px', marginBottom: 8 }}>
-                            {/* 헤더 */}
-                            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
-                              <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ fontSize: 13, fontWeight: 700, color: 'hsl(var(--text-primary))', marginBottom: 2 }}>
-                                  {idx + 1}. {ct.company}{ct.product_name ? ` · ${ct.product_name}` : ''}
+                          <div key={ct.id} className={isWarn ? styles.insCardWarn : styles.insCard}>
+                            <div className={styles.insCardHeader}>
+                              <div className={styles.insCardTitle}>{idx + 1}. {ct.company}{ct.product_name ? ` · ${ct.product_name}` : ''}</div>
+                              <div className={styles.insCardBottomRow}>
+                                <div className={styles.insCardMeta}>
+                                  {[ct.monthly_fee > 0 ? `${ct.monthly_fee.toLocaleString()}원/월` : '',
+                                    ct.contract_start ? `${ct.contract_start} 가입` : '',
+                                    ct.payment_years || '',
+                                    ct.expiry_age ? `${ct.expiry_age}만기` : ''
+                                  ].filter(Boolean).map((s, i) => <span key={i}>· {s} </span>)}
                                 </div>
-                                <div style={{ fontSize: 11, color: 'hsl(var(--text-tertiary))' }}>
-                                  {ct.monthly_fee > 0 ? `${ct.monthly_fee.toLocaleString()}원/월` : ''}
-                                  {ct.contract_start ? ` · ${ct.contract_start} 가입` : ''}
-                                  {ct.payment_years ? ` · ${ct.payment_years}` : ''}
-                                  {ct.expiry_age ? ` · ${ct.expiry_age}만기` : ''}
+                                <div className={styles.insCardBadges}>
+                                  <span className={[styles.badge, ct.payment_status === '완납' ? styles.badgeGreen : isWarn ? styles.badgeWarn : styles.badgeBlue].join(' ')}>
+                                    {ct.payment_status === '완납' ? '완납' : `${rate}%`}
+                                  </span>
+                                  {ct.insurance_type && <span className={styles.insTypeBadge}>{ct.insurance_type}</span>}
                                 </div>
-                              </div>
-                              <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-                                <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 20, fontWeight: 700, background: ct.payment_status === '완납' ? 'hsl(var(--accent-bg))' : isWarn ? 'hsl(38 90% 92%)' : 'hsl(var(--bg-elevated))', color: ct.payment_status === '완납' ? 'hsl(var(--accent))' : isWarn ? 'hsl(38 70% 35%)' : 'hsl(var(--text-secondary))' }}>
-                                  {ct.payment_status === '완납' ? '완납' : `${rate}%`}
-                                </span>
-                                {ct.insurance_type && (
-                                  <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 20, background: 'hsl(var(--bg-elevated))', color: 'hsl(var(--text-secondary))', fontWeight: 600 }}>{ct.insurance_type}</span>
-                                )}
                               </div>
                             </div>
-                            {/* 보장 항목 */}
                             {groups.length > 0 && (
-                              <div style={{ marginTop: 8, borderTop: '1px solid hsl(var(--border-default))', paddingTop: 8, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                              <div className={styles.coverageList}>
                                 {groups.map(g => (
-                                  <div key={g.key} style={{ display: 'flex', alignItems: 'flex-start', gap: 6, fontSize: 12 }}>
-                                    <span style={{ flexShrink: 0 }}>{g.icon}</span>
-                                    <span style={{ color: 'hsl(var(--text-secondary))', fontWeight: 600, whiteSpace: 'nowrap' }}>{g.label}</span>
-                                    <div style={{ flex: 1, color: 'hsl(var(--text-primary))', lineHeight: 1.5 }}>
-                                      {g.items.map((cv: any, ci: number) => (
-                                        <span key={ci}>• {cv.coverage_name} <strong>{fmtAmount(cv.amount)}</strong> </span>
-                                      ))}
+                                  <div key={g.key} className={styles.coverageRow}>
+                                    <span className={styles.covIcon}>{g.icon}</span>
+                                    <div className={styles.covRight}>
+                                      <span className={styles.covLabel}>{g.label}</span>
+                                      <div className={styles.covItems}>
+                                        {g.items.map((cv: any, ci: number) => (
+                                          <span key={ci} className={styles.covItem}>• {cv.coverage_name}{cv.amount ? <> <strong>{fmtAmount(cv.amount)}</strong></> : ''}</span>
+                                        ))}
+                                      </div>
                                     </div>
                                   </div>
                                 ))}
@@ -660,7 +907,7 @@ export default function Consultations() {
                 )}
 
                 {/* 상담 이력 */}
-                {popupRightTab === 'history' && (
+                {(popupRightTab === 'history' || showReportPanel) && (
                   !form.customer_id ? (
                     <div className={styles.emptyState}>
                       <div className={styles.emptyIcon}>📋</div>
@@ -670,13 +917,21 @@ export default function Consultations() {
                     <div className={styles.timeline}>
                       {getCustomerTimeline(form.customer_id).map((t: any, idx: number) => {
                         const tColor   = TYPE_COLOR[t.meeting_type] || 'hsl(237 47% 59%)'
-                        const isDone   = t.status === '완료'
-                        const isCancel = t.status === '취소'
+                        const isDone     = t.status === '완료'
+                        const isConfirm  = t.status === '확정'
+                        const isCancel   = t.status === '취소'
                         const isCurrent = editId ? t.id === editId : t.meeting_date === form.meeting_date
                         const isLast   = idx === getCustomerTimeline(form.customer_id).length - 1
 
+                        const hasMockReport = MOCK_REPORTS.some(r => r.meeting_type === t.meeting_type)
+                        const isHistorySelected = showReportPanel && selectedHistoryType === t.meeting_type
                         return (
-                          <div key={t.id} className={styles.tlItem}>
+                          <div
+                            key={t.id}
+                            ref={el => { if (hasMockReport) tlItemRefs.current[t.meeting_type] = el }}
+                            className={[styles.tlItem, showReportPanel && hasMockReport ? styles.tlItemClickable : '', isHistorySelected ? styles.tlItemSelected : ''].join(' ')}
+                            onClick={showReportPanel && hasMockReport ? () => setSelectedHistoryType(t.meeting_type) : undefined}
+                          >
                             <div className={styles.tlLeft}>
                               <div className={styles.tlDot} style={{
                                 background: isDone ? tColor : isCancel ? 'hsl(var(--bg-elevated))' : isCurrent ? tColor + '22' : 'transparent',
@@ -735,8 +990,84 @@ export default function Consultations() {
                   )
                 )}
 
+
               </div>
             </div>
+
+            {/* ── 미팅 리포트 패널 (3열) ── */}
+            {(() => {
+              const activeReport = selectedHistoryType ? MOCK_REPORTS.find(r => r.meeting_type === selectedHistoryType) : null
+              return (
+                <div className={[styles.reportPanel, showReportPanel ? styles.reportPanelOpen : ''].join(' ')}>
+                  <div className={styles.reportPanelHeader}>
+                    <span className={styles.reportPanelTitle}>미팅 리포트</span>
+                    {selectedCust && <span className={styles.reportPanelMeta}>{selectedCust.name}</span>}
+                  </div>
+                  <div className={styles.reportPanelBody}>
+                    {!selectedCust ? (
+                      <div className={styles.reportPanelEmpty}>
+                        <p>고객을 선택하면<br />리포트가 표시됩니다</p>
+                      </div>
+                    ) : !selectedHistoryType ? (
+                      <div className={styles.reportPanelEmpty}>
+                        <div className={styles.reportPanelEmptyArrow}>←</div>
+                        <p>상담 이력을 클릭하면<br />미팅 리포트가 연결됩니다</p>
+                      </div>
+                    ) : !activeReport ? (
+                      <div className={styles.reportPanelEmpty}>
+                        <p>이 이력에 연결된<br />리포트가 없습니다</p>
+                      </div>
+                    ) : (
+                      <div className={styles.reportPreview}>
+                        <div className={styles.reportPreviewHeader}>
+                          <div ref={reportTitleRef} className={styles.reportPreviewTitle}>{activeReport.title}</div>
+                          <div className={styles.reportPreviewMeta}>{activeReport.date} · {selectedCust.name}</div>
+                        </div>
+                        {activeReport.sections.map((s, si) => (
+                          <div key={si} className={styles.reportPreviewSection}>
+                            <div className={styles.reportPreviewSectionHeading}>{s.heading}</div>
+                            {s.items && (
+                              <table className={styles.reportPreviewTable}>
+                                <tbody>
+                                  {s.items.map((item, ii) => (
+                                    <tr key={ii}>
+                                      <td className={styles.reportPreviewTdLabel}>{item.label}</td>
+                                      <td className={[styles.reportPreviewTdValue, item.warn ? styles.reportPreviewWarn : ''].join(' ')}>{item.value}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            )}
+                            {s.text && <p className={styles.reportPreviewText}>{s.text}</p>}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )
+            })()}
+
+            {/* ── 점선 커넥터 SVG 오버레이 ── */}
+            {connLines.length > 0 && (
+              <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', overflow: 'visible', zIndex: 10 }}>
+                {connLines.map((line, i) => {
+                  const midX = line.x1 + (line.x2 - line.x1) * 0.42
+                  return (
+                    <g key={i}>
+                      <path
+                        d={`M ${line.x1} ${line.y1} H ${midX} V ${line.y2} H ${line.x2}`}
+                        stroke="#1D9E75" strokeWidth="3.5" strokeDasharray="1 13"
+                        strokeLinecap="round" fill="none" opacity="0.75"
+                      />
+                      <circle cx={line.x1} cy={line.y1} r="4.5" fill="#1D9E75" opacity="0.75" />
+                      <circle cx={line.x2} cy={line.y2} r="7" fill="#1D9E75" opacity="0.85" />
+                    </g>
+                  )
+                })}
+              </svg>
+            )}
+
           </div>
         </div>
       )}
@@ -744,3 +1075,5 @@ export default function Consultations() {
     </div>
   )
 }
+
+Consultations.getLayout = (page: React.ReactNode) => <AdminLayout>{page}</AdminLayout>

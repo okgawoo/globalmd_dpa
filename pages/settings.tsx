@@ -48,7 +48,7 @@ const TONE_OPTIONS = [
 ]
 
 function TabIcon({ tabKey, active }: { tabKey: SettingsTab; active: boolean }) {
-  const c = active ? '#1D9E75' : '#999'
+  const c = active ? 'hsl(var(--accent))' : 'hsl(var(--text-tertiary))'
   const s = { width: 15, height: 15, fill: 'none' as const, stroke: c, strokeWidth: 2, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const }
   if (tabKey === 'profile') return <svg {...s} viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
   if (tabKey === 'sms') return <svg {...s} viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
@@ -57,6 +57,9 @@ function TabIcon({ tabKey, active }: { tabKey: SettingsTab; active: boolean }) {
 }
 
 export default function SettingsPage() {
+  const now = new Date()
+  const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })
+
   const [tab, setTab] = useState<SettingsTab>('profile')
   const [agent, setAgent] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -236,23 +239,43 @@ export default function SettingsPage() {
 
   if (loading) return <div className={styles.loading}>불러오는 중...</div>
 
+  const tabStyle = (active: boolean): React.CSSProperties => ({
+    padding: '10px 20px',
+    border: 'none',
+    background: 'transparent',
+    cursor: 'pointer',
+    fontSize: 14,
+    fontWeight: active ? 600 : 400,
+    color: active ? 'hsl(var(--accent))' : 'hsl(var(--text-secondary))',
+    borderBottom: active ? '2px solid hsl(var(--accent))' : '2px solid transparent',
+    transition: 'all 0.1s',
+    whiteSpace: 'nowrap',
+  })
+
   return (
-    <div className={styles.wrap}>
+    <div className="px-6 pb-8 pt-5" style={{ background: 'hsl(var(--bg-app))', minHeight: '100%' }}>
       {ConfirmDialog}
 
-      {/* 탭 메뉴 */}
-      <div className={styles.tabBar}>
-        {TABS.map(t => (
-          <button key={t.key}
-            className={[styles.tabBtn, tab === t.key ? styles.tabActive : ''].join(' ')}
-            onClick={() => setTab(t.key)}>
-            <span className={styles.tabIcon}>
-              <TabIcon tabKey={t.key} active={tab === t.key} />
-            </span>
-            <span className={styles.tabLabel}>{t.label}</span>
-          </button>
-        ))}
+      {/* 페이지 헤더 */}
+      <div className="mb-5 flex items-end justify-between">
+        <div>
+          <h1 className="text-xl font-bold" style={{ color: 'hsl(var(--text-primary))' }}>설정</h1>
+          <p className="mt-0.5 text-[13px]" style={{ color: 'hsl(var(--text-secondary))' }}>계정 및 서비스 설정</p>
+        </div>
+        <span className="text-sm" style={{ color: 'hsl(var(--text-primary))' }}>{dateStr}</span>
       </div>
+
+      {/* 탭 + 콘텐츠 카드 */}
+      <div style={{ background: 'hsl(var(--bg-panel))', borderRadius: 10, border: '1px solid hsl(var(--border-default))', overflow: 'hidden' }}>
+
+        {/* 탭 메뉴 */}
+        <div style={{ display: 'flex', borderBottom: '1px solid hsl(var(--border-default))', padding: '0 8px' }}>
+          {TABS.map(t => (
+            <button key={t.key} onClick={() => setTab(t.key)} style={tabStyle(tab === t.key)}>
+              {t.label}
+            </button>
+          ))}
+        </div>
 
       <div className={styles.content}>
 
@@ -442,7 +465,7 @@ export default function SettingsPage() {
             {senderStatus !== 'verified' && smsAuthStep === 'form' && (
               <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12, padding: '20px 16px', marginBottom: 16 }}>
                 <p style={{ fontWeight: 700, fontSize: 15, color: '#111827', marginBottom: 4 }}>2단계 — 본인 정보 입력</p>
-                <p style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 16 }}>서류에 사용될 정보를 정확하게 입력해주세요.</p>
+                <p style={{ fontSize: 13, color: '#9CA3AF', marginBottom: 16 }}>서류에 사용될 정보를 정확하게 입력해주세요.</p>
 
                 <div className={styles.field}>
                   <label className={styles.fieldLabel}>이름 *</label>
@@ -538,7 +561,7 @@ export default function SettingsPage() {
             {senderStatus !== 'verified' && smsAuthStep === 'sign' && (
               <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12, padding: '20px 16px', marginBottom: 16 }}>
                 <p style={{ fontWeight: 700, fontSize: 15, color: '#111827', marginBottom: 4 }}>3단계 — 본인 서명</p>
-                <p style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 16 }}>아래 서명란에 손가락으로 직접 서명해주세요.</p>
+                <p style={{ fontSize: 13, color: '#9CA3AF', marginBottom: 16 }}>아래 서명란에 손가락으로 직접 서명해주세요.</p>
 
                 <div style={{ border: '2px dashed #D1D5DB', borderRadius: 10, overflow: 'hidden', background: '#FAFAFA', marginBottom: 12 }}>
                   <canvas
@@ -578,7 +601,7 @@ export default function SettingsPage() {
                   />
                 </div>
 
-                <p style={{ fontSize: 11, color: '#9CA3AF', textAlign: 'center', marginBottom: 12 }}>서명란을 손가락으로 드래그하여 서명해주세요</p>
+                <p style={{ fontSize: 12, color: '#9CA3AF', textAlign: 'center', marginBottom: 12 }}>서명란을 손가락으로 드래그하여 서명해주세요</p>
 
                 <button onClick={() => {
                   const canvas = canvasRef.current
@@ -751,7 +774,7 @@ export default function SettingsPage() {
             {senderStatus !== 'verified' && smsAuthStep === 'confirm' && (
               <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12, padding: '20px 16px', marginBottom: 16 }}>
                 <p style={{ fontWeight: 700, fontSize: 15, color: '#111827', marginBottom: 4 }}>4단계 — 최종 확인</p>
-                <p style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 16 }}>아래 내용이 정확한지 확인 후 제출해주세요.</p>
+                <p style={{ fontSize: 13, color: '#9CA3AF', marginBottom: 16 }}>아래 내용이 정확한지 확인 후 제출해주세요.</p>
 
                 <div style={{ background: '#F9FAFB', borderRadius: 10, padding: '14px 16px', marginBottom: 16 }}>
                   {[
@@ -996,6 +1019,7 @@ export default function SettingsPage() {
           </div>
         )}
 
+      </div>
       </div>
     </div>
   )
