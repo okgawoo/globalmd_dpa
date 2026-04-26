@@ -7,7 +7,7 @@
   box-sizing: border-box;
   overflow: hidden;
 }
-.pageHeader { margin-bottom: 20px; }
+.pageHeader { margin-bottom: 24px; }
 .pageTitle {
   font-size: 20px;
   font-weight: 700;
@@ -29,7 +29,7 @@
   border: 1px solid hsl(var(--accent) / 0.25);
   margin-top: 3px;
 }
-.pageSub { font-size: 12px; color: hsl(var(--text-secondary)); margin-top: 4px; }
+.pageSub { font-size: 14px; color: hsl(var(--text-secondary)); margin-top: 2px; }
 
 /* ─── Layout ─── */
 .layout {
@@ -860,6 +860,7 @@
 .popup {
   display: flex;
   width: 860px;
+  height: min(640px, calc(100vh - 48px));
   max-width: calc(100vw - 48px);
   max-height: calc(100vh - 48px);
   background: hsl(var(--bg-panel));
@@ -867,10 +868,11 @@
   border-radius: 12px;
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.18);
   overflow: hidden;
-  transition: width 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1), height 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .popupExpanded {
   width: min(1280px, calc(100vw - 48px));
+  height: calc(100vh - 48px);
 }
 
 /* 미팅 리포트 토글 버튼 */

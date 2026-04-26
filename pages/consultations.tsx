@@ -73,6 +73,22 @@ function getWeekBounds() {
   return { start: mon.toISOString().split('T')[0], end: sun.toISOString().split('T')[0] }
 }
 
+/* ─── Mock 미팅 리포트 (미팅 리포트 페이지 개발 전 목업) ─── */
+const MOCK_REPORTS = [
+  {
+    id: 'mock-r1', meeting_type: '첫 만남',
+    title: '초기 보장 현황 분석',
+    date: '2026.04.15',
+    summary: '현재 암·뇌혈관 미가입 확인.\n월 납입 부담 고려해 단계별 가입 제안.',
+  },
+  {
+    id: 'mock-r2', meeting_type: '니즈 분석',
+    title: '니즈 분석 보고서',
+    date: '2026.04.22',
+    summary: '가족 구성: 배우자+자녀 2명.\n소득 보장 우선, 이후 건강보험 순차 가입 목표.',
+  },
+]
+
 /* ─── Page ─── */
 export default function Consultations() {
   const router = useRouter()
@@ -112,6 +128,39 @@ export default function Consultations() {
   const [showReportPanel, setShowReportPanel] = useState(false)
   const [popupMeetings, setPopupMeetings]     = useState<any[]>([])
   const [reportLoading, setReportLoading]     = useState(false)
+
+  /* 점선 연결 */
+  const popupRef        = useRef<HTMLDivElement>(null)
+  const tlItemRefs      = useRef<Record<string, HTMLDivElement | null>>({})
+  const reportCardRefs  = useRef<Record<string, HTMLDivElement | null>>({})
+  const [connLines, setConnLines] = useState<{ x1: number; y1: number; x2: number; y2: number }[]>([])
+
+  useLayoutEffect(() => {
+    if (!showReportPanel || !popupRef.current) { setConnLines([]); return }
+    const recalc = () => {
+      if (!popupRef.current) return
+      const popup = popupRef.current.getBoundingClientRect()
+      const lines: { x1: number; y1: number; x2: number; y2: number }[] = []
+      MOCK_REPORTS.forEach(r => {
+        const tlEl = tlItemRefs.current[r.meeting_type]
+        const rpEl = reportCardRefs.current[r.id]
+        if (!tlEl || !rpEl) return
+        const tl = tlEl.getBoundingClientRect()
+        const rp = rpEl.getBoundingClientRect()
+        lines.push({
+          x1: tl.right - popup.left,
+          y1: tl.top + tl.height / 2 - popup.top,
+          x2: rp.left - popup.left,
+          y2: rp.top + rp.height / 2 - popup.top,
+        })
+      })
+      setConnLines(lines)
+    }
+    // 애니메이션 완료 후 재계산 (280ms transition)
+    const t = setTimeout(recalc, 300)
+    recalc()
+    return () => clearTimeout(t)
+  }, [showReportPanel, form.customer_id])
 
   useEffect(() => { fetchAll() }, [])
 
@@ -492,7 +541,7 @@ export default function Consultations() {
 
       {showPopup && (
         <div className={styles.popupOverlay} onClick={e => { if (e.target === e.currentTarget) closePopup() }}>
-          <div className={[styles.popup, showReportPanel ? styles.popupExpanded : ''].join(' ')}>
+          <div ref={popupRef} className={[styles.popup, showReportPanel ? styles.popupExpanded : ''].join(' ')} style={{ position: 'relative' }}>
 
             {/* ── Popup Left: Form ── */}
             <div className={styles.popupLeft}>
@@ -680,12 +729,12 @@ export default function Consultations() {
             {/* ── Popup Right: Coverage / History ── */}
             <div className={styles.popupRight}>
               <div className={styles.popupRightTabs}>
-                <button className={[styles.popupRightTab, popupRightTab === 'coverage' ? styles.popupRightTabActive : ''].join(' ')}
+                <button className={[styles.popupRightTab, popupRightTab === 'coverage' && !showReportPanel ? styles.popupRightTabActive : ''].join(' ')}
                   onClick={() => { setPopupRightTab('coverage'); setShowReportPanel(false) }}>보장 내역</button>
-                <button className={[styles.popupRightTab, popupRightTab === 'history' ? styles.popupRightTabActive : ''].join(' ')}
+                <button className={[styles.popupRightTab, popupRightTab === 'history' && !showReportPanel ? styles.popupRightTabActive : ''].join(' ')}
                   onClick={() => { setPopupRightTab('history'); setShowReportPanel(false) }}>상담 이력</button>
-                <button className={[styles.popupRightTab, popupRightTab === 'report' ? styles.popupRightTabActive : ''].join(' ')}
-                  onClick={() => { setPopupRightTab('report'); setShowReportPanel(true) }}>고객 리포트</button>
+                <button className={[styles.popupRightTab, showReportPanel ? styles.popupRightTabActive : ''].join(' ')}
+                  onClick={() => { setPopupRightTab('history'); setShowReportPanel(r => !r) }}>고객 리포트</button>
               </div>
 
               <div className={styles.popupRightBody}>
@@ -828,7 +877,7 @@ export default function Consultations() {
                 )}
 
                 {/* 상담 이력 */}
-                {popupRightTab === 'history' && (
+                {(popupRightTab === 'history' || showReportPanel) && (
                   !form.customer_id ? (
                     <div className={styles.emptyState}>
                       <div className={styles.emptyIcon}>📋</div>
@@ -844,8 +893,9 @@ export default function Consultations() {
                         const isCurrent = editId ? t.id === editId : t.meeting_date === form.meeting_date
                         const isLast   = idx === getCustomerTimeline(form.customer_id).length - 1
 
+                        const hasMockReport = MOCK_REPORTS.some(r => r.meeting_type === t.meeting_type)
                         return (
-                          <div key={t.id} className={styles.tlItem}>
+                          <div key={t.id} ref={el => { if (hasMockReport) tlItemRefs.current[t.meeting_type] = el }} className={styles.tlItem}>
                             <div className={styles.tlLeft}>
                               <div className={styles.tlDot} style={{
                                 background: isDone ? tColor : isCancel ? 'hsl(var(--bg-elevated))' : isCurrent ? tColor + '22' : 'transparent',
@@ -904,27 +954,11 @@ export default function Consultations() {
                   )
                 )}
 
-                {/* 고객 리포트 탭 선택 시 안내 */}
-                {popupRightTab === 'report' && (
-                  <div className={styles.emptyState}>
-                    <div className={styles.emptyIcon}>📊</div>
-                    {!selectedCust
-                      ? <p className={styles.emptyText}>고객을 선택하면<br />리포트가 표시됩니다</p>
-                      : <p className={styles.emptyText}>오른쪽에서<br />미팅 리포트를 확인하세요</p>
-                    }
-                  </div>
-                )}
 
               </div>
             </div>
 
             {/* ── 커넥터 ── */}
-            {showReportPanel && (
-              <div className={styles.reportConnector}>
-                <div className={styles.reportConnectorIcon}>🔗</div>
-              </div>
-            )}
-
             {/* ── 미팅 리포트 패널 ── */}
             <div className={[styles.reportPanel, showReportPanel ? styles.reportPanelOpen : ''].join(' ')}>
               <div className={styles.reportPanelHeader}>
@@ -932,33 +966,38 @@ export default function Consultations() {
                 {selectedCust && <span className={styles.reportPanelMeta}>{selectedCust.name} · {popupMeetings.length}건</span>}
               </div>
               <div className={styles.reportPanelBody}>
-                {reportLoading ? (
-                  <div className={styles.emptyState}>
-                    <p className={styles.emptyText}>불러오는 중...</p>
+                {MOCK_REPORTS.map(r => (
+                  <div key={r.id} ref={el => { reportCardRefs.current[r.id] = el }} className={styles.reportCard}>
+                    <div className={styles.reportCardTop}>
+                      <span className={styles.reportCardStage}>{r.title}</span>
+                      <span className={styles.reportCardDate}>{r.date}</span>
+                    </div>
+                    <div className={styles.reportCardMeta}>{r.meeting_type}</div>
+                    <div className={styles.reportCardMemo}>{r.summary}</div>
                   </div>
-                ) : popupMeetings.length === 0 ? (
+                ))}
+                {!selectedCust && (
                   <div className={styles.emptyState}>
                     <div className={styles.emptyIcon}>📋</div>
-                    <p className={styles.emptyText}>등록된 미팅 리포트가 없어요</p>
+                    <p className={styles.emptyText}>고객을 선택하면<br />미팅 리포트가 표시됩니다</p>
                   </div>
-                ) : (
-                  popupMeetings.map(m => (
-                    <div key={m.id} className={styles.reportCard}>
-                      <div className={styles.reportCardTop}>
-                        <span className={styles.reportCardStage}>{m.pipeline_stage || m.type || '미팅'}</span>
-                        <span className={styles.reportCardDate}>{m.meeting_date}{m.meeting_time ? ` · ${m.meeting_time}` : ''}</span>
-                      </div>
-                      {(m.location || m.status) && (
-                        <div className={styles.reportCardMeta}>
-                          {[m.location, m.status].filter(Boolean).join(' · ')}
-                        </div>
-                      )}
-                      {m.memo && <div className={styles.reportCardMemo}>{m.memo}</div>}
-                    </div>
-                  ))
                 )}
               </div>
             </div>
+
+            {/* ── 점선 커넥터 SVG 오버레이 ── */}
+            {connLines.length > 0 && (
+              <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', overflow: 'visible', zIndex: 10 }}>
+                {connLines.map((line, i) => (
+                  <line key={i}
+                    x1={line.x1} y1={line.y1}
+                    x2={line.x2} y2={line.y2}
+                    stroke="#1D9E75" strokeWidth="1.5" strokeDasharray="5,4"
+                    strokeLinecap="round" opacity="0.55"
+                  />
+                ))}
+              </svg>
+            )}
 
           </div>
         </div>
