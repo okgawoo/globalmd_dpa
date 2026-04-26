@@ -657,6 +657,7 @@ export default function Dashboard() {
           contracts={contracts}
           meetings={meetings}
           agentName={agentName}
+          agentRole={agentRole}
           meetingStats={meetingStats}
           smsStats={smsStats}
           nearDoneCustomers={nearDoneCustomers}

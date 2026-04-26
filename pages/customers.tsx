@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import { useConfirm } from '../lib/useConfirm'
 import styles from '../styles/Customers.module.css'
 import InsuranceCompanySelect from '../components/InsuranceCompanySelect'
+import { Users, User, UserPlus, Search } from 'lucide-react'
 
 type Tab = 'existing' | 'prospect'
 const AGE_FILTERS = ['연령대전체', '유아(0-7)', '10대', '20대', '30대', '40대', '50대', '60대+']
@@ -107,44 +108,6 @@ const emptyCustomerForm = {
   address: '', workplace: '', bank_name: '', bank_account: '', driver_license: ''
 }
 
-function IconUsers({ active }: { active: boolean }) {
-  const c = active ? '#1D9E75' : '#9CA3AF'
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-      <circle cx="9" cy="7" r="4" />
-      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-    </svg>
-  )
-}
-function IconUser({ active }: { active: boolean }) {
-  const c = active ? '#1D9E75' : '#9CA3AF'
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
-    </svg>
-  )
-}
-function IconUserPlus() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-      <circle cx="9" cy="7" r="4" />
-      <line x1="19" y1="8" x2="19" y2="14" />
-      <line x1="22" y1="11" x2="16" y2="11" />
-    </svg>
-  )
-}
-function IconSearch() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="11" cy="11" r="8" />
-      <line x1="21" y1="21" x2="16.65" y2="16.65" />
-    </svg>
-  )
-}
 
 function formatMoney(val: string): string {
   const num = val.replace(/[^0-9]/g, '')
@@ -264,6 +227,7 @@ export default function Customers() {
   }, [router.isReady, router.query.id, customers])
   const isMobile = useIsMobile()
   const slideContentRef = useRef<HTMLDivElement>(null)
+  const isInitialLoad = useRef(true)
   const zoomWrapperRef = useRef<HTMLDivElement>(null)
   const zoomStateRef = useRef({ scale: 1, tx: 0, ty: 0 })
   const { confirm, ConfirmDialog } = useConfirm()
@@ -466,6 +430,11 @@ export default function Customers() {
     setContracts(conts)
     setCoverages(covs)
     setLoading(false)
+    if (isInitialLoad.current && window.innerWidth > 768) {
+      isInitialLoad.current = false
+      const first = custs.find((c: any) => c.customer_type === 'existing') || custs[0]
+      if (first) selectCustomer(first, conts, covs)
+    }
   }
 
   function selectCustomer(c: any, allContracts?: any[], allCoverages?: any[]) {
@@ -487,8 +456,8 @@ export default function Customers() {
     setTimeout(() => { setSelected(null); setEditMode(false) }, 300)
   }
 
-  async function deleteCustomer(c: any, e: React.MouseEvent) {
-    e.stopPropagation()
+  async function deleteCustomer(c: any, e?: React.MouseEvent) {
+    if (e) e.stopPropagation()
     const ok = await confirm({ title: '고객 삭제', message: `${c.name} 님을 삭제할까요?\n관련 계약과 보장 내역도 모두 삭제됩니다.`, confirmText: '삭제', danger: true })
     if (!ok) return
     const cContracts = contracts.filter((ct: any) => ct.customer_id === c.id)
@@ -606,14 +575,14 @@ export default function Customers() {
     const badges = []
     const cContracts = contracts.filter((ct: any) => ct.customer_id === c.id)
     if (cContracts.some((ct: any) => calcPaymentRate(ct) >= 90 && ct.payment_status !== '완납'))
-      badges.push({ label: '🔥 완납임박', cls: styles.badgeWarn })
+      badges.push({ label: '완납임박', cls: styles.flagWarn })
     const cCoverages = coverages.filter((cv: any) => cContracts.some((ct: any) => ct.id === cv.contract_id))
     const brainTypes = cCoverages.filter((cv: any) => cv.category === '뇌혈관').map((cv: any) => cv.brain_coverage_type)
     if (brainTypes.length === 0 || brainTypes.every((t: string) => t === '뇌출혈'))
-      badges.push({ label: '⚠ 보장공백', cls: styles.badgeRed })
+      badges.push({ label: '보장공백', cls: styles.flagRed })
     const days = getBirthdayDays(c.birth_date)
     if (days !== null)
-      badges.push({ label: `🎂 D-${days}`, cls: days <= 10 ? styles.badgeBirthday : styles.badgeBirthdayFar })
+      badges.push({ label: `D-${days}`, cls: days <= 10 ? styles.flagBirthday : styles.flagBirthdayFar })
     return badges
   }
 
@@ -725,7 +694,7 @@ export default function Customers() {
   }
 
   return (
-    <div className={styles.wrap}>
+    <div className={styles.page}>
       {smsOpen && smsCustomer && (
         <SmsSlidePanel
           isOpen={smsOpen}
@@ -736,6 +705,13 @@ export default function Customers() {
           agentId={agentId}
         />
       )}
+
+      {/* 페이지 헤더 */}
+      <div className={styles.pageHeader}>
+        <h1 className={styles.pageTitle}>고객 관리</h1>
+        <p className={styles.pageSub}>총 {customers.length}명의 고객을 관리하세요</p>
+      </div>
+
       {/* 탭바 */}
       <div className={styles.tabBar}>
         <button
@@ -743,7 +719,7 @@ export default function Customers() {
           onClick={() => { handleTabChange('existing'); setAddMode(false); setAddForm(emptyCustomerForm); setAddContracts([{company:'',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}]); closeSlide() }}
           title="마이고객"
           >
-          <span className={styles.tabIcon}><IconUsers active={tab === 'existing'} /></span>
+          <span className={styles.tabIcon}><Users style={{width:14,height:14}} /></span>
           <span>마이고객</span>
         </button>
         <button
@@ -751,13 +727,13 @@ export default function Customers() {
           onClick={() => { handleTabChange('prospect'); setAddMode(false); setAddForm(emptyCustomerForm); setAddContracts([{company:'',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}]); closeSlide() }}
           title="관심고객"
           >
-          <span className={styles.tabIcon}><IconUser active={tab === 'prospect'} /></span>
+          <span className={styles.tabIcon}><User style={{width:14,height:14}} /></span>
           <span>관심고객</span>
         </button>
 
         {/* 모바일 전용: 인라인 검색 + 고객추가 */}
         <div className={styles.searchBoxInline}>
-          <IconSearch />
+          <Search style={{width:13,height:13,color:'hsl(var(--text-tertiary))',flexShrink:0}} />
           <input className={styles.searchInputInline} placeholder="검색" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
         </div>
         <button
@@ -765,8 +741,8 @@ export default function Customers() {
           onClick={() => { setAddMode(true); setSelected(null); setSlideOpen(isMobile); setAddType(tab === 'existing' ? 'existing' : 'prospect') }}
           title="고객 추가"
         >
-          <span className={styles.tabIcon}><IconUserPlus /></span>
-          <span>+ 고객 추가</span>
+          <UserPlus style={{width:13,height:13}} />
+          <span>고객 추가</span>
         </button>
       </div>
 
@@ -780,7 +756,7 @@ export default function Customers() {
         </select>
         {/* 웹에서만 보이는 검색창 */}
         <div className={styles.searchBoxDesktop}>
-          <IconSearch />
+          <Search style={{width:13,height:13,color:'hsl(var(--text-tertiary))',flexShrink:0}} />
           <input className={styles.searchInput} placeholder="검색" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
         </div>
       </div>
@@ -788,13 +764,13 @@ export default function Customers() {
       {/* 모바일 검색창 토글 */}
       {searchOpen && (
         <div className={styles.searchBoxMobile}>
-          <IconSearch />
+          <Search style={{width:13,height:13,color:'hsl(var(--text-tertiary))',flexShrink:0}} />
           <input className={styles.searchInput} placeholder="검색" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} autoFocus />
         </div>
       )}
 
       {/* 데스크탑: 좌우 분할 / 모바일: 단일 컬럼 */}
-      <div className={isMobile ? '' : (selected ? styles.desktopGrid : '')}>
+      <div className={isMobile ? '' : styles.customersLayout}>
       <div className={styles.listPanel}>
         {loading ? <div className={styles.empty}>불러오는 중...</div> : filteredCustomers.length === 0 ? (
           <div className={styles.empty}>해당 고객이 없어요</div>
@@ -803,35 +779,22 @@ export default function Customers() {
           const cMonthly = contracts.filter((ct: any) => ct.customer_id === c.id).reduce((s: number, ct: any) => s + (ct.monthly_fee || 0), 0)
           const cCount = contracts.filter((ct: any) => ct.customer_id === c.id).length
           return (
-            <div key={c.id} id={`customer-row-${c.id}`} className={[styles.custRow, selected?.id === c.id ? styles.active : ''].join(' ')} onClick={() => selectCustomer(c)} style={{borderBottom:'1px solid #F3F4F6'}}>
-              <div className={[styles.avatar, c.grade === 'VIP' ? styles.avVip : styles.avNormal].join(' ')} style={{
-  background: c.customer_type === 'prospect' ? '#FEF3E2' : c.customer_type === 'existing' ? '#EFF6FF' : '#F3F4F6',
-  color: c.customer_type === 'prospect' ? '#B45309' : c.customer_type === 'existing' ? '#1D4ED8' : '#6B7280',
-  fontSize: 10, fontWeight: 700
-}}>
-  {c.customer_type === 'prospect' ? '관심' : '마이'}
-</div>
-              <div className={styles.custInfo}>
-                {/* 1행: 이름 */}
-                <div className={styles.custName}>
-                  {c.name}
-                  <span className={[styles.badge, c.grade === 'VIP' ? styles.badgeAmber : styles.badgeBlue].join(' ')}>{c.grade}</span>
-                </div>
-                {/* 2행: 나이·성별·직업·건수·월납입 + 뱃지 (왼쪽 정렬) */}
-                <div className={styles.custMeta}>{c.age || (c.birth_date ? new Date().getFullYear() - new Date(c.birth_date).getFullYear() : '')}세 · {c.gender} · {cCount}건 · {cMonthly.toLocaleString()}원</div>
+            <div key={c.id} id={`customer-row-${c.id}`} className={[styles.custRow, c.customer_type === 'prospect' ? styles.custRowProspect : styles.custRowExisting, selected?.id === c.id ? styles.active : ''].join(' ')} onClick={() => selectCustomer(c)}>
+              <div className={styles.custMain}>
+                <span className={styles.custName}>{c.name}</span>
+                {c.grade === 'VIP' && <span className={styles.gradeVip}>VIP</span>}
+                <span className={styles.custSep}>·</span>
+                <span className={styles.custMeta}>{c.age || (c.birth_date ? new Date().getFullYear() - new Date(c.birth_date).getFullYear() : '')}세 · {c.gender} · {cCount}건 · {cMonthly.toLocaleString()}원</span>
                 {badges.length > 0 && (
-                  <div className={styles.badgeRow}>
+                  <span className={styles.statusFlags}>
                     {badges.map((b, i) => <span key={i} className={b.cls}>{b.label}</span>)}
-                  </div>
+                  </span>
                 )}
               </div>
-              {/* 우측 버튼 그룹 - 세로 배치 */}
-              <div className={styles.btnCol}>
-                <div className={styles.btnGroup}>
-                  <button className={styles.editBtn} onClick={e => { e.stopPropagation(); selectCustomer(c); setEditMode(true); setEditForm(c); setAddMode(false) }}>수정</button>
-                  <button className={styles.deleteBtn} onClick={e => deleteCustomer(c, e)}>삭제</button>
-                </div>
-                <button className={styles.smsBtn} onClick={e => { e.stopPropagation(); setSmsCustomer(c); setSmsOpen(true) }}>문자발송</button>
+              <div className={styles.custActions}>
+                <button className={styles.smsBtn} onClick={e => { e.stopPropagation(); setSmsCustomer(c); setSmsOpen(true) }}>문자</button>
+                <button className={styles.editBtn} onClick={e => { e.stopPropagation(); selectCustomer(c); setEditMode(true); setEditForm(c); setAddMode(false) }}>수정</button>
+                <button className={styles.deleteBtn} onClick={e => deleteCustomer(c, e)}>삭제</button>
               </div>
             </div>
           )
@@ -841,7 +804,12 @@ export default function Customers() {
       {/* 데스크탑 상세 패널 */}
       {!isMobile && (
         <div className={styles.detailPanel} onWheel={e => { e.currentTarget.scrollTop += e.deltaY; }}>
-          {addMode ? (
+          {!addMode && !selected ? (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyIcon}>👈</div>
+              <p className={styles.emptyText}>고객을 선택하면 상세 정보가 표시됩니다</p>
+            </div>
+          ) : addMode ? (
             <div className={styles.editBox}>
               <div className={styles.editSectionTitle}>{addType === 'existing' ? '마이고객' : '관심고객'} 추가</div>
               <div className={styles.editGrid}>
@@ -854,10 +822,10 @@ export default function Customers() {
                       const parsed = parseResident(rn)
                       setAddForm({ ...addForm, resident_number: rn, gender: parsed.gender, age: String(parsed.age) })
                     }} />
-                  {addForm.resident_number.length >= 8 && <span style={{fontSize:11,color:'#1D9E75',marginTop:3}}>✓ 만 {addForm.age}세</span>}
+                  {addForm.resident_number.length >= 8 && <span style={{fontSize:11,color:'hsl(var(--accent))',marginTop:3}}>✓ 만 {addForm.age}세</span>}
                 </div>
                 <div className={styles.editField}><label>성별</label>
-                  <select value={addForm.gender||'남'} onChange={e => setAddForm({ ...addForm, gender: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                  <select value={addForm.gender||'남'} onChange={e => setAddForm({ ...addForm, gender: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                     <option>남</option><option>여</option>
                   </select>
                 </div>
@@ -865,24 +833,24 @@ export default function Customers() {
                 <div className={styles.editField}><label>계좌번호</label><input placeholder="1002-3628-09746" inputMode="numeric" value={addForm.bank_account||''} onChange={e => setAddForm({ ...addForm, bank_account: e.target.value.replace(/[^0-9-]/g,'') })} /></div>
                 <div className={styles.editField}><label>주소</label><input placeholder="서울시 강남구..." value={addForm.address} onChange={e => setAddForm({ ...addForm, address: e.target.value })} /></div>
                 <div className={styles.editField}><label>직업</label>
-                  <select value={addForm.job} onChange={e => setAddForm({ ...addForm, job: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                  <select value={addForm.job} onChange={e => setAddForm({ ...addForm, job: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                     {['직장인','자영업자','공무원','교사/교직원','의료인','전문직','주부','학생','농업/어업','프리랜서','은퇴/무직','기타'].map(j => <option key={j}>{j}</option>)}
                   </select>
                 </div>
                 <div className={styles.editField}><label>직장/소속</label><input placeholder="직장명" value={addForm.workplace} onChange={e => setAddForm({ ...addForm, workplace: e.target.value })} /></div>
                 <div className={styles.editField}><label>운전면허</label><input placeholder="26-06-009864-70" value={addForm.driver_license||''} onChange={e => setAddForm({ ...addForm, driver_license: e.target.value })} /></div>
                 <div className={styles.editField}><label>등급</label>
-                  <select value={addForm.grade} onChange={e => setAddForm({ ...addForm, grade: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                  <select value={addForm.grade} onChange={e => setAddForm({ ...addForm, grade: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                     <option>일반</option><option>VIP</option>
                   </select>
                 </div>
               </div>
               {/* 보험 폼들이 쌓이는 구조 */}
               {addContracts.map((ct:any, i:number) => (
-                <div key={i} style={{background:'#fff',border:'1px solid #E5E7EB',borderRadius:12,padding:14,marginTop:12}}>
+                <div key={i} style={{background:'hsl(var(--bg-panel))',border:'1px solid hsl(var(--border-default))',borderRadius:12,padding:14,marginTop:12}}>
                   <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
                     <div className={styles.editSectionTitle} style={{margin:0}}>보험 {i+1}</div>
-                    {addContracts.length > 1 && <button onClick={()=>setAddContracts((v:any)=>v.filter((_:any,j:number)=>j!==i))} style={{background:'none',border:'none',color:'#9CA3AF',cursor:'pointer',fontSize:12}}>✕ 삭제</button>}
+                    {addContracts.length > 1 && <button onClick={()=>setAddContracts((v:any)=>v.filter((_:any,j:number)=>j!==i))} style={{background:'none',border:'none',color:'hsl(var(--text-tertiary))',cursor:'pointer',fontSize:12}}>✕ 삭제</button>}
                   </div>
                   <div className={styles.editGrid}>
                     <div className={styles.editField} style={{gridColumn:'1 / -1'}}><label>보험사</label>
@@ -890,36 +858,36 @@ export default function Customers() {
                     </div>
                     <div className={styles.editField} style={{gridColumn:'1 / -1'}}><label>상품명</label><input value={ct.product_name} onChange={e=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,product_name:e.target.value}:c))} placeholder="무배당 건강보험" /></div>
                     <div className={styles.editField}><label>보험 종류</label>
-                      <select value={ct.insurance_type} onChange={e=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,insurance_type:e.target.value}:c))} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                      <select value={ct.insurance_type} onChange={e=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,insurance_type:e.target.value}:c))} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                         {INSURANCE_TYPES.map(t=><option key={t}>{t}</option>)}
                       </select>
                     </div>
                     <div className={styles.editField}><label>월보험료(원) *</label><input inputMode="numeric" value={ct.monthly_fee?formatMoney(String(ct.monthly_fee)):''} onChange={e=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,monthly_fee:parseMoney(e.target.value)}:c))} placeholder="50,000" /></div>
                     <div className={styles.editField}><label>납입상태</label>
-                      <select value={ct.payment_status} onChange={e=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,payment_status:e.target.value}:c))} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                      <select value={ct.payment_status} onChange={e=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,payment_status:e.target.value}:c))} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                         {PAYMENT_STATUSES.map(s=><option key={s}>{s}</option>)}
                       </select>
                     </div>
                     <div className={styles.editField}><label>가입연월</label>
                       <div style={{display:'flex',gap:4}}>
-                        <select value={parseContractStart(ct.contract_start).year} onChange={e=>{const m=parseContractStart(ct.contract_start).month;setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,contract_start:joinContractStart(e.target.value,m)}:c))}} style={{flex:1,fontSize:13,padding:'6px 6px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                        <select value={parseContractStart(ct.contract_start).year} onChange={e=>{const m=parseContractStart(ct.contract_start).month;setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,contract_start:joinContractStart(e.target.value,m)}:c))}} style={{flex:1,fontSize:13,padding:'6px 6px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                           <option value="">년</option>
                           {YEARS.map(y=><option key={y}>{y}</option>)}
                         </select>
-                        <select value={parseContractStart(ct.contract_start).month} onChange={e=>{const y=parseContractStart(ct.contract_start).year;setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,contract_start:joinContractStart(y,e.target.value)}:c))}} style={{flex:1,fontSize:13,padding:'6px 6px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                        <select value={parseContractStart(ct.contract_start).month} onChange={e=>{const y=parseContractStart(ct.contract_start).year;setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,contract_start:joinContractStart(y,e.target.value)}:c))}} style={{flex:1,fontSize:13,padding:'6px 6px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                           <option value="">월</option>
                           {MONTHS.map(m=><option key={m}>{m}</option>)}
                         </select>
                       </div>
                     </div>
                     <div className={styles.editField}><label>납입기간</label>
-                      <select value={ct.payment_years} onChange={e=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,payment_years:e.target.value}:c))} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                      <select value={ct.payment_years} onChange={e=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,payment_years:e.target.value}:c))} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                         <option value="">선택</option>
                         {PAYMENT_YEARS.map(p=><option key={p}>{p}</option>)}
                       </select>
                     </div>
                     <div className={styles.editField}><label>만기</label>
-                      <select value={ct.expiry_age} onChange={e=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,expiry_age:e.target.value}:c))} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                      <select value={ct.expiry_age} onChange={e=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,expiry_age:e.target.value}:c))} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                         <option value="">선택</option>
                         {EXPIRY_AGES.map(a=><option key={a}>{a}</option>)}
                       </select>
@@ -927,44 +895,44 @@ export default function Customers() {
                     <div className={styles.editField}><label>총 납입 회차</label><input inputMode="numeric" value={ct.total_months||''} onChange={e=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,total_months:e.target.value.replace(/[^0-9]/g,'')}:c))} placeholder="120" /></div>
                     <div className={styles.editField}><label>완료 회차</label><input inputMode="numeric" value={ct.paid_months||''} onChange={e=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,paid_months:e.target.value.replace(/[^0-9]/g,'')}:c))} placeholder="36" /></div>
                     <div className={styles.editField} style={{gridColumn:'span 2'}}>
-                      <label>납입률 (%) <span style={{fontSize:10,color:'#1D9E75',fontWeight:600}}>자동</span></label>
-                      <input readOnly value={ct.total_months&&ct.paid_months ? `${Math.round(parseInt(ct.paid_months)/parseInt(ct.total_months)*100)}%` : '자동 계산'} style={{background:'#F9FAFB',color:'#6B7280'}} />
+                      <label>납입률 (%) <span style={{fontSize:10,color:'hsl(var(--accent))',fontWeight:600}}>자동</span></label>
+                      <input readOnly value={ct.total_months&&ct.paid_months ? `${Math.round(parseInt(ct.paid_months)/parseInt(ct.total_months)*100)}%` : '자동 계산'} style={{background:'hsl(var(--bg-elevated))',color:'hsl(var(--text-tertiary))'}} />
                     </div>
                   </div>
                   {/* 보장 항목 - 수동입력과 완전 동일 */}
                   <div style={{marginTop:10}}>
                     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
-                      <span style={{fontSize:12,fontWeight:600,color:'#374151'}}>보장 항목</span>
-                      <button style={{fontSize:11,padding:'3px 10px',borderRadius:6,border:'1px solid #1D9E75',background:'#E1F5EE',color:'#085041',cursor:'pointer'}}
+                      <span style={{fontSize:12,fontWeight:600,color:'hsl(var(--text-primary))'}}>보장 항목</span>
+                      <button style={{fontSize:11,padding:'3px 10px',borderRadius:6,border:'1px solid hsl(var(--accent) / 0.4)',background:'hsl(var(--accent-bg))',color:'hsl(var(--accent))',cursor:'pointer'}}
                         onClick={()=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,showCovForm:!c.showCovForm}:c))}>+ 보장 추가</button>
                     </div>
                     {ct.showCovForm && (
-                      <div style={{background:'#FAF9F5',border:'1px solid #1D9E75',borderRadius:10,padding:12,marginBottom:8}}>
+                      <div style={{background:'hsl(var(--bg-elevated))',border:'1px solid hsl(var(--accent) / 0.4)',borderRadius:10,padding:12,marginBottom:8}}>
                         <div className={styles.editGrid} style={{gridTemplateColumns:'1fr 1fr 1fr'}}>
                           <div className={styles.editField}><label>카테고리</label>
-                            <select value={addNewCov.category} onChange={e=>setAddNewCov({...addNewCov,category:e.target.value})} style={{width:'100%',fontSize:13,padding:'9px 12px',borderRadius:6,border:'1px solid #E5E7EB',background:'#F9FAFB'}}>
+                            <select value={addNewCov.category} onChange={e=>setAddNewCov({...addNewCov,category:e.target.value})} style={{width:'100%',fontSize:13,padding:'9px 12px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-elevated))'}}>
                               {['암진단','뇌혈관','심장','간병','수술비','실손','비급여','상해','사고처리','벌금','특이사항'].map(c=><option key={c}>{c}</option>)}
                             </select>
                           </div>
-                          <div className={styles.editField}><label>보장명</label><input value={addNewCov.coverage_name} onChange={e=>setAddNewCov({...addNewCov,coverage_name:e.target.value})} placeholder="예: 급성심근경색진단비" style={{background:'#F9FAFB'}} /></div>
-                          <div className={styles.editField}><label>금액 (원)</label><input inputMode="numeric" value={addNewCov.amount?formatMoney(String(addNewCov.amount)):''} onChange={e=>setAddNewCov({...addNewCov,amount:parseMoney(e.target.value)})} placeholder="예: 30,000,000" style={{background:'#F9FAFB'}} /></div>
+                          <div className={styles.editField}><label>보장명</label><input value={addNewCov.coverage_name} onChange={e=>setAddNewCov({...addNewCov,coverage_name:e.target.value})} placeholder="예: 급성심근경색진단비" style={{background:'hsl(var(--bg-elevated))'}} /></div>
+                          <div className={styles.editField}><label>금액 (원)</label><input inputMode="numeric" value={addNewCov.amount?formatMoney(String(addNewCov.amount)):''} onChange={e=>setAddNewCov({...addNewCov,amount:parseMoney(e.target.value)})} placeholder="예: 30,000,000" style={{background:'hsl(var(--bg-elevated))'}} /></div>
                         </div>
                         <div style={{display:'flex',gap:6,marginTop:8}}>
-                          <button style={{flex:1,padding:'7px',fontSize:13,background:'#1D9E75',color:'#fff',border:'none',borderRadius:8,fontWeight:600,cursor:'pointer'}}
+                          <button style={{flex:1,padding:'7px',fontSize:13,background:'hsl(var(--accent))',color:'hsl(var(--accent-foreground))',border:'none',borderRadius:8,fontWeight:600,cursor:'pointer'}}
                             onClick={()=>{if(addNewCov.coverage_name&&addNewCov.amount){setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,coverages:[...c.coverages,addNewCov],showCovForm:false}:c));setAddNewCov({category:'암진단',coverage_name:'',amount:''})}}}>추가하기</button>
-                          <button style={{padding:'7px 14px',fontSize:13,background:'#fff',color:'#6B7280',border:'1px solid #E5E7EB',borderRadius:8,cursor:'pointer'}}
+                          <button style={{padding:'7px 14px',fontSize:13,background:'hsl(var(--bg-panel))',color:'hsl(var(--text-tertiary))',border:'1px solid hsl(var(--border-default))',borderRadius:8,cursor:'pointer'}}
                             onClick={()=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,showCovForm:false}:c))}>닫기</button>
                         </div>
                       </div>
                     )}
                     {ct.coverages.length > 0 && (
-                      <div style={{border:'1px solid #E5E7EB',borderRadius:8,overflow:'hidden'}}>
+                      <div style={{border:'1px solid hsl(var(--border-default))',borderRadius:8,overflow:'hidden'}}>
                         {ct.coverages.map((cv:any,ci:number)=>(
-                          <div key={ci} style={{display:'flex',alignItems:'center',gap:8,fontSize:12,padding:'6px 10px',borderBottom:'0.5px solid #F3F4F6'}}>
-                            <span style={{color:'#6B7280',minWidth:55,fontSize:11}}>{cv.category}</span>
-                            <span style={{flex:1,color:'#111827'}}>{cv.coverage_name}</span>
-                            <span style={{color:'#1D9E75',fontWeight:600}}>{parseInt(cv.amount).toLocaleString()}원</span>
-                            <button onClick={()=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,coverages:c.coverages.filter((_:any,k:number)=>k!==ci)}:c))} style={{background:'none',border:'none',color:'#D1D5DB',cursor:'pointer',fontSize:13}}>✕</button>
+                          <div key={ci} style={{display:'flex',alignItems:'center',gap:8,fontSize:12,padding:'6px 10px',borderBottom:'1px solid hsl(var(--border-default))'}}>
+                            <span style={{color:'hsl(var(--text-tertiary))',minWidth:55,fontSize:11}}>{cv.category}</span>
+                            <span style={{flex:1,color:'hsl(var(--text-primary))'}}>{cv.coverage_name}</span>
+                            <span style={{color:'hsl(var(--accent))',fontWeight:600}}>{parseInt(cv.amount).toLocaleString()}원</span>
+                            <button onClick={()=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,coverages:c.coverages.filter((_:any,k:number)=>k!==ci)}:c))} style={{background:'none',border:'none',color:'hsl(var(--text-tertiary))',cursor:'pointer',fontSize:13}}>✕</button>
                           </div>
                         ))}
                       </div>
@@ -974,69 +942,77 @@ export default function Customers() {
               ))}
 
               {/* + 보험 추가 버튼 */}
-              <button style={{display:'block',width:'100%',padding:'10px',marginBottom:12,border:'1.5px dashed #E5E7EB',borderRadius:10,background:'#FAF9F5',color:'#9CA3AF',fontSize:13,cursor:'pointer',textAlign:'center',marginTop:12}}
-                onMouseOver={e=>{(e.target as HTMLButtonElement).style.borderColor='#1D9E75';(e.target as HTMLButtonElement).style.color='#1D9E75';(e.target as HTMLButtonElement).style.background='#E1F5EE'}}
-                onMouseOut={e=>{(e.target as HTMLButtonElement).style.borderColor='#E5E7EB';(e.target as HTMLButtonElement).style.color='#9CA3AF';(e.target as HTMLButtonElement).style.background='#FAF9F5'}}
+              <button style={{display:'block',width:'100%',padding:'10px',marginBottom:12,border:'1.5px dashed hsl(var(--border-default))',borderRadius:8,background:'transparent',color:'hsl(var(--text-tertiary))',fontSize:13,cursor:'pointer',textAlign:'center',marginTop:12}}
+                onMouseOver={e=>{(e.target as HTMLButtonElement).style.borderColor='hsl(var(--accent))';(e.target as HTMLButtonElement).style.color='hsl(var(--accent))';(e.target as HTMLButtonElement).style.background='hsl(var(--accent-bg))'}}
+                onMouseOut={e=>{(e.target as HTMLButtonElement).style.borderColor='hsl(var(--border-default))';(e.target as HTMLButtonElement).style.color='hsl(var(--text-tertiary))';(e.target as HTMLButtonElement).style.background='transparent'}}
                 onClick={()=>{
                   if(!addForm.name) return alert('이름을 먼저 입력해주세요!')
                   setAddContracts((v:any)=>[...v,{company:'',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}])
                 }}>+ 보험 추가</button>
 
               {/* 저장/취소 - 우측 정렬 */}
-              <div style={{marginTop:20,paddingTop:16,borderTop:'1px solid #E5E7EB',display:'flex',justifyContent:'flex-end',gap:8}}>
-                <button onClick={saveAddCustomer} style={{padding:'8px 24px',background:'#1D9E75',color:'#fff',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>저장</button>
-                <button className={styles.cancelBtn} style={{borderColor:'#9CA3AF'}} onClick={() => { setAddMode(false); setAddContracts([{company:'',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}]) }}>취소</button>
+              <div style={{marginTop:20,paddingTop:16,borderTop:'1px solid hsl(var(--border-default))',display:'flex',justifyContent:'flex-end',gap:8}}>
+                <button onClick={saveAddCustomer} style={{padding:'8px 24px',background:'hsl(var(--accent))',color:'hsl(var(--accent-foreground))',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>저장</button>
+                <button className={styles.cancelBtn} style={{borderColor:'hsl(var(--border-default))'}} onClick={() => { setAddMode(false); setAddContracts([{company:'',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}]) }}>취소</button>
               </div>
             </div>
           ) : selected ? (
             <div className={styles.slideContent}>
-              <div className={styles.slideHeader}>
-                <div className={[styles.avatar, styles.avLg, selected.grade === 'VIP' ? styles.avVip : styles.avNormal].join(' ')} style={{
-  background: selected.customer_type === 'prospect' ? '#FEF3E2' : selected.customer_type === 'existing' ? '#EFF6FF' : '#F3F4F6',
-  color: selected.customer_type === 'prospect' ? '#B45309' : selected.customer_type === 'existing' ? '#1D4ED8' : '#6B7280',
-  fontSize: 12, fontWeight: 700
-}}>
-  {selected.customer_type === 'prospect' ? '관심' : '마이'}
-</div>
-                <div style={{ flex: 1 }}>
-                  <div className={styles.detailName}>{selected.name}</div>
-                  <div className={styles.detailMeta}>{selected.age || (selected.birth_date ? new Date().getFullYear() - new Date(selected.birth_date).getFullYear() : "")}세 · {selected.gender} · {selected.job} · {selected.phone}</div>
+              <div className={styles.detailHeaderNew}>
+                <div className={styles.detailHeaderRow1}>
+                  <span className={[styles.detailTypeTag, selected.customer_type === 'prospect' ? styles.detailTypeTagProspect : styles.detailTypeTagMy].join(' ')}>
+                    {selected.customer_type === 'prospect' ? '관심' : '마이'}
+                  </span>
+                  <span className={styles.detailNameLg}>{selected.name}</span>
+                  {selected.grade === 'VIP' && <span className={styles.gradeVip}>VIP</span>}
                 </div>
-                {!editMode && (
-                  <>
-                    <button className={styles.smsBtn} style={{marginRight:4}} onClick={() => { setSmsCustomer(selected); setSmsOpen(true) }}>📱 문자</button>
-                    <button className={styles.editBtn} onClick={() => { setEditMode(true); setEditForm(selected) }}>수정</button>
-                  </>
-                )}
+                <div className={styles.detailMetaRow}>
+                  <div className={styles.detailHeaderRow2}>
+                    {selected.age || (selected.birth_date ? new Date().getFullYear() - new Date(selected.birth_date).getFullYear() : "")}세 · {selected.gender} · {selected.job} · {selected.phone}
+                  </div>
+                  {!editMode && (
+                    <div className={styles.detailHeaderRow3}>
+                      <button className={styles.smsBtn} onClick={() => { setSmsCustomer(selected); setSmsOpen(true) }}>문자</button>
+                      <button className={styles.editBtn} onClick={() => { setEditMode(true); setEditForm(selected) }}>수정</button>
+                      <button className={styles.deleteBtn} onClick={() => deleteCustomer(selected)}>삭제</button>
+                    </div>
+                  )}
+                </div>
               </div>
               {editMode && (
                 <div className={styles.editBox}>
-                  <div className={styles.editSectionTitle} style={{fontSize:13,fontWeight:700,color:'#111'}}>개인정보 수정</div>
+                  <div className={styles.editSectionTitle}>개인정보 수정</div>
                   <div className={styles.editGrid}>
                     <div className={styles.editField}><label>이름</label><input value={editForm.name||''} onChange={e=>setEditForm({...editForm,name:e.target.value})} /></div>
                     <div className={styles.editField}><label>연락처</label><input inputMode="numeric" value={editForm.phone||''} onChange={e=>setEditForm({...editForm,phone:formatPhone(e.target.value)})} /></div>
-                    <div className={styles.editField}><label>주민등록번호</label><input value={editForm.resident_number||''} onChange={e=>setEditForm({...editForm,resident_number:e.target.value})} placeholder="000000-0000000" /></div>
-                    <div className={styles.editField}><label>성별</label>
-                      <select value={editForm.gender||'남'} onChange={e=>setEditForm({...editForm,gender:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                    <div className={styles.editField}><label>주민등록번호</label><input value={editForm.resident_number||''} maxLength={14} placeholder="000000-0000000"
+                      onChange={e=>{
+                        const raw=e.target.value.replace(/[^0-9]/g,'').slice(0,13)
+                        const fmt=raw.length<=6?raw:raw.slice(0,6)+'-'+raw.slice(6)
+                        const {gender,age,birthDate}=parseResident(fmt)
+                        setEditForm({...editForm,resident_number:fmt,...(raw.length>=7?{gender,age,birth_date:birthDate}:{})})
+                      }} /></div>
+                    <div className={styles.editField}><label>성별 <span style={{fontSize:10,background:'hsl(var(--accent)/0.12)',color:'hsl(var(--accent))',padding:'1px 5px',borderRadius:999,fontWeight:600,marginLeft:2}}>자동</span></label>
+                      <select value={editForm.gender||'남'} onChange={e=>setEditForm({...editForm,gender:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                         <option>남</option><option>여</option><option>기타</option>
                       </select>
                     </div>
                     <div className={styles.editField}><label>은행명</label>
-                      <select value={editForm.bank_name||''} onChange={e=>setEditForm({...editForm,bank_name:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                      <select value={editForm.bank_name||''} onChange={e=>setEditForm({...editForm,bank_name:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                         {['','KB국민','신한','하나','우리','NH농협','IBK기업','카카오뱅크','케이뱅크','토스뱅크','SC제일','새마을금고','신협','수협','우체국'].map(b=><option key={b} value={b}>{b||'선택'}</option>)}
                       </select>
                     </div>
                     <div className={styles.editField}><label>계좌번호</label><input value={editForm.bank_account||''} onChange={e=>setEditForm({...editForm,bank_account:e.target.value.replace(/[^0-9-]/g,'')})} inputMode="numeric" /></div>
                     <div className={styles.editField} style={{gridColumn:'span 2'}}><label>주소</label><input value={editForm.address||''} onChange={e=>setEditForm({...editForm,address:e.target.value})} /></div>
                     <div className={styles.editField}><label>직업</label>
-                      <select value={editForm.job||'직장인'} onChange={e=>setEditForm({...editForm,job:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                      <select value={editForm.job||'직장인'} onChange={e=>setEditForm({...editForm,job:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                         {['직장인','자영업자','공무원','교사/교직원','의료인','전문직','주부','학생','농업/어업','프리랜서','은퇴/무직','기타'].map(j=><option key={j}>{j}</option>)}
                       </select>
                     </div>
                     <div className={styles.editField}><label>직장/소속</label><input value={editForm.workplace||''} onChange={e=>setEditForm({...editForm,workplace:e.target.value})} /></div>
                     <div className={styles.editField}><label>운전면허</label><input value={editForm.driver_license||''} onChange={e=>setEditForm({...editForm,driver_license:e.target.value})} /></div>
                     <div className={styles.editField}><label>등급</label>
-                      <select value={editForm.grade||'일반'} onChange={e=>setEditForm({...editForm,grade:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                      <select value={editForm.grade||'일반'} onChange={e=>setEditForm({...editForm,grade:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                         {['일반','우수','VIP','VVIP'].map(g=><option key={g}>{g}</option>)}
                       </select>
                     </div>
@@ -1047,21 +1023,20 @@ export default function Customers() {
                   </div>
                 </div>
               )}
-              <div className={styles.infoTable}>
-                {selected.age && <div className={styles.infoRow}><span className={styles.infoLabel}>나이</span><span className={styles.infoValue}>{selected.age || (selected.birth_date ? new Date().getFullYear() - new Date(selected.birth_date).getFullYear() : "")}세</span></div>}
-                {selected.gender && <div className={styles.infoRow}><span className={styles.infoLabel}>성별</span><span className={styles.infoValue}>{selected.gender}</span></div>}
-                {selected.resident_number && <div className={styles.infoRow}><span className={styles.infoLabel}>주민번호</span><span className={styles.infoValue}>{selected.resident_number}</span></div>}
-                {selected.phone && <div className={styles.infoRow}><span className={styles.infoLabel}>연락처</span><span className={styles.infoValue}>{selected.phone}</span></div>}
-                {selected.job && <div className={styles.infoRow}><span className={styles.infoLabel}>직업</span><span className={styles.infoValue}>{selected.job}</span></div>}
-                {selected.workplace && <div className={styles.infoRow}><span className={styles.infoLabel}>직장/소속</span><span className={styles.infoValue}>{selected.workplace}</span></div>}
-                {selected.address && <div className={styles.infoRow}><span className={styles.infoLabel}>주소</span><span className={styles.infoValue}>{selected.address}</span></div>}
-                {(selected.bank_name || selected.bank_account) && <div className={styles.infoRow}><span className={styles.infoLabel}>계좌번호</span><span className={styles.infoValue}>{selected.bank_name} {selected.bank_account}</span></div>}
-                {selected.driver_license && <div className={styles.infoRow}><span className={styles.infoLabel}>운전면허</span><span className={styles.infoValue}>{selected.driver_license}</span></div>}
-                {selected.grade && <div className={styles.infoRow}><span className={styles.infoLabel}>등급</span><span className={styles.infoValue}>{selected.grade}</span></div>}
-                <div className={styles.infoRowLast}>
-                  <div className={styles.infoRow} style={{ borderBottom: 'none', paddingBottom: 0 }}><span className={styles.infoLabel}>계약 수</span><span className={styles.infoValue}>{selectedContracts.length}건</span></div>
-                  <div className={styles.infoRow} style={{ borderBottom: 'none', paddingBottom: 0 }}><span className={styles.infoLabel}>총 월납입</span><span className={[styles.infoValue, styles.infoGreen].join(' ')}>{selectedContracts.reduce((s,ct)=>s+(ct.monthly_fee||0),0).toLocaleString()}원</span></div>
-                </div>
+              <div className={styles.infoTable2}>
+                <div className={[styles.infoCell, styles.infoCellL].join(' ')}><span className={styles.infoLabel}>연락처</span><span className={styles.infoValue}>{selected.phone || <span className={styles.infoEmpty}>-</span>}</span></div>
+                <div className={[styles.infoCell, styles.infoCellR].join(' ')}><span className={styles.infoLabel}>나이</span><span className={styles.infoValue}>{selected.age || (selected.birth_date ? new Date().getFullYear() - new Date(selected.birth_date).getFullYear() : <span className={styles.infoEmpty}>-</span>)}{(selected.age || selected.birth_date) ? '세' : ''}</span></div>
+                <div className={[styles.infoCell, styles.infoCellL].join(' ')}><span className={styles.infoLabel}>주민등록번호</span><span className={styles.infoValue}>{selected.resident_number || <span className={styles.infoEmpty}>-</span>}</span></div>
+                <div className={[styles.infoCell, styles.infoCellR].join(' ')}><span className={styles.infoLabel}>성별</span><span className={styles.infoValue}>{selected.gender || <span className={styles.infoEmpty}>-</span>}</span></div>
+                <div className={[styles.infoCell, styles.infoCellL].join(' ')}><span className={styles.infoLabel}>은행명</span><span className={styles.infoValue}>{selected.bank_name || <span className={styles.infoEmpty}>-</span>}</span></div>
+                <div className={[styles.infoCell, styles.infoCellR].join(' ')}><span className={styles.infoLabel}>계좌번호</span><span className={styles.infoValue}>{selected.bank_account || <span className={styles.infoEmpty}>-</span>}</span></div>
+                <div className={styles.infoCellFull}><span className={styles.infoLabel}>주소</span><span className={styles.infoValue}>{selected.address || <span className={styles.infoEmpty}>-</span>}</span></div>
+                <div className={[styles.infoCell, styles.infoCellL].join(' ')}><span className={styles.infoLabel}>직업</span><span className={styles.infoValue}>{selected.job || <span className={styles.infoEmpty}>-</span>}</span></div>
+                <div className={[styles.infoCell, styles.infoCellR].join(' ')}><span className={styles.infoLabel}>직장/소속</span><span className={styles.infoValue}>{selected.workplace || <span className={styles.infoEmpty}>-</span>}</span></div>
+                <div className={[styles.infoCell, styles.infoCellL].join(' ')}><span className={styles.infoLabel}>운전면허</span><span className={styles.infoValue}>{selected.driver_license || <span className={styles.infoEmpty}>-</span>}</span></div>
+                <div className={[styles.infoCell, styles.infoCellR].join(' ')}><span className={styles.infoLabel}>등급</span><span className={styles.infoValue}>{selected.grade || <span className={styles.infoEmpty}>-</span>}</span></div>
+                <div className={[styles.infoCell, styles.infoCellL].join(' ')}><span className={styles.infoLabel}>계약 수</span><span className={styles.infoValue}>{selectedContracts.length}건</span></div>
+                <div className={[styles.infoCell, styles.infoCellR].join(' ')}><span className={styles.infoLabel}>총 월납입</span><span className={[styles.infoValue, styles.infoGreen].join(' ')}>{selectedContracts.reduce((s,ct)=>s+(ct.monthly_fee||0),0).toLocaleString()}원</span></div>
               </div>
               <div className={styles.section}>보험 계약 현황</div>
               {selectedContracts.map((ct, idx) => {
@@ -1070,15 +1045,17 @@ export default function Customers() {
                 return (
                   <div key={ct.id} className={calcPaymentRate(ct) >= 90 && ct.payment_status !== '완납' ? styles.insCardWarn : styles.insCard}>
                     <div className={styles.insCardHeader}>
-                      <div className={styles.insCardLeft}>
-                        <div className={styles.insCardTitle}>{idx+1}. {ct.company}{ct.product_name ? ` · ${ct.product_name}` : ''}</div>
+                      <div className={styles.insCardTitle}>{idx+1}. {ct.company}{ct.product_name ? ` · ${ct.product_name}` : ''}</div>
+                      <div className={styles.insCardBottomRow}>
                         <div className={styles.insCardMeta}>{ct.monthly_fee>0?`${ct.monthly_fee.toLocaleString()}원/월`:''}{ct.contract_start?` · ${ct.contract_start} 가입`:''}{ct.payment_years?` · ${ct.payment_years}`:''}{ct.expiry_age?` · ${ct.expiry_age}만기`:''}</div>
-                      </div>
-                      <div className={styles.insCardRight}>
-                        <span className={[styles.badge, ct.payment_status==='완납'?styles.badgeGreen:calcPaymentRate(ct)>=90?styles.badgeWarn:styles.badgeBlue].join(' ')}>{ct.payment_status==='완납'?'완납':`${calcPaymentRate(ct)}%`}</span>
-                        {ct.insurance_type && <span className={styles.insTypeBadge}>{ct.insurance_type}</span>}
-                        <button className={styles.editBtn} onClick={() => { setEditContractId(editContractId === ct.id ? null : ct.id); setEditContractForm(ct) }}>수정</button>
-                        <button className={styles.deleteBtn} onClick={e => deleteContract(ct.id, e)}>삭제</button>
+                        <div className={styles.insCardBadges}>
+                          <span className={[styles.badge, ct.payment_status==='완납'?styles.badgeGreen:calcPaymentRate(ct)>=90?styles.badgeWarn:styles.badgeBlue].join(' ')}>{ct.payment_status==='완납'?'완납':`${calcPaymentRate(ct)}%`}</span>
+                          {ct.insurance_type && <span className={styles.insTypeBadge}>{ct.insurance_type}</span>}
+                        </div>
+                        <div className={styles.insCardActions}>
+                          <button className={styles.editBtn} onClick={() => { setEditContractId(editContractId === ct.id ? null : ct.id); setEditContractForm(ct) }}>수정</button>
+                          <button className={styles.deleteBtn} onClick={e => deleteContract(ct.id, e)}>삭제</button>
+                        </div>
                       </div>
                     </div>
                     {editContractId === ct.id && (
@@ -1090,36 +1067,36 @@ export default function Customers() {
                           <div className={styles.editField} style={{gridColumn:'1 / -1'}}><label>상품명</label><input value={editContractForm.product_name||''} onChange={e=>setEditContractForm({...editContractForm,product_name:e.target.value})} /></div>
                           <div className={styles.editField}><label>월보험료(원)</label><input inputMode="numeric" value={editContractForm.monthly_fee?formatMoney(String(editContractForm.monthly_fee)):''} onChange={e=>setEditContractForm({...editContractForm,monthly_fee:parseMoney(e.target.value)})} placeholder="50,000" /></div>
                           <div className={styles.editField}><label>보험종류</label>
-                            <select value={editContractForm.insurance_type||''} onChange={e=>setEditContractForm({...editContractForm,insurance_type:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                            <select value={editContractForm.insurance_type||''} onChange={e=>setEditContractForm({...editContractForm,insurance_type:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                               {INSURANCE_TYPES.map(t=><option key={t}>{t}</option>)}
                             </select>
                           </div>
                           <div className={styles.editField}><label>가입연월</label>
                             <div style={{display:'flex',gap:4}}>
-                              <select value={parseContractStart(editContractForm.contract_start||'').year} onChange={e=>setEditContractForm({...editContractForm,contract_start:joinContractStart(e.target.value,parseContractStart(editContractForm.contract_start||'').month)})} style={{flex:1,fontSize:13,padding:'6px 6px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                              <select value={parseContractStart(editContractForm.contract_start||'').year} onChange={e=>setEditContractForm({...editContractForm,contract_start:joinContractStart(e.target.value,parseContractStart(editContractForm.contract_start||'').month)})} style={{flex:1,fontSize:13,padding:'6px 6px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                                 <option value="">년</option>
                                 {YEARS.map(y=><option key={y}>{y}</option>)}
                               </select>
-                              <select value={parseContractStart(editContractForm.contract_start||'').month} onChange={e=>setEditContractForm({...editContractForm,contract_start:joinContractStart(parseContractStart(editContractForm.contract_start||'').year,e.target.value)})} style={{flex:1,fontSize:13,padding:'6px 6px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                              <select value={parseContractStart(editContractForm.contract_start||'').month} onChange={e=>setEditContractForm({...editContractForm,contract_start:joinContractStart(parseContractStart(editContractForm.contract_start||'').year,e.target.value)})} style={{flex:1,fontSize:13,padding:'6px 6px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                                 <option value="">월</option>
                                 {MONTHS.map(m=><option key={m}>{m}</option>)}
                               </select>
                             </div>
                           </div>
                           <div className={styles.editField}><label>납입기간</label>
-                            <select value={editContractForm.payment_years||''} onChange={e=>setEditContractForm({...editContractForm,payment_years:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                            <select value={editContractForm.payment_years||''} onChange={e=>setEditContractForm({...editContractForm,payment_years:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                               <option value="">선택</option>
                               {PAYMENT_YEARS.map(p=><option key={p}>{p}</option>)}
                             </select>
                           </div>
                           <div className={styles.editField}><label>만기</label>
-                            <select value={editContractForm.expiry_age||''} onChange={e=>setEditContractForm({...editContractForm,expiry_age:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                            <select value={editContractForm.expiry_age||''} onChange={e=>setEditContractForm({...editContractForm,expiry_age:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                               <option value="">선택</option>
                               {EXPIRY_AGES.map(a=><option key={a}>{a}</option>)}
                             </select>
                           </div>
                           <div className={styles.editField}><label>납입상태</label>
-                            <select value={editContractForm.payment_status||''} onChange={e=>setEditContractForm({...editContractForm,payment_status:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                            <select value={editContractForm.payment_status||''} onChange={e=>setEditContractForm({...editContractForm,payment_status:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                               {PAYMENT_STATUSES.map(s=><option key={s}>{s}</option>)}
                             </select>
                           </div>
@@ -1151,7 +1128,7 @@ export default function Customers() {
                 )
               })}
               {!addInsMode ? (
-                <button className={styles.addInsBtn} onClick={() => setAddInsMode(true)} style={{display:'block',width:'100%',textAlign:'center',cursor:'pointer',background:'none',border:'1px dashed #D1D5DB',borderRadius:8,padding:'8px',color:'#6B7280',fontSize:13}}>+ 보험 추가</button>
+                <button className={styles.addInsBtn} onClick={() => setAddInsMode(true)} style={{display:'block',width:'100%',textAlign:'center',cursor:'pointer',background:'none',border:'1px dashed hsl(var(--border-default))',borderRadius:8,padding:'8px',color:'hsl(var(--text-tertiary))',fontSize:13}}>+ 보험 추가</button>
               ) : (
                 <div className={styles.editBox}>
                   <div className={styles.editSectionTitle}>보험 추가</div>
@@ -1161,36 +1138,36 @@ export default function Customers() {
                     </div>
                     <div className={styles.editField} style={{gridColumn:'1 / -1'}}><label>상품명</label><input value={insForm.product_name} onChange={e=>setInsForm({...insForm,product_name:e.target.value})} placeholder="무배당 건강보험" /></div>
                     <div className={styles.editField}><label>보험 종류</label>
-                      <select value={insForm.insurance_type} onChange={e=>setInsForm({...insForm,insurance_type:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                      <select value={insForm.insurance_type} onChange={e=>setInsForm({...insForm,insurance_type:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                         {INSURANCE_TYPES.map(t=><option key={t}>{t}</option>)}
                       </select>
                     </div>
                     <div className={styles.editField}><label>월보험료(원) *</label><input inputMode="numeric" value={insForm.monthly_fee?formatMoney(String(insForm.monthly_fee)):''} onChange={e=>setInsForm({...insForm,monthly_fee:parseMoney(e.target.value)})} placeholder="50,000" /></div>
                     <div className={styles.editField}><label>납입상태</label>
-                      <select value={insForm.payment_status} onChange={e=>setInsForm({...insForm,payment_status:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                      <select value={insForm.payment_status} onChange={e=>setInsForm({...insForm,payment_status:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                         {PAYMENT_STATUSES.map(s=><option key={s}>{s}</option>)}
                       </select>
                     </div>
                     <div className={styles.editField}><label>가입연월</label>
                       <div style={{display:'flex',gap:4}}>
-                        <select value={parseContractStart(insForm.contract_start).year} onChange={e=>setInsForm({...insForm,contract_start:joinContractStart(e.target.value,parseContractStart(insForm.contract_start).month)})} style={{flex:1,fontSize:13,padding:'6px 6px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                        <select value={parseContractStart(insForm.contract_start).year} onChange={e=>setInsForm({...insForm,contract_start:joinContractStart(e.target.value,parseContractStart(insForm.contract_start).month)})} style={{flex:1,fontSize:13,padding:'6px 6px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                           <option value="">년</option>
                           {YEARS.map(y=><option key={y}>{y}</option>)}
                         </select>
-                        <select value={parseContractStart(insForm.contract_start).month} onChange={e=>setInsForm({...insForm,contract_start:joinContractStart(parseContractStart(insForm.contract_start).year,e.target.value)})} style={{flex:1,fontSize:13,padding:'6px 6px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                        <select value={parseContractStart(insForm.contract_start).month} onChange={e=>setInsForm({...insForm,contract_start:joinContractStart(parseContractStart(insForm.contract_start).year,e.target.value)})} style={{flex:1,fontSize:13,padding:'6px 6px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                           <option value="">월</option>
                           {MONTHS.map(m=><option key={m}>{m}</option>)}
                         </select>
                       </div>
                     </div>
                     <div className={styles.editField}><label>납입기간</label>
-                      <select value={insForm.payment_years} onChange={e=>setInsForm({...insForm,payment_years:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                      <select value={insForm.payment_years} onChange={e=>setInsForm({...insForm,payment_years:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                         <option value="">선택</option>
                         {PAYMENT_YEARS.map(p=><option key={p}>{p}</option>)}
                       </select>
                     </div>
                     <div className={styles.editField}><label>만기</label>
-                      <select value={insForm.expiry_age} onChange={e=>setInsForm({...insForm,expiry_age:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                      <select value={insForm.expiry_age} onChange={e=>setInsForm({...insForm,expiry_age:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                         <option value="">선택</option>
                         {EXPIRY_AGES.map(a=><option key={a}>{a}</option>)}
                       </select>
@@ -1199,15 +1176,15 @@ export default function Customers() {
                   <div className={styles.editSectionTitle} style={{marginTop:12}}>보장 항목</div>
                   {insCoverages.map((cv,i) => (
                     <div key={i} style={{display:'flex',alignItems:'center',gap:6,fontSize:12,padding:'4px 0',borderBottom:'0.5px solid #E5E7EB'}}>
-                      <span style={{color:'#6B7280',minWidth:60}}>{cv.category}</span>
+                      <span style={{color:'hsl(var(--text-tertiary))',minWidth:60}}>{cv.category}</span>
                       <span style={{flex:1}}>{cv.coverage_name}</span>
-                      <span style={{color:'#1D9E75',fontWeight:600}}>{parseInt(cv.amount).toLocaleString()}원</span>
-                      <button onClick={()=>setInsCoverages(v=>v.filter((_,j)=>j!==i))} style={{background:'none',border:'none',color:'#9CA3AF',cursor:'pointer',fontSize:13}}>✕</button>
+                      <span style={{color:'hsl(var(--accent))',fontWeight:600}}>{parseInt(cv.amount).toLocaleString()}원</span>
+                      <button onClick={()=>setInsCoverages(v=>v.filter((_,j)=>j!==i))} style={{background:'none',border:'none',color:'hsl(var(--text-tertiary))',cursor:'pointer',fontSize:13}}>✕</button>
                     </div>
                   ))}
                   <div className={styles.editGrid} style={{marginTop:8}}>
                     <div className={styles.editField}><label>카테고리</label>
-                      <select value={newCov.category} onChange={e=>setNewCov({...newCov,category:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                      <select value={newCov.category} onChange={e=>setNewCov({...newCov,category:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                         {['암진단','뇌혈관','심장','간병','수술비','실손','비급여','상해','사고처리','벌금','특이사항'].map(c=><option key={c}>{c}</option>)}
                       </select>
                     </div>
@@ -1295,7 +1272,7 @@ export default function Customers() {
                       onChange={e => { const v = formatResident(e.target.value); const parsed = parseResident(v); setAddForm({ ...addForm, resident_number: v, gender: parsed.gender || addForm.gender, age: parsed.age ? String(parsed.age) : addForm.age }) }} />
                   </div>
                   <div className={styles.editField}><label>성별</label>
-                    <select value={addForm.gender||'남'} onChange={e => setAddForm({ ...addForm, gender: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                    <select value={addForm.gender||'남'} onChange={e => setAddForm({ ...addForm, gender: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                       <option>남</option><option>여</option>
                     </select>
                   </div>
@@ -1303,14 +1280,14 @@ export default function Customers() {
                   <div className={styles.editField}><label>계좌번호</label><input placeholder="1002-3628-09746" inputMode="numeric" value={addForm.bank_account||''} onChange={e => setAddForm({ ...addForm, bank_account: e.target.value.replace(/[^0-9-]/g,'') })} /></div>
                   <div className={styles.editField} style={{gridColumn:'span 2'}}><label>주소</label><input value={addForm.address||''} onChange={e => setAddForm({ ...addForm, address: e.target.value })} /></div>
                   <div className={styles.editField}><label>직업</label>
-                    <select value={addForm.job} onChange={e => setAddForm({ ...addForm, job: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                    <select value={addForm.job} onChange={e => setAddForm({ ...addForm, job: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                       {['직장인','자영업자','공무원','교사/교직원','의료인','전문직','주부','학생','농업/어업','프리랜서','은퇴/무직','기타'].map(j=><option key={j}>{j}</option>)}
                     </select>
                   </div>
                   <div className={styles.editField}><label>직장/소속</label><input value={addForm.workplace||''} onChange={e => setAddForm({ ...addForm, workplace: e.target.value })} /></div>
                   <div className={styles.editField}><label>운전면허</label><input placeholder="26-06-009864-70" value={addForm.driver_license||''} onChange={e => setAddForm({ ...addForm, driver_license: e.target.value })} /></div>
                   <div className={styles.editField}><label>등급</label>
-                    <select value={addForm.grade} onChange={e => setAddForm({ ...addForm, grade: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                    <select value={addForm.grade} onChange={e => setAddForm({ ...addForm, grade: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                       {['일반','우수','VIP'].map(g=><option key={g}>{g}</option>)}
                     </select>
                   </div>
@@ -1323,57 +1300,63 @@ export default function Customers() {
             )}
             {selected && (
               <>
-                <div className={styles.slideHeader}>
-                  <div className={[styles.avatar, styles.avLg, selected.grade === 'VIP' ? styles.avVip : styles.avNormal].join(' ')} style={{
-  background: selected.customer_type === 'prospect' ? '#FEF3E2' : selected.customer_type === 'existing' ? '#EFF6FF' : '#F3F4F6',
-  color: selected.customer_type === 'prospect' ? '#B45309' : selected.customer_type === 'existing' ? '#1D4ED8' : '#6B7280',
-  fontSize: 12, fontWeight: 700
-}}>
-  {selected.customer_type === 'prospect' ? '관심' : '마이'}
-</div>
-                  <div style={{ flex: 1 }}>
-                    <div className={styles.detailName}>{selected.name}</div>
-                    <div className={styles.detailMeta}>{selected.age || (selected.birth_date ? new Date().getFullYear() - new Date(selected.birth_date).getFullYear() : "")}세 · {selected.gender} · {selected.job} · {selected.phone}</div>
+                <div className={styles.detailHeaderNew} style={{position:'relative'}}>
+                  <div className={styles.detailHeaderRow1}>
+                    <span className={[styles.detailTypeTag, selected.customer_type === 'prospect' ? styles.detailTypeTagProspect : styles.detailTypeTagMy].join(' ')}>
+                      {selected.customer_type === 'prospect' ? '관심' : '마이'}
+                    </span>
+                    <span className={styles.detailNameLg}>{selected.name}</span>
+                    {selected.grade === 'VIP' && <span className={styles.gradeVip}>VIP</span>}
+                    <button className={styles.slideCloseBtn} style={{marginLeft:'auto'}} onClick={closeSlide}>✕</button>
                   </div>
-                  <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                  <div className={styles.detailMetaRow}>
+                    <div className={styles.detailHeaderRow2}>
+                      {selected.age || (selected.birth_date ? new Date().getFullYear() - new Date(selected.birth_date).getFullYear() : "")}세 · {selected.gender} · {selected.job} · {selected.phone}
+                    </div>
                     {!editMode && (
-                  <>
-                    <button className={styles.smsBtn} style={{marginRight:4}} onClick={() => { setSmsCustomer(selected); setSmsOpen(true) }}>📱 문자</button>
-                    <button className={styles.editBtn} onClick={() => { setEditMode(true); setEditForm(selected) }}>수정</button>
-                  </>
-                )}
-                    <button className={styles.slideCloseBtn} onClick={closeSlide}>✕</button>
+                      <div className={styles.detailHeaderRow3}>
+                        <button className={styles.smsBtn} onClick={() => { setSmsCustomer(selected); setSmsOpen(true) }}>문자</button>
+                        <button className={styles.editBtn} onClick={() => { setEditMode(true); setEditForm(selected) }}>수정</button>
+                        <button className={styles.deleteBtn} onClick={() => deleteCustomer(selected)}>삭제</button>
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 {editMode && (
                   <div className={styles.editBox}>
-                    <div className={styles.editSectionTitle} style={{fontSize:13,fontWeight:700,color:'#111'}}>개인정보 수정</div>
+                    <div className={styles.editSectionTitle}>개인정보 수정</div>
                     <div className={styles.editGrid}>
                       <div className={styles.editField}><label>이름</label><input value={editForm.name||''} onChange={e=>setEditForm({...editForm,name:e.target.value})} /></div>
                       <div className={styles.editField}><label>연락처</label><input inputMode="numeric" value={editForm.phone||''} onChange={e=>setEditForm({...editForm,phone:formatPhone(e.target.value)})} /></div>
-                      <div className={styles.editField}><label>주민등록번호</label><input value={editForm.resident_number||''} onChange={e=>setEditForm({...editForm,resident_number:e.target.value})} placeholder="000000-0000000" /></div>
-                      <div className={styles.editField}><label>성별</label>
-                        <select value={editForm.gender||'남'} onChange={e=>setEditForm({...editForm,gender:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                      <div className={styles.editField}><label>주민등록번호</label><input value={editForm.resident_number||''} maxLength={14} placeholder="000000-0000000"
+                        onChange={e=>{
+                          const raw=e.target.value.replace(/[^0-9]/g,'').slice(0,13)
+                          const fmt=raw.length<=6?raw:raw.slice(0,6)+'-'+raw.slice(6)
+                          const {gender,age,birthDate}=parseResident(fmt)
+                          setEditForm({...editForm,resident_number:fmt,...(raw.length>=7?{gender,age,birth_date:birthDate}:{})})
+                        }} /></div>
+                      <div className={styles.editField}><label>성별 <span style={{fontSize:10,background:'hsl(var(--accent)/0.12)',color:'hsl(var(--accent))',padding:'1px 5px',borderRadius:999,fontWeight:600,marginLeft:2}}>자동</span></label>
+                        <select value={editForm.gender||'남'} onChange={e=>setEditForm({...editForm,gender:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                           <option>남</option><option>여</option><option>기타</option>
                         </select>
                       </div>
                       <div className={styles.editField}><label>은행명</label>
-                        <select value={editForm.bank_name||''} onChange={e=>setEditForm({...editForm,bank_name:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                        <select value={editForm.bank_name||''} onChange={e=>setEditForm({...editForm,bank_name:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                           {['','KB국민','신한','하나','우리','NH농협','IBK기업','카카오뱅크','케이뱅크','토스뱅크','SC제일','새마을금고','신협','수협','우체국'].map(b=><option key={b} value={b}>{b||'선택'}</option>)}
                         </select>
                       </div>
                       <div className={styles.editField}><label>계좌번호</label><input inputMode="numeric" value={editForm.bank_account||''} onChange={e=>setEditForm({...editForm,bank_account:e.target.value.replace(/[^0-9-]/g,'')})} /></div>
                       <div className={styles.editField} style={{gridColumn:'span 2'}}><label>주소</label><input value={editForm.address||''} onChange={e=>setEditForm({...editForm,address:e.target.value})} /></div>
                       <div className={styles.editField}><label>직업</label>
-                        <select value={editForm.job||'직장인'} onChange={e=>setEditForm({...editForm,job:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                        <select value={editForm.job||'직장인'} onChange={e=>setEditForm({...editForm,job:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                           {['직장인','자영업자','공무원','교사/교직원','의료인','전문직','주부','학생','농업/어업','프리랜서','은퇴/무직','기타'].map(j=><option key={j}>{j}</option>)}
                         </select>
                       </div>
                       <div className={styles.editField}><label>직장/소속</label><input value={editForm.workplace||''} onChange={e=>setEditForm({...editForm,workplace:e.target.value})} /></div>
                       <div className={styles.editField}><label>운전면허</label><input value={editForm.driver_license||''} onChange={e=>setEditForm({...editForm,driver_license:e.target.value})} /></div>
                       <div className={styles.editField}><label>등급</label>
-                        <select value={editForm.grade||'일반'} onChange={e=>setEditForm({...editForm,grade:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                        <select value={editForm.grade||'일반'} onChange={e=>setEditForm({...editForm,grade:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                           {['일반','우수','VIP','VVIP'].map(g=><option key={g}>{g}</option>)}
                         </select>
                       </div>
@@ -1413,22 +1396,24 @@ export default function Customers() {
                   return (
                     <div key={ct.id} className={calcPaymentRate(ct) >= 90 && ct.payment_status !== '완납' ? styles.insCardWarn : styles.insCard}>
                       <div className={styles.insCardHeader}>
-                        <div className={styles.insCardLeft}>
-                          <div className={styles.insCardTitle}>{idx + 1}. {ct.company}{ct.product_name ? ` · ${ct.product_name}` : ''}</div>
+                        <div className={styles.insCardTitle}>{idx + 1}. {ct.company}{ct.product_name ? ` · ${ct.product_name}` : ''}</div>
+                        <div className={styles.insCardBottomRow}>
                           <div className={styles.insCardMeta}>
                             {ct.monthly_fee > 0 ? `${ct.monthly_fee.toLocaleString()}원/월` : ''}
                             {ct.contract_start ? ` · ${ct.contract_start} 가입` : ''}
                             {ct.payment_years ? ` · ${ct.payment_years}` : ''}
                             {ct.expiry_age ? ` · ${ct.expiry_age}만기` : ''}
                           </div>
-                        </div>
-                        <div className={styles.insCardRight}>
-                          <span className={[styles.badge, ct.payment_status === '완납' ? styles.badgeGreen : calcPaymentRate(ct) >= 90 ? styles.badgeWarn : styles.badgeBlue].join(' ')}>
-                            {ct.payment_status === '완납' ? '완납' : `${calcPaymentRate(ct)}%`}
-                          </span>
-                          {ct.insurance_type && <span className={styles.insTypeBadge}>{ct.insurance_type}</span>}
-                          <button className={styles.editBtn} onClick={() => { setEditContractId(isEditing ? null : ct.id); setEditContractForm(ct) }}>수정</button>
-                          <button className={styles.deleteBtn} onClick={e => deleteContract(ct.id, e)}>삭제</button>
+                          <div className={styles.insCardBadges}>
+                            <span className={[styles.badge, ct.payment_status === '완납' ? styles.badgeGreen : calcPaymentRate(ct) >= 90 ? styles.badgeWarn : styles.badgeBlue].join(' ')}>
+                              {ct.payment_status === '완납' ? '완납' : `${calcPaymentRate(ct)}%`}
+                            </span>
+                            {ct.insurance_type && <span className={styles.insTypeBadge}>{ct.insurance_type}</span>}
+                          </div>
+                          <div className={styles.insCardActions}>
+                            <button className={styles.editBtn} onClick={() => { setEditContractId(isEditing ? null : ct.id); setEditContractForm(ct) }}>수정</button>
+                            <button className={styles.deleteBtn} onClick={e => deleteContract(ct.id, e)}>삭제</button>
+                          </div>
                         </div>
                       </div>
                       {isEditing && (
@@ -1440,36 +1425,36 @@ export default function Customers() {
                             <div className={styles.editField} style={{gridColumn:'1 / -1'}}><label>상품명</label><input value={editContractForm.product_name||''} onChange={e=>setEditContractForm({...editContractForm,product_name:e.target.value})} /></div>
                             <div className={styles.editField}><label>월보험료(원)</label><input inputMode="numeric" value={editContractForm.monthly_fee?formatMoney(String(editContractForm.monthly_fee)):''} onChange={e=>setEditContractForm({...editContractForm,monthly_fee:parseMoney(e.target.value)})} placeholder="50,000" /></div>
                             <div className={styles.editField}><label>보험종류</label>
-                              <select value={editContractForm.insurance_type||''} onChange={e=>setEditContractForm({...editContractForm,insurance_type:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                              <select value={editContractForm.insurance_type||''} onChange={e=>setEditContractForm({...editContractForm,insurance_type:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                                 {INSURANCE_TYPES.map(t=><option key={t}>{t}</option>)}
                               </select>
                             </div>
                             <div className={styles.editField}><label>가입연월</label>
                               <div style={{display:'flex',gap:4}}>
-                                <select value={parseContractStart(editContractForm.contract_start||'').year} onChange={e=>setEditContractForm({...editContractForm,contract_start:joinContractStart(e.target.value,parseContractStart(editContractForm.contract_start||'').month)})} style={{flex:1,fontSize:13,padding:'6px 6px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                                <select value={parseContractStart(editContractForm.contract_start||'').year} onChange={e=>setEditContractForm({...editContractForm,contract_start:joinContractStart(e.target.value,parseContractStart(editContractForm.contract_start||'').month)})} style={{flex:1,fontSize:13,padding:'6px 6px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                                   <option value="">년</option>
                                   {YEARS.map(y=><option key={y}>{y}</option>)}
                                 </select>
-                                <select value={parseContractStart(editContractForm.contract_start||'').month} onChange={e=>setEditContractForm({...editContractForm,contract_start:joinContractStart(parseContractStart(editContractForm.contract_start||'').year,e.target.value)})} style={{flex:1,fontSize:13,padding:'6px 6px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                                <select value={parseContractStart(editContractForm.contract_start||'').month} onChange={e=>setEditContractForm({...editContractForm,contract_start:joinContractStart(parseContractStart(editContractForm.contract_start||'').year,e.target.value)})} style={{flex:1,fontSize:13,padding:'6px 6px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                                   <option value="">월</option>
                                   {MONTHS.map(m=><option key={m}>{m}</option>)}
                                 </select>
                               </div>
                             </div>
                             <div className={styles.editField}><label>납입기간</label>
-                              <select value={editContractForm.payment_years||''} onChange={e=>setEditContractForm({...editContractForm,payment_years:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                              <select value={editContractForm.payment_years||''} onChange={e=>setEditContractForm({...editContractForm,payment_years:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                                 <option value="">선택</option>
                                 {PAYMENT_YEARS.map(p=><option key={p}>{p}</option>)}
                               </select>
                             </div>
                             <div className={styles.editField}><label>만기</label>
-                              <select value={editContractForm.expiry_age||''} onChange={e=>setEditContractForm({...editContractForm,expiry_age:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                              <select value={editContractForm.expiry_age||''} onChange={e=>setEditContractForm({...editContractForm,expiry_age:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                                 <option value="">선택</option>
                                 {EXPIRY_AGES.map(a=><option key={a}>{a}</option>)}
                               </select>
                             </div>
                             <div className={styles.editField}><label>납입상태</label>
-                              <select value={editContractForm.payment_status||''} onChange={e=>setEditContractForm({...editContractForm,payment_status:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#fff'}}>
+                              <select value={editContractForm.payment_status||''} onChange={e=>setEditContractForm({...editContractForm,payment_status:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
                                 {PAYMENT_STATUSES.map(s=><option key={s}>{s}</option>)}
                               </select>
                             </div>
@@ -1498,7 +1483,7 @@ export default function Customers() {
                               return (
                                 <div key={section}>
                                   {hasSections && (
-                                    <div style={{fontSize:11, fontWeight:600, color:'#9CA3AF', padding:'6px 0 2px', borderBottom:'1px solid #F3F4F6', marginBottom:4}}>
+                                    <div style={{fontSize:11, fontWeight:600, color:'hsl(var(--text-tertiary))', padding:'6px 0 2px', borderBottom:'1px solid #F3F4F6', marginBottom:4}}>
                                       {section === '정액형' ? '📋 정액형 보장' : '🏥 실손형 보장'}
                                     </div>
                                   )}
