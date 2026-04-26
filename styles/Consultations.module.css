@@ -1030,6 +1030,96 @@
   border-top: 1px solid hsl(var(--border-default));
 }
 
+/* 이력 카드 클릭 */
+.tlItemClickable { cursor: pointer; transition: background 0.12s; border-radius: 8px; }
+.tlItemClickable:hover { background: hsl(var(--bg-elevated)); }
+.tlItemSelected { background: #1D9E7510 !important; outline: 1.5px solid #1D9E7540; border-radius: 8px; }
+
+/* 3열 패널 비어있을 때 */
+.reportPanelEmpty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: hsl(var(--text-tertiary));
+  font-size: 13px;
+  text-align: center;
+  line-height: 1.6;
+}
+.reportPanelEmptyArrow {
+  font-size: 24px;
+  opacity: 0.4;
+}
+
+/* PDF 미리보기 */
+.reportPreview {
+  padding: 20px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.reportPreviewHeader {
+  padding-bottom: 14px;
+  border-bottom: 2px solid #1D9E7530;
+}
+.reportPreviewTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1D1D1D;
+  letter-spacing: -0.3px;
+  line-height: 1.4;
+}
+.reportPreviewMeta {
+  font-size: 11px;
+  color: hsl(var(--text-tertiary));
+  margin-top: 5px;
+}
+.reportPreviewSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.reportPreviewSectionHeading {
+  font-size: 11px;
+  font-weight: 700;
+  color: #1D9E75;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #1D9E7520;
+}
+.reportPreviewTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.reportPreviewTdLabel {
+  color: hsl(var(--text-tertiary));
+  padding: 4px 10px 4px 0;
+  vertical-align: top;
+  white-space: nowrap;
+  width: 80px;
+}
+.reportPreviewTdValue {
+  color: hsl(var(--text-primary));
+  padding: 4px 0;
+  vertical-align: top;
+  line-height: 1.5;
+}
+.reportPreviewWarn {
+  color: #D63B3B;
+  font-weight: 600;
+}
+.reportPreviewText {
+  font-size: 12px;
+  color: hsl(var(--text-secondary));
+  line-height: 1.75;
+  white-space: pre-wrap;
+  margin: 0;
+}
+
 /* Popup left — form */
 .popupLeft {
   width: 400px;

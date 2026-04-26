@@ -79,13 +79,55 @@ const MOCK_REPORTS = [
     id: 'mock-r1', meeting_type: '첫 만남',
     title: '초기 보장 현황 분석',
     date: '2026.04.15',
-    summary: '현재 암·뇌혈관 미가입 확인.\n월 납입 부담 고려해 단계별 가입 제안.',
+    sections: [
+      {
+        heading: '현재 보장 현황',
+        items: [
+          { label: '암진단', value: '미가입', warn: true },
+          { label: '뇌혈관', value: '미가입', warn: true },
+          { label: '실손의료비', value: '가입 (2019년)', warn: false },
+          { label: '사망보험', value: '가입 (1억)', warn: false },
+        ],
+      },
+      {
+        heading: '상담 내용',
+        text: '현재 암·뇌혈관 미가입 상태로 보장 공백이 크게 나타남. 월 납입 부담을 고려해 단계별 가입을 제안함.\n\n1단계: 암진단 위주 상품 가입\n2단계: 뇌혈관 보강 계획.',
+      },
+      {
+        heading: '다음 단계',
+        items: [
+          { label: '다음 일정', value: '2026.04.22 니즈 분석 미팅', warn: false },
+          { label: '준비 사항', value: '기존 보험증권 지참 요청', warn: false },
+        ],
+      },
+    ],
   },
   {
     id: 'mock-r2', meeting_type: '니즈 분석',
     title: '니즈 분석 보고서',
     date: '2026.04.22',
-    summary: '가족 구성: 배우자+자녀 2명.\n소득 보장 우선, 이후 건강보험 순차 가입 목표.',
+    sections: [
+      {
+        heading: '가족 현황',
+        items: [
+          { label: '가족 구성', value: '배우자 + 자녀 2명', warn: false },
+          { label: '주소득자', value: '본인 (월 소득 약 450만원)', warn: false },
+          { label: '배우자', value: '전업주부', warn: false },
+        ],
+      },
+      {
+        heading: '니즈 분석 결과',
+        text: '소득 보장 우선 필요. 배우자 전업주부로 본인 유고 시 소득 단절 위험 높음.\n단기적으로 소득보장 보험 가입 후, 이후 가족 건강보험 순차 가입 목표.',
+      },
+      {
+        heading: '제안 방향',
+        items: [
+          { label: '1순위', value: '소득보장 / 취업불능보험', warn: false },
+          { label: '2순위', value: '암·뇌혈관 진단비', warn: false },
+          { label: '3순위', value: '자녀 상해보험', warn: false },
+        ],
+      },
+    ],
   },
 ]
 
@@ -130,37 +172,33 @@ export default function Consultations() {
   const [reportLoading, setReportLoading]     = useState(false)
 
   /* 점선 연결 */
-  const popupRef        = useRef<HTMLDivElement>(null)
-  const tlItemRefs      = useRef<Record<string, HTMLDivElement | null>>({})
-  const reportCardRefs  = useRef<Record<string, HTMLDivElement | null>>({})
+  const popupRef          = useRef<HTMLDivElement>(null)
+  const tlItemRefs        = useRef<Record<string, HTMLDivElement | null>>({})
+  const reportTitleRef    = useRef<HTMLDivElement | null>(null)
+  const [selectedHistoryType, setSelectedHistoryType] = useState<string | null>(null)
   const [connLines, setConnLines] = useState<{ x1: number; y1: number; x2: number; y2: number }[]>([])
 
   useLayoutEffect(() => {
-    if (!showReportPanel || !popupRef.current) { setConnLines([]); return }
+    if (!showReportPanel || !selectedHistoryType || !popupRef.current) { setConnLines([]); return }
     const recalc = () => {
       if (!popupRef.current) return
       const popup = popupRef.current.getBoundingClientRect()
-      const lines: { x1: number; y1: number; x2: number; y2: number }[] = []
-      MOCK_REPORTS.forEach(r => {
-        const tlEl = tlItemRefs.current[r.meeting_type]
-        const rpEl = reportCardRefs.current[r.id]
-        if (!tlEl || !rpEl) return
-        const tl = tlEl.getBoundingClientRect()
-        const rp = rpEl.getBoundingClientRect()
-        lines.push({
-          x1: tl.right - popup.left,
-          y1: tl.top + tl.height / 2 - popup.top,
-          x2: rp.left - popup.left,
-          y2: rp.top + rp.height / 2 - popup.top,
-        })
-      })
-      setConnLines(lines)
+      const tlEl = tlItemRefs.current[selectedHistoryType]
+      const rpEl = reportTitleRef.current
+      if (!tlEl || !rpEl) { setConnLines([]); return }
+      const tl = tlEl.getBoundingClientRect()
+      const rp = rpEl.getBoundingClientRect()
+      setConnLines([{
+        x1: tl.right - popup.left,
+        y1: tl.top + tl.height / 2 - popup.top,
+        x2: rp.left - popup.left,
+        y2: rp.top + rp.height / 2 - popup.top,
+      }])
     }
-    // 애니메이션 완료 후 재계산 (280ms transition)
-    const t = setTimeout(recalc, 300)
+    const t = setTimeout(recalc, 310)
     recalc()
     return () => clearTimeout(t)
-  }, [showReportPanel, form.customer_id])
+  }, [showReportPanel, selectedHistoryType, form.customer_id])
 
   useEffect(() => { fetchAll() }, [])
 
@@ -193,19 +231,11 @@ export default function Consultations() {
     })()
   }, [form.customer_id])
 
-  /* 미팅 리포트 fetch */
+  /* 패널 닫히거나 고객 바뀌면 선택 초기화 */
   useEffect(() => {
-    if (!form.customer_id || !showReportPanel) return
-    setReportLoading(true)
-    ;(async () => {
-      const { data } = await supabase.from('dpa_meetings')
-        .select('*')
-        .eq('customer_id', form.customer_id)
-        .order('meeting_date', { ascending: false })
-      setPopupMeetings(data || [])
-      setReportLoading(false)
-    })()
-  }, [form.customer_id, showReportPanel])
+    if (!showReportPanel) setSelectedHistoryType(null)
+  }, [showReportPanel])
+  useEffect(() => { setSelectedHistoryType(null) }, [form.customer_id])
 
   /* Close customer dropdown on outside click */
   useEffect(() => {
@@ -894,8 +924,14 @@ export default function Consultations() {
                         const isLast   = idx === getCustomerTimeline(form.customer_id).length - 1
 
                         const hasMockReport = MOCK_REPORTS.some(r => r.meeting_type === t.meeting_type)
+                        const isHistorySelected = showReportPanel && selectedHistoryType === t.meeting_type
                         return (
-                          <div key={t.id} ref={el => { if (hasMockReport) tlItemRefs.current[t.meeting_type] = el }} className={styles.tlItem}>
+                          <div
+                            key={t.id}
+                            ref={el => { if (hasMockReport) tlItemRefs.current[t.meeting_type] = el }}
+                            className={[styles.tlItem, showReportPanel && hasMockReport ? styles.tlItemClickable : '', isHistorySelected ? styles.tlItemSelected : ''].join(' ')}
+                            onClick={showReportPanel && hasMockReport ? () => setSelectedHistoryType(t.meeting_type) : undefined}
+                          >
                             <div className={styles.tlLeft}>
                               <div className={styles.tlDot} style={{
                                 background: isDone ? tColor : isCancel ? 'hsl(var(--bg-elevated))' : isCurrent ? tColor + '22' : 'transparent',
@@ -958,44 +994,77 @@ export default function Consultations() {
               </div>
             </div>
 
-            {/* ── 커넥터 ── */}
-            {/* ── 미팅 리포트 패널 ── */}
-            <div className={[styles.reportPanel, showReportPanel ? styles.reportPanelOpen : ''].join(' ')}>
-              <div className={styles.reportPanelHeader}>
-                <span className={styles.reportPanelTitle}>미팅 리포트</span>
-                {selectedCust && <span className={styles.reportPanelMeta}>{selectedCust.name} · {popupMeetings.length}건</span>}
-              </div>
-              <div className={styles.reportPanelBody}>
-                {MOCK_REPORTS.map(r => (
-                  <div key={r.id} ref={el => { reportCardRefs.current[r.id] = el }} className={styles.reportCard}>
-                    <div className={styles.reportCardTop}>
-                      <span className={styles.reportCardStage}>{r.title}</span>
-                      <span className={styles.reportCardDate}>{r.date}</span>
-                    </div>
-                    <div className={styles.reportCardMeta}>{r.meeting_type}</div>
-                    <div className={styles.reportCardMemo}>{r.summary}</div>
+            {/* ── 미팅 리포트 패널 (3열) ── */}
+            {(() => {
+              const activeReport = selectedHistoryType ? MOCK_REPORTS.find(r => r.meeting_type === selectedHistoryType) : null
+              return (
+                <div className={[styles.reportPanel, showReportPanel ? styles.reportPanelOpen : ''].join(' ')}>
+                  <div className={styles.reportPanelHeader}>
+                    <span className={styles.reportPanelTitle}>미팅 리포트</span>
+                    {selectedCust && <span className={styles.reportPanelMeta}>{selectedCust.name}</span>}
                   </div>
-                ))}
-                {!selectedCust && (
-                  <div className={styles.emptyState}>
-                    <div className={styles.emptyIcon}>📋</div>
-                    <p className={styles.emptyText}>고객을 선택하면<br />미팅 리포트가 표시됩니다</p>
+                  <div className={styles.reportPanelBody}>
+                    {!selectedCust ? (
+                      <div className={styles.reportPanelEmpty}>
+                        <p>고객을 선택하면<br />리포트가 표시됩니다</p>
+                      </div>
+                    ) : !selectedHistoryType ? (
+                      <div className={styles.reportPanelEmpty}>
+                        <div className={styles.reportPanelEmptyArrow}>←</div>
+                        <p>상담 이력을 클릭하면<br />미팅 리포트가 연결됩니다</p>
+                      </div>
+                    ) : !activeReport ? (
+                      <div className={styles.reportPanelEmpty}>
+                        <p>이 이력에 연결된<br />리포트가 없습니다</p>
+                      </div>
+                    ) : (
+                      <div className={styles.reportPreview}>
+                        <div className={styles.reportPreviewHeader}>
+                          <div ref={reportTitleRef} className={styles.reportPreviewTitle}>{activeReport.title}</div>
+                          <div className={styles.reportPreviewMeta}>{activeReport.date} · {selectedCust.name}</div>
+                        </div>
+                        {activeReport.sections.map((s, si) => (
+                          <div key={si} className={styles.reportPreviewSection}>
+                            <div className={styles.reportPreviewSectionHeading}>{s.heading}</div>
+                            {s.items && (
+                              <table className={styles.reportPreviewTable}>
+                                <tbody>
+                                  {s.items.map((item, ii) => (
+                                    <tr key={ii}>
+                                      <td className={styles.reportPreviewTdLabel}>{item.label}</td>
+                                      <td className={[styles.reportPreviewTdValue, item.warn ? styles.reportPreviewWarn : ''].join(' ')}>{item.value}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            )}
+                            {s.text && <p className={styles.reportPreviewText}>{s.text}</p>}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            </div>
+                </div>
+              )
+            })()}
 
             {/* ── 점선 커넥터 SVG 오버레이 ── */}
             {connLines.length > 0 && (
               <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', overflow: 'visible', zIndex: 10 }}>
-                {connLines.map((line, i) => (
-                  <line key={i}
-                    x1={line.x1} y1={line.y1}
-                    x2={line.x2} y2={line.y2}
-                    stroke="#1D9E75" strokeWidth="1.5" strokeDasharray="5,4"
-                    strokeLinecap="round" opacity="0.55"
-                  />
-                ))}
+                {connLines.map((line, i) => {
+                  const midX = line.x1 + (line.x2 - line.x1) * 0.42
+                  return (
+                    <g key={i}>
+                      <path
+                        d={`M ${line.x1} ${line.y1} H ${midX} V ${line.y2} H ${line.x2}`}
+                        stroke="#1D9E75" strokeWidth="3.5" strokeDasharray="1 13"
+                        strokeLinecap="round" fill="none" opacity="0.75"
+                      />
+                      <circle cx={line.x1} cy={line.y1} r="4.5" fill="#1D9E75" opacity="0.75" />
+                      <circle cx={line.x2} cy={line.y2} r="7" fill="#1D9E75" opacity="0.85" />
+                    </g>
+                  )
+                })}
               </svg>
             )}
 
