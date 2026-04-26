@@ -10,9 +10,11 @@
 .listPanel { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 8px; max-height: calc(100vh - 200px); overflow-y: auto; overflow-x: hidden; }
 .detailPanel { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; max-height: calc(100vh - 200px); overflow-y: auto; }
 
-.custRow { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; cursor: pointer; transition: background 0.1s; overflow: hidden; }
-.custRow:hover { background: var(--bg-card); }
-.custRow.active { background: var(--green-light); border-left: 3px solid var(--green); }
+.custRow { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 0; cursor: pointer; transition: background 0.1s; overflow: hidden; border-left: 2px solid transparent; }
+.custRow:hover { background: var(--bg-app); }
+.custRow.active { background: var(--green-light); }
+.custRowExisting { border-left-color: var(--green); }
+.custRowProspect { border-left-color: var(--amber); }
 
 .avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; }
 .avVip { background: var(--amber-light); color: #854F0B; }
@@ -243,6 +245,7 @@
 /* 데스크탑 좌우 분할 */
 .desktopGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .detailPanel { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; max-height: calc(100vh - 200px); overflow-y: auto; overscroll-behavior: contain; }
+.detailEmpty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: calc(100vh - 260px); gap: 12px; }
 
 .tabIcon { display: none; }
 
@@ -351,3 +354,15 @@
 .smsBtn { font-size: 11px; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text-secondary); cursor: pointer; white-space: nowrap; text-align: center; }
 .smsBtn:hover { background: var(--green-light); color: var(--green); border-color: var(--green); }
 .badgeGray { font-size: 10px; background: #F1EFE8; color: #5F5E5A; padding: 2px 6px; border-radius: 999px; font-weight: 600; }
+
+/* ── Linear-style row ── */
+.custMain { flex: 1; display: flex; align-items: center; gap: 6px; min-width: 0; overflow: hidden; }
+.custSep { color: var(--border); font-size: 12px; flex-shrink: 0; }
+.gradeVip { font-size: 10px; font-weight: 700; color: var(--amber); white-space: nowrap; flex-shrink: 0; letter-spacing: 0.02em; }
+.statusFlags { display: flex; align-items: center; gap: 8px; flex-shrink: 0; margin-left: 4px; }
+.flagWarn { font-size: 10px; color: var(--amber); white-space: nowrap; font-weight: 500; }
+.flagRed { font-size: 10px; color: var(--red); white-space: nowrap; font-weight: 500; }
+.flagBirthday { font-size: 10px; color: var(--green); white-space: nowrap; font-weight: 500; }
+.flagBirthdayFar { font-size: 10px; color: var(--text-muted); white-space: nowrap; }
+.moreBtn { font-size: 14px; padding: 2px 6px; border-radius: 4px; border: none; background: none; color: var(--text-muted); cursor: pointer; flex-shrink: 0; line-height: 1; letter-spacing: 0.05em; }
+.moreBtn:hover { background: var(--bg-app); color: var(--text-primary); }

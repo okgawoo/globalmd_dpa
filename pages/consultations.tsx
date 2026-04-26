@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
 import styles from '../styles/Consultations.module.css'
-import AdminLayout from '../components/AdminLayout'
 import { ChevronLeft, ChevronRight, Edit2, X, Check, MapPin, Clock } from 'lucide-react'
 
 /* ─── Constants ─── */
@@ -89,6 +88,7 @@ export default function Consultations() {
   /* Popup */
   const [showPopup, setShowPopup]         = useState(false)
   const [popupRightTab, setPopupRightTab] = useState<'coverage' | 'history'>('coverage')
+  const [scheduleTab, setScheduleTab]     = useState<'today' | 'week' | 'month'>('week')
   const [form, setForm]                   = useState({ ...EMPTY_FORM })
   const [editId, setEditId]               = useState<string | null>(null)
   const [saving, setSaving]               = useState(false)
@@ -237,7 +237,11 @@ export default function Consultations() {
     .filter(c => c.meeting_date >= weekStart && c.meeting_date <= weekEnd)
     .sort((a, b) => a.meeting_date.localeCompare(b.meeting_date) || (a.meeting_time || '').localeCompare(b.meeting_time || ''))
 
-  const restOfWeekConsults = weekConsults.filter(c => c.meeting_date !== todayStr)
+  const monthConsults = consultations
+    .filter(c => c.meeting_date.startsWith(todayStr.slice(0, 7)))
+    .sort((a, b) => a.meeting_date.localeCompare(b.meeting_date) || (a.meeting_time || '').localeCompare(b.meeting_time || ''))
+
+  const activeConsults = scheduleTab === 'today' ? todayConsults : scheduleTab === 'week' ? weekConsults : monthConsults
 
   /* ─── Popup data ─── */
   const selectedCust       = customers.find(c => c.id === form.customer_id)
@@ -250,6 +254,55 @@ export default function Consultations() {
     return [...consultations]
       .filter(c => c.customer_id === customerId)
       .sort((a, b) => a.meeting_date.localeCompare(b.meeting_date) || (a.meeting_time || '').localeCompare(b.meeting_time || ''))
+  }
+
+  /* ─── Schedule group renderer ─── */
+  function renderScheduleGroup(list: any[]) {
+    if (list.length === 0) return <div className={styles.schedEmpty}>예정된 일정이 없어요</div>
+    let lastDate = ''
+    return (
+      <>
+        {list.map((c: any) => {
+          const cust    = customers.find(cu => cu.id === c.customer_id)
+          const color   = TYPE_COLOR[c.meeting_type] || 'hsl(237 47% 59%)'
+          const showHdr = c.meeting_date !== lastDate
+          lastDate      = c.meeting_date
+          const isToday = c.meeting_date === todayStr
+          const d       = new Date(c.meeting_date + 'T00:00:00')
+          const dLabel  = d.toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric', weekday: 'short' })
+          return (
+            <div key={c.id}>
+              {showHdr && (
+                <div className={[styles.schedDateHeader, isToday ? styles.schedDateToday : ''].join(' ')}>
+                  {dLabel}
+                  {isToday && <span className={styles.schedTodayLabel}>오늘</span>}
+                </div>
+              )}
+              <div className={styles.schedItem} onClick={() => openEditPopup(c)}>
+                <span className={styles.schedTypeDot} style={{ background: color }} />
+                <div className={styles.schedItemBody}>
+                  <div className={styles.schedItemTop}>
+                    <span className={styles.schedCustName}>{cust?.name || '?'}</span>
+                    <span className={styles.typeBadge} style={{ background: color + '22', color, border: `1px solid ${color}44` }}>
+                      {c.meeting_type}
+                    </span>
+                    <span className={[styles.statusChip, c.status === '완료' ? styles.statusDone : c.status === '취소' ? styles.statusCancel : styles.statusScheduled].join(' ')}>
+                      {c.status}
+                    </span>
+                  </div>
+                  {(c.meeting_time || c.location) && (
+                    <div className={styles.schedItemMeta}>
+                      {c.meeting_time && <><Clock style={{ width: 11, height: 11 }} /><span>{c.meeting_time}</span></>}
+                      {c.location && <><MapPin style={{ width: 11, height: 11 }} /><span>{c.location}</span></>}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </>
+    )
   }
 
   /* ─── Render ─── */
@@ -343,102 +396,45 @@ export default function Consultations() {
           </div>
         </div>
 
-        {/* ════════ RIGHT — Today + Week stacked ════════ */}
+        {/* ════════ RIGHT — Schedule List ════════ */}
         <div className={styles.rightPanelCard}>
 
-            <div className={styles.dashContent}>
+          {/* Header */}
+          <div className={styles.schedPanelHeader}>
+            <span className={styles.schedPanelTitle}>일정 목록</span>
+            <span className={styles.countBadge}>{activeConsults.length}</span>
+          </div>
 
-              {/* ── 오늘 일정 ── */}
-              <div className={styles.dashSectionTitle}>
-                오늘 일정
-                {todayConsults.length > 0 && (
-                  <span className={styles.countBadge}>{todayConsults.length}</span>
-                )}
-              </div>
-              {todayConsults.length === 0 ? (
-                <div className={styles.dashEmptyRow}>예정된 상담이 없어요</div>
-              ) : (
-                <div className={styles.dashList}>
-                  {todayConsults.map((c: any) => {
-                    const cust  = customers.find(cu => cu.id === c.customer_id)
-                    const color = TYPE_COLOR[c.meeting_type] || 'hsl(237 47% 59%)'
-                    return (
-                      <div key={c.id} className={styles.dashItem} onClick={() => openEditPopup(c)}>
-                        <span className={styles.dashDot} style={{ background: color }} />
-                        <div className={styles.dashItemBody}>
-                          <div className={styles.dashItemTop}>
-                            <span className={styles.dashCustName}>{cust?.name || '?'}</span>
-                            <span className={styles.typeBadge} style={{ background: color + '22', color, border: `1px solid ${color}44` }}>
-                              {c.meeting_type}
-                            </span>
-                            <span className={[styles.statusChip, c.status === '완료' ? styles.statusDone : c.status === '취소' ? styles.statusCancel : styles.statusScheduled].join(' ')}>
-                              {c.status}
-                            </span>
-                          </div>
-                          <div className={styles.dashItemMeta}>
-                            {c.meeting_time && <><Clock style={{ width: 12, height: 12 }} />{c.meeting_time}</>}
-                            {c.location && <><MapPin style={{ width: 12, height: 12 }} />{c.location}</>}
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
+          {/* Tabs */}
+          <div className={styles.schedTabs}>
+            <button
+              className={[styles.schedTab, scheduleTab === 'today' ? styles.schedTabActive : ''].join(' ')}
+              onClick={() => setScheduleTab('today')}
+            >
+              오늘
+              {todayConsults.length > 0 && <span className={styles.schedTabCount}>{todayConsults.length}</span>}
+            </button>
+            <button
+              className={[styles.schedTab, scheduleTab === 'week' ? styles.schedTabActive : ''].join(' ')}
+              onClick={() => setScheduleTab('week')}
+            >
+              이번 주
+              {weekConsults.length > 0 && <span className={styles.schedTabCount}>{weekConsults.length}</span>}
+            </button>
+            <button
+              className={[styles.schedTab, scheduleTab === 'month' ? styles.schedTabActive : ''].join(' ')}
+              onClick={() => setScheduleTab('month')}
+            >
+              이번 달
+              {monthConsults.length > 0 && <span className={styles.schedTabCount}>{monthConsults.length}</span>}
+            </button>
+          </div>
 
-              {/* ── 섹션 구분선 ── */}
-              <div className={styles.dashSectionDivider} />
+          {/* Scrollable grouped list */}
+          <div className={styles.schedScrollBody}>
+            {renderScheduleGroup(activeConsults)}
+          </div>
 
-              {/* ── 이번 주 일정 ── */}
-              <div className={styles.dashSectionTitle}>
-                이번 주 일정
-                {restOfWeekConsults.length > 0 && (
-                  <span className={styles.countBadge}>{restOfWeekConsults.length}</span>
-                )}
-              </div>
-              {restOfWeekConsults.length === 0 ? (
-                <div className={styles.dashEmptyRow}>이번 주 다른 일정이 없어요</div>
-              ) : (
-                <div className={styles.dashList}>
-                  {(() => {
-                    let lastDate = ''
-                    return restOfWeekConsults.map((c: any) => {
-                      const cust      = customers.find(cu => cu.id === c.customer_id)
-                      const color     = TYPE_COLOR[c.meeting_type] || 'hsl(237 47% 59%)'
-                      const showDate  = c.meeting_date !== lastDate
-                      lastDate        = c.meeting_date
-                      const dateLabel = new Date(c.meeting_date + 'T00:00:00').toLocaleDateString('ko-KR', { weekday: 'short', month: 'numeric', day: 'numeric' })
-                      return (
-                        <div key={c.id}>
-                          {showDate && (
-                            <div className={styles.weekDateHeader}>{dateLabel}</div>
-                          )}
-                          <div className={styles.dashItem} onClick={() => openEditPopup(c)}>
-                            <span className={styles.dashDot} style={{ background: color }} />
-                            <div className={styles.dashItemBody}>
-                              <div className={styles.dashItemTop}>
-                                <span className={styles.dashCustName}>{cust?.name || '?'}</span>
-                                <span className={styles.typeBadge} style={{ background: color + '22', color, border: `1px solid ${color}44` }}>
-                                  {c.meeting_type}
-                                </span>
-                                <span className={[styles.statusChip, c.status === '완료' ? styles.statusDone : c.status === '취소' ? styles.statusCancel : styles.statusScheduled].join(' ')}>
-                                  {c.status}
-                                </span>
-                              </div>
-                              <div className={styles.dashItemMeta}>
-                                {c.meeting_time && <><Clock style={{ width: 12, height: 12 }} />{c.meeting_time}</>}
-                                {c.location && <><MapPin style={{ width: 12, height: 12 }} />{c.location}</>}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      )
-                    })
-                  })()}
-                </div>
-              )}
-
-            </div>
         </div>
       </div>
 
@@ -748,5 +744,3 @@ export default function Consultations() {
     </div>
   )
 }
-
-Consultations.getLayout = (page: React.ReactNode) => <AdminLayout>{page}</AdminLayout>

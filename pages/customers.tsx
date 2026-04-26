@@ -265,6 +265,7 @@ export default function Customers() {
   const isMobile = useIsMobile()
   const slideContentRef = useRef<HTMLDivElement>(null)
   const zoomWrapperRef = useRef<HTMLDivElement>(null)
+  const isInitialLoad = useRef(true)
   const zoomStateRef = useRef({ scale: 1, tx: 0, ty: 0 })
   const { confirm, ConfirmDialog } = useConfirm()
   const [addInsMode, setAddInsMode] = useState(false)
@@ -466,6 +467,11 @@ export default function Customers() {
     setContracts(conts)
     setCoverages(covs)
     setLoading(false)
+    if (isInitialLoad.current && window.innerWidth > 768) {
+      isInitialLoad.current = false
+      const first = custs.find((c: any) => c.customer_type === 'existing') || custs[0]
+      if (first) selectCustomer(first, conts, covs)
+    }
   }
 
   function selectCustomer(c: any, allContracts?: any[], allCoverages?: any[]) {
@@ -606,14 +612,14 @@ export default function Customers() {
     const badges = []
     const cContracts = contracts.filter((ct: any) => ct.customer_id === c.id)
     if (cContracts.some((ct: any) => calcPaymentRate(ct) >= 90 && ct.payment_status !== '완납'))
-      badges.push({ label: '🔥 완납임박', cls: styles.badgeWarn })
+      badges.push({ label: '완납임박', cls: styles.flagWarn })
     const cCoverages = coverages.filter((cv: any) => cContracts.some((ct: any) => ct.id === cv.contract_id))
     const brainTypes = cCoverages.filter((cv: any) => cv.category === '뇌혈관').map((cv: any) => cv.brain_coverage_type)
     if (brainTypes.length === 0 || brainTypes.every((t: string) => t === '뇌출혈'))
-      badges.push({ label: '⚠ 보장공백', cls: styles.badgeRed })
+      badges.push({ label: '보장공백', cls: styles.flagRed })
     const days = getBirthdayDays(c.birth_date)
     if (days !== null)
-      badges.push({ label: `🎂 D-${days}`, cls: days <= 10 ? styles.badgeBirthday : styles.badgeBirthdayFar })
+      badges.push({ label: `D-${days}`, cls: days <= 10 ? styles.flagBirthday : styles.flagBirthdayFar })
     return badges
   }
 
@@ -803,35 +809,22 @@ export default function Customers() {
           const cMonthly = contracts.filter((ct: any) => ct.customer_id === c.id).reduce((s: number, ct: any) => s + (ct.monthly_fee || 0), 0)
           const cCount = contracts.filter((ct: any) => ct.customer_id === c.id).length
           return (
-            <div key={c.id} id={`customer-row-${c.id}`} className={[styles.custRow, selected?.id === c.id ? styles.active : ''].join(' ')} onClick={() => selectCustomer(c)} style={{borderBottom:'1px solid #F3F4F6'}}>
-              <div className={[styles.avatar, c.grade === 'VIP' ? styles.avVip : styles.avNormal].join(' ')} style={{
-  background: c.customer_type === 'prospect' ? '#FEF3E2' : c.customer_type === 'existing' ? '#EFF6FF' : '#F3F4F6',
-  color: c.customer_type === 'prospect' ? '#B45309' : c.customer_type === 'existing' ? '#1D4ED8' : '#6B7280',
-  fontSize: 10, fontWeight: 700
-}}>
-  {c.customer_type === 'prospect' ? '관심' : '마이'}
-</div>
-              <div className={styles.custInfo}>
-                {/* 1행: 이름 */}
-                <div className={styles.custName}>
-                  {c.name}
-                  <span className={[styles.badge, c.grade === 'VIP' ? styles.badgeAmber : styles.badgeBlue].join(' ')}>{c.grade}</span>
-                </div>
-                {/* 2행: 나이·성별·직업·건수·월납입 + 뱃지 (왼쪽 정렬) */}
-                <div className={styles.custMeta}>{c.age || (c.birth_date ? new Date().getFullYear() - new Date(c.birth_date).getFullYear() : '')}세 · {c.gender} · {cCount}건 · {cMonthly.toLocaleString()}원</div>
+            <div key={c.id} id={`customer-row-${c.id}`} className={[styles.custRow, c.customer_type === 'prospect' ? styles.custRowProspect : styles.custRowExisting, selected?.id === c.id ? styles.active : ''].join(' ')} onClick={() => selectCustomer(c)} style={{borderBottom:'1px solid var(--border)'}}>
+              <div className={styles.custMain}>
+                <span className={styles.custName}>{c.name}</span>
+                {c.grade === 'VIP' && <span className={styles.gradeVip}>VIP</span>}
+                <span className={styles.custSep}>·</span>
+                <span className={styles.custMeta}>{c.age || (c.birth_date ? new Date().getFullYear() - new Date(c.birth_date).getFullYear() : '')}세 · {c.gender} · {cCount}건 · {cMonthly.toLocaleString()}원</span>
                 {badges.length > 0 && (
-                  <div className={styles.badgeRow}>
+                  <span className={styles.statusFlags}>
                     {badges.map((b, i) => <span key={i} className={b.cls}>{b.label}</span>)}
-                  </div>
+                  </span>
                 )}
               </div>
-              {/* 우측 버튼 그룹 - 세로 배치 */}
-              <div className={styles.btnCol}>
-                <div className={styles.btnGroup}>
-                  <button className={styles.editBtn} onClick={e => { e.stopPropagation(); selectCustomer(c); setEditMode(true); setEditForm(c); setAddMode(false) }}>수정</button>
-                  <button className={styles.deleteBtn} onClick={e => deleteCustomer(c, e)}>삭제</button>
-                </div>
-                <button className={styles.smsBtn} onClick={e => { e.stopPropagation(); setSmsCustomer(c); setSmsOpen(true) }}>문자발송</button>
+              <div className={styles.custActions}>
+                <button className={styles.editBtn} onClick={e => { e.stopPropagation(); selectCustomer(c); setEditMode(true); setEditForm(c); setAddMode(false) }}>수정</button>
+                <button className={styles.smsBtn} onClick={e => { e.stopPropagation(); setSmsCustomer(c); setSmsOpen(true) }}>문자</button>
+                <button className={styles.moreBtn} onClick={e => deleteCustomer(c, e)}>···</button>
               </div>
             </div>
           )
@@ -1225,7 +1218,10 @@ export default function Customers() {
               )}
             </div>
           ) : (
-            <div className={styles.empty}>고객을 선택해주세요</div>
+            <div className={styles.detailEmpty}>
+              <span style={{fontSize:32}}>👉</span>
+              <span style={{fontSize:13,color:'var(--text-muted)'}}>고객을 선택하면 상세 정보가 표시됩니다</span>
+            </div>
           )}
         </div>
       )}

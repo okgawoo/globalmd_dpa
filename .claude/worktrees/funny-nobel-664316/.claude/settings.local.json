@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/OKGA-HOME/Documents/GitHub/globalmd_dpa/**)",
+      "Bash(npm run *)",
+      "Bash(git -C /c/Users/OKGA-HOME/Documents/GitHub/globalmd_dpa show HEAD:pages/index.tsx)",
+      "Bash(cp /c/Users/OKGA-HOME/Documents/GitHub/globalmd_dpa/.claude/worktrees/heuristic-elion-1e8c4d/lib/AdminContext.tsx /c/Users/OKGA-HOME/Documents/GitHub/globalmd_dpa/lib/AdminContext.tsx)",
+      "Bash(cp /c/Users/OKGA-HOME/Documents/GitHub/globalmd_dpa/.claude/worktrees/heuristic-elion-1e8c4d/lib/utils.ts /c/Users/OKGA-HOME/Documents/GitHub/globalmd_dpa/lib/utils.ts)",
+      "Bash(cp /c/Users/OKGA-HOME/Documents/GitHub/globalmd_dpa/.claude/worktrees/heuristic-elion-1e8c4d/components/AdminDashboard.tsx /c/Users/OKGA-HOME/Documents/GitHub/globalmd_dpa/components/AdminDashboard.tsx)",
+      "Bash(cp /c/Users/OKGA-HOME/Documents/GitHub/globalmd_dpa/.claude/worktrees/heuristic-elion-1e8c4d/components/AdminLayout.tsx /c/Users/OKGA-HOME/Documents/GitHub/globalmd_dpa/components/AdminLayout.tsx)",
+      "Bash(npm install *)"
+    ]
+  }
+}
