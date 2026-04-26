@@ -49,8 +49,8 @@ const MEETING_TYPES = [
   { value: '첫 만남',      desc: '신규 고객 초면',          color: 'hsl(214 80% 58%)' },
   { value: '니즈 분석',    desc: '고객 상황/필요 파악',      color: 'hsl(270 55% 58%)' },
   { value: '상품 설명',    desc: '보험 상품 제안/설명',      color: 'hsl(237 47% 59%)' },
-  { value: '계약 체결',    desc: '청약서 작성',              color: 'hsl(142 55% 42%)' },
-  { value: '계약 후 관리', desc: '가입 후 안부/유지 관리',  color: 'hsl(168 55% 38%)' },
+  { value: '계약 체결',    desc: '청약서 작성',              color: 'hsl(237 47% 59%)' },
+  { value: '계약 후 관리', desc: '가입 후 안부/유지 관리',  color: 'hsl(195 50% 42%)' },
   { value: '보험금 청구',  desc: '사고/질병 발생 시 도움',  color: 'hsl(30 75% 52%)' },
   { value: '갱신 상담',    desc: '만기/갱신 시점 상담',     color: 'hsl(45 80% 44%)' },
   { value: '추가 가입',    desc: '기존 고객 추가 상품 제안', color: 'hsl(320 55% 55%)' },
@@ -594,7 +594,7 @@ export default function Consultations() {
                         </div>
                         {selectedCust.memo && <p className={styles.coverageMemo}>{selectedCust.memo}</p>}
                         {popupContracts.length > 0 && (
-                          <div style={{ marginTop: 6, fontSize: 12, color: '#1D9E75', fontWeight: 600 }}>
+                          <div style={{ marginTop: 6, fontSize: 12, color: 'hsl(var(--accent))', fontWeight: 600 }}>
                             총 월납입 {popupContracts.reduce((s, ct) => s + (ct.monthly_fee || 0), 0).toLocaleString()}원
                           </div>
                         )}
@@ -617,7 +617,7 @@ export default function Consultations() {
                         const rate = calcPaymentRate(ct)
                         const isWarn = rate >= 90 && ct.payment_status !== '완납'
                         return (
-                          <div key={ct.id} style={{ background: isWarn ? '#FFFBEB' : '#fff', border: `1px solid ${isWarn ? '#FCD34D' : 'hsl(var(--border-default))'}`, borderRadius: 10, padding: '10px 12px', marginBottom: 8 }}>
+                          <div key={ct.id} style={{ background: isWarn ? 'hsl(38 90% 97%)' : 'hsl(var(--bg-panel))', border: `1px solid ${isWarn ? 'hsl(38 80% 75%)' : 'hsl(var(--border-default))'}`, borderRadius: 10, padding: '10px 12px', marginBottom: 8 }}>
                             {/* 헤더 */}
                             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
                               <div style={{ flex: 1, minWidth: 0 }}>
@@ -632,11 +632,11 @@ export default function Consultations() {
                                 </div>
                               </div>
                               <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-                                <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 20, fontWeight: 700, background: ct.payment_status === '완납' ? '#E1F5EE' : isWarn ? '#FAEEDA' : '#E6F1FB', color: ct.payment_status === '완납' ? '#0F6E56' : isWarn ? '#854F0B' : '#185FA5' }}>
+                                <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 20, fontWeight: 700, background: ct.payment_status === '완납' ? 'hsl(var(--accent-bg))' : isWarn ? 'hsl(38 90% 92%)' : 'hsl(var(--bg-elevated))', color: ct.payment_status === '완납' ? 'hsl(var(--accent))' : isWarn ? 'hsl(38 70% 35%)' : 'hsl(var(--text-secondary))' }}>
                                   {ct.payment_status === '완납' ? '완납' : `${rate}%`}
                                 </span>
                                 {ct.insurance_type && (
-                                  <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 20, background: '#F1EFE8', color: '#666', fontWeight: 600 }}>{ct.insurance_type}</span>
+                                  <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 20, background: 'hsl(var(--bg-elevated))', color: 'hsl(var(--text-secondary))', fontWeight: 600 }}>{ct.insurance_type}</span>
                                 )}
                               </div>
                             </div>
