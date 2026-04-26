@@ -1,0 +1,55 @@
+/* ── Admin Design System CSS Variables ── */
+/* Source: DESIGN.md — hsl(var(--token)) 형식으로 사용 */
+
+:root {
+  /* Accent — 보라색 메인 컬러 */
+  --accent: 237 47% 59%;
+  --accent-foreground: 0 0% 100%;
+  --accent-bg: 237 47% 95%;
+  --icon-bg: 237 47% 95%;
+  --icon-fg: 237 47% 59%;
+
+  /* Background — 레이어 구조 */
+  --bg-app: 240 5% 96%;
+  --bg-panel: 0 0% 100%;
+  --bg-elevated: 240 5% 94%;
+  --bg-hover: 240 5% 92%;
+
+  /* Text — 3단계 계층 */
+  --text-primary: 220 13% 10%;
+  --text-secondary: 215 13% 45%;
+  --text-tertiary: 215 13% 60%;
+
+  /* Border */
+  --border-default: 214 20% 88%;
+  --border-hover: 214 20% 80%;
+
+  /* Destructive */
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 98%;
+}
+
+/* Dark Mode */
+.admin-dark {
+  /* Accent — 인디고 계열 */
+  --accent: 239 84% 67%;
+  --accent-foreground: 0 0% 100%;
+  --accent-bg: 239 45% 22%;
+  --icon-bg: 239 45% 22%;
+  --icon-fg: 239 84% 67%;
+
+  /* Background */
+  --bg-app: 0 0% 15%;
+  --bg-panel: 0 0% 15%;
+  --bg-elevated: 0 0% 20%;
+  --bg-hover: 0 0% 25%;
+
+  /* Text */
+  --text-primary: 0 0% 96%;
+  --text-secondary: 0 0% 62%;
+  --text-tertiary: 0 0% 45%;
+
+  /* Border */
+  --border-default: 0 0% 30%;
+  --border-hover: 0 0% 40%;
+}
