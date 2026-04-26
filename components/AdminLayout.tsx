@@ -1,7 +1,6 @@
 import { ReactNode, useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import { cn } from '../lib/utils'
 import { supabase } from '../lib/supabase'
 import { useConfirm } from '../lib/useConfirm'
 import {
@@ -24,18 +23,6 @@ const navItems = [
 const accountItems = [
   { name: '설정', href: '/settings', icon: Settings },
 ]
-
-const pageLabels: Record<string, string> = {
-  '/': '대시보드',
-  '/input': '데이터 입력',
-  '/customers': '고객 관리',
-  '/notifications': '문자 발송',
-  '/newsletter': '뉴스레터',
-  '/report': '미팅 리포트',
-  '/consultations': '상담 일정',
-  '/sales': '영업 관리',
-  '/settings': '설정',
-}
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const router = useRouter()
@@ -79,7 +66,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       })
   }, [])
 
-  // Keep --layout-offset in sync with actual header + announcement height
   useEffect(() => {
     function updateOffset() {
       const headerH = headerRef.current?.offsetHeight ?? 28
@@ -113,53 +99,74 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     router.push('/login')
   }
 
+  const navLinkStyle = (isActive: boolean): React.CSSProperties => ({
+    display: 'flex',
+    alignItems: 'center',
+    gap: 10,
+    borderRadius: 6,
+    padding: '8px 12px',
+    fontSize: 14,
+    fontWeight: isActive ? 510 : 400,
+    textDecoration: 'none',
+    transition: 'all 0.1s',
+    ...(isActive
+      ? { background: '#ECEDF8', color: '#5E6AD2', border: '1px solid rgba(94,106,210,0.2)' }
+      : { color: 'rgba(26,26,46,0.82)', border: '1px solid transparent' }
+    ),
+  })
+
   return (
-    <div
-      className={cn('admin-root flex min-h-screen', dark ? 'admin-dark' : '')}
-      style={{ background: '#F7F8FA', color: 'rgba(26,26,46,0.82)' }}
-    >
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#F7F8FA', color: 'rgba(26,26,46,0.82)' }}>
       {ConfirmDialog}
 
       {/* ── Sidebar ── */}
       <aside
-        className="fixed left-0 top-0 z-40 flex h-screen w-60 flex-col"
         style={{
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          zIndex: 40,
+          display: 'flex',
+          height: '100vh',
+          width: 240,
+          flexDirection: 'column',
           background: '#FFFFFF',
           borderRight: '1px solid #E5E7EB',
           boxShadow: '2px 0 12px rgba(0,0,0,0.06)',
         }}
       >
         {/* Logo */}
-        <div className="flex items-center gap-2 px-4 py-5">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '20px 16px' }}>
           <div
-            className="flex h-8 w-8 items-center justify-center rounded-lg flex-shrink-0"
             style={{
+              display: 'flex',
+              height: 32,
+              width: 32,
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 8,
+              flexShrink: 0,
               background: 'linear-gradient(135deg, #5E6AD2, #3F48B8)',
               boxShadow: '0 2px 8px rgba(94,106,210,0.35)',
             }}
           >
-            <span style={{ color: '#fff', fontSize: '15px', fontWeight: 800, fontStyle: 'italic', letterSpacing: '-0.5px', lineHeight: 1 }}>i</span>
+            <span style={{ color: '#fff', fontSize: 15, fontWeight: 800, fontStyle: 'italic', letterSpacing: '-0.5px', lineHeight: 1 }}>i</span>
           </div>
-          <span style={{ fontSize: '16px', fontWeight: 700, color: 'rgba(26,26,46,0.82)', letterSpacing: '-0.4px', lineHeight: 1 }}>아이플래너</span>
+          <span style={{ fontSize: 16, fontWeight: 700, color: 'rgba(26,26,46,0.82)', letterSpacing: '-0.4px', lineHeight: 1 }}>아이플래너</span>
         </div>
 
         <div style={{ height: 1, background: '#E5E7EB', margin: '0 12px' }} />
 
         {/* Nav */}
-        <nav className="flex-1 overflow-y-auto px-2 py-3">
-          <ul className="space-y-0.5">
+        <nav style={{ flex: 1, overflowY: 'auto', padding: '12px 8px' }}>
+          <ul style={{ display: 'flex', flexDirection: 'column', gap: 2, listStyle: 'none', padding: 0, margin: 0 }}>
             {navItems.map((item) => {
               const isActive = router.pathname === item.href
               return (
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className={cn('flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-all duration-100', isActive ? 'font-medium' : 'font-normal')}
-                    style={
-                      isActive
-                        ? { background: '#ECEDF8', color: '#5E6AD2', border: '1px solid rgba(94,106,210,0.2)' }
-                        : { color: 'rgba(26,26,46,0.82)', border: '1px solid transparent' }
-                    }
+                    style={navLinkStyle(isActive)}
                     onMouseEnter={(e) => {
                       if (!isActive) {
                         e.currentTarget.style.background = '#EFEFF1'
@@ -175,7 +182,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                       }
                     }}
                   >
-                    <item.icon className="h-4 w-4 flex-shrink-0" />
+                    <item.icon style={{ width: 16, height: 16, flexShrink: 0 }} />
                     <span style={{ fontWeight: isActive ? 510 : 400 }}>{item.name}</span>
                   </Link>
                 </li>
@@ -184,21 +191,16 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           </ul>
 
           {/* Account section */}
-          <div className="mt-4">
+          <div style={{ marginTop: 16 }}>
             <div style={{ height: 1, background: '#E5E7EB', margin: '0 12px 8px' }} />
-            <ul className="space-y-0.5">
+            <ul style={{ display: 'flex', flexDirection: 'column', gap: 2, listStyle: 'none', padding: 0, margin: 0 }}>
               {accountItems.map((item) => {
                 const isActive = router.pathname === item.href
                 return (
                   <li key={item.href}>
                     <Link
                       href={item.href}
-                      className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-all duration-100"
-                      style={
-                        isActive
-                          ? { background: '#ECEDF8', color: '#5E6AD2', border: '1px solid rgba(94,106,210,0.2)' }
-                          : { color: 'rgba(26,26,46,0.82)', border: '1px solid transparent' }
-                      }
+                      style={navLinkStyle(isActive)}
                       onMouseEnter={(e) => {
                         if (!isActive) {
                           e.currentTarget.style.background = '#EFEFF1'
@@ -214,7 +216,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                         }
                       }}
                     >
-                      <item.icon className="h-4 w-4 flex-shrink-0" />
+                      <item.icon style={{ width: 16, height: 16, flexShrink: 0 }} />
                       <span>{item.name}</span>
                     </Link>
                   </li>
@@ -225,26 +227,45 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         </nav>
 
         {/* Bottom – user profile + admin + logout */}
-        <div className="p-3">
+        <div style={{ padding: 12 }}>
           <div style={{ height: 1, background: '#E5E7EB', marginBottom: 10 }} />
 
           {/* User profile card */}
           {userInfo && (
             <div
-              className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg mb-2"
-              style={{ background: '#EFEFF1', border: '1px solid #E5E7EB' }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                padding: '10px 12px',
+                borderRadius: 8,
+                marginBottom: 8,
+                background: '#EFEFF1',
+                border: '1px solid #E5E7EB',
+              }}
             >
               <div
-                className="flex h-7 w-7 items-center justify-center rounded-full flex-shrink-0 text-xs font-bold"
-                style={{ background: 'linear-gradient(135deg, #5E6AD2, #5855C8)', color: '#fff' }}
+                style={{
+                  display: 'flex',
+                  height: 28,
+                  width: 28,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '50%',
+                  flexShrink: 0,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  background: 'linear-gradient(135deg, #5E6AD2, #5855C8)',
+                  color: '#fff',
+                }}
               >
                 {userInfo.initial}
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium truncate" style={{ color: 'rgba(26,26,46,0.82)', lineHeight: 1.4 }}>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <p style={{ fontSize: 12, fontWeight: 500, color: 'rgba(26,26,46,0.82)', lineHeight: 1.4, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {userInfo.email.split('@')[0]}
                 </p>
-                <p className="truncate" style={{ fontSize: 11, color: '#8892A0', lineHeight: 1.4 }}>
+                <p style={{ fontSize: 11, color: '#8892A0', lineHeight: 1.4, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {userInfo.email}
                 </p>
               </div>
@@ -253,12 +274,11 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
           <Link
             href="/admin"
-            className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-all duration-100 mb-0.5"
-            style={
-              router.pathname === '/admin'
-                ? { background: '#ECEDF8', color: '#5E6AD2', border: '1px solid rgba(94,106,210,0.2)' }
-                : { color: 'rgba(26,26,46,0.82)', border: '1px solid transparent' }
-            }
+            style={{
+              ...navLinkStyle(router.pathname === '/admin'),
+              display: 'flex',
+              marginBottom: 2,
+            }}
             onMouseEnter={(e) => {
               if (router.pathname !== '/admin') {
                 e.currentTarget.style.background = '#EFEFF1'
@@ -274,41 +294,63 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               }
             }}
           >
-            <ShieldCheck className="h-4 w-4 flex-shrink-0" />
+            <ShieldCheck style={{ width: 16, height: 16, flexShrink: 0 }} />
             <span>관리자 페이지</span>
           </Link>
+
           <button
             onClick={handleLogout}
-            className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-all duration-100"
-            style={{ color: 'rgba(26,26,46,0.82)', border: 'none', background: 'transparent' }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#EFEFF1'
+            style={{
+              display: 'flex',
+              width: '100%',
+              alignItems: 'center',
+              gap: 10,
+              borderRadius: 6,
+              padding: '8px 12px',
+              fontSize: 14,
+              color: 'rgba(26,26,46,0.82)',
+              border: 'none',
+              background: 'transparent',
+              cursor: 'pointer',
+              transition: 'all 0.1s',
             }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent'
-            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = '#EFEFF1' }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
           >
-            <LogOut className="h-4 w-4 flex-shrink-0" />
+            <LogOut style={{ width: 16, height: 16, flexShrink: 0 }} />
             <span>로그아웃</span>
           </button>
         </div>
       </aside>
 
       {/* ── Main ── */}
-      <div ref={mainColRef} className="ml-60 flex flex-1 flex-col min-w-0">
-
+      <div
+        ref={mainColRef}
+        style={{ marginLeft: 240, display: 'flex', flex: 1, flexDirection: 'column', minWidth: 0 }}
+      >
         {/* Header */}
-        <header ref={headerRef} className="flex items-center justify-between px-6 py-1.5" style={{ boxShadow: '0 1px 6px rgba(0,0,0,0.05)' }}>
-          <span style={{ fontSize: '13px', fontWeight: 500, fontStyle: 'italic', color: '#636B78', letterSpacing: '0.01em' }}>
+        <header
+          ref={headerRef}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '6px 24px',
+            boxShadow: '0 1px 6px rgba(0,0,0,0.05)',
+            background: '#FFFFFF',
+            flexShrink: 0,
+          }}
+        >
+          <span style={{ fontSize: 13, fontWeight: 500, fontStyle: 'italic', color: '#636B78', letterSpacing: '0.01em' }}>
             insurance planner
           </span>
 
-          <div className="flex items-center gap-2">
-            <span style={{ fontSize: '11px', fontWeight: 700, color: '#5E6AD2', border: '1.5px solid #5E6AD2', borderRadius: '999px', padding: '2px 10px', letterSpacing: '0.04em' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#5E6AD2', border: '1.5px solid #5E6AD2', borderRadius: 999, padding: '2px 10px', letterSpacing: '0.04em' }}>
               PRO
             </span>
 
-            <span className="text-xs" style={{ color: '#636B78' }}>
+            <span style={{ fontSize: 12, color: '#636B78' }}>
               SMS <span style={{ color: 'rgba(26,26,46,0.82)', fontWeight: 600 }}>999</span>
               <span style={{ color: '#8892A0' }}> / 1,000</span>
             </span>
@@ -316,20 +358,33 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             <div style={{ width: 1, height: 14, background: '#E5E7EB', margin: '0 4px' }} />
 
             <HeaderIconBtn onClick={toggleTheme} title={dark ? '라이트 모드' : '다크 모드'}>
-              {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              {dark ? <Sun style={{ width: 16, height: 16 }} /> : <Moon style={{ width: 16, height: 16 }} />}
             </HeaderIconBtn>
 
             <HeaderIconBtn>
-              <Bell className="h-4 w-4" />
+              <Bell style={{ width: 16, height: 16 }} />
             </HeaderIconBtn>
 
             <HeaderIconBtn onClick={() => router.push('/settings')}>
-              <Settings className="h-4 w-4" />
+              <Settings style={{ width: 16, height: 16 }} />
             </HeaderIconBtn>
 
             <button
-              className="ml-1 flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold"
-              style={{ background: 'linear-gradient(135deg, #5E6AD2, #5855C8)', color: '#fff' }}
+              style={{
+                marginLeft: 4,
+                display: 'flex',
+                height: 28,
+                width: 28,
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '50%',
+                fontSize: 12,
+                fontWeight: 600,
+                background: 'linear-gradient(135deg, #5E6AD2, #5855C8)',
+                color: '#fff',
+                border: 'none',
+                cursor: 'default',
+              }}
             >
               {userInfo?.initial ?? 'A'}
             </button>
@@ -360,7 +415,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             <span style={{ display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0, maxWidth: 'calc(100% - 60px)' }}>
               <span style={{ fontWeight: 700, flexShrink: 0 }}>{announcement.title}</span>
               {announcement.body && (
-                <span style={{ opacity: 0.88, overflow: 'hidden', textOverflow: 'ellipsis' }}>— {announcement.body.length > 60 ? announcement.body.slice(0, 60) + '…' : announcement.body}</span>
+                <span style={{ opacity: 0.88, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  — {announcement.body.length > 60 ? announcement.body.slice(0, 60) + '…' : announcement.body}
+                </span>
               )}
             </span>
             <button
@@ -384,34 +441,43 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.3)' }}
               onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.2)' }}
             >
-              <X className="h-3.5 w-3.5" />
+              <X style={{ width: 14, height: 14 }} />
             </button>
           </div>
         )}
 
         {/* Content */}
-        <main className="flex-1 overflow-y-auto" style={{ height: 0 }}>
+        <main style={{ flex: 1, overflowY: 'auto', height: 0 }}>
           {children}
         </main>
       </div>
 
       {/* ── Backdrop ── */}
       <div
-        className="fixed inset-0 z-40"
+        onClick={() => setSupportOpen(false)}
         style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 40,
           background: 'rgba(0,0,0,0.15)',
           backdropFilter: 'blur(1px)',
           opacity: supportOpen ? 1 : 0,
           pointerEvents: supportOpen ? 'auto' : 'none',
           transition: 'opacity 0.22s ease',
         }}
-        onClick={() => setSupportOpen(false)}
       />
 
-      {/* ── Support Panel — Apple floating card ── */}
+      {/* ── Support Panel ── */}
       <div
-        className="fixed z-50 flex flex-col overflow-hidden"
         style={{
+          position: 'fixed',
+          zIndex: 50,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
           top: 16,
           right: 16,
           bottom: 96,
@@ -428,28 +494,50 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       >
         {/* Panel Header */}
         <div
-          className="flex items-center justify-between px-5 py-4 flex-shrink-0"
-          style={{ borderBottom: '1px solid #E5E7EB' }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '16px 20px',
+            flexShrink: 0,
+            borderBottom: '1px solid #E5E7EB',
+          }}
         >
-          <div className="flex items-center gap-2.5">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div
-              className="flex h-8 w-8 items-center justify-center rounded-xl"
               style={{
+                display: 'flex',
+                height: 32,
+                width: 32,
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 12,
                 background: 'linear-gradient(135deg, #5E6AD2, #5855C8)',
                 boxShadow: '0 2px 8px rgba(94,106,210,0.35)',
               }}
             >
-              <Headphones className="h-4 w-4" style={{ color: '#fff' }} />
+              <Headphones style={{ width: 16, height: 16, color: '#fff' }} />
             </div>
             <div>
-              <p className="text-sm font-semibold" style={{ color: 'rgba(26,26,46,0.82)' }}>스마트 고객센터</p>
-              <p style={{ fontSize: 12, color: '#8892A0' }}>무엇이든 물어보세요</p>
+              <p style={{ fontSize: 14, fontWeight: 600, color: 'rgba(26,26,46,0.82)', margin: 0 }}>스마트 고객센터</p>
+              <p style={{ fontSize: 12, color: '#8892A0', margin: 0 }}>무엇이든 물어보세요</p>
             </div>
           </div>
           <button
             onClick={() => setSupportOpen(false)}
-            className="flex h-8 w-8 items-center justify-center rounded-md transition-all duration-100"
-            style={{ color: '#636B78', border: '1px solid transparent' }}
+            style={{
+              display: 'flex',
+              height: 32,
+              width: 32,
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 6,
+              color: '#636B78',
+              border: '1px solid transparent',
+              background: 'transparent',
+              cursor: 'pointer',
+              transition: 'all 0.1s',
+            }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = '#EFEFF1'
               e.currentTarget.style.borderColor = '#C0C7D1'
@@ -459,13 +547,13 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               e.currentTarget.style.borderColor = 'transparent'
             }}
           >
-            <X className="h-4 w-4" />
+            <X style={{ width: 16, height: 16 }} />
           </button>
         </div>
 
         <iframe
           src="/support?embed=1"
-          className="flex-1 w-full border-none"
+          style={{ flex: 1, width: '100%', border: 'none' }}
           title="스마트 고객센터"
         />
       </div>
@@ -473,8 +561,14 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       {/* ── FAB ── */}
       <button
         onClick={() => setSupportOpen(prev => !prev)}
-        className="fixed z-50 flex items-center justify-center rounded-full"
+        title="스마트 고객센터"
         style={{
+          position: 'fixed',
+          zIndex: 50,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: '50%',
           bottom: 28,
           right: 28,
           width: 52,
@@ -488,12 +582,11 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           transition: 'all 0.25s cubic-bezier(0.34,1.2,0.64,1)',
           transform: supportOpen ? 'scale(0.9)' : 'scale(1)',
         }}
-        title="스마트 고객센터"
       >
         <div style={{ transition: 'transform 0.25s cubic-bezier(0.34,1.2,0.64,1)', transform: supportOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
           {supportOpen
-            ? <X className="h-5 w-5" style={{ color: '#fff' }} />
-            : <Headphones className="h-5 w-5" style={{ color: '#fff' }} />
+            ? <X style={{ width: 20, height: 20, color: '#fff' }} />
+            : <Headphones style={{ width: 20, height: 20, color: '#fff' }} />
           }
         </div>
       </button>
@@ -515,14 +608,21 @@ function HeaderIconBtn({
     <button
       onClick={onClick}
       title={title}
-      className="flex h-8 w-8 items-center justify-center rounded-md transition-all duration-100"
-      style={{ color: 'rgba(26,26,46,0.82)', border: 'none', background: 'transparent' }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.background = '#EFEFF1'
+      style={{
+        display: 'flex',
+        height: 32,
+        width: 32,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 6,
+        color: 'rgba(26,26,46,0.82)',
+        border: 'none',
+        background: 'transparent',
+        cursor: 'pointer',
+        transition: 'all 0.1s',
       }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.background = 'transparent'
-      }}
+      onMouseEnter={(e) => { e.currentTarget.style.background = '#EFEFF1' }}
+      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
     >
       {children}
     </button>
