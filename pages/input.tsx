@@ -759,7 +759,7 @@ export default function InputPage() {
                     <span style={{color:'hsl(var(--card-foreground))',fontWeight:510,flex:1,minWidth:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
                       {ct.company || '보험사 미상'} · {ct.product_name || '상품명 미상'}
                     </span>
-                    <span style={{color:'hsl(var(--muted-foreground))',fontSize:12,flexShrink:0,tabularNums:true}}>
+                    <span style={{color:'#8892A0',fontSize:12,flexShrink:0,fontVariantNumeric:'tabular-nums'}}>
                       {ct.monthly_fee ? `${Number(ct.monthly_fee).toLocaleString()}원` : '-'}
                     </span>
                   </div>
