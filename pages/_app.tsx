@@ -2,12 +2,20 @@ import '../styles/globals.css'
 import '../styles/admin.css'
 import type { AppProps } from 'next/app'
 import Layout from '../components/Layout'
-import { useEffect, useState } from 'react'
+import AdminLayout from '../components/AdminLayout'
+import { useEffect, useState, ReactNode } from 'react'
 import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
 import { subscribeToPush } from '../lib/pushSubscription'
 import Head from 'next/head'
-import { AdminProvider } from '../lib/AdminContext'
+import { AdminProvider, useAdmin } from '../lib/AdminContext'
+
+function LayoutWrapper({ children }: { children: ReactNode }) {
+  const { isAdmin, loading } = useAdmin()
+  if (loading) return null
+  if (isAdmin) return <AdminLayout>{children}</AdminLayout>
+  return <Layout>{children}</Layout>
+}
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter()
@@ -112,9 +120,9 @@ export default function App({ Component, pageProps }: AppProps) {
         </div>
       )}
       <AdminProvider>
-        <Layout>
+        <LayoutWrapper>
           <Component {...pageProps} />
-        </Layout>
+        </LayoutWrapper>
       </AdminProvider>
     </>
   )

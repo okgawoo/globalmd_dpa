@@ -332,6 +332,25 @@ export default function Dashboard() {
 
   if (loading || adminLoading) return <div className={styles.loading}>불러오는 중...</div>
 
+  if (isAdmin) return (
+    <AdminDashboard
+      customers={customers}
+      contracts={contracts}
+      meetings={meetings}
+      agentName={agentName}
+      meetingStats={meetingStats}
+      smsStats={smsStats}
+      nearDoneCustomers={nearDoneCustomers}
+      birthdayCustomers={birthdayCustomers}
+      gapCustomers={gapCustomers}
+      expiryCustomers={expiryCustomers}
+      anniversaryCustomers={anniversaryCustomers}
+      noContactCustomers={noContactCustomers}
+      totalMonthly={totalMonthly}
+      newThisMonth={newThisMonth}
+    />
+  )
+
   return (
     <div className={styles.wrap}>
       {/* 공지사항 팝업 */}
