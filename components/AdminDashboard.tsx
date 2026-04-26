@@ -316,7 +316,7 @@ export default function AdminDashboard({
                 <Tooltip
                   cursor={{ fill: 'hsl(var(--bg-elevated))' }}
                   contentStyle={{ background: 'hsl(var(--bg-panel))', border: '1px solid hsl(var(--border-default))', borderRadius: 6, fontSize: 12, color: 'hsl(var(--text-primary))' }}
-                  formatter={(v: number) => [`${v}명`, '신규 고객']}
+                  formatter={(v: any) => [String(v), '명']}
                 />
                 <Bar dataKey="count" radius={[4, 4, 0, 0]}>
                   {monthlyData.map((_, i) => (
