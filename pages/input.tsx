@@ -315,15 +315,9 @@ export default function InputPage() {
 
   function handleContractCount(n: number) {
     const count = Math.max(1, Math.min(20, n))
-    setContractCount(count)
-    setContractTexts(prev => {
+    setContracts(prev => {
       const arr = [...prev]
-      while (arr.length < count) arr.push('')
-      return arr.slice(0, count)
-    })
-    setContractTextsLoss(prev => {
-      const arr = [...prev]
-      while (arr.length < count) arr.push('')
+      while (arr.length < count) arr.push(emptyContract())
       return arr.slice(0, count)
     })
   }
