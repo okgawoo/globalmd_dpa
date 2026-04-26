@@ -13,14 +13,18 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) { setLoading(false); return }
-      supabase.from('dpa_agents').select('role').eq('user_id', user.id).single()
-        .then(({ data }) => {
-          setIsAdmin(data?.role === 'admin')
-          setLoading(false)
-        })
-    })
+    supabase.auth.getUser()
+      .then(({ data: { user } }) => {
+        if (!user) { setLoading(false); return }
+        return supabase.from('dpa_agents').select('role').eq('user_id', user.id).single()
+          .then(({ data }) => {
+            setIsAdmin(data?.role === 'admin')
+            setLoading(false)
+          })
+      })
+      .catch(() => {
+        setLoading(false)
+      })
   }, [])
 
   return (

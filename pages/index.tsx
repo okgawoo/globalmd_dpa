@@ -25,7 +25,7 @@ function calcPaymentRate(ct: any): number {
 
 export default function Dashboard() {
   const router = useRouter()
-  const { isAdmin, loading: adminLoading } = useAdmin()
+  const { isAdmin } = useAdmin()
   const [customers, setCustomers] = useState<any[]>([])
   const [contracts, setContracts] = useState<any[]>([])
   const [coverages, setCoverages] = useState<any[]>([])
@@ -330,7 +330,7 @@ export default function Dashboard() {
     return val.toLocaleString()
   }
 
-  if (loading || adminLoading) return <div className={styles.loading}>불러오는 중...</div>
+  if (loading) return <div className={styles.loading}>불러오는 중...</div>
 
   if (isAdmin) return (
     <AdminDashboard
