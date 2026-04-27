@@ -753,6 +753,7 @@ export default function InputPage() {
             {confirmedContracts.length > 0 && (
               <div style={{marginBottom:12}}>
                 <div className={styles.parsedSection}>확인된 계약 ({confirmedContracts.length}건)</div>
+                <div style={{maxHeight:'220px',overflowY:'auto'}}>
                 {confirmedContracts.map((ct, i) => (
                   <div key={i} style={{display:'flex',alignItems:'center',gap:8,padding:'8px 12px',marginBottom:4,background:'rgba(94,106,210,0.06)',border:'1px solid rgba(94,106,210,0.15)',borderRadius:6,fontSize:13}}>
                     <span style={{fontSize:12,fontWeight:700,color:'#5E6AD2',flexShrink:0,minWidth:16,textAlign:'right'}}>{i+1}.</span>
@@ -776,6 +777,7 @@ export default function InputPage() {
                     </button>
                   </div>
                 ))}
+                </div>
               </div>
             )}
 
