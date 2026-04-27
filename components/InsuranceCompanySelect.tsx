@@ -85,7 +85,7 @@ export default function InsuranceCompanySelect({ value, onChange, style }: Props
           onChange={e => { if (e.target.value) onChange(e.target.value) }}
           style={selectStyle}
         >
-          <option value="">선택</option>
+          <option value="">-- 손해보험사 선택 --</option>
           {손해.map(name => <option key={name} value={name}>{name}</option>)}
         </select>
       </div>
@@ -96,7 +96,7 @@ export default function InsuranceCompanySelect({ value, onChange, style }: Props
           onChange={e => { if (e.target.value) onChange(e.target.value) }}
           style={selectStyle}
         >
-          <option value="">선택</option>
+          <option value="">-- 생명보험사 선택 --</option>
           {생명.map(name => <option key={name} value={name}>{name}</option>)}
         </select>
       </div>
