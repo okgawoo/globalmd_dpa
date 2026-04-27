@@ -249,7 +249,7 @@ type Contract = {
 
 function emptyContract(): Contract {
   return {
-    company: '삼성생명', companyCustom: '', product_name: '', insurance_type: '건강',
+    company: '', companyCustom: '', product_name: '', insurance_type: '건강',
     monthly_fee: '', payment_status: '유지', payment_rate: '', payment_total: '', payment_done: '',
     contract_start: '', payment_years: '', expiry_age: '',
     coverages: [], showCoverageModal: false
