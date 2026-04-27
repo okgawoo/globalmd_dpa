@@ -447,7 +447,7 @@ export default function InputPage() {
   function handleConfirmContract() {
     const ct = parsed?.contracts?.[0]
     if (!ct) return
-    setConfirmedContracts(prev => [...prev, { ...ct }])
+    setConfirmedContracts(prev => [...prev, { ...ct, _originalText: currentText, _originalTextLoss: currentTextLoss }])
     setParsed(null)
     setCurrentText('')
     setCurrentTextLoss('')
@@ -772,15 +772,26 @@ export default function InputPage() {
                     </span>
                     <button
                       onClick={() => {
+                        const orig = confirmedContracts[i]
                         setConfirmedContracts(prev => prev.filter((_, idx) => idx !== i))
-                        setCurrentText('')
-                        setCurrentTextLoss('')
+                        setCurrentText(orig._originalText || '')
+                        setCurrentTextLoss(orig._originalTextLoss || '')
+                        setParsed(null)
                       }}
                       style={{flexShrink:0,fontSize:11,padding:'2px 8px',borderRadius:4,border:'1px solid rgba(94,106,210,0.35)',background:'transparent',color:'#5E6AD2',cursor:'pointer',fontFamily:'inherit',transition:'all 120ms',whiteSpace:'nowrap'}}
                       onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(94,106,210,0.1)' }}
                       onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent' }}
                     >
                       재입력
+                    </button>
+                    <button
+                      onClick={() => setConfirmedContracts(prev => prev.filter((_, idx) => idx !== i))}
+                      style={{flexShrink:0,fontSize:13,padding:'1px 6px',borderRadius:4,border:'none',background:'transparent',color:'#8892A0',cursor:'pointer',fontFamily:'inherit',lineHeight:1}}
+                      onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#E24B4A' }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#8892A0' }}
+                      title="삭제"
+                    >
+                      ✕
                     </button>
                   </div>
                 ))}
