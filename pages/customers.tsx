@@ -1,6 +1,4 @@
 import { useEffect, useState, useRef } from 'react'
-import dynamic from 'next/dynamic'
-const Select = dynamic(() => import('react-select'), { ssr: false }) as any
 import SmsSlidePanel from '../components/SmsSlide'
 import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
@@ -14,16 +12,6 @@ const AGE_FILTERS = ['연령대전체', '유아(0-7)', '10대', '20대', '30대'
 // 보험사 목록
 const SONHAE_COMPANIES = ['삼성화재','현대해상','DB손해보험','KB손해보험','메리츠화재','흥국화재','롯데손해보험','MG손해보험','한화손해보험','AIG손해보험','NH농협손해보험','하나손해보험','캐롯손해보험','AXA손해보험']
 const SAENGMYEONG_COMPANIES = ['삼성생명','한화생명','교보생명','신한라이프','DB생명','흥국생명','동양생명','미래에셋생명','푸본현대생명','메트라이프','AIA생명','라이나생명','하나생명','ABL생명','KDB생명','NH농협생명','KB라이프','처브라이프','카디프생명','iM라이프','IBK연금보험','PCA생명','유니버셜생명','오렌지라이프','푸르덴셜생명','MG새마을금고']
-const SONHAE_OPTIONS = SONHAE_COMPANIES.map(n => ({ value: n, label: n }))
-const SAENGMYEONG_OPTIONS = SAENGMYEONG_COMPANIES.map(n => ({ value: n, label: n }))
-const INS_SELECT_STYLES = {
-  control: (b: any, s: any) => ({ ...b, fontSize: 13, minHeight: 34, borderRadius: 6, borderColor: s.isFocused ? '#5E6AD2' : '#E5E7EB', backgroundColor: '#F7F8FA', boxShadow: 'none', '&:hover': { borderColor: '#5E6AD2' } }),
-  option: (b: any, s: any) => ({ ...b, fontSize: 13, backgroundColor: s.isSelected ? '#5E6AD2' : s.isFocused ? '#F0F1FD' : 'white', color: s.isSelected ? 'white' : '#1A1A2E', cursor: 'pointer' }),
-  placeholder: (b: any) => ({ ...b, color: '#8892A0', fontSize: 13 }),
-  singleValue: (b: any) => ({ ...b, color: '#1A1A2E', fontSize: 13 }),
-  menu: (b: any) => ({ ...b, fontSize: 13, zIndex: 9999 }),
-  input: (b: any) => ({ ...b, fontSize: 13 }),
-}
 const INSURANCE_TYPES = ['건강','실손','운전자','자동차','암','치아','간병','CI','종신','기타']
 const PAYMENT_STATUSES = ['유지','완납','실효','실납','해지']
 const PAYMENT_YEARS = ['1년납','3년납','5년납','10년납','15년납','20년납','25년납','30년납','40년납','전기납','종신납','일시납']
@@ -899,15 +887,17 @@ export default function Customers() {
                       <div style={{display:'flex',gap:6}}>
                         <div style={{flex:1}}>
                           <div style={{fontSize:11,color:'#636B78',marginBottom:3}}>손해보험</div>
-                          <Select options={SONHAE_OPTIONS} styles={INS_SELECT_STYLES} placeholder="손해보험사 선택..." isClearable
-                            value={SONHAE_COMPANIES.includes(ct.company)?{value:ct.company,label:ct.company}:null}
-                            onChange={(opt:any)=>setAddContracts((prev:any)=>prev.map((c:any,j:number)=>j===i?{...c,company:opt?opt.value:''}:c))} />
+                          <select value={SONHAE_COMPANIES.includes(ct.company)?ct.company:''} onChange={e=>{if(e.target.value)setAddContracts((prev:any)=>prev.map((c:any,j:number)=>j===i?{...c,company:e.target.value}:c));else setAddContracts((prev:any)=>prev.map((c:any,j:number)=>j===i?{...c,company:''}:c))}} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#F7F8FA',fontFamily:'inherit'}}>
+                            <option value="">-- 손해보험사 선택 --</option>
+                            {SONHAE_COMPANIES.map(n=><option key={n} value={n}>{n}</option>)}
+                          </select>
                         </div>
                         <div style={{flex:1}}>
                           <div style={{fontSize:11,color:'#636B78',marginBottom:3}}>생명보험</div>
-                          <Select options={SAENGMYEONG_OPTIONS} styles={INS_SELECT_STYLES} placeholder="생명보험사 선택..." isClearable
-                            value={SAENGMYEONG_COMPANIES.includes(ct.company)?{value:ct.company,label:ct.company}:null}
-                            onChange={(opt:any)=>setAddContracts((prev:any)=>prev.map((c:any,j:number)=>j===i?{...c,company:opt?opt.value:''}:c))} />
+                          <select value={SAENGMYEONG_COMPANIES.includes(ct.company)?ct.company:''} onChange={e=>{if(e.target.value)setAddContracts((prev:any)=>prev.map((c:any,j:number)=>j===i?{...c,company:e.target.value}:c));else setAddContracts((prev:any)=>prev.map((c:any,j:number)=>j===i?{...c,company:''}:c))}} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#F7F8FA',fontFamily:'inherit'}}>
+                            <option value="">-- 생명보험사 선택 --</option>
+                            {SAENGMYEONG_COMPANIES.map(n=><option key={n} value={n}>{n}</option>)}
+                          </select>
                         </div>
                       </div>
                     </div>
@@ -1127,15 +1117,17 @@ export default function Customers() {
                             <div style={{display:'flex',gap:6}}>
                               <div style={{flex:1}}>
                                 <div style={{fontSize:11,color:'#636B78',marginBottom:3}}>손해보험</div>
-                                <Select options={SONHAE_OPTIONS} styles={INS_SELECT_STYLES} placeholder="손해보험사 선택..." isClearable
-                                  value={SONHAE_COMPANIES.includes(editContractForm.company||'')?{value:editContractForm.company,label:editContractForm.company}:null}
-                                  onChange={(opt:any)=>setEditContractForm({...editContractForm,company:opt?opt.value:''})} />
+                                <select value={SONHAE_COMPANIES.includes(editContractForm.company||'')?editContractForm.company:''} onChange={e=>setEditContractForm({...editContractForm,company:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#F7F8FA',fontFamily:'inherit'}}>
+                                  <option value="">-- 손해보험사 선택 --</option>
+                                  {SONHAE_COMPANIES.map(n=><option key={n} value={n}>{n}</option>)}
+                                </select>
                               </div>
                               <div style={{flex:1}}>
                                 <div style={{fontSize:11,color:'#636B78',marginBottom:3}}>생명보험</div>
-                                <Select options={SAENGMYEONG_OPTIONS} styles={INS_SELECT_STYLES} placeholder="생명보험사 선택..." isClearable
-                                  value={SAENGMYEONG_COMPANIES.includes(editContractForm.company||'')?{value:editContractForm.company,label:editContractForm.company}:null}
-                                  onChange={(opt:any)=>setEditContractForm({...editContractForm,company:opt?opt.value:''})} />
+                                <select value={SAENGMYEONG_COMPANIES.includes(editContractForm.company||'')?editContractForm.company:''} onChange={e=>setEditContractForm({...editContractForm,company:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#F7F8FA',fontFamily:'inherit'}}>
+                                  <option value="">-- 생명보험사 선택 --</option>
+                                  {SAENGMYEONG_COMPANIES.map(n=><option key={n} value={n}>{n}</option>)}
+                                </select>
                               </div>
                             </div>
                           </div>
@@ -1215,15 +1207,17 @@ export default function Customers() {
                       <div style={{display:'flex',gap:6}}>
                         <div style={{flex:1}}>
                           <div style={{fontSize:11,color:'#636B78',marginBottom:3}}>손해보험</div>
-                          <Select options={SONHAE_OPTIONS} styles={INS_SELECT_STYLES} placeholder="손해보험사 선택..." isClearable
-                            value={SONHAE_COMPANIES.includes(insForm.company)?{value:insForm.company,label:insForm.company}:null}
-                            onChange={(opt:any)=>setInsForm({...insForm,company:opt?opt.value:''})} />
+                          <select value={SONHAE_COMPANIES.includes(insForm.company)?insForm.company:''} onChange={e=>setInsForm({...insForm,company:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#F7F8FA',fontFamily:'inherit'}}>
+                            <option value="">-- 손해보험사 선택 --</option>
+                            {SONHAE_COMPANIES.map(n=><option key={n} value={n}>{n}</option>)}
+                          </select>
                         </div>
                         <div style={{flex:1}}>
                           <div style={{fontSize:11,color:'#636B78',marginBottom:3}}>생명보험</div>
-                          <Select options={SAENGMYEONG_OPTIONS} styles={INS_SELECT_STYLES} placeholder="생명보험사 선택..." isClearable
-                            value={SAENGMYEONG_COMPANIES.includes(insForm.company)?{value:insForm.company,label:insForm.company}:null}
-                            onChange={(opt:any)=>setInsForm({...insForm,company:opt?opt.value:''})} />
+                          <select value={SAENGMYEONG_COMPANIES.includes(insForm.company)?insForm.company:''} onChange={e=>setInsForm({...insForm,company:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#F7F8FA',fontFamily:'inherit'}}>
+                            <option value="">-- 생명보험사 선택 --</option>
+                            {SAENGMYEONG_COMPANIES.map(n=><option key={n} value={n}>{n}</option>)}
+                          </select>
                         </div>
                       </div>
                     </div>
@@ -1514,15 +1508,17 @@ export default function Customers() {
                               <div style={{display:'flex',gap:6}}>
                                 <div style={{flex:1}}>
                                   <div style={{fontSize:11,color:'#636B78',marginBottom:3}}>손해보험</div>
-                                  <Select options={SONHAE_OPTIONS} styles={INS_SELECT_STYLES} placeholder="손해보험사 선택..." isClearable
-                                    value={SONHAE_COMPANIES.includes(editContractForm.company||'')?{value:editContractForm.company,label:editContractForm.company}:null}
-                                    onChange={(opt:any)=>setEditContractForm({...editContractForm,company:opt?opt.value:''})} />
+                                  <select value={SONHAE_COMPANIES.includes(editContractForm.company||'')?editContractForm.company:''} onChange={e=>setEditContractForm({...editContractForm,company:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#F7F8FA',fontFamily:'inherit'}}>
+                                    <option value="">-- 손해보험사 선택 --</option>
+                                    {SONHAE_COMPANIES.map(n=><option key={n} value={n}>{n}</option>)}
+                                  </select>
                                 </div>
                                 <div style={{flex:1}}>
                                   <div style={{fontSize:11,color:'#636B78',marginBottom:3}}>생명보험</div>
-                                  <Select options={SAENGMYEONG_OPTIONS} styles={INS_SELECT_STYLES} placeholder="생명보험사 선택..." isClearable
-                                    value={SAENGMYEONG_COMPANIES.includes(editContractForm.company||'')?{value:editContractForm.company,label:editContractForm.company}:null}
-                                    onChange={(opt:any)=>setEditContractForm({...editContractForm,company:opt?opt.value:''})} />
+                                  <select value={SAENGMYEONG_COMPANIES.includes(editContractForm.company||'')?editContractForm.company:''} onChange={e=>setEditContractForm({...editContractForm,company:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#F7F8FA',fontFamily:'inherit'}}>
+                                    <option value="">-- 생명보험사 선택 --</option>
+                                    {SAENGMYEONG_COMPANIES.map(n=><option key={n} value={n}>{n}</option>)}
+                                  </select>
                                 </div>
                               </div>
                             </div>
