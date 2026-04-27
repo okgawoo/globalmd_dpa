@@ -112,7 +112,10 @@ function SearchableSelect({ label, options, value, onChange }: {
           >
             -- 선택 안 함 --
           </div>
-          <div style={{ overflowY: 'auto', flex: 1 }}>
+          <div
+            style={{ overflowY: 'auto', flex: 1 }}
+            onWheel={e => e.stopPropagation()}
+          >
             {filtered.length === 0 ? (
               <div style={{ padding: '8px 12px', fontSize: 12, color: '#9CA3AF' }}>검색 결과 없음</div>
             ) : (
