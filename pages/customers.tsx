@@ -414,16 +414,27 @@ export default function Customers() {
     const conts = contsRes.data || []
 
     // coverages는 계약 ID 기준으로 필터링 (전체 X)
+    // ⚠️ Supabase 기본 limit=1000 → 대량 데이터 누락 방지: 청크 분할 로딩
     let covs: any[] = []
     if (conts.length > 0) {
       const contractIds = conts.map((c: any) => c.id)
-      const { data: covsData } = await supabase
-        .from('dpa_coverages')
-        .select('*')
-        .in('contract_id', contractIds)
-        .order('section', { ascending: true })
-        .order('sort_order', { ascending: true })
-      covs = covsData || []
+      const CHUNK_SIZE = 100 // URL 길이 제한 대비 분할
+      const chunks: string[][] = []
+      for (let i = 0; i < contractIds.length; i += CHUNK_SIZE) {
+        chunks.push(contractIds.slice(i, i + CHUNK_SIZE))
+      }
+      const chunkResults = await Promise.all(
+        chunks.map(chunk =>
+          supabase
+            .from('dpa_coverages')
+            .select('*')
+            .in('contract_id', chunk)
+            .order('section', { ascending: true })
+            .order('sort_order', { ascending: true })
+            .limit(10000)
+        )
+      )
+      covs = chunkResults.flatMap(r => r.data || [])
     }
 
     setCustomers(custs)
