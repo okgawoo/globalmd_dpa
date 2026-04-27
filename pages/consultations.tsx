@@ -934,8 +934,8 @@ export default function Consultations() {
                           >
                             <div className={styles.tlLeft}>
                               <div className={styles.tlDot} style={{
-                                background: isDone ? tColor : isCancel ? 'hsl(var(--bg-elevated))' : isCurrent ? tColor + '22' : 'transparent',
-                                border: `2px solid ${isDone ? tColor : isCancel ? 'hsl(var(--border-default))' : isCurrent ? tColor : 'hsl(var(--border-hover))'}`,
+                                background: isDone ? tColor : isCancel ? '#EFEFF1' : isCurrent ? tColor + '22' : 'transparent',
+                                border: `2px solid ${isDone ? tColor : isCancel ? '#D5DAE2' : isCurrent ? tColor : '#C0C7D1'}`,
                                 boxShadow: isCurrent ? `0 0 0 3px ${tColor}30` : 'none',
                               }}>
                                 {isDone && <Check style={{ width: 9, height: 9, color: '#fff' }} />}
@@ -946,7 +946,7 @@ export default function Consultations() {
                             <div className={styles.tlContent}>
                               <div className={styles.tlHeader}>
                                 <span className={styles.tlType}
-                                  style={{ color: isCancel ? 'hsl(var(--text-tertiary))' : isDone || isCurrent ? tColor : 'hsl(var(--text-primary))' }}>
+                                  style={{ color: isCancel ? '#8892A0' : isDone || isCurrent ? tColor : '#1A1A2E' }}>
                                   {t.meeting_type}
                                 </span>
                                 {isCurrent && (
