@@ -285,12 +285,10 @@ export default function Consultations() {
     setLoading(true)
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { router.push('/login'); return }
-    const { data: agentRow } = await supabase.from('dpa_agents').select('id').eq('user_id', user.id).single()
-    const agentRowId = agentRow?.id || user.id   // dpa_consultations용
-    setAgentId(agentRowId)
+    setAgentId(user.id)
     const [{ data: custs }, { data: cons }] = await Promise.all([
       supabase.from('dpa_customers').select('id, name, customer_type, phone, email, memo, age, birth_date, gender, job, workplace, driver_license, address, grade').eq('agent_id', user.id).order('name'),
-      supabase.from('dpa_consultations').select('*').eq('agent_id', agentRowId).order('meeting_date').order('meeting_time'),
+      supabase.from('dpa_consultations').select('*').eq('agent_id', user.id).order('meeting_date').order('meeting_time'),
     ])
     setCustomers(custs || [])
     setConsultations(cons || [])
