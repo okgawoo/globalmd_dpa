@@ -884,12 +884,24 @@ export default function InputPage() {
               </div>
             )}
 
-            {/* 확인된 계약만 있고 현재 분석 없음 — 저장 버튼 */}
+            {/* 확인된 계약만 있고 현재 분석 없음 — 추가입력 + 저장 버튼 */}
             {!parsed && confirmedContracts.length > 0 && (
               <div style={{marginTop:4}}>
-                <div style={{fontSize:13,color:'#636B78',textAlign:'center',marginBottom:10}}>
+                <div style={{fontSize:13,color:'#636B78',textAlign:'center',marginBottom:12}}>
                   다음 계약을 입력하거나, 저장하세요
                 </div>
+                <button
+                  onClick={() => { setCurrentText(''); setCurrentTextLoss('') }}
+                  style={{
+                    width:'100%',padding:'11px 0',marginBottom:8,
+                    borderRadius:8,border:'1.5px solid #5E6AD2',
+                    background:'rgba(94,106,210,0.06)',
+                    color:'#5E6AD2',fontWeight:600,fontSize:13,
+                    cursor:'pointer',transition:'all 120ms',fontFamily:'inherit',
+                  }}
+                >
+                  + 계약 추가 입력
+                </button>
                 <button onClick={handleParseSave} disabled={saving} className={styles.saveParsedBtn}>
                   {saving ? '저장 중...' : `💾 전체 저장하기 (${confirmedContracts.length}건)`}
                 </button>
