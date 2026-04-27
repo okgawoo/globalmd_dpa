@@ -1,9 +1,9 @@
 /* ──────────────────────────────────────────────
    Input Page — DPA Design System
-   Colors: hardcoded (#1D9E75 green theme)
+   Colors: hardcoded (#5E6AD2 green theme)
 ────────────────────────────────────────────── */
 
-.page { padding: 20px 24px 96px; background: #FAF9F5; height: 100%; display: flex; flex-direction: column; box-sizing: border-box; }
+.page { padding: 20px 24px 96px; background: #F7F8FA; height: 100%; display: flex; flex-direction: column; box-sizing: border-box; }
 .pageHeader { margin-bottom: 24px; display: flex; align-items: flex-end; justify-content: space-between; }
 .pageTitle { font-size: 20px; font-weight: 700; color: #1a1a1a; margin: 0 0 2px; line-height: 1.3; }
 .pageSub { font-size: 14px; color: #666666; margin: 2px 0 0; line-height: 1.5; }
@@ -13,7 +13,7 @@
   display: flex;
   gap: 0;
   margin-bottom: 20px;
-  border-bottom: 1px solid #EDEBE4;
+  border-bottom: 1px solid #E5E7EB;
   user-select: none;
   -webkit-user-select: none;
 }
@@ -34,8 +34,8 @@
 }
 .tab:hover { color: #1a1a1a; }
 .activeTab {
-  color: #1D9E75;
-  border-bottom-color: #1D9E75;
+  color: #5E6AD2;
+  border-bottom-color: #5E6AD2;
   font-weight: 600;
 }
 .tabIcon {
@@ -47,7 +47,7 @@
 .wrap { width: 100%; overflow-x: hidden; flex: 1; display: flex; flex-direction: column; }
 .formWrap {
   background: #ffffff;
-  border: 1px solid #EDEBE4;
+  border: 1px solid #E5E7EB;
   border-radius: 10px;
   padding: 20px 24px;
   box-sizing: border-box;
@@ -74,7 +74,7 @@
   content: '';
   display: inline-block;
   width: 3px; height: 13px;
-  background: #1D9E75;
+  background: #5E6AD2;
   border-radius: 2px;
   flex-shrink: 0;
 }
@@ -98,9 +98,9 @@
 }
 .field input, .field select {
   padding: 8px 10px;
-  border: 1px solid #EDEBE4;
+  border: 1px solid #E5E7EB;
   border-radius: 6px;
-  background: #FAF9F5;
+  background: #F7F8FA;
   color: #1a1a1a;
   font-size: 13px;
   transition: border-color 120ms;
@@ -110,15 +110,15 @@
 }
 .field input:focus, .field select:focus {
   outline: none;
-  border-color: #1D9E75;
-  box-shadow: 0 0 0 2px rgba(29, 158, 117, 0.15);
+  border-color: #5E6AD2;
+  box-shadow: 0 0 0 2px rgba(94, 106, 210, 0.15);
 }
 
 /* Auto tag */
 .autoTag {
   font-size: 10px;
-  background: rgba(29, 158, 117, 0.12);
-  color: #1D9E75;
+  background: rgba(94, 106, 210, 0.12);
+  color: #5E6AD2;
   padding: 1px 6px;
   border-radius: 999px;
   font-weight: 600;
@@ -127,16 +127,16 @@
 
 /* Read only */
 .readOnly {
-  background: #FAF9F5 !important;
-  color: #1D9E75 !important;
+  background: #F7F8FA !important;
+  color: #5E6AD2 !important;
   font-weight: 600;
   cursor: default;
 }
 
 /* Contract Block */
 .contractBlock {
-  background: #FAF9F5;
-  border: 1px solid #EDEBE4;
+  background: #F7F8FA;
+  border: 1px solid #E5E7EB;
   border-radius: 8px;
   padding: 14px;
   margin-bottom: 14px;
@@ -150,7 +150,7 @@
   font-size: 11px;
   padding: 3px 10px;
   border-radius: 5px;
-  border: 1px solid #EDEBE4;
+  border: 1px solid #E5E7EB;
   background: transparent;
   color: #666666;
   cursor: pointer;
@@ -166,7 +166,7 @@
   display: block; width: 100%;
   padding: 9px;
   margin-bottom: 12px;
-  border: 1.5px dashed #EDEBE4;
+  border: 1.5px dashed #E5E7EB;
   border-radius: 8px;
   background: transparent;
   color: #666666;
@@ -176,9 +176,9 @@
   transition: all 120ms;
 }
 .addContractBtn:hover {
-  border-color: #1D9E75;
-  color: #1D9E75;
-  background: rgba(29, 158, 117, 0.05);
+  border-color: #5E6AD2;
+  color: #5E6AD2;
+  background: rgba(94, 106, 210, 0.05);
 }
 
 /* Save Button */
@@ -186,7 +186,7 @@
   width: 100%;
   margin-top: 16px;
   padding: 11px;
-  background: #1D9E75;
+  background: #5E6AD2;
   color: #ffffff;
   border: none;
   border-radius: 8px;
@@ -202,7 +202,7 @@
 /* Coverage */
 .coverageSection {
   margin-top: 12px;
-  border-top: 1px solid #EDEBE4;
+  border-top: 1px solid #E5E7EB;
   padding-top: 10px;
 }
 .coverageSectionHeader {
@@ -221,25 +221,25 @@
 .coverageSectionTitle::before {
   content: ''; display: inline-block;
   width: 3px; height: 10px;
-  background: #1D9E75;
+  background: #5E6AD2;
   border-radius: 2px;
 }
 .addCovBtn {
   font-size: 11px; padding: 3px 10px;
   border-radius: 5px;
-  border: 1px solid rgba(29, 158, 117, 0.3);
-  background: rgba(29, 158, 117, 0.08);
-  color: #1D9E75;
+  border: 1px solid rgba(94, 106, 210, 0.3);
+  background: rgba(94, 106, 210, 0.08);
+  color: #5E6AD2;
   cursor: pointer;
   transition: all 120ms;
 }
 .addCovBtn:hover {
-  background: rgba(29, 158, 117, 0.15);
+  background: rgba(94, 106, 210, 0.15);
 }
 
 .covModal {
   background: #ffffff;
-  border: 1px solid #EDEBE4;
+  border: 1px solid #E5E7EB;
   border-radius: 8px;
   padding: 12px;
   margin-bottom: 10px;
@@ -253,27 +253,27 @@
 .covCloseBtn {
   font-size: 13px; padding: 7px 14px;
   border-radius: 6px;
-  border: 1px solid #EDEBE4;
+  border: 1px solid #E5E7EB;
   background: transparent;
   color: #666666;
   cursor: pointer;
   white-space: nowrap;
   transition: all 120ms;
 }
-.covCloseBtn:hover { background: #f0f0ec; }
+.covCloseBtn:hover { background: #F3F4F6; }
 
 .coverageList { display: flex; flex-direction: column; gap: 4px; }
 .covItem {
   display: flex; align-items: center; gap: 8px;
   font-size: 12px; padding: 5px 8px;
-  background: #FAF9F5;
+  background: #F7F8FA;
   border-radius: 5px;
-  border: 1px solid #EDEBE4;
+  border: 1px solid #E5E7EB;
 }
 .covCat {
   font-size: 10px;
-  background: rgba(29, 158, 117, 0.1);
-  color: #1D9E75;
+  background: rgba(94, 106, 210, 0.1);
+  color: #5E6AD2;
   padding: 1px 6px;
   border-radius: 4px;
   flex-shrink: 0;
@@ -282,7 +282,7 @@
   font-weight: 500;
 }
 .covName { flex: 1; color: #1a1a1a; }
-.covAmt { color: #1D9E75; font-weight: 500; flex-shrink: 0; }
+.covAmt { color: #5E6AD2; font-weight: 500; flex-shrink: 0; }
 .covDel {
   background: none; border: none;
   color: #666666;
@@ -294,9 +294,9 @@
 /* Paste Area */
 .pasteArea {
   width: 100%; padding: 12px 14px;
-  border: 1px solid #EDEBE4;
+  border: 1px solid #E5E7EB;
   border-radius: 8px;
-  background: #FAF9F5;
+  background: #F7F8FA;
   color: #1a1a1a;
   font-size: 13px; line-height: 1.7;
   resize: none;
@@ -306,14 +306,14 @@
 }
 .pasteArea:focus {
   outline: none;
-  border-color: #1D9E75;
-  box-shadow: 0 0 0 2px rgba(29, 158, 117, 0.12);
+  border-color: #5E6AD2;
+  box-shadow: 0 0 0 2px rgba(94, 106, 210, 0.12);
 }
 
 /* Parse Button */
 .parseBtn {
   width: 100%; margin-top: 12px; padding: 10px;
-  background: #1D9E75;
+  background: #5E6AD2;
   color: #ffffff;
   border: none; border-radius: 8px;
   font-size: 14px; font-weight: 600;
@@ -338,7 +338,7 @@
 .guideLabel::before {
   content: ''; display: inline-block;
   width: 3px; height: 14px;
-  background: #1D9E75;
+  background: #5E6AD2;
   border-radius: 2px; flex-shrink: 0;
 }
 .guideBtn {
@@ -347,11 +347,11 @@
   padding: 2px 6px; border-radius: 6px;
   transition: background 120ms;
 }
-.guideBtn:hover { background: #f0f0ec; }
+.guideBtn:hover { background: #F3F4F6; }
 .guidePopup {
   position: absolute;
   background: #ffffff;
-  border: 1px solid #EDEBE4;
+  border: 1px solid #E5E7EB;
   border-radius: 10px;
   padding: 16px; width: 340px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.15);
@@ -371,7 +371,7 @@
   border-radius: 6px;
   transition: all 120ms;
 }
-.guideCloseBtn:hover { background: #f0f0ec; }
+.guideCloseBtn:hover { background: #F3F4F6; }
 .pasteGuideStep {
   font-size: 12px; color: #666666;
   margin-bottom: 5px; line-height: 1.6;
@@ -380,7 +380,7 @@
 /* Parsed Result */
 .parsedResult {
   background: #ffffff;
-  border: 1px solid #EDEBE4;
+  border: 1px solid #E5E7EB;
   border-radius: 10px;
   padding: 16px; margin-top: 14px;
 }
@@ -402,8 +402,8 @@
   gap: 8px; margin-bottom: 8px;
 }
 .parsedContractBlock {
-  background: #FAF9F5;
-  border: 1px solid #EDEBE4;
+  background: #F7F8FA;
+  border: 1px solid #E5E7EB;
   border-radius: 8px;
   padding: 10px; margin-bottom: 8px;
 }
@@ -411,7 +411,7 @@
 .covNameInput {
   flex: 1; font-size: 12px;
   padding: 4px 8px; border-radius: 5px;
-  border: 1px solid #EDEBE4;
+  border: 1px solid #E5E7EB;
   background: #ffffff;
   color: #1a1a1a;
   font-family: inherit;
@@ -419,9 +419,9 @@
 .covAmtInput {
   width: 90px; font-size: 12px;
   padding: 4px 6px; border-radius: 5px;
-  border: 1px solid #EDEBE4;
+  border: 1px solid #E5E7EB;
   background: #ffffff;
-  color: #1D9E75;
+  color: #5E6AD2;
   text-align: right; flex-shrink: 0;
   font-family: inherit;
 }
@@ -430,7 +430,7 @@
   display: block; width: 100%;
   margin-top: 14px; padding: 11px;
   border-radius: 8px; border: none;
-  background: #1D9E75;
+  background: #5E6AD2;
   color: #ffffff;
   font-size: 14px; font-weight: 600;
   cursor: pointer;
@@ -455,7 +455,7 @@
 .doneActions { display: flex; gap: 10px; }
 .btnPrimary {
   padding: 10px 24px;
-  background: #1D9E75;
+  background: #5E6AD2;
   color: #ffffff;
   border: none; border-radius: 8px;
   font-size: 14px; font-weight: 600;
@@ -466,17 +466,17 @@
   padding: 10px 24px;
   background: transparent;
   color: #1a1a1a;
-  border: 1px solid #EDEBE4;
+  border: 1px solid #E5E7EB;
   border-radius: 8px;
   font-size: 14px; cursor: pointer;
   font-family: inherit;
   transition: background 120ms;
 }
-.btnSecondary:hover { background: #f0f0ec; }
+.btnSecondary:hover { background: #F3F4F6; }
 
 /* Drop Zone */
 .dropZone {
-  border: 2px dashed #EDEBE4;
+  border: 2px dashed #E5E7EB;
   border-radius: 8px; padding: 28px;
   text-align: center; cursor: pointer;
   transition: all 120ms;
@@ -484,8 +484,8 @@
   align-items: center; justify-content: center;
 }
 .dropZone:hover, .dropZoneActive {
-  border-color: #1D9E75;
-  background: rgba(29, 158, 117, 0.05);
+  border-color: #5E6AD2;
+  background: rgba(94, 106, 210, 0.05);
 }
 .dropIcon { font-size: 28px; margin-bottom: 8px; }
 .dropText { font-size: 13px; color: #1a1a1a; margin-bottom: 4px; }
@@ -496,13 +496,13 @@
 .cancelBtn {
   font-size: 13px; padding: 7px 16px;
   border-radius: 6px;
-  border: 1px solid #EDEBE4;
+  border: 1px solid #E5E7EB;
   background: transparent;
   color: #666666;
   cursor: pointer; font-family: inherit;
   transition: background 120ms;
 }
-.cancelBtn:hover { background: #f0f0ec; }
+.cancelBtn:hover { background: #F3F4F6; }
 
 /* ── 2패널 레이아웃 (paste 탭) ── */
 .pasteLayout {
@@ -514,7 +514,7 @@
 }
 .pastePanel {
   background: #ffffff;
-  border: 1px solid #EDEBE4;
+  border: 1px solid #E5E7EB;
   border-radius: 10px;
   padding: 20px;
   display: flex;
@@ -526,7 +526,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 1.5px dashed #EDEBE4;
+  border: 1.5px dashed #E5E7EB;
   border-radius: 10px;
   color: #666666;
   font-size: 13px;
