@@ -1,19 +1,19 @@
 /* ──────────────────────────────────────────────
-   Input Page — Linear Design System
-   Variables: hsl(var(--xxx)) from admin.css
+   Input Page — DPA Design System
+   Colors: hardcoded (#1D9E75 green theme)
 ────────────────────────────────────────────── */
 
-.page { padding: 20px 24px 96px; background: hsl(var(--background)); height: 100%; display: flex; flex-direction: column; box-sizing: border-box; }
+.page { padding: 20px 24px 96px; background: #FAF9F5; height: 100%; display: flex; flex-direction: column; box-sizing: border-box; }
 .pageHeader { margin-bottom: 24px; display: flex; align-items: flex-end; justify-content: space-between; }
-.pageTitle { font-size: 20px; font-weight: 700; color: hsl(var(--text-primary)); margin: 0 0 2px; line-height: 1.3; }
-.pageSub { font-size: 14px; color: hsl(var(--text-secondary)); margin: 2px 0 0; line-height: 1.5; }
+.pageTitle { font-size: 20px; font-weight: 700; color: #1a1a1a; margin: 0 0 2px; line-height: 1.3; }
+.pageSub { font-size: 14px; color: #666666; margin: 2px 0 0; line-height: 1.5; }
 
 /* Tab Bar */
 .tabBar {
   display: flex;
   gap: 0;
   margin-bottom: 20px;
-  border-bottom: 1px solid hsl(var(--border));
+  border-bottom: 1px solid #EDEBE4;
   user-select: none;
   -webkit-user-select: none;
 }
@@ -21,7 +21,7 @@
   background: none; border: none;
   padding: 10px 16px;
   font-size: 13px; font-weight: 500;
-  color: hsl(var(--muted-foreground));
+  color: #666666;
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
   transition: color 120ms;
@@ -32,10 +32,10 @@
   font-family: inherit;
   white-space: nowrap;
 }
-.tab:hover { color: hsl(var(--card-foreground)); }
+.tab:hover { color: #1a1a1a; }
 .activeTab {
-  color: hsl(var(--primary));
-  border-bottom-color: hsl(var(--primary));
+  color: #1D9E75;
+  border-bottom-color: #1D9E75;
   font-weight: 600;
 }
 .tabIcon {
@@ -46,8 +46,8 @@
 /* Form Wrap */
 .wrap { width: 100%; overflow-x: hidden; flex: 1; display: flex; flex-direction: column; }
 .formWrap {
-  background: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
+  background: #ffffff;
+  border: 1px solid #EDEBE4;
   border-radius: 10px;
   padding: 20px 24px;
   box-sizing: border-box;
@@ -61,7 +61,7 @@
 .formSection {
   font-size: 14px;
   font-weight: 600;
-  color: hsl(var(--card-foreground));
+  color: #1a1a1a;
   letter-spacing: -0.01em;
   margin-bottom: 14px;
   margin-top: 24px;
@@ -74,7 +74,7 @@
   content: '';
   display: inline-block;
   width: 3px; height: 13px;
-  background: hsl(var(--primary));
+  background: #1D9E75;
   border-radius: 2px;
   flex-shrink: 0;
 }
@@ -91,17 +91,17 @@
 .field { display: flex; flex-direction: column; gap: 5px; }
 .field label {
   font-size: 12px;
-  color: hsl(var(--muted-foreground));
+  color: #666666;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
 .field input, .field select {
   padding: 8px 10px;
-  border: 1px solid hsl(var(--border));
+  border: 1px solid #EDEBE4;
   border-radius: 6px;
-  background: hsl(var(--background));
-  color: hsl(var(--card-foreground));
+  background: #FAF9F5;
+  color: #1a1a1a;
   font-size: 13px;
   transition: border-color 120ms;
   box-sizing: border-box;
@@ -110,15 +110,15 @@
 }
 .field input:focus, .field select:focus {
   outline: none;
-  border-color: hsl(var(--primary));
-  box-shadow: 0 0 0 2px hsl(var(--primary) / 0.15);
+  border-color: #1D9E75;
+  box-shadow: 0 0 0 2px rgba(29, 158, 117, 0.15);
 }
 
 /* Auto tag */
 .autoTag {
   font-size: 10px;
-  background: hsl(var(--primary) / 0.12);
-  color: hsl(var(--primary));
+  background: rgba(29, 158, 117, 0.12);
+  color: #1D9E75;
   padding: 1px 6px;
   border-radius: 999px;
   font-weight: 600;
@@ -127,16 +127,16 @@
 
 /* Read only */
 .readOnly {
-  background: hsl(var(--background)) !important;
-  color: hsl(var(--primary)) !important;
+  background: #FAF9F5 !important;
+  color: #1D9E75 !important;
   font-weight: 600;
   cursor: default;
 }
 
 /* Contract Block */
 .contractBlock {
-  background: hsl(var(--background));
-  border: 1px solid hsl(var(--border));
+  background: #FAF9F5;
+  border: 1px solid #EDEBE4;
   border-radius: 8px;
   padding: 14px;
   margin-bottom: 14px;
@@ -150,35 +150,35 @@
   font-size: 11px;
   padding: 3px 10px;
   border-radius: 5px;
-  border: 1px solid hsl(var(--border));
+  border: 1px solid #EDEBE4;
   background: transparent;
-  color: hsl(var(--muted-foreground));
+  color: #666666;
   cursor: pointer;
   transition: all 120ms;
 }
 .removeBtn:hover {
-  background: hsl(0 72% 51% / 0.08);
-  color: hsl(0 72% 51%);
-  border-color: hsl(0 72% 51% / 0.3);
+  background: rgba(220, 53, 69, 0.08);
+  color: #dc3545;
+  border-color: rgba(220, 53, 69, 0.3);
 }
 
 .addContractBtn {
   display: block; width: 100%;
   padding: 9px;
   margin-bottom: 12px;
-  border: 1.5px dashed hsl(var(--border));
+  border: 1.5px dashed #EDEBE4;
   border-radius: 8px;
   background: transparent;
-  color: hsl(var(--muted-foreground));
+  color: #666666;
   font-size: 13px;
   cursor: pointer;
   text-align: center;
   transition: all 120ms;
 }
 .addContractBtn:hover {
-  border-color: hsl(var(--primary));
-  color: hsl(var(--primary));
-  background: hsl(var(--primary) / 0.05);
+  border-color: #1D9E75;
+  color: #1D9E75;
+  background: rgba(29, 158, 117, 0.05);
 }
 
 /* Save Button */
@@ -186,8 +186,8 @@
   width: 100%;
   margin-top: 16px;
   padding: 11px;
-  background: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
+  background: #1D9E75;
+  color: #ffffff;
   border: none;
   border-radius: 8px;
   font-size: 14px;
@@ -202,7 +202,7 @@
 /* Coverage */
 .coverageSection {
   margin-top: 12px;
-  border-top: 1px solid hsl(var(--border));
+  border-top: 1px solid #EDEBE4;
   padding-top: 10px;
 }
 .coverageSectionHeader {
@@ -213,7 +213,7 @@
 }
 .coverageSectionTitle {
   font-size: 12px; font-weight: 600;
-  color: hsl(var(--muted-foreground));
+  color: #666666;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   display: flex; align-items: center; gap: 6px;
@@ -221,25 +221,25 @@
 .coverageSectionTitle::before {
   content: ''; display: inline-block;
   width: 3px; height: 10px;
-  background: hsl(var(--primary));
+  background: #1D9E75;
   border-radius: 2px;
 }
 .addCovBtn {
   font-size: 11px; padding: 3px 10px;
   border-radius: 5px;
-  border: 1px solid hsl(var(--primary) / 0.3);
-  background: hsl(var(--primary) / 0.08);
-  color: hsl(var(--primary));
+  border: 1px solid rgba(29, 158, 117, 0.3);
+  background: rgba(29, 158, 117, 0.08);
+  color: #1D9E75;
   cursor: pointer;
   transition: all 120ms;
 }
 .addCovBtn:hover {
-  background: hsl(var(--primary) / 0.15);
+  background: rgba(29, 158, 117, 0.15);
 }
 
 .covModal {
-  background: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
+  background: #ffffff;
+  border: 1px solid #EDEBE4;
   border-radius: 8px;
   padding: 12px;
   margin-bottom: 10px;
@@ -253,27 +253,27 @@
 .covCloseBtn {
   font-size: 13px; padding: 7px 14px;
   border-radius: 6px;
-  border: 1px solid hsl(var(--border));
+  border: 1px solid #EDEBE4;
   background: transparent;
-  color: hsl(var(--muted-foreground));
+  color: #666666;
   cursor: pointer;
   white-space: nowrap;
   transition: all 120ms;
 }
-.covCloseBtn:hover { background: hsl(var(--muted)); }
+.covCloseBtn:hover { background: #f0f0ec; }
 
 .coverageList { display: flex; flex-direction: column; gap: 4px; }
 .covItem {
   display: flex; align-items: center; gap: 8px;
   font-size: 12px; padding: 5px 8px;
-  background: hsl(var(--background));
+  background: #FAF9F5;
   border-radius: 5px;
-  border: 1px solid hsl(var(--border));
+  border: 1px solid #EDEBE4;
 }
 .covCat {
   font-size: 10px;
-  background: hsl(var(--primary) / 0.1);
-  color: hsl(var(--primary));
+  background: rgba(29, 158, 117, 0.1);
+  color: #1D9E75;
   padding: 1px 6px;
   border-radius: 4px;
   flex-shrink: 0;
@@ -281,23 +281,23 @@
   text-align: center;
   font-weight: 500;
 }
-.covName { flex: 1; color: hsl(var(--card-foreground)); }
-.covAmt { color: hsl(var(--primary)); font-weight: 500; flex-shrink: 0; }
+.covName { flex: 1; color: #1a1a1a; }
+.covAmt { color: #1D9E75; font-weight: 500; flex-shrink: 0; }
 .covDel {
   background: none; border: none;
-  color: hsl(var(--muted-foreground));
+  color: #666666;
   cursor: pointer; font-size: 11px; flex-shrink: 0;
   transition: color 120ms;
 }
-.covDel:hover { color: hsl(0 72% 51%); }
+.covDel:hover { color: #dc3545; }
 
 /* Paste Area */
 .pasteArea {
   width: 100%; padding: 12px 14px;
-  border: 1px solid hsl(var(--border));
+  border: 1px solid #EDEBE4;
   border-radius: 8px;
-  background: hsl(var(--background));
-  color: hsl(var(--card-foreground));
+  background: #FAF9F5;
+  color: #1a1a1a;
   font-size: 13px; line-height: 1.7;
   resize: none;
   font-family: inherit;
@@ -306,15 +306,15 @@
 }
 .pasteArea:focus {
   outline: none;
-  border-color: hsl(var(--primary));
-  box-shadow: 0 0 0 2px hsl(var(--primary) / 0.12);
+  border-color: #1D9E75;
+  box-shadow: 0 0 0 2px rgba(29, 158, 117, 0.12);
 }
 
 /* Parse Button */
 .parseBtn {
   width: 100%; margin-top: 12px; padding: 10px;
-  background: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
+  background: #1D9E75;
+  color: #ffffff;
   border: none; border-radius: 8px;
   font-size: 14px; font-weight: 600;
   cursor: pointer;
@@ -332,13 +332,13 @@
 }
 .guideLabel {
   font-size: 14px; font-weight: 600;
-  color: hsl(var(--card-foreground));
+  color: #1a1a1a;
   display: flex; align-items: center; gap: 8px;
 }
 .guideLabel::before {
   content: ''; display: inline-block;
   width: 3px; height: 14px;
-  background: hsl(var(--primary));
+  background: #1D9E75;
   border-radius: 2px; flex-shrink: 0;
 }
 .guideBtn {
@@ -347,11 +347,11 @@
   padding: 2px 6px; border-radius: 6px;
   transition: background 120ms;
 }
-.guideBtn:hover { background: hsl(var(--muted)); }
+.guideBtn:hover { background: #f0f0ec; }
 .guidePopup {
   position: absolute;
-  background: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
+  background: #ffffff;
+  border: 1px solid #EDEBE4;
   border-radius: 10px;
   padding: 16px; width: 340px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.15);
@@ -362,36 +362,36 @@
   display: flex; justify-content: space-between; align-items: center;
   margin-bottom: 14px;
   font-size: 13px; font-weight: 700;
-  color: hsl(var(--card-foreground));
+  color: #1a1a1a;
 }
 .guideCloseBtn {
   background: none; border: none;
-  font-size: 16px; color: hsl(var(--muted-foreground));
+  font-size: 16px; color: #666666;
   cursor: pointer; padding: 2px 6px;
   border-radius: 6px;
   transition: all 120ms;
 }
-.guideCloseBtn:hover { background: hsl(var(--muted)); }
+.guideCloseBtn:hover { background: #f0f0ec; }
 .pasteGuideStep {
-  font-size: 12px; color: hsl(var(--muted-foreground));
+  font-size: 12px; color: #666666;
   margin-bottom: 5px; line-height: 1.6;
 }
 
 /* Parsed Result */
 .parsedResult {
-  background: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
+  background: #ffffff;
+  border: 1px solid #EDEBE4;
   border-radius: 10px;
   padding: 16px; margin-top: 14px;
 }
 .parsedResultTitle {
   font-size: 13px; font-weight: 600;
-  color: hsl(var(--card-foreground));
+  color: #1a1a1a;
   margin-bottom: 14px;
 }
 .parsedSection {
   font-size: 11px; font-weight: 600;
-  color: hsl(var(--muted-foreground));
+  color: #666666;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   margin: 10px 0 6px;
@@ -402,8 +402,8 @@
   gap: 8px; margin-bottom: 8px;
 }
 .parsedContractBlock {
-  background: hsl(var(--background));
-  border: 1px solid hsl(var(--border));
+  background: #FAF9F5;
+  border: 1px solid #EDEBE4;
   border-radius: 8px;
   padding: 10px; margin-bottom: 8px;
 }
@@ -411,17 +411,17 @@
 .covNameInput {
   flex: 1; font-size: 12px;
   padding: 4px 8px; border-radius: 5px;
-  border: 1px solid hsl(var(--border));
-  background: hsl(var(--card));
-  color: hsl(var(--card-foreground));
+  border: 1px solid #EDEBE4;
+  background: #ffffff;
+  color: #1a1a1a;
   font-family: inherit;
 }
 .covAmtInput {
   width: 90px; font-size: 12px;
   padding: 4px 6px; border-radius: 5px;
-  border: 1px solid hsl(var(--border));
-  background: hsl(var(--card));
-  color: hsl(var(--primary));
+  border: 1px solid #EDEBE4;
+  background: #ffffff;
+  color: #1D9E75;
   text-align: right; flex-shrink: 0;
   font-family: inherit;
 }
@@ -430,8 +430,8 @@
   display: block; width: 100%;
   margin-top: 14px; padding: 11px;
   border-radius: 8px; border: none;
-  background: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
+  background: #1D9E75;
+  color: #ffffff;
   font-size: 14px; font-weight: 600;
   cursor: pointer;
   font-family: inherit;
@@ -449,14 +449,14 @@
 .doneIcon { font-size: 48px; margin-bottom: 16px; }
 .doneText {
   font-size: 18px; font-weight: 600;
-  color: hsl(var(--card-foreground));
+  color: #1a1a1a;
   margin-bottom: 24px;
 }
 .doneActions { display: flex; gap: 10px; }
 .btnPrimary {
   padding: 10px 24px;
-  background: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
+  background: #1D9E75;
+  color: #ffffff;
   border: none; border-radius: 8px;
   font-size: 14px; font-weight: 600;
   cursor: pointer; text-decoration: none;
@@ -465,18 +465,18 @@
 .btnSecondary {
   padding: 10px 24px;
   background: transparent;
-  color: hsl(var(--card-foreground));
-  border: 1px solid hsl(var(--border));
+  color: #1a1a1a;
+  border: 1px solid #EDEBE4;
   border-radius: 8px;
   font-size: 14px; cursor: pointer;
   font-family: inherit;
   transition: background 120ms;
 }
-.btnSecondary:hover { background: hsl(var(--muted)); }
+.btnSecondary:hover { background: #f0f0ec; }
 
 /* Drop Zone */
 .dropZone {
-  border: 2px dashed hsl(var(--border));
+  border: 2px dashed #EDEBE4;
   border-radius: 8px; padding: 28px;
   text-align: center; cursor: pointer;
   transition: all 120ms;
@@ -484,25 +484,25 @@
   align-items: center; justify-content: center;
 }
 .dropZone:hover, .dropZoneActive {
-  border-color: hsl(var(--primary));
-  background: hsl(var(--primary) / 0.05);
+  border-color: #1D9E75;
+  background: rgba(29, 158, 117, 0.05);
 }
 .dropIcon { font-size: 28px; margin-bottom: 8px; }
-.dropText { font-size: 13px; color: hsl(var(--card-foreground)); margin-bottom: 4px; }
-.dropSub { font-size: 11px; color: hsl(var(--muted-foreground)); }
+.dropText { font-size: 13px; color: #1a1a1a; margin-bottom: 4px; }
+.dropSub { font-size: 11px; color: #666666; }
 
 /* Edit Actions */
 .editActions { display: flex; gap: 8px; margin-top: 8px; }
 .cancelBtn {
   font-size: 13px; padding: 7px 16px;
   border-radius: 6px;
-  border: 1px solid hsl(var(--border));
+  border: 1px solid #EDEBE4;
   background: transparent;
-  color: hsl(var(--muted-foreground));
+  color: #666666;
   cursor: pointer; font-family: inherit;
   transition: background 120ms;
 }
-.cancelBtn:hover { background: hsl(var(--muted)); }
+.cancelBtn:hover { background: #f0f0ec; }
 
 /* ── 2패널 레이아웃 (paste 탭) ── */
 .pasteLayout {
@@ -513,8 +513,8 @@
   flex: 1;
 }
 .pastePanel {
-  background: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
+  background: #ffffff;
+  border: 1px solid #EDEBE4;
   border-radius: 10px;
   padding: 20px;
   display: flex;
@@ -526,9 +526,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 1.5px dashed hsl(var(--border));
+  border: 1.5px dashed #EDEBE4;
   border-radius: 10px;
-  color: hsl(var(--muted-foreground));
+  color: #666666;
   font-size: 13px;
   text-align: center;
   gap: 10px;
