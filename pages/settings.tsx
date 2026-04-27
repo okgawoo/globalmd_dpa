@@ -249,7 +249,6 @@ export default function SettingsPage() {
           <h1 className={styles.pageTitle}>설정</h1>
           <p className={styles.pageSub}>계정 및 서비스 설정</p>
         </div>
-        <span className={styles.pageDate}>{dateStr}</span>
       </div>
 
       {/* 탭 + 콘텐츠 카드 */}
