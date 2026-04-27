@@ -74,60 +74,69 @@ function getWeekBounds() {
   return { start: mon.toISOString().split('T')[0], end: sun.toISOString().split('T')[0] }
 }
 
-/* ─── Mock 미팅 리포트 (미팅 리포트 페이지 개발 전 목업) ─── */
+/* ─── Mock 리포트 데이터 (성복경 고객 기준 샘플) ─── */
 const MOCK_REPORTS = [
   {
-    id: 'mock-r1', meeting_type: '첫 만남',
-    title: '초기 보장 현황 분석',
-    date: '2026.04.15',
+    id: 'r-001', label: '최초 보장 분석', meeting_type: '첫 만남', date: '2026.01.15',
     sections: [
-      {
-        heading: '현재 보장 현황',
-        items: [
-          { label: '암진단', value: '미가입', warn: true },
-          { label: '뇌혈관', value: '미가입', warn: true },
-          { label: '실손의료비', value: '가입 (2019년)', warn: false },
-          { label: '사망보험', value: '가입 (1억)', warn: false },
-        ],
-      },
-      {
-        heading: '상담 내용',
-        text: '현재 암·뇌혈관 미가입 상태로 보장 공백이 크게 나타남. 월 납입 부담을 고려해 단계별 가입을 제안함.\n\n1단계: 암진단 위주 상품 가입\n2단계: 뇌혈관 보강 계획.',
-      },
-      {
-        heading: '다음 단계',
-        items: [
-          { label: '다음 일정', value: '2026.04.22 니즈 분석 미팅', warn: false },
-          { label: '준비 사항', value: '기존 보험증권 지참 요청', warn: false },
-        ],
-      },
+      { heading: '고객 기본 정보', items: [
+        { label: '고객명', value: '성복경', warn: false },
+        { label: '나이/성별', value: '48세 / 여', warn: false },
+        { label: '직업', value: '자영업 (식당)', warn: false },
+        { label: '가족 구성', value: '배우자 + 자녀 2명', warn: false },
+      ]},
+      { heading: '보유 계약 (8건)', items: [
+        { label: '총 월납입', value: '476,189원', warn: false },
+        { label: '손보 계약', value: '5건 (DB·현대·KB·메리츠·롯데)', warn: false },
+        { label: '생보 계약', value: '3건 (삼성·교보·한화)', warn: false },
+      ]},
+      { heading: '보장 공백', items: [
+        { label: '뇌혈관 진단비', value: '2천만 미만 → 보강 필요', warn: true },
+        { label: '심장 진단비', value: '3천만 미만 → 보강 필요', warn: true },
+        { label: '간병/LTC', value: '미가입 → 심각한 공백', warn: true },
+      ]},
+      { heading: '추천 상담 스크립트', text: '① 뇌혈관·심장 보강: "48세 이후 뇌심혈관 발병률이 3배 높아집니다. 지금 2,000만→5,000만원으로 올려두시면 안심이 되세요."\n② 간병 공백: "자녀 둘이 성인이 된 후 간병 비용은 본인이 감당해야 합니다. 월 3만원대 LTC로 준비하세요."\n③ 자영업 소득보상: "가게 쉬는 기간 소득이 없어요. 취업불능보험으로 월 100만원 이상 보장 가능합니다."' },
     ],
   },
   {
-    id: 'mock-r2', meeting_type: '니즈 분석',
-    title: '니즈 분석 보고서',
-    date: '2026.04.22',
+    id: 'r-002', label: '니즈 분석', meeting_type: '니즈 분석', date: '2026.02.10',
     sections: [
-      {
-        heading: '가족 현황',
-        items: [
-          { label: '가족 구성', value: '배우자 + 자녀 2명', warn: false },
-          { label: '주소득자', value: '본인 (월 소득 약 450만원)', warn: false },
-          { label: '배우자', value: '전업주부', warn: false },
-        ],
-      },
-      {
-        heading: '니즈 분석 결과',
-        text: '소득 보장 우선 필요. 배우자 전업주부로 본인 유고 시 소득 단절 위험 높음.\n단기적으로 소득보장 보험 가입 후, 이후 가족 건강보험 순차 가입 목표.',
-      },
-      {
-        heading: '제안 방향',
-        items: [
-          { label: '1순위', value: '소득보장 / 취업불능보험', warn: false },
-          { label: '2순위', value: '암·뇌혈관 진단비', warn: false },
-          { label: '3순위', value: '자녀 상해보험', warn: false },
-        ],
-      },
+      { heading: '고객 기본 정보', items: [
+        { label: '월 순소득', value: '약 350만원 (자영업)', warn: false },
+        { label: '부채', value: '주택담보대출 1.2억', warn: false },
+        { label: '보험 한도', value: '배우자 합산 월 30만원 이내', warn: false },
+      ]},
+      { heading: '니즈 분석 결과', text: '자영업 특성상 소득 불안정. 간병·뇌심혈관이 최우선 보강 필요.\n배우자 합산 월 납입 한도: 30만원 이내로 설계 필요.' },
+      { heading: '다음 단계', items: [
+        { label: '제안 상품', value: 'LTC + 뇌심혈관 통합보장', warn: false },
+        { label: '다음 미팅', value: '2026.03.05 상품 설명 예정', warn: false },
+      ]},
+    ],
+  },
+  {
+    id: 'r-003', label: '만기 재설계', meeting_type: '갱신 상담', date: '2026.03.20',
+    sections: [
+      { heading: '갱신 대상 계약', items: [
+        { label: 'DB손해보험', value: '운전자보험 2026.05 만기', warn: true },
+        { label: '현대해상', value: '실손의료비 2026.06 갱신', warn: true },
+      ]},
+      { heading: '재설계 방향', text: '운전자보험 갱신 시 법률비용 한도 3천→5천만원 상향 권고.\n실손 갱신료 인상분 협의 및 4세대 실손 전환 검토.' },
+      { heading: '결론', items: [
+        { label: '우선순위', value: '운전자보험 재가입 선처리', warn: false },
+        { label: '고객 요청', value: '실손 갱신료 비교 자료 요청', warn: false },
+      ]},
+    ],
+  },
+  {
+    id: 'r-004', label: '추가 보장', meeting_type: '추가 가입', date: '2026.04.08',
+    sections: [
+      { heading: '추가 가입 내용', items: [
+        { label: '상품', value: 'KB손해보험 간병보험', warn: false },
+        { label: '월 보험료', value: '28,900원', warn: false },
+        { label: '보장', value: '중증간병 월 100만원', warn: false },
+        { label: '부책일', value: '2026.04.22', warn: false },
+      ]},
+      { heading: '계약 후 안내', text: '청약 완료. 14일 이내 철회 가능.\n1개월 후 보장 개시 확인 안내 예정.' },
     ],
   },
 ]
@@ -145,9 +154,12 @@ export default function Consultations() {
   const [calMonth, setCalMonth] = useState(() => { const d = new Date(); d.setDate(1); return d })
 
 
-  /* Popup — 0:closed 1:mini 2:expanded 3:full+report */
-  const [popupStage, setPopupStage]       = useState<0 | 1 | 2 | 3>(0)
-  const [popupRightTab, setPopupRightTab] = useState<'coverage' | 'history' | 'report'>('coverage')
+  /* Popup — 0:closed 1:820px(기본) 2:+리포트패널 */
+  const [popupStage, setPopupStage]       = useState<0 | 1 | 2>(0)
+  const [popupRightTab, setPopupRightTab] = useState<'coverage' | 'history'>('coverage')
+
+  /* 캘린더 유형 필터 */
+  const [calTypeFilter, setCalTypeFilter] = useState<string | null>(null)
   const [form, setForm]                   = useState({ ...EMPTY_FORM })
   const [editId, setEditId]               = useState<string | null>(null)
   const [saving, setSaving]               = useState(false)
@@ -181,34 +193,42 @@ export default function Consultations() {
     setTimeout(() => setToast(''), 2200)
   }, [])
 
-  /* 점선 연결 */
-  const popupRef          = useRef<HTMLDivElement>(null)
-  const tlItemRefs        = useRef<Record<string, HTMLDivElement | null>>({})
-  const reportTitleRef    = useRef<HTMLDivElement | null>(null)
-  const [selectedHistoryType, setSelectedHistoryType] = useState<string | null>(null)
-  const [connLines, setConnLines] = useState<{ x1: number; y1: number; x2: number; y2: number }[]>([])
+  /* 고객 리포트 선택 */
+  const [selectedReportId, setSelectedReportId] = useState<string | null>(null)
+
+  /* SVG 도트라인 커넥터 */
+  const popupRef        = useRef<HTMLDivElement>(null)
+  const tlItemRefs      = useRef<Record<string, HTMLDivElement | null>>({})
+  const reportListRefs  = useRef<Record<string, HTMLDivElement | null>>({})
+  const reportTitleRef  = useRef<HTMLDivElement | null>(null)
+  const [connLines, setConnLines] = useState<Array<{ id: string; x1: number; y1: number; x2: number; y2: number }>>([])
 
   useLayoutEffect(() => {
-    if (popupStage < 3 || !selectedHistoryType || !popupRef.current) { setConnLines([]); return }
+    if (popupStage < 2 || popupRightTab !== 'history' || !popupRef.current) { setConnLines([]); return }
     const recalc = () => {
       if (!popupRef.current) return
       const popup = popupRef.current.getBoundingClientRect()
-      const tlEl = tlItemRefs.current[selectedHistoryType]
-      const rpEl = reportTitleRef.current
-      if (!tlEl || !rpEl) { setConnLines([]); return }
-      const tl = tlEl.getBoundingClientRect()
-      const rp = rpEl.getBoundingClientRect()
-      setConnLines([{
-        x1: tl.right - popup.left,
-        y1: tl.top + tl.height / 2 - popup.top,
-        x2: rp.left - popup.left,
-        y2: rp.top + rp.height / 2 - popup.top,
-      }])
+      const lines: Array<{ id: string; x1: number; y1: number; x2: number; y2: number }> = []
+      MOCK_REPORTS.forEach(r => {
+        const tlEl = tlItemRefs.current[r.id]
+        const rpEl = reportListRefs.current[r.id]
+        if (!tlEl || !rpEl) return
+        const tl = tlEl.getBoundingClientRect()
+        const rp = rpEl.getBoundingClientRect()
+        lines.push({
+          id: r.id,
+          x1: tl.right - popup.left,
+          y1: tl.top + tl.height / 2 - popup.top,
+          x2: rp.left - popup.left,
+          y2: rp.top + rp.height / 2 - popup.top,
+        })
+      })
+      setConnLines(lines)
     }
-    const t = setTimeout(recalc, 360)
+    const t = setTimeout(recalc, 380)
     recalc()
     return () => clearTimeout(t)
-  }, [popupStage, selectedHistoryType, form.customer_id])
+  }, [popupStage, popupRightTab, form.customer_id])
 
   useEffect(() => { fetchAll() }, [])
 
@@ -242,10 +262,8 @@ export default function Consultations() {
   }, [form.customer_id])
 
   /* 리포트 패널 닫히거나 고객 바뀌면 선택 초기화 */
-  useEffect(() => {
-    if (popupStage < 3) setSelectedHistoryType(null)
-  }, [popupStage])
-  useEffect(() => { setSelectedHistoryType(null) }, [form.customer_id])
+  useEffect(() => { if (popupStage < 2) setSelectedReportId(null) }, [popupStage])
+  useEffect(() => { setSelectedReportId(null) }, [form.customer_id])
 
   /* Close customer dropdown on outside click */
   useEffect(() => {
@@ -284,7 +302,8 @@ export default function Consultations() {
     setForm({ ...EMPTY_FORM, meeting_date: date })
     setCustSearch(''); setEditId(null)
     setPopupRightTab('coverage')
-    setPopupStage(1)   // 1단계: 미니 팝업
+    setSelectedReportId(null)
+    setPopupStage(1)
     document.body.style.overflow = 'hidden'
   }
 
@@ -297,15 +316,16 @@ export default function Consultations() {
     })
     setCustSearch(cust?.name || ''); setEditId(c.id)
     setPopupRightTab('history')
-    setPopupStage(2)   // 2단계: 확장 팝업 (편집 시엔 바로 확장)
+    setSelectedReportId(null)
+    setPopupStage(1)
     document.body.style.overflow = 'hidden'
   }
 
   function closePopup() {
     setPopupStage(0); setEditId(null)
     setForm({ ...EMPTY_FORM }); setCustSearch('')
-    setEditNoteId(null)
-    setPopupMeetings([])
+    setEditNoteId(null); setPopupMeetings([])
+    setSelectedReportId(null)
     document.body.style.overflow = ''
   }
 
@@ -454,8 +474,11 @@ export default function Consultations() {
 
             {calCells.map((day, idx) => {
               if (!day) return <div key={`e-${idx}`} className={styles.calCell} />
-              const dateStr    = getDateStr(day)
+              const dateStr     = getDateStr(day)
               const dayConsults = dateMap[dateStr] || []
+              const displayConsults = calTypeFilter
+                ? dayConsults.filter((c: any) => c.meeting_type === calTypeFilter)
+                : dayConsults
               const isToday    = dateStr === todayStr
               const dow        = (startDow + day - 1) % 7
               const isSun = dow === 0, isSat = dow === 6
@@ -471,7 +494,7 @@ export default function Consultations() {
                     {day}
                   </span>
 
-                  {dayConsults.slice(0, 3).map((c: any) => {
+                  {displayConsults.slice(0, 3).map((c: any) => {
                     const cust  = customers.find(cu => cu.id === c.customer_id)
                     const color = TYPE_COLOR[c.meeting_type] || 'hsl(237 47% 59%)'
                     return (
@@ -483,23 +506,46 @@ export default function Consultations() {
                       </div>
                     )
                   })}
-                  {dayConsults.length > 3 && (
-                    <span className={styles.calEventMore}>+{dayConsults.length - 3}</span>
+                  {displayConsults.length > 3 && (
+                    <span className={styles.calEventMore}>+{displayConsults.length - 3}</span>
                   )}
                 </div>
               )
             })}
           </div>
 
-          {/* Legend */}
-          <div className={styles.calLegend}>
-            {MEETING_TYPES.map(t => (
-              <div key={t.value} className={styles.calLegendItem}>
-                <span className={styles.calLegendDot} style={{ background: t.color }} />
-                <span className={styles.calLegendLabel}>{t.value}</span>
+          {/* Legend — 클릭 필터 + 이번달 건수 */}
+          {(() => {
+            const monthStr = `${calYear}-${String(calMonthNum + 1).padStart(2, '0')}`
+            const totalCnt = consultations.filter(c => c.meeting_date.startsWith(monthStr)).length
+            return (
+              <div className={styles.calLegend}>
+                <button
+                  className={[styles.calLegendItem, styles.calLegendBtn, !calTypeFilter ? styles.calLegendBtnActive : ''].join(' ')}
+                  onClick={() => setCalTypeFilter(null)}
+                >
+                  <span className={styles.calLegendLabel} style={{ fontWeight: !calTypeFilter ? 700 : 400, color: !calTypeFilter ? '#5E6AD2' : undefined }}>전체</span>
+                  {totalCnt > 0 && <span className={styles.calLegendCount} style={{ background: 'rgba(94,106,210,0.12)', color: '#5E6AD2' }}>{totalCnt}</span>}
+                </button>
+                {MEETING_TYPES.map(t => {
+                  const cnt = consultations.filter(c => c.meeting_date.startsWith(monthStr) && c.meeting_type === t.value).length
+                  const isActive = calTypeFilter === t.value
+                  return (
+                    <button
+                      key={t.value}
+                      className={[styles.calLegendItem, styles.calLegendBtn, isActive ? styles.calLegendBtnActive : ''].join(' ')}
+                      style={{ opacity: cnt === 0 ? 0.35 : 1 }}
+                      onClick={() => setCalTypeFilter(isActive ? null : t.value)}
+                    >
+                      <span className={styles.calLegendDot} style={{ background: t.color }} />
+                      <span className={styles.calLegendLabel} style={{ color: isActive ? t.color : undefined, fontWeight: isActive ? 700 : 400 }}>{t.value}</span>
+                      {cnt > 0 && <span className={styles.calLegendCount} style={{ background: t.color + '22', color: t.color }}>{cnt}</span>}
+                    </button>
+                  )
+                })}
               </div>
-            ))}
-          </div>
+            )
+          })()}
         </div>
 
         {/* ════════ RIGHT — Today + Week stacked ════════ */}
@@ -604,17 +650,14 @@ export default function Consultations() {
       {/* ════════ POPUP ════════ */}
 
       {popupStage > 0 && (
-        <div className={styles.popupOverlay} onClick={e => { if (e.target === e.currentTarget) closePopup() }}>
-          <div ref={popupRef}
-            className={[
-              styles.popup,
-              popupStage === 2 ? styles.popupStage2 : '',
-              popupStage === 3 ? styles.popupStage3 : '',
-            ].join(' ')}
+        <div className={styles.popupOverlay}>
+          <div
+            ref={popupRef}
+            className={[styles.popup, popupStage === 2 ? styles.popupStage2 : ''].join(' ')}
             style={{ position: 'relative' }}
           >
 
-            {/* ── Popup Left: Form ── */}
+            {/* ═══ 1열: 등록/수정 폼 ═══ */}
             <div className={styles.popupLeft}>
               <div className={styles.popupHeader}>
                 <span className={styles.popupTitle}>{editId ? '일정 수정' : '일정 등록'}</span>
@@ -625,9 +668,7 @@ export default function Consultations() {
 
               <div className={styles.popupBody}>
 
-                {/* ─── 공통 필드: 항상 표시 ─── */}
-
-                {/* Customer */}
+                {/* 고객 선택 */}
                 <div className={styles.formField}>
                   <label className={styles.label}>고객 선택 *</label>
                   <div className={styles.custSelectWrap} ref={dropRef}>
@@ -654,7 +695,6 @@ export default function Consultations() {
                           const c = filteredCusts[custActiveIdx]
                           setForm(f => ({ ...f, customer_id: c.id }))
                           setCustSearch(c.name); setShowCustDrop(false); setCustActiveIdx(-1)
-                          setPopupRightTab('coverage')
                         } else if (e.key === 'Escape') {
                           setShowCustDrop(false); setCustActiveIdx(-1)
                         }
@@ -669,7 +709,6 @@ export default function Consultations() {
                             onClick={() => {
                               setForm(f => ({ ...f, customer_id: c.id }))
                               setCustSearch(c.name); setShowCustDrop(false); setCustActiveIdx(-1)
-                              setPopupRightTab('coverage')
                             }}>
                             <span className={styles.custOptionName}>{c.name}</span>
                             <span className={styles.custOptionMeta}>{c.customer_type === 'prospect' ? '관심' : '일반'} · {c.phone || '-'}</span>
@@ -680,16 +719,7 @@ export default function Consultations() {
                   </div>
                 </div>
 
-                {/* Type */}
-                <div className={styles.formField}>
-                  <label className={styles.label}>상담 유형 *</label>
-                  <select className={styles.input} value={form.meeting_type}
-                    onChange={e => setForm(f => ({ ...f, meeting_type: e.target.value }))}>
-                    {MEETING_TYPES.map(t => <option key={t.value} value={t.value}>{t.value}</option>)}
-                  </select>
-                </div>
-
-                {/* Date */}
+                {/* 날짜 */}
                 <div className={styles.formField}>
                   <label className={styles.label}>날짜 *</label>
                   <div className={styles.timePicker}>
@@ -730,7 +760,7 @@ export default function Consultations() {
                   </div>
                 </div>
 
-                {/* Time / Location — 항상 표시 */}
+                {/* 시간 / 장소 */}
                 <div className={styles.formRow}>
                   <div className={styles.formField}>
                     <label className={styles.label}>시간</label>
@@ -768,81 +798,72 @@ export default function Consultations() {
                   </div>
                 </div>
 
-                {/* ─── 확장 전용 필드 (stage 2+) ─── */}
+                {/* 상담 유형 */}
+                <div className={styles.formField}>
+                  <label className={styles.label}>상담 유형 *</label>
+                  <select className={styles.input} value={form.meeting_type}
+                    onChange={e => setForm(f => ({ ...f, meeting_type: e.target.value }))}>
+                    {MEETING_TYPES.map(t => <option key={t.value} value={t.value}>{t.value}</option>)}
+                  </select>
+                </div>
 
-                {/* Status */}
-                {popupStage >= 2 && (
-                  <div className={styles.formField}>
-                    <label className={styles.label}>상태</label>
-                    <div className={styles.statusGroup}>
-                      {STATUS_OPTIONS.map(s => (
-                        <button key={s}
-                          className={[styles.statusBtn, form.status === s ? styles.statusBtnActive : ''].join(' ')}
-                          onClick={() => setForm(f => ({ ...f, status: s }))}>
-                          {s}
-                        </button>
-                      ))}
-                    </div>
+                {/* 상태 */}
+                <div className={styles.formField}>
+                  <label className={styles.label}>상태</label>
+                  <div className={styles.statusGroup}>
+                    {STATUS_OPTIONS.map(s => (
+                      <button key={s}
+                        className={[styles.statusBtn, form.status === s ? styles.statusBtnActive : ''].join(' ')}
+                        onClick={() => setForm(f => ({ ...f, status: s }))}>
+                        {s}
+                      </button>
+                    ))}
                   </div>
-                )}
+                </div>
 
-                {/* Notes */}
-                {popupStage >= 2 && (
-                  <div className={styles.formField} style={{ flex: 1, minHeight: 0 }}>
-                    <label className={styles.label}>상담 메모</label>
-                    <textarea
-                      className={styles.textarea}
-                      style={{ flex: 1, resize: 'none' }}
-                      placeholder="상담 내용, 고객 반응, 다음 액션 등 자유롭게 기록하세요..."
-                      value={form.notes}
-                      onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-                    />
-                  </div>
-                )}
+                {/* 이번 미팅 메모 */}
+                <div className={styles.formField} style={{ flex: 1, minHeight: 0 }}>
+                  <label className={styles.label}>이번 미팅 메모</label>
+                  <textarea
+                    className={styles.textarea}
+                    style={{ flex: 1, resize: 'none', minHeight: 80 }}
+                    placeholder="상담 내용, 고객 반응, 다음 액션 등 자유롭게 기록하세요..."
+                    value={form.notes}
+                    onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
+                  />
+                </div>
 
               </div>
 
-              {/* Actions — stage에 따라 버튼 다름 */}
+              {/* 액션 버튼 */}
               <div className={styles.popupActions}>
+                {editId && (
+                  <button className={styles.deleteBtn} onClick={() => { deleteConsultation(editId); closePopup() }}>
+                    삭제
+                  </button>
+                )}
+                <button className={styles.saveBtn} onClick={saveConsultation} disabled={saving}>
+                  {saving ? '저장 중...' : editId ? '수정 완료' : '저장'}
+                </button>
                 {popupStage === 1 ? (
-                  /* 미니 팝업 액션 */
-                  <>
-                    <button className={styles.saveBtn} onClick={saveConsultation} disabled={saving}>
-                      {saving ? '저장 중...' : '저장'}
-                    </button>
-                    <button className={styles.expandBtn} onClick={() => {
-                      setPopupStage(2)
-                      setPopupRightTab(editId ? 'history' : 'coverage')
-                    }}>
-                      상세보기 →
-                    </button>
-                  </>
+                  <button className={styles.expandBtn} onClick={() => { setPopupStage(2); setPopupRightTab('history') }}>
+                    고객 리포트 →
+                  </button>
                 ) : (
-                  /* 확장 팝업 액션 */
-                  <>
-                    {editId && (
-                      <button className={styles.deleteBtn} onClick={() => { deleteConsultation(editId); closePopup() }}>
-                        삭제
-                      </button>
-                    )}
-                    <button className={styles.saveBtn} onClick={saveConsultation} disabled={saving}>
-                      {saving ? '저장 중...' : editId ? '수정 완료' : '+ 등록'}
-                    </button>
-                    <button className={styles.cancelBtn} onClick={closePopup}>취소</button>
-                  </>
+                  <button className={styles.cancelBtn} onClick={closePopup}>닫기</button>
                 )}
               </div>
             </div>
 
-            {/* ── Popup Right: Coverage / History (stage 2+) ── */}
+            {/* ═══ 2열: 보장내역 / 상담이력 ═══ */}
             <div className={styles.popupRight}>
               <div className={styles.popupRightTabs}>
-                <button className={[styles.popupRightTab, popupRightTab === 'coverage' && popupStage < 3 ? styles.popupRightTabActive : ''].join(' ')}
-                  onClick={() => { setPopupRightTab('coverage'); if (popupStage >= 3) setPopupStage(2) }}>보장 내역</button>
-                <button className={[styles.popupRightTab, popupRightTab === 'history' && popupStage < 3 ? styles.popupRightTabActive : ''].join(' ')}
-                  onClick={() => { setPopupRightTab('history'); if (popupStage >= 3) setPopupStage(2) }}>상담 이력</button>
-                <button className={[styles.popupRightTab, popupStage >= 3 ? styles.popupRightTabActive : ''].join(' ')}
-                  onClick={() => { setPopupRightTab('history'); setPopupStage(s => s === 3 ? 2 : 3) }}>고객 리포트</button>
+                <button
+                  className={[styles.popupRightTab, popupRightTab === 'coverage' ? styles.popupRightTabActive : ''].join(' ')}
+                  onClick={() => setPopupRightTab('coverage')}>보장 내역</button>
+                <button
+                  className={[styles.popupRightTab, popupRightTab === 'history' ? styles.popupRightTabActive : ''].join(' ')}
+                  onClick={() => setPopupRightTab('history')}>상담 이력</button>
               </div>
 
               <div className={styles.popupRightBody}>
@@ -860,7 +881,6 @@ export default function Consultations() {
                     </div>
                   ) : (
                     <div className={styles.coverageWrap}>
-                      {/* 고객 기본 정보 */}
                       <div className={styles.coverageCustCard}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 6 }}>
                           <span className={[styles.custTypeTag, selectedCust.customer_type === 'prospect' ? styles.custTypeTagProspect : styles.custTypeTagMy].join(' ')}>
@@ -876,8 +896,6 @@ export default function Consultations() {
                           {selectedCust.email && <span>{selectedCust.email}</span>}
                         </div>
                         {selectedCust.memo && <p className={styles.coverageMemo}>{selectedCust.memo}</p>}
-
-                        {/* 인적사항 그리드 */}
                         <div className={styles.custInfoGrid}>
                           <div className={[styles.custInfoCell, styles.custInfoCellL].join(' ')}>
                             <span className={styles.custInfoLabel}>연락처</span>
@@ -924,7 +942,6 @@ export default function Consultations() {
                         </div>
                       </div>
 
-                      {/* 계약 없음 */}
                       {popupContracts.length === 0 && (
                         <div className={styles.coveragePlaceholder}>
                           <span className={styles.coveragePlaceholderIcon}>📋</span>
@@ -932,7 +949,6 @@ export default function Consultations() {
                         </div>
                       )}
 
-                      {/* 계약 카드 목록 */}
                       {popupContracts.map((ct, idx) => {
                         const cvs = popupCoverages.filter(cv => cv.contract_id === ct.id)
                         const groups = COVERAGE_GROUPS
@@ -985,7 +1001,7 @@ export default function Consultations() {
                 )}
 
                 {/* 상담 이력 */}
-                {(popupRightTab === 'history' || popupStage >= 3) && (
+                {popupRightTab === 'history' && (
                   !form.customer_id ? (
                     <div className={styles.emptyState}>
                       <div className={styles.emptyIcon}>📋</div>
@@ -994,21 +1010,23 @@ export default function Consultations() {
                   ) : (
                     <div className={styles.timeline}>
                       {getCustomerTimeline(form.customer_id).map((t: any, idx: number) => {
-                        const tColor   = TYPE_COLOR[t.meeting_type] || 'hsl(237 47% 59%)'
-                        const isDone     = t.status === '완료'
-                        const isConfirm  = t.status === '확정'
-                        const isCancel   = t.status === '취소'
+                        const tColor    = TYPE_COLOR[t.meeting_type] || 'hsl(237 47% 59%)'
+                        const isDone    = t.status === '완료'
+                        const isCancel  = t.status === '취소'
                         const isCurrent = editId ? t.id === editId : t.meeting_date === form.meeting_date
-                        const isLast   = idx === getCustomerTimeline(form.customer_id).length - 1
-
-                        const hasMockReport = MOCK_REPORTS.some(r => r.meeting_type === t.meeting_type)
-                        const isHistorySelected = popupStage >= 3 && selectedHistoryType === t.meeting_type
+                        const isLast    = idx === getCustomerTimeline(form.customer_id).length - 1
+                        const matchReport = MOCK_REPORTS.find(r => r.meeting_type === t.meeting_type)
+                        const isRepSelected = popupStage === 2 && matchReport && selectedReportId === matchReport.id
                         return (
                           <div
                             key={t.id}
-                            ref={el => { if (hasMockReport) tlItemRefs.current[t.meeting_type] = el }}
-                            className={[styles.tlItem, popupStage >= 3 && hasMockReport ? styles.tlItemClickable : '', isHistorySelected ? styles.tlItemSelected : ''].join(' ')}
-                            onClick={popupStage >= 3 && hasMockReport ? () => setSelectedHistoryType(t.meeting_type) : undefined}
+                            ref={matchReport ? (el => { tlItemRefs.current[matchReport.id] = el }) : undefined}
+                            className={[
+                              styles.tlItem,
+                              popupStage === 2 && matchReport ? styles.tlItemClickable : '',
+                              isRepSelected ? styles.tlItemSelected : '',
+                            ].join(' ')}
+                            onClick={popupStage === 2 && matchReport ? () => setSelectedReportId(matchReport.id === selectedReportId ? null : matchReport.id) : undefined}
                           >
                             <div className={styles.tlLeft}>
                               <div className={styles.tlDot} style={{
@@ -1030,11 +1048,14 @@ export default function Consultations() {
                                 {isCurrent && (
                                   <span className={styles.tlCurrentBadge}
                                     style={{ background: tColor + '20', color: tColor, border: `1px solid ${tColor}40` }}>
-                                    오늘
+                                    현재
                                   </span>
                                 )}
+                                {matchReport && popupStage === 2 && (
+                                  <span style={{ fontSize: 10, color: '#5E6AD2', marginLeft: 2, opacity: 0.65 }}>리포트</span>
+                                )}
                                 <span className={styles.tlStatus}>{t.status}</span>
-                                <button className={styles.tlEditBtn} onClick={() => { setEditNoteId(t.id); setNoteText(t.notes || '') }}>
+                                <button className={styles.tlEditBtn} onClick={e => { e.stopPropagation(); setEditNoteId(t.id); setNoteText(t.notes || '') }}>
                                   <Edit2 style={{ width: 10, height: 10 }} />
                                 </button>
                               </div>
@@ -1042,6 +1063,13 @@ export default function Consultations() {
                               <div className={styles.tlMeta}>
                                 {t.meeting_date}{t.meeting_time && ` · ${t.meeting_time}`}{t.location && ` · ${t.location}`}
                               </div>
+
+                              {/* 메모 한 줄 미리보기 */}
+                              {t.notes && editNoteId !== t.id && (
+                                <p className={styles.tlNote} style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', opacity: 0.7 }}>
+                                  {t.notes}
+                                </p>
+                              )}
 
                               {editNoteId === t.id ? (
                                 <div className={styles.tlNoteEdit}>
@@ -1053,13 +1081,11 @@ export default function Consultations() {
                                     <button className={styles.tlNoteCancel} onClick={() => setEditNoteId(null)}>취소</button>
                                   </div>
                                 </div>
-                              ) : t.notes ? (
-                                <p className={styles.tlNote}>{t.notes}</p>
-                              ) : (
-                                <button className={styles.tlNoteAdd} onClick={() => { setEditNoteId(t.id); setNoteText('') }}>
+                              ) : !t.notes ? (
+                                <button className={styles.tlNoteAdd} onClick={e => { e.stopPropagation(); setEditNoteId(t.id); setNoteText('') }}>
                                   + 메모 추가
                                 </button>
-                              )}
+                              ) : null}
                             </div>
                           </div>
                         )
@@ -1068,78 +1094,103 @@ export default function Consultations() {
                   )
                 )}
 
-
               </div>
             </div>
 
-            {/* ── 미팅 리포트 패널 (3열) ── */}
-            {(() => {
-              const activeReport = selectedHistoryType ? MOCK_REPORTS.find(r => r.meeting_type === selectedHistoryType) : null
-              return (
-                <div className={styles.reportPanel}>
-                  <div className={styles.reportPanelHeader}>
-                    <span className={styles.reportPanelTitle}>미팅 리포트</span>
-                    {selectedCust && <span className={styles.reportPanelMeta}>{selectedCust.name}</span>}
+            {/* ═══ 3열: 고객 리포트 패널 ═══ */}
+            <div className={styles.reportPanel}>
+              <div className={styles.reportPanelHeader}>
+                <span className={styles.reportPanelTitle}>고객 리포트</span>
+                {selectedCust && <span className={styles.reportPanelMeta}>{selectedCust.name}</span>}
+              </div>
+              <div className={styles.reportPanelBody}>
+                {!selectedCust ? (
+                  <div className={styles.reportPanelEmpty}>
+                    <p>고객을 선택하면<br />리포트가 표시됩니다</p>
                   </div>
-                  <div className={styles.reportPanelBody}>
-                    {!selectedCust ? (
-                      <div className={styles.reportPanelEmpty}>
-                        <p>고객을 선택하면<br />리포트가 표시됩니다</p>
-                      </div>
-                    ) : !selectedHistoryType ? (
-                      <div className={styles.reportPanelEmpty}>
-                        <div className={styles.reportPanelEmptyArrow}>←</div>
-                        <p>상담 이력을 클릭하면<br />미팅 리포트가 연결됩니다</p>
-                      </div>
-                    ) : !activeReport ? (
-                      <div className={styles.reportPanelEmpty}>
-                        <p>이 이력에 연결된<br />리포트가 없습니다</p>
-                      </div>
-                    ) : (
-                      <div className={styles.reportPreview}>
-                        <div className={styles.reportPreviewHeader}>
-                          <div ref={reportTitleRef} className={styles.reportPreviewTitle}>{activeReport.title}</div>
-                          <div className={styles.reportPreviewMeta}>{activeReport.date} · {selectedCust.name}</div>
-                        </div>
-                        {activeReport.sections.map((s, si) => (
-                          <div key={si} className={styles.reportPreviewSection}>
-                            <div className={styles.reportPreviewSectionHeading}>{s.heading}</div>
-                            {s.items && (
-                              <table className={styles.reportPreviewTable}>
-                                <tbody>
-                                  {s.items.map((item, ii) => (
-                                    <tr key={ii}>
-                                      <td className={styles.reportPreviewTdLabel}>{item.label}</td>
-                                      <td className={[styles.reportPreviewTdValue, item.warn ? styles.reportPreviewWarn : ''].join(' ')}>{item.value}</td>
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            )}
-                            {s.text && <p className={styles.reportPreviewText}>{s.text}</p>}
+                ) : (
+                  <>
+                    {/* 리포트 목록 */}
+                    <div className={styles.reportList}>
+                      {MOCK_REPORTS.map(r => (
+                        <div
+                          key={r.id}
+                          ref={el => { reportListRefs.current[r.id] = el }}
+                          className={[styles.reportListItem, selectedReportId === r.id ? styles.reportListItemActive : ''].join(' ')}
+                          onClick={() => setSelectedReportId(selectedReportId === r.id ? null : r.id)}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+                            <span style={{ width: 7, height: 7, borderRadius: '50%', background: TYPE_COLOR[r.meeting_type] || '#5E6AD2', flexShrink: 0 }} />
+                            <span className={styles.reportListLabel}>{r.label}</span>
                           </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )
-            })()}
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span className={styles.reportListDate}>{r.date}</span>
+                            <span style={{ fontSize: 10, color: TYPE_COLOR[r.meeting_type] || '#8892A0', background: (TYPE_COLOR[r.meeting_type] || '#5E6AD2') + '18', padding: '1px 6px', borderRadius: 4 }}>
+                              {r.meeting_type}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
 
-            {/* ── 점선 커넥터 SVG 오버레이 ── */}
-            {connLines.length > 0 && (
+                    {/* 선택된 리포트 내용 */}
+                    {selectedReportId && (() => {
+                      const report = MOCK_REPORTS.find(r => r.id === selectedReportId)
+                      if (!report) return null
+                      return (
+                        <div className={styles.reportPreview}>
+                          <div ref={reportTitleRef} className={styles.reportPreviewHeader}>
+                            <div className={styles.reportPreviewTitle}>{report.label}</div>
+                            <div className={styles.reportPreviewMeta}>{report.date}</div>
+                          </div>
+                          {report.sections.map((s, si) => (
+                            <div key={si} className={styles.reportPreviewSection}>
+                              <div className={styles.reportPreviewSectionHeading}>{s.heading}</div>
+                              {s.items && (
+                                <table className={styles.reportPreviewTable}>
+                                  <tbody>
+                                    {s.items.map((item, ii) => (
+                                      <tr key={ii}>
+                                        <td className={styles.reportPreviewTdLabel}>{item.label}</td>
+                                        <td className={[styles.reportPreviewTdValue, item.warn ? styles.reportPreviewWarn : ''].join(' ')}>{item.value}</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              )}
+                              {s.text && <p className={styles.reportPreviewText}>{s.text}</p>}
+                            </div>
+                          ))}
+                        </div>
+                      )
+                    })()}
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* ── SVG 도트라인 커넥터 (2열↔3열) ── */}
+            {popupStage === 2 && popupRightTab === 'history' && connLines.length > 0 && (
               <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', overflow: 'visible', zIndex: 10 }}>
-                {connLines.map((line, i) => {
-                  const midX = line.x1 + (line.x2 - line.x1) * 0.42
+                {connLines.map(line => {
+                  const isSelected = line.id === selectedReportId
+                  const midX = line.x1 + (line.x2 - line.x1) * 0.52
                   return (
-                    <g key={i}>
+                    <g key={line.id}>
                       <path
                         d={`M ${line.x1} ${line.y1} H ${midX} V ${line.y2} H ${line.x2}`}
-                        stroke="#5E6AD2" strokeWidth="3.5" strokeDasharray="1 13"
-                        strokeLinecap="round" fill="none" opacity="0.75"
+                        stroke="#5E6AD2"
+                        strokeWidth={isSelected ? 2.5 : 1.2}
+                        strokeDasharray="4 8"
+                        strokeLinecap="round"
+                        fill="none"
+                        opacity={isSelected ? 0.9 : 0.28}
+                        style={{ transition: 'opacity 0.2s ease, stroke-width 0.2s ease' }}
                       />
-                      <circle cx={line.x1} cy={line.y1} r="4.5" fill="#5E6AD2" opacity="0.75" />
-                      <circle cx={line.x2} cy={line.y2} r="7" fill="#5E6AD2" opacity="0.85" />
+                      <circle cx={line.x1} cy={line.y1} r={isSelected ? 4 : 2.5}
+                        fill="#5E6AD2" opacity={isSelected ? 0.9 : 0.28} />
+                      <circle cx={line.x2} cy={line.y2} r={isSelected ? 5 : 3}
+                        fill="#5E6AD2" opacity={isSelected ? 0.9 : 0.28} />
                     </g>
                   )
                 })}
