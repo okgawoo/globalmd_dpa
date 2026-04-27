@@ -228,6 +228,7 @@ export default function Customers() {
   const isMobile = useIsMobile()
   const slideContentRef = useRef<HTMLDivElement>(null)
   const isInitialLoad = useRef(true)
+  const selectedRef = useRef<any>(null)
   const zoomWrapperRef = useRef<HTMLDivElement>(null)
   const zoomStateRef = useRef({ scale: 1, tx: 0, ty: 0 })
   const { confirm, ConfirmDialog } = useConfirm()
@@ -243,6 +244,9 @@ export default function Customers() {
   const [showAddInsForm, setShowAddInsForm] = useState(false)
 
   useEffect(() => { fetchAll() }, [])
+
+  // selectedRef 동기화 — fetchAll 내에서 stale closure 없이 현재 선택 고객 참조
+  useEffect(() => { selectedRef.current = selected }, [selected])
 
   // 뒤로가기 버튼으로 슬라이드 닫기
   useEffect(() => {
@@ -405,9 +409,10 @@ export default function Customers() {
     if (agentId) setAgentId(agentId)
 
     // customers + contracts 병렬로 불러오기
+    // .limit(10000) — Supabase 기본 limit 안전장치
     const [custsRes, contsRes] = await Promise.all([
-      supabase.from('dpa_customers').select('*').eq('agent_id', agentId).order('created_at', { ascending: false }),
-      supabase.from('dpa_contracts').select('*').eq('agent_id', agentId)
+      supabase.from('dpa_customers').select('*').eq('agent_id', agentId).order('created_at', { ascending: false }).limit(10000),
+      supabase.from('dpa_contracts').select('*').eq('agent_id', agentId).limit(10000)
     ])
 
     const custs = custsRes.data || []
@@ -441,11 +446,23 @@ export default function Customers() {
     setContracts(conts)
     setCoverages(covs)
     setLoading(false)
+
     if (isInitialLoad.current && window.innerWidth > 768) {
+      // 첫 로드: 첫 번째 고객 자동 선택
       isInitialLoad.current = false
       const first = custs.find((c: any) => c.customer_type === 'existing') || custs[0]
       if (first) selectCustomer(first, conts, covs)
+    } else if (selectedRef.current) {
+      // 이후 fetchAll 호출 시: 현재 선택된 고객의 계약/보장 목록을 fresh 데이터로 갱신
+      // (saveContractEdit, saveInsurance 등 후 selectedContracts stale 방지)
+      const c = selectedRef.current
+      const cContracts = conts.filter((ct: any) => ct.customer_id === c.id)
+      setSelectedContracts(cContracts)
+      const ids = cContracts.map((ct: any) => ct.id)
+      setSelectedCoverages(covs.filter((cv: any) => ids.includes(cv.contract_id)))
     }
+
+    return { custs, conts, covs }
   }
 
   function selectCustomer(c: any, allContracts?: any[], allCoverages?: any[]) {
@@ -485,13 +502,13 @@ export default function Customers() {
   async function saveCustomerEdit() {
     await supabase.from('dpa_customers').update(editForm).eq('id', selected.id)
     setEditMode(false)
-    fetchAll()
+    await fetchAll()  // await → selectedRef 갱신으로 selectedContracts 즉시 반영
   }
 
   async function saveContractEdit() {
     await supabase.from('dpa_contracts').update(editContractForm).eq('id', editContractId)
     setEditContractId(null)
-    fetchAll()
+    await fetchAll()  // await → selectedRef 갱신으로 선택 고객 계약 최신화
   }
 
   async function deleteContract(ctId: string, e: React.MouseEvent) {
@@ -549,8 +566,8 @@ export default function Customers() {
       setAddForm(emptyCustomerForm)
       setAddContracts([{company:'',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}])
       setShowAddInsForm(false)
-      await fetchAll()
-      selectCustomer(cust)
+      const { conts, covs } = await fetchAll()
+      selectCustomer(cust, conts, covs)  // fresh 데이터로 선택 — stale closure 방지
     }
   }
 
@@ -579,7 +596,7 @@ export default function Customers() {
     setInsForm({ company: '', product_name: '', insurance_type: '건강', monthly_fee: '', payment_status: '유지', payment_years: '', expiry_age: '', contract_start: '' })
     setInsCoverages([])
     setNewCov({ category: '암진단', coverage_name: '', amount: '' })
-    fetchAll()
+    await fetchAll()  // await → selectedRef 자동 갱신으로 selectedContracts 즉시 반영
   }
 
   const getBadges = (c: any) => {
