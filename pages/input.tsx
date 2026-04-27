@@ -414,6 +414,13 @@ export default function InputPage() {
         body: JSON.stringify({ text: combined }),
       })
       const data = await res.json()
+      // API 에러 처리
+      if (!res.ok || data.error) {
+        const errMsg = data?.error || `분석 오류 (${res.status})`
+        alert(`AI 분석 실패: ${errMsg}`)
+        setParsing(false)
+        return
+      }
       // 검증 경고
       const warns: string[] = []
       const isFirst = confirmedContracts.length === 0 && !parsedCustomer
