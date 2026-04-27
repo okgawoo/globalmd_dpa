@@ -155,18 +155,29 @@ JSON 외 다른 텍스트는 절대 포함하지 마세요.
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5-20250929',
-        max_tokens: 20000,
+        model: 'claude-sonnet-4-6',
+        max_tokens: 16000,
         system: systemPrompt,
         messages: [{ role: 'user', content: text }],
       }),
     })
 
     const data = await response.json()
-    console.log('Claude API response:', JSON.stringify(data).slice(0, 500))
+    console.log('Claude API response status:', response.status)
+    console.log('Claude API response body:', JSON.stringify(data).slice(0, 500))
+
+    // HTTP 레벨 에러 체크 (모델 없음 404, 인증 실패 401, 요청 오류 400 등)
+    if (!response.ok) {
+      const errMsg = data?.error?.message || `Claude API HTTP 오류 (${response.status})`
+      console.error('Claude API HTTP error:', response.status, errMsg)
+      return res.status(500).json({ error: errMsg })
+    }
+
     if (data.error) {
+      console.error('Claude API error field:', data.error)
       return res.status(500).json({ error: data.error.message || 'Claude API 오류' })
     }
+
     const raw = data.content?.[0]?.text || '{}'
     const clean = raw.replace(/```json|```/g, '').trim()
     const parsed = JSON.parse(clean)
