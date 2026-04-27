@@ -232,6 +232,7 @@ export default function Customers() {
   const zoomWrapperRef = useRef<HTMLDivElement>(null)
   const zoomStateRef = useRef({ scale: 1, tx: 0, ty: 0 })
   const { confirm, ConfirmDialog } = useConfirm()
+  const [expandedContractId, setExpandedContractId] = useState<string | null>(null)
   const [addInsMode, setAddInsMode] = useState(false)
   const [insForm, setInsForm] = useState({ company: '', product_name: '', insurance_type: '건강', monthly_fee: '', payment_status: '유지', payment_years: '', expiry_age: '', contract_start: '' })
   const [insCoverages, setInsCoverages] = useState<any[]>([])
@@ -470,6 +471,7 @@ export default function Customers() {
     setEditMode(false)
     setAddMode(false)
     setEditContractId(null)
+    setExpandedContractId(null)  // 고객 전환 시 아코디언 초기화
     const conts = allContracts || contracts
     const covs = allCoverages || coverages
     const cContracts = conts.filter((ct: any) => ct.customer_id === c.id)
@@ -1085,10 +1087,17 @@ export default function Customers() {
               {selectedContracts.map((ct, idx) => {
                 const cvs = selectedCoverages.filter(cv => cv.contract_id === ct.id)
                 const groups = COVERAGE_GROUPS.map(g => ({ ...g, items: cvs.filter((cv:any) => cv.category === g.key).sort((a:any, b:any) => a.coverage_name.localeCompare(b.coverage_name, 'ko', { numeric: true })) })).filter(g => g.items.length > 0)
+                const isExpanded = expandedContractId === ct.id
                 return (
-                  <div key={ct.id} className={calcPaymentRate(ct) >= 90 && ct.payment_status !== '완납' ? styles.insCardWarn : styles.insCard}>
+                  <div key={ct.id} className={calcPaymentRate(ct) >= 90 && ct.payment_status !== '완납' ? styles.insCardWarn : styles.insCard}
+                    style={{cursor:'pointer'}}
+                    onClick={() => setExpandedContractId(isExpanded ? null : ct.id)}
+                  >
                     <div className={styles.insCardHeader}>
-                      <div className={styles.insCardTitle}>{idx+1}. {ct.company}{ct.product_name ? ` · ${ct.product_name}` : ''}</div>
+                      <div style={{display:'flex',alignItems:'center',gap:6}}>
+                        <div className={styles.insCardTitle}>{idx+1}. {ct.company}{ct.product_name ? ` · ${ct.product_name}` : ''}</div>
+                        <span style={{fontSize:11,color:'#8892A0',marginLeft:'auto',transition:'transform 0.2s',transform:isExpanded?'rotate(180deg)':'rotate(0deg)',display:'inline-block',lineHeight:1}}>▾</span>
+                      </div>
                       <div className={styles.insCardBottomRow}>
                         <div className={styles.insCardMeta}>{ct.monthly_fee>0?`${ct.monthly_fee.toLocaleString()}원/월`:''}{ct.contract_start?` · ${ct.contract_start} 가입`:''}{ct.payment_years?` · ${ct.payment_years}`:''}{ct.expiry_age?` · ${ct.expiry_age}만기`:''}</div>
                         <div className={styles.insCardBadges}>
@@ -1096,8 +1105,8 @@ export default function Customers() {
                           {ct.insurance_type && <span className={styles.insTypeBadge}>{ct.insurance_type}</span>}
                         </div>
                         <div className={styles.insCardActions}>
-                          <button className={styles.editBtn} onClick={() => { setEditContractId(editContractId === ct.id ? null : ct.id); setEditContractForm(ct) }}>수정</button>
-                          <button className={styles.deleteBtn} onClick={e => deleteContract(ct.id, e)}>삭제</button>
+                          <button className={styles.editBtn} onClick={e => { e.stopPropagation(); setEditContractId(editContractId === ct.id ? null : ct.id); setEditContractForm(ct) }}>수정</button>
+                          <button className={styles.deleteBtn} onClick={e => { e.stopPropagation(); deleteContract(ct.id, e) }}>삭제</button>
                         </div>
                       </div>
                     </div>
@@ -1165,8 +1174,8 @@ export default function Customers() {
                         </div>
                       </div>
                     )}
-                    {groups.length > 0 && (
-                      <div className={styles.coverageList}>
+                    {isExpanded && groups.length > 0 && (
+                      <div className={styles.coverageList} onClick={e => e.stopPropagation()}>
                         {groups.map(g => (
                           <div key={g.key} className={styles.coverageRow}>
                             <span className={styles.covIcon}>{g.icon}</span>
@@ -1181,6 +1190,9 @@ export default function Customers() {
                           </div>
                         ))}
                       </div>
+                    )}
+                    {isExpanded && groups.length === 0 && (
+                      <div style={{padding:'8px 0 4px',fontSize:12,color:'#8892A0'}}>보장 내역이 없어요.</div>
                     )}
                   </div>
                 )
