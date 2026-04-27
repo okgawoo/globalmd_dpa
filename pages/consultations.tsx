@@ -1,6 +1,7 @@
-import { useEffect, useLayoutEffect, useState, useRef } from 'react'
+import { useEffect, useLayoutEffect, useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
+import { useConfirm } from '../lib/useConfirm'
 import styles from '../styles/Consultations.module.css'
 import AdminLayout from '../components/AdminLayout'
 import { ChevronLeft, ChevronRight, Edit2, X, Check, MapPin, Clock } from 'lucide-react'
@@ -171,6 +172,16 @@ export default function Consultations() {
   const [popupMeetings, setPopupMeetings]     = useState<any[]>([])
   const [reportLoading, setReportLoading]     = useState(false)
 
+  /* Confirm dialog */
+  const { confirm, ConfirmDialog } = useConfirm()
+
+  /* Toast */
+  const [toast, setToast] = useState('')
+  const showToast = useCallback((msg: string) => {
+    setToast(msg)
+    setTimeout(() => setToast(''), 2200)
+  }, [])
+
   /* 점선 연결 */
   const popupRef          = useRef<HTMLDivElement>(null)
   const tlItemRefs        = useRef<Record<string, HTMLDivElement | null>>({})
@@ -275,6 +286,7 @@ export default function Consultations() {
     setCustSearch(''); setEditId(null)
     setPopupRightTab('coverage')
     setShowPopup(true)
+    document.body.style.overflow = 'hidden'
   }
 
   function openEditPopup(c: any) {
@@ -287,6 +299,7 @@ export default function Consultations() {
     setCustSearch(cust?.name || ''); setEditId(c.id)
     setPopupRightTab('history')
     setShowPopup(true)
+    document.body.style.overflow = 'hidden'
   }
 
   function closePopup() {
@@ -294,6 +307,7 @@ export default function Consultations() {
     setForm({ ...EMPTY_FORM }); setCustSearch('')
     setEditNoteId(null)
     setShowReportPanel(false); setPopupMeetings([])
+    document.body.style.overflow = ''
   }
 
   async function saveConsultation() {
@@ -316,12 +330,15 @@ export default function Consultations() {
       return
     }
     closePopup()
+    showToast(editId ? '일정이 수정됐어요 ✓' : '일정이 등록됐어요 ✓')
     await fetchAll()
   }
 
   async function deleteConsultation(id: string) {
-    if (!confirm('이 상담 일정을 삭제할까요?')) return
+    const ok = await confirm({ title: '일정 삭제', message: '이 상담 일정을 삭제할까요?', confirmText: '삭제' })
+    if (!ok) return
     await supabase.from('dpa_consultations').delete().eq('id', id)
+    showToast('일정이 삭제됐어요')
     await fetchAll()
   }
 
@@ -380,6 +397,21 @@ export default function Consultations() {
   /* ─── Render ─── */
   return (
     <div className={styles.page}>
+      {ConfirmDialog}
+
+      {/* Toast */}
+      {toast && (
+        <div style={{
+          position: 'fixed', bottom: 28, left: '50%', transform: 'translateX(-50%)',
+          background: '#1A1A2E', color: '#fff', padding: '10px 22px',
+          borderRadius: 10, fontSize: 14, fontWeight: 500,
+          boxShadow: '0 4px 16px rgba(0,0,0,0.22)', zIndex: 99999,
+          whiteSpace: 'nowrap', pointerEvents: 'none',
+          animation: 'fadeInUp 0.18s ease',
+        }}>
+          {toast}
+        </div>
+      )}
 
       {/* Header */}
       <div className={styles.pageHeader}>
@@ -649,20 +681,30 @@ export default function Consultations() {
                       const curYear = new Date().getFullYear()
                       return <>
                         <select className={styles.timeSelect} style={{ flex: '1.7' }} value={dY}
-                          onChange={e => setForm(f => ({ ...f, meeting_date: `${e.target.value}-${dM}-${dD}` }))}>
+                          onChange={e => {
+                            const newY = e.target.value
+                            const max = new Date(parseInt(newY), parseInt(dM), 0).getDate()
+                            const clamp = String(Math.min(parseInt(dD), max)).padStart(2, '0')
+                            setForm(f => ({ ...f, meeting_date: `${newY}-${dM}-${clamp}` }))
+                          }}>
                           {[curYear - 1, curYear, curYear + 1, curYear + 2].map(y => (
                             <option key={y} value={String(y)}>{y}년</option>
                           ))}
                         </select>
                         <select className={styles.timeSelect} value={dM}
-                          onChange={e => setForm(f => ({ ...f, meeting_date: `${dY}-${e.target.value}-${dD}` }))}>
+                          onChange={e => {
+                            const newM = e.target.value
+                            const max = new Date(parseInt(dY), parseInt(newM), 0).getDate()
+                            const clamp = String(Math.min(parseInt(dD), max)).padStart(2, '0')
+                            setForm(f => ({ ...f, meeting_date: `${dY}-${newM}-${clamp}` }))
+                          }}>
                           {Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0')).map(m => (
                             <option key={m} value={m}>{parseInt(m)}월</option>
                           ))}
                         </select>
                         <select className={styles.timeSelect} value={dD}
                           onChange={e => setForm(f => ({ ...f, meeting_date: `${dY}-${dM}-${e.target.value}` }))}>
-                          {Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, '0')).map(d => (
+                          {Array.from({ length: new Date(parseInt(dY), parseInt(dM), 0).getDate() }, (_, i) => String(i + 1).padStart(2, '0')).map(d => (
                             <option key={d} value={d}>{parseInt(d)}일</option>
                           ))}
                         </select>
@@ -692,8 +734,8 @@ export default function Consultations() {
                       <select className={styles.timeSelect}
                         value={form.meeting_time ? form.meeting_time.split(':')[1] : ''}
                         onChange={e => {
-                          const hour = form.meeting_time ? form.meeting_time.split(':')[0] : ''
-                          if (hour) setForm(f => ({ ...f, meeting_time: `${hour}:${e.target.value}` }))
+                          const hour = form.meeting_time ? form.meeting_time.split(':')[0] : '00'
+                          setForm(f => ({ ...f, meeting_time: `${hour}:${e.target.value}` }))
                         }}>
                         <option value="">분</option>
                         {['00', '10', '20', '30', '40', '50'].map(m => (
@@ -1060,11 +1102,11 @@ export default function Consultations() {
                     <g key={i}>
                       <path
                         d={`M ${line.x1} ${line.y1} H ${midX} V ${line.y2} H ${line.x2}`}
-                        stroke="#1D9E75" strokeWidth="3.5" strokeDasharray="1 13"
+                        stroke="#5E6AD2" strokeWidth="3.5" strokeDasharray="1 13"
                         strokeLinecap="round" fill="none" opacity="0.75"
                       />
-                      <circle cx={line.x1} cy={line.y1} r="4.5" fill="#1D9E75" opacity="0.75" />
-                      <circle cx={line.x2} cy={line.y2} r="7" fill="#1D9E75" opacity="0.85" />
+                      <circle cx={line.x1} cy={line.y1} r="4.5" fill="#5E6AD2" opacity="0.75" />
+                      <circle cx={line.x2} cy={line.y2} r="7" fill="#5E6AD2" opacity="0.85" />
                     </g>
                   )
                 })}
