@@ -133,9 +133,9 @@
   background: color-mix(in srgb, var(--ev-color, #5E6AD2) 12%, transparent);
   cursor: pointer;
   overflow: hidden;
-  transition: opacity 100ms;
+  transition: opacity 0.15s ease, filter 0.15s ease;
 }
-.calEvent:hover { opacity: 0.8; }
+.calEvent:hover { opacity: 0.85; filter: brightness(0.92); }
 .calEventDot {
   width: 6px; height: 6px;
   border-radius: 50%;
