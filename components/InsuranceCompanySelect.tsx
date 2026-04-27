@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 
-// 정적 전체 목록 (DB에 없는 보험사 포함)
 const STATIC_손해 = [
   '삼성화재', '현대해상', 'DB손해보험', 'KB손해보험', '메리츠화재',
   '흥국화재', '롯데손해보험', 'MG손해보험', '한화손해보험',
@@ -24,82 +23,165 @@ interface Props {
 
 let cachedCompanies: Company[] | null = null
 
-export default function InsuranceCompanySelect({ value, onChange, style }: Props) {
+function SearchableSelect({ label, options, value, onChange }: {
+  label: string
+  options: string[]
+  value: string
+  onChange: (v: string) => void
+}) {
+  const [query, setQuery] = useState('')
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false)
+        setQuery('')
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
+  const filtered = query
+    ? options.filter(n => n.toLowerCase().includes(query.toLowerCase()))
+    : options
+
+  return (
+    <div ref={ref} style={{ flex: 1, position: 'relative' }}>
+      <label style={{ fontSize: 12, color: '#636B78', marginBottom: 2, display: 'block' }}>{label}</label>
+      <div
+        style={{
+          width: '100%',
+          fontSize: 13,
+          padding: '6px 10px',
+          borderRadius: 6,
+          border: `1px solid ${open ? '#5E6AD2' : '#E5E7EB'}`,
+          background: '#F7F8FA',
+          color: value ? '#1A1A2E' : '#9CA3AF',
+          fontFamily: 'inherit',
+          cursor: 'pointer',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          boxSizing: 'border-box',
+        }}
+        onClick={() => { setOpen(!open); setQuery('') }}
+      >
+        <span>{value || `-- ${label} 선택 --`}</span>
+        <span style={{ fontSize: 10, color: '#9CA3AF' }}>{open ? '▲' : '▼'}</span>
+      </div>
+
+      {open && (
+        <div style={{
+          position: 'absolute',
+          top: '100%',
+          left: 0,
+          right: 0,
+          zIndex: 999,
+          background: '#fff',
+          border: '1px solid #E5E7EB',
+          borderRadius: 6,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+          maxHeight: 220,
+          display: 'flex',
+          flexDirection: 'column',
+        }}>
+          <div style={{ padding: '6px 8px', borderBottom: '1px solid #F3F4F6' }}>
+            <input
+              autoFocus
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder="검색..."
+              style={{
+                width: '100%',
+                fontSize: 12,
+                padding: '4px 8px',
+                border: '1px solid #E5E7EB',
+                borderRadius: 4,
+                outline: 'none',
+                boxSizing: 'border-box',
+              }}
+              onClick={e => e.stopPropagation()}
+            />
+          </div>
+          <div
+            style={{ padding: '6px 12px', fontSize: 12, color: '#9CA3AF', cursor: 'pointer' }}
+            onMouseDown={e => { e.preventDefault(); onChange(''); setOpen(false); setQuery('') }}
+          >
+            -- 선택 안 함 --
+          </div>
+          <div style={{ overflowY: 'auto', flex: 1 }}>
+            {filtered.length === 0 ? (
+              <div style={{ padding: '8px 12px', fontSize: 12, color: '#9CA3AF' }}>검색 결과 없음</div>
+            ) : (
+              filtered.map(name => (
+                <div
+                  key={name}
+                  onMouseDown={e => { e.preventDefault(); onChange(name); setOpen(false); setQuery('') }}
+                  style={{
+                    padding: '7px 12px',
+                    fontSize: 13,
+                    cursor: 'pointer',
+                    background: value === name ? '#EEF0FD' : 'transparent',
+                    color: value === name ? '#5E6AD2' : '#1A1A2E',
+                    fontWeight: value === name ? 600 : 400,
+                  }}
+                  onMouseEnter={e => { if (value !== name) (e.target as HTMLDivElement).style.background = '#F7F8FA' }}
+                  onMouseLeave={e => { if (value !== name) (e.target as HTMLDivElement).style.background = 'transparent' }}
+                >
+                  {name}
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default function InsuranceCompanySelect({ value, onChange }: Props) {
   const [손해, set손해] = useState<string[]>(STATIC_손해)
   const [생명, set생명] = useState<string[]>(STATIC_생명)
 
-  // Supabase에서 추가 목록 로드 후 머지
   useEffect(() => {
     async function load() {
-      if (cachedCompanies) {
-        mergeFromDB(cachedCompanies)
-        return
-      }
+      if (cachedCompanies) { mergeFromDB(cachedCompanies); return }
       const { data } = await supabase
         .from('dpa_insurance_companies')
         .select('id, name, category, sort_order')
         .eq('is_active', true)
         .order('sort_order')
-      if (data) {
-        cachedCompanies = data
-        mergeFromDB(data)
-      }
+      if (data) { cachedCompanies = data; mergeFromDB(data) }
     }
-
     function mergeFromDB(data: Company[]) {
       const dbSonhae = data.filter(c => c.category === '손해보험').map(c => c.name)
       const dbSaengmyeong = data.filter(c => c.category === '생명보험').map(c => c.name)
-      // 정적 목록 + DB 목록 머지 (중복 제거, 정적 순서 우선)
-      const merged손해 = [...STATIC_손해, ...dbSonhae.filter(n => !STATIC_손해.includes(n))]
-      const merged생명 = [...STATIC_생명, ...dbSaengmyeong.filter(n => !STATIC_생명.includes(n))]
-      set손해(merged손해)
-      set생명(merged생명)
+      set손해([...STATIC_손해, ...dbSonhae.filter(n => !STATIC_손해.includes(n))])
+      set생명([...STATIC_생명, ...dbSaengmyeong.filter(n => !STATIC_생명.includes(n))])
     }
-
     load()
   }, [])
 
-  // 현재 값이 어느 카테고리인지 판별
   const is손해 = 손해.includes(value)
   const is생명 = 생명.includes(value)
 
-  const selectStyle: React.CSSProperties = {
-    width: '100%',
-    fontSize: 13,
-    padding: '6px 10px',
-    borderRadius: 6,
-    border: '1px solid #E5E7EB',
-    background: '#F7F8FA',
-    color: '#1A1A2E',
-    fontFamily: 'inherit',
-    cursor: 'pointer',
-    ...style,
-  }
-
   return (
     <div style={{ display: 'flex', gap: 6 }}>
-      <div style={{ flex: 1 }}>
-        <label style={{ fontSize: 12, color: '#636B78', marginBottom: 2, display: 'block' }}>손해보험</label>
-        <select
-          value={is손해 ? value : ''}
-          onChange={e => { if (e.target.value) onChange(e.target.value) }}
-          style={selectStyle}
-        >
-          <option value="">-- 손해보험사 선택 --</option>
-          {손해.map(name => <option key={name} value={name}>{name}</option>)}
-        </select>
-      </div>
-      <div style={{ flex: 1 }}>
-        <label style={{ fontSize: 12, color: '#636B78', marginBottom: 2, display: 'block' }}>생명보험</label>
-        <select
-          value={is생명 ? value : ''}
-          onChange={e => { if (e.target.value) onChange(e.target.value) }}
-          style={selectStyle}
-        >
-          <option value="">-- 생명보험사 선택 --</option>
-          {생명.map(name => <option key={name} value={name}>{name}</option>)}
-        </select>
-      </div>
+      <SearchableSelect
+        label="손해보험"
+        options={손해}
+        value={is손해 ? value : ''}
+        onChange={v => { if (v) onChange(v); else if (is손해) onChange('') }}
+      />
+      <SearchableSelect
+        label="생명보험"
+        options={생명}
+        value={is생명 ? value : ''}
+        onChange={v => { if (v) onChange(v); else if (is생명) onChange('') }}
+      />
     </div>
   )
 }
