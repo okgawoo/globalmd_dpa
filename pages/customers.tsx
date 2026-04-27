@@ -853,7 +853,7 @@ export default function Customers() {
                     {addContracts.length > 1 && <button onClick={()=>setAddContracts((v:any)=>v.filter((_:any,j:number)=>j!==i))} style={{background:'none',border:'none',color:'hsl(var(--text-tertiary))',cursor:'pointer',fontSize:12}}>✕ 삭제</button>}
                   </div>
                   <div className={styles.editGrid}>
-                    <div className={styles.editField} style={{gridColumn:'1 / -1'}}><label>보험사</label>
+                    <div className={styles.editField}><label>보험사</label>
                       <InsuranceCompanySelect value={ct.company} onChange={v=>setAddContracts((prev:any)=>prev.map((c:any,j:number)=>j===i?{...c,company:v}:c))} />
                     </div>
                     <div className={styles.editField} style={{gridColumn:'1 / -1'}}><label>상품명</label><input value={ct.product_name} onChange={e=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,product_name:e.target.value}:c))} placeholder="무배당 건강보험" /></div>
@@ -1061,7 +1061,7 @@ export default function Customers() {
                     {editContractId === ct.id && (
                       <div className={styles.contractEditBox}>
                         <div className={styles.editGrid}>
-                          <div className={styles.editField} style={{gridColumn:'1 / -1'}}><label>보험사</label>
+                          <div className={styles.editField}><label>보험사</label>
                             <InsuranceCompanySelect value={editContractForm.company||''} onChange={v=>setEditContractForm({...editContractForm,company:v})} />
                           </div>
                           <div className={styles.editField} style={{gridColumn:'1 / -1'}}><label>상품명</label><input value={editContractForm.product_name||''} onChange={e=>setEditContractForm({...editContractForm,product_name:e.target.value})} /></div>
@@ -1133,7 +1133,7 @@ export default function Customers() {
                 <div className={styles.editBox}>
                   <div className={styles.editSectionTitle}>보험 추가</div>
                   <div className={styles.editGrid}>
-                    <div className={styles.editField} style={{gridColumn:'1 / -1'}}><label>보험사</label>
+                    <div className={styles.editField}><label>보험사</label>
                       <InsuranceCompanySelect value={insForm.company} onChange={v=>setInsForm({...insForm,company:v})} />
                     </div>
                     <div className={styles.editField} style={{gridColumn:'1 / -1'}}><label>상품명</label><input value={insForm.product_name} onChange={e=>setInsForm({...insForm,product_name:e.target.value})} placeholder="무배당 건강보험" /></div>
@@ -1419,7 +1419,7 @@ export default function Customers() {
                       {isEditing && (
                         <div className={styles.contractEditBox}>
                           <div className={styles.editGrid}>
-                            <div className={styles.editField} style={{gridColumn:'1 / -1'}}><label>보험사</label>
+                            <div className={styles.editField}><label>보험사</label>
                               <InsuranceCompanySelect value={editContractForm.company||''} onChange={v=>setEditContractForm({...editContractForm,company:v})} />
                             </div>
                             <div className={styles.editField} style={{gridColumn:'1 / -1'}}><label>상품명</label><input value={editContractForm.product_name||''} onChange={e=>setEditContractForm({...editContractForm,product_name:e.target.value})} /></div>
