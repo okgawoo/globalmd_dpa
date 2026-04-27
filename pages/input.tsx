@@ -166,6 +166,16 @@ function ScanCardTab({ onComplete }: { onComplete: () => void }) {
 
 type InputTab = 'paste' | 'file' | 'scan' | 'manual'
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+  return isMobile
+}
 
 const JOBS = ['직장인 (회사원)', '자영업자', '공무원', '교사 / 교직원', '의료인', '전문직', '주부', '학생', '농업 / 어업', '프리랜서', '은퇴 / 무직', '기타']
 const COMPANIES = ['삼성생명', '한화생명', '교보생명', '신한라이프', 'DB생명', '흥국생명', '동양생명', '미래에셋생명', '푸본현대생명', '메트라이프', '삼성화재', '현대해상', 'DB손해보험', 'KB손해보험', '메리츠화재', '흥국화재', '롯데손해보험', 'MG손해보험', 'MG새마을금고', '한화손해보험', 'AIG손해보험', 'NH농협손해보험', '라이나손해보험', '하나손해보험', '캐롯손해보험', 'AXA손해보험', '라이나생명', '처브라이프', '카디프생명', '푸르덴셜생명', '현대라이프', '휴먼라이프', 'ABL생명', 'AIA생명', 'DGB생명', 'iM라이프', 'IBK연금보험', 'KB라이프', 'KDB생명', 'NH농협생명', 'PCA생명', '하나생명', '오렌지라이프', '유니버셜생명', '기타']
@@ -280,6 +290,9 @@ export default function InputPage() {
   const [currentTextLoss, setCurrentTextLoss] = useState('')
   const [confirmedContracts, setConfirmedContracts] = useState<any[]>([])
   const [parsedCustomer, setParsedCustomer] = useState<any>(null)
+  const isMobile = useIsMobile()
+  // 결과 패널 표시 여부 (AI 분석 중/후 또는 확인된 계약 있을 때)
+  const showResults = parsing || !!parsed || confirmedContracts.length > 0
 
   // 페이지 로드 시 고객 목록 미리 불러오기
   useEffect(() => {
@@ -667,10 +680,16 @@ export default function InputPage() {
       )}
 
       {inputTab === 'paste' && (
-        <div className={styles.pasteLayout}>
+        <div style={{display:'flex',flexDirection:isMobile?'column':'row',gap:16,flex:1,alignItems:'stretch'}}>
 
           {/* ── 왼쪽: 입력 패널 ── */}
-          <div className={styles.pastePanel}>
+          <div className={styles.pastePanel} style={!isMobile?{
+            flex:'0 0 auto',
+            width:showResults?'calc(50% - 8px)':'min(620px, 100%)',
+            marginLeft:showResults?'0':'auto',
+            marginRight:showResults?'0':'auto',
+            transition:'width 0.35s ease, margin 0.35s ease',
+          }:{}}>
 
             {/* 저장 방식 — 첫 계약에만 표시 */}
             {confirmedContracts.length === 0 && (
@@ -753,8 +772,15 @@ export default function InputPage() {
             </button>
           </div>
 
-          {/* ── 오른쪽: 결과 패널 ── */}
-          <div className={styles.pastePanel} style={{overflowY:'auto'}}>
+          {/* ── 오른쪽: 결과 패널 (애니메이션 wrapper) ── */}
+          <div style={!isMobile?{
+            flex:'0 0 auto',
+            width:showResults?'calc(50% - 8px)':'0',
+            opacity:showResults?1:0,
+            overflow:'hidden',
+            transition:'width 0.35s ease, opacity 0.25s ease',
+          }:{flex:1}}>
+          <div className={styles.pastePanel} style={{overflowY:'auto',height:'100%',boxSizing:'border-box',minWidth:!isMobile&&showResults?'calc(50vw - 60px)':0}}>
 
             {/* 확인된 계약 목록 */}
             {confirmedContracts.length > 0 && (
@@ -940,6 +966,7 @@ export default function InputPage() {
               </div>
             )}
           </div>
+          </div>{/* 오른쪽 애니메이션 wrapper 닫기 */}
         </div>
       )}
 
