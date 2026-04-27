@@ -1469,14 +1469,14 @@ export default function Customers() {
                                 <div style={{flex:1}}>
                                   <div style={{fontSize:11,color:'#636B78',marginBottom:3}}>손해보험</div>
                                   <select value={SONHAE_COMPANIES.includes(editContractForm.company||'')?editContractForm.company:''} onChange={e=>{if(e.target.value)setEditContractForm({...editContractForm,company:e.target.value})}} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#F7F8FA',fontFamily:'inherit'}}>
-                                    <option value="">선택</option>
+                                    <option value="">-- 손해보험사 선택 --</option>
                                     {SONHAE_COMPANIES.map(n=><option key={n}>{n}</option>)}
                                   </select>
                                 </div>
                                 <div style={{flex:1}}>
                                   <div style={{fontSize:11,color:'#636B78',marginBottom:3}}>생명보험</div>
                                   <select value={SAENGMYEONG_COMPANIES.includes(editContractForm.company||'')?editContractForm.company:''} onChange={e=>{if(e.target.value)setEditContractForm({...editContractForm,company:e.target.value})}} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#F7F8FA',fontFamily:'inherit'}}>
-                                    <option value="">선택</option>
+                                    <option value="">-- 생명보험사 선택 --</option>
                                     {SAENGMYEONG_COMPANIES.map(n=><option key={n}>{n}</option>)}
                                   </select>
                                 </div>

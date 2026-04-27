@@ -747,7 +747,7 @@ export default function InputPage() {
           </div>
 
           {/* ── 오른쪽: 결과 패널 ── */}
-          <div className={styles.pastePanel}>
+          <div className={styles.pastePanel} style={{overflowY:'auto'}}>
 
             {/* 확인된 계약 목록 */}
             {confirmedContracts.length > 0 && (
