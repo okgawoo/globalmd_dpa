@@ -43,9 +43,9 @@
 
 /* Nav row */
 .calNav {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   gap: 6px;
   margin-bottom: 14px;
 }
@@ -70,6 +70,7 @@
   min-width: 90px; text-align: center;
 }
 .calTodayBtn {
+  justify-self: end;
   font-size: 12px; font-weight: 500;
   padding: 4px 12px;
   border: 1px solid #E5E7EB;

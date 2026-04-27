@@ -394,6 +394,7 @@ export default function Consultations() {
 
           {/* Calendar nav */}
           <div className={styles.calNav}>
+            <div />
             <div className={styles.calNavGroup}>
               <button className={styles.calNavBtn} onClick={() => setCalMonth(new Date(calYear, calMonthNum - 1, 1))}>
                 <ChevronLeft style={{ width: 15, height: 15 }} />
