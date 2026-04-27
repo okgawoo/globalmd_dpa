@@ -63,7 +63,7 @@
 .calNavGroup {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 10px;
 }
 .calMonthLabel {
   font-size: 15px; font-weight: 700; color: #1A1A2E;
