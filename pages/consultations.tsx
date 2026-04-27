@@ -145,8 +145,8 @@ export default function Consultations() {
   const [calMonth, setCalMonth] = useState(() => { const d = new Date(); d.setDate(1); return d })
 
 
-  /* Popup */
-  const [showPopup, setShowPopup]         = useState(false)
+  /* Popup — 0:closed 1:mini 2:expanded 3:full+report */
+  const [popupStage, setPopupStage]       = useState<0 | 1 | 2 | 3>(0)
   const [popupRightTab, setPopupRightTab] = useState<'coverage' | 'history' | 'report'>('coverage')
   const [form, setForm]                   = useState({ ...EMPTY_FORM })
   const [editId, setEditId]               = useState<string | null>(null)
@@ -168,7 +168,6 @@ export default function Consultations() {
   const [coverageLoading, setCoverageLoading] = useState(false)
 
   /* 미팅 리포트 패널 */
-  const [showReportPanel, setShowReportPanel] = useState(false)
   const [popupMeetings, setPopupMeetings]     = useState<any[]>([])
   const [reportLoading, setReportLoading]     = useState(false)
 
@@ -190,7 +189,7 @@ export default function Consultations() {
   const [connLines, setConnLines] = useState<{ x1: number; y1: number; x2: number; y2: number }[]>([])
 
   useLayoutEffect(() => {
-    if (!showReportPanel || !selectedHistoryType || !popupRef.current) { setConnLines([]); return }
+    if (popupStage < 3 || !selectedHistoryType || !popupRef.current) { setConnLines([]); return }
     const recalc = () => {
       if (!popupRef.current) return
       const popup = popupRef.current.getBoundingClientRect()
@@ -206,10 +205,10 @@ export default function Consultations() {
         y2: rp.top + rp.height / 2 - popup.top,
       }])
     }
-    const t = setTimeout(recalc, 310)
+    const t = setTimeout(recalc, 360)
     recalc()
     return () => clearTimeout(t)
-  }, [showReportPanel, selectedHistoryType, form.customer_id])
+  }, [popupStage, selectedHistoryType, form.customer_id])
 
   useEffect(() => { fetchAll() }, [])
 
@@ -242,10 +241,10 @@ export default function Consultations() {
     })()
   }, [form.customer_id])
 
-  /* 패널 닫히거나 고객 바뀌면 선택 초기화 */
+  /* 리포트 패널 닫히거나 고객 바뀌면 선택 초기화 */
   useEffect(() => {
-    if (!showReportPanel) setSelectedHistoryType(null)
-  }, [showReportPanel])
+    if (popupStage < 3) setSelectedHistoryType(null)
+  }, [popupStage])
   useEffect(() => { setSelectedHistoryType(null) }, [form.customer_id])
 
   /* Close customer dropdown on outside click */
@@ -285,7 +284,7 @@ export default function Consultations() {
     setForm({ ...EMPTY_FORM, meeting_date: date })
     setCustSearch(''); setEditId(null)
     setPopupRightTab('coverage')
-    setShowPopup(true)
+    setPopupStage(1)   // 1단계: 미니 팝업
     document.body.style.overflow = 'hidden'
   }
 
@@ -298,15 +297,15 @@ export default function Consultations() {
     })
     setCustSearch(cust?.name || ''); setEditId(c.id)
     setPopupRightTab('history')
-    setShowPopup(true)
+    setPopupStage(2)   // 2단계: 확장 팝업 (편집 시엔 바로 확장)
     document.body.style.overflow = 'hidden'
   }
 
   function closePopup() {
-    setShowPopup(false); setEditId(null)
+    setPopupStage(0); setEditId(null)
     setForm({ ...EMPTY_FORM }); setCustSearch('')
     setEditNoteId(null)
-    setShowReportPanel(false); setPopupMeetings([])
+    setPopupMeetings([])
     document.body.style.overflow = ''
   }
 
@@ -604,9 +603,16 @@ export default function Consultations() {
 
       {/* ════════ POPUP ════════ */}
 
-      {showPopup && (
+      {popupStage > 0 && (
         <div className={styles.popupOverlay} onClick={e => { if (e.target === e.currentTarget) closePopup() }}>
-          <div ref={popupRef} className={[styles.popup, showReportPanel ? styles.popupExpanded : ''].join(' ')} style={{ position: 'relative' }}>
+          <div ref={popupRef}
+            className={[
+              styles.popup,
+              popupStage === 2 ? styles.popupStage2 : '',
+              popupStage === 3 ? styles.popupStage3 : '',
+            ].join(' ')}
+            style={{ position: 'relative' }}
+          >
 
             {/* ── Popup Left: Form ── */}
             <div className={styles.popupLeft}>
@@ -618,6 +624,8 @@ export default function Consultations() {
               </div>
 
               <div className={styles.popupBody}>
+
+                {/* ─── 공통 필드: 항상 표시 ─── */}
 
                 {/* Customer */}
                 <div className={styles.formField}>
@@ -672,6 +680,15 @@ export default function Consultations() {
                   </div>
                 </div>
 
+                {/* Type */}
+                <div className={styles.formField}>
+                  <label className={styles.label}>상담 유형 *</label>
+                  <select className={styles.input} value={form.meeting_type}
+                    onChange={e => setForm(f => ({ ...f, meeting_type: e.target.value }))}>
+                    {MEETING_TYPES.map(t => <option key={t.value} value={t.value}>{t.value}</option>)}
+                  </select>
+                </div>
+
                 {/* Date */}
                 <div className={styles.formField}>
                   <label className={styles.label}>날짜 *</label>
@@ -713,7 +730,7 @@ export default function Consultations() {
                   </div>
                 </div>
 
-                {/* Time / Location */}
+                {/* Time / Location — 항상 표시 */}
                 <div className={styles.formRow}>
                   <div className={styles.formField}>
                     <label className={styles.label}>시간</label>
@@ -751,65 +768,81 @@ export default function Consultations() {
                   </div>
                 </div>
 
-                {/* Type */}
-                <div className={styles.formField}>
-                  <label className={styles.label}>상담 유형 *</label>
-                  <select className={styles.input} value={form.meeting_type}
-                    onChange={e => setForm(f => ({ ...f, meeting_type: e.target.value }))}>
-                    {MEETING_TYPES.map(t => <option key={t.value} value={t.value}>{t.value}</option>)}
-                  </select>
-                </div>
+                {/* ─── 확장 전용 필드 (stage 2+) ─── */}
 
                 {/* Status */}
-                <div className={styles.formField}>
-                  <label className={styles.label}>상태</label>
-                  <div className={styles.statusGroup}>
-                    {STATUS_OPTIONS.map(s => (
-                      <button key={s}
-                        className={[styles.statusBtn, form.status === s ? styles.statusBtnActive : ''].join(' ')}
-                        onClick={() => setForm(f => ({ ...f, status: s }))}>
-                        {s}
-                      </button>
-                    ))}
+                {popupStage >= 2 && (
+                  <div className={styles.formField}>
+                    <label className={styles.label}>상태</label>
+                    <div className={styles.statusGroup}>
+                      {STATUS_OPTIONS.map(s => (
+                        <button key={s}
+                          className={[styles.statusBtn, form.status === s ? styles.statusBtnActive : ''].join(' ')}
+                          onClick={() => setForm(f => ({ ...f, status: s }))}>
+                          {s}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
-                {/* Notes — 크게 */}
-                <div className={styles.formField} style={{ flex: 1, minHeight: 0 }}>
-                  <label className={styles.label}>상담 메모</label>
-                  <textarea
-                    className={styles.textarea}
-                    style={{ flex: 1, resize: 'none' }}
-                    placeholder="상담 내용, 고객 반응, 다음 액션 등 자유롭게 기록하세요..."
-                    value={form.notes}
-                    onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-                  />
-                </div>
+                {/* Notes */}
+                {popupStage >= 2 && (
+                  <div className={styles.formField} style={{ flex: 1, minHeight: 0 }}>
+                    <label className={styles.label}>상담 메모</label>
+                    <textarea
+                      className={styles.textarea}
+                      style={{ flex: 1, resize: 'none' }}
+                      placeholder="상담 내용, 고객 반응, 다음 액션 등 자유롭게 기록하세요..."
+                      value={form.notes}
+                      onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
+                    />
+                  </div>
+                )}
+
               </div>
 
-              {/* Actions */}
+              {/* Actions — stage에 따라 버튼 다름 */}
               <div className={styles.popupActions}>
-                {editId && (
-                  <button className={styles.deleteBtn} onClick={() => { deleteConsultation(editId); closePopup() }}>
-                    삭제
-                  </button>
+                {popupStage === 1 ? (
+                  /* 미니 팝업 액션 */
+                  <>
+                    <button className={styles.saveBtn} onClick={saveConsultation} disabled={saving}>
+                      {saving ? '저장 중...' : '저장'}
+                    </button>
+                    <button className={styles.expandBtn} onClick={() => {
+                      setPopupStage(2)
+                      setPopupRightTab(editId ? 'history' : 'coverage')
+                    }}>
+                      상세보기 →
+                    </button>
+                  </>
+                ) : (
+                  /* 확장 팝업 액션 */
+                  <>
+                    {editId && (
+                      <button className={styles.deleteBtn} onClick={() => { deleteConsultation(editId); closePopup() }}>
+                        삭제
+                      </button>
+                    )}
+                    <button className={styles.saveBtn} onClick={saveConsultation} disabled={saving}>
+                      {saving ? '저장 중...' : editId ? '수정 완료' : '+ 등록'}
+                    </button>
+                    <button className={styles.cancelBtn} onClick={closePopup}>취소</button>
+                  </>
                 )}
-                <button className={styles.saveBtn} onClick={saveConsultation} disabled={saving}>
-                  {saving ? '저장 중...' : editId ? '수정 완료' : '+ 등록'}
-                </button>
-                <button className={styles.cancelBtn} onClick={closePopup}>취소</button>
               </div>
             </div>
 
-            {/* ── Popup Right: Coverage / History ── */}
+            {/* ── Popup Right: Coverage / History (stage 2+) ── */}
             <div className={styles.popupRight}>
               <div className={styles.popupRightTabs}>
-                <button className={[styles.popupRightTab, popupRightTab === 'coverage' && !showReportPanel ? styles.popupRightTabActive : ''].join(' ')}
-                  onClick={() => { setPopupRightTab('coverage'); setShowReportPanel(false) }}>보장 내역</button>
-                <button className={[styles.popupRightTab, popupRightTab === 'history' && !showReportPanel ? styles.popupRightTabActive : ''].join(' ')}
-                  onClick={() => { setPopupRightTab('history'); setShowReportPanel(false) }}>상담 이력</button>
-                <button className={[styles.popupRightTab, showReportPanel ? styles.popupRightTabActive : ''].join(' ')}
-                  onClick={() => { setPopupRightTab('history'); setShowReportPanel(r => !r) }}>고객 리포트</button>
+                <button className={[styles.popupRightTab, popupRightTab === 'coverage' && popupStage < 3 ? styles.popupRightTabActive : ''].join(' ')}
+                  onClick={() => { setPopupRightTab('coverage'); if (popupStage >= 3) setPopupStage(2) }}>보장 내역</button>
+                <button className={[styles.popupRightTab, popupRightTab === 'history' && popupStage < 3 ? styles.popupRightTabActive : ''].join(' ')}
+                  onClick={() => { setPopupRightTab('history'); if (popupStage >= 3) setPopupStage(2) }}>상담 이력</button>
+                <button className={[styles.popupRightTab, popupStage >= 3 ? styles.popupRightTabActive : ''].join(' ')}
+                  onClick={() => { setPopupRightTab('history'); setPopupStage(s => s === 3 ? 2 : 3) }}>고객 리포트</button>
               </div>
 
               <div className={styles.popupRightBody}>
@@ -952,7 +985,7 @@ export default function Consultations() {
                 )}
 
                 {/* 상담 이력 */}
-                {(popupRightTab === 'history' || showReportPanel) && (
+                {(popupRightTab === 'history' || popupStage >= 3) && (
                   !form.customer_id ? (
                     <div className={styles.emptyState}>
                       <div className={styles.emptyIcon}>📋</div>
@@ -969,13 +1002,13 @@ export default function Consultations() {
                         const isLast   = idx === getCustomerTimeline(form.customer_id).length - 1
 
                         const hasMockReport = MOCK_REPORTS.some(r => r.meeting_type === t.meeting_type)
-                        const isHistorySelected = showReportPanel && selectedHistoryType === t.meeting_type
+                        const isHistorySelected = popupStage >= 3 && selectedHistoryType === t.meeting_type
                         return (
                           <div
                             key={t.id}
                             ref={el => { if (hasMockReport) tlItemRefs.current[t.meeting_type] = el }}
-                            className={[styles.tlItem, showReportPanel && hasMockReport ? styles.tlItemClickable : '', isHistorySelected ? styles.tlItemSelected : ''].join(' ')}
-                            onClick={showReportPanel && hasMockReport ? () => setSelectedHistoryType(t.meeting_type) : undefined}
+                            className={[styles.tlItem, popupStage >= 3 && hasMockReport ? styles.tlItemClickable : '', isHistorySelected ? styles.tlItemSelected : ''].join(' ')}
+                            onClick={popupStage >= 3 && hasMockReport ? () => setSelectedHistoryType(t.meeting_type) : undefined}
                           >
                             <div className={styles.tlLeft}>
                               <div className={styles.tlDot} style={{
@@ -1043,7 +1076,7 @@ export default function Consultations() {
             {(() => {
               const activeReport = selectedHistoryType ? MOCK_REPORTS.find(r => r.meeting_type === selectedHistoryType) : null
               return (
-                <div className={[styles.reportPanel, showReportPanel ? styles.reportPanelOpen : ''].join(' ')}>
+                <div className={styles.reportPanel}>
                   <div className={styles.reportPanelHeader}>
                     <span className={styles.reportPanelTitle}>미팅 리포트</span>
                     {selectedCust && <span className={styles.reportPanelMeta}>{selectedCust.name}</span>}
