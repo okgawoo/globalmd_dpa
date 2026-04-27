@@ -39,10 +39,12 @@ function StatCard({
         background: '#FFFFFF',
         border: '1px solid #E5E7EB',
         borderRadius: 8,
-        padding: 20,
+        padding: '12px 14px',
         boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
         cursor: onClick ? 'pointer' : 'default',
         transition: 'all 0.1s',
+        minWidth: 0,
+        overflow: 'hidden',
       }}
       onMouseEnter={(e) => {
         if (onClick) {
@@ -59,24 +61,13 @@ function StatCard({
         }
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{ fontSize: 13, color: '#636B78', fontWeight: 500, marginBottom: 4 }}>
-            {title}
-          </p>
-          <p style={{ fontSize: 24, fontWeight: 700, color: '#1A1A2E', fontVariantNumeric: 'tabular-nums' }}>
-            {value}
-          </p>
-          <p style={{ marginTop: 4, fontSize: 13, color: '#8892A0' }}>
-            {sub}
-          </p>
-        </div>
+      {/* 상단 행: 아이콘 + 제목 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
         <div
           style={{
-            marginLeft: 16,
             display: 'flex',
-            height: 36,
-            width: 36,
+            height: 28,
+            width: 28,
             flexShrink: 0,
             alignItems: 'center',
             justifyContent: 'center',
@@ -85,9 +76,19 @@ function StatCard({
             border: '1px solid rgba(94,106,210,0.2)',
           }}
         >
-          <Icon style={{ width: 16, height: 16, color: '#5E6AD2' }} />
+          <Icon style={{ width: 14, height: 14, color: '#5E6AD2' }} />
         </div>
+        <p style={{ fontSize: 12, color: '#636B78', fontWeight: 500, margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          {title}
+        </p>
       </div>
+      {/* 하단 행: 값 + 서브 */}
+      <p style={{ fontSize: 20, fontWeight: 700, color: '#1A1A2E', fontVariantNumeric: 'tabular-nums', margin: '0 0 2px', whiteSpace: 'nowrap' }}>
+        {value}
+      </p>
+      <p style={{ fontSize: 11, color: '#8892A0', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+        {sub}
+      </p>
     </div>
   )
 }
@@ -237,7 +238,7 @@ export default function AdminDashboard({
       </div>
 
       {/* Stat cards */}
-      <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(6, 1fr)' }}>
+      <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(6, minmax(0, 1fr))' }}>
         <StatCard title="총 고객" value={String(customers.length)} sub={`마이 ${myCustomers}명 · 관심 ${prospectCustomers}명`} icon={Users} onClick={() => router.push('/customers')} />
         <StatCard title="마이고객" value={String(myCustomers)} sub="계약 완료 고객" icon={UserCheck} onClick={() => router.push('/customers?type=existing')} />
         <StatCard title="관심고객" value={String(prospectCustomers)} sub="예비 가입 고객" icon={Star} onClick={() => router.push('/customers?type=prospect')} />
