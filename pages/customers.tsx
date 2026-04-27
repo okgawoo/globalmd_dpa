@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
-import Select from 'react-select'
+import dynamic from 'next/dynamic'
+const Select = dynamic(() => import('react-select'), { ssr: false }) as any
 import SmsSlidePanel from '../components/SmsSlide'
 import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
@@ -900,13 +901,13 @@ export default function Customers() {
                           <div style={{fontSize:11,color:'#636B78',marginBottom:3}}>손해보험</div>
                           <Select options={SONHAE_OPTIONS} styles={INS_SELECT_STYLES} placeholder="손해보험사 선택..." isClearable
                             value={SONHAE_COMPANIES.includes(ct.company)?{value:ct.company,label:ct.company}:null}
-                            onChange={opt=>setAddContracts((prev:any)=>prev.map((c:any,j:number)=>j===i?{...c,company:opt?opt.value:''}:c))} />
+                            onChange={(opt:any)=>setAddContracts((prev:any)=>prev.map((c:any,j:number)=>j===i?{...c,company:opt?opt.value:''}:c))} />
                         </div>
                         <div style={{flex:1}}>
                           <div style={{fontSize:11,color:'#636B78',marginBottom:3}}>생명보험</div>
                           <Select options={SAENGMYEONG_OPTIONS} styles={INS_SELECT_STYLES} placeholder="생명보험사 선택..." isClearable
                             value={SAENGMYEONG_COMPANIES.includes(ct.company)?{value:ct.company,label:ct.company}:null}
-                            onChange={opt=>setAddContracts((prev:any)=>prev.map((c:any,j:number)=>j===i?{...c,company:opt?opt.value:''}:c))} />
+                            onChange={(opt:any)=>setAddContracts((prev:any)=>prev.map((c:any,j:number)=>j===i?{...c,company:opt?opt.value:''}:c))} />
                         </div>
                       </div>
                     </div>
@@ -1128,13 +1129,13 @@ export default function Customers() {
                                 <div style={{fontSize:11,color:'#636B78',marginBottom:3}}>손해보험</div>
                                 <Select options={SONHAE_OPTIONS} styles={INS_SELECT_STYLES} placeholder="손해보험사 선택..." isClearable
                                   value={SONHAE_COMPANIES.includes(editContractForm.company||'')?{value:editContractForm.company,label:editContractForm.company}:null}
-                                  onChange={opt=>setEditContractForm({...editContractForm,company:opt?opt.value:''})} />
+                                  onChange={(opt:any)=>setEditContractForm({...editContractForm,company:opt?opt.value:''})} />
                               </div>
                               <div style={{flex:1}}>
                                 <div style={{fontSize:11,color:'#636B78',marginBottom:3}}>생명보험</div>
                                 <Select options={SAENGMYEONG_OPTIONS} styles={INS_SELECT_STYLES} placeholder="생명보험사 선택..." isClearable
                                   value={SAENGMYEONG_COMPANIES.includes(editContractForm.company||'')?{value:editContractForm.company,label:editContractForm.company}:null}
-                                  onChange={opt=>setEditContractForm({...editContractForm,company:opt?opt.value:''})} />
+                                  onChange={(opt:any)=>setEditContractForm({...editContractForm,company:opt?opt.value:''})} />
                               </div>
                             </div>
                           </div>
@@ -1216,13 +1217,13 @@ export default function Customers() {
                           <div style={{fontSize:11,color:'#636B78',marginBottom:3}}>손해보험</div>
                           <Select options={SONHAE_OPTIONS} styles={INS_SELECT_STYLES} placeholder="손해보험사 선택..." isClearable
                             value={SONHAE_COMPANIES.includes(insForm.company)?{value:insForm.company,label:insForm.company}:null}
-                            onChange={opt=>setInsForm({...insForm,company:opt?opt.value:''})} />
+                            onChange={(opt:any)=>setInsForm({...insForm,company:opt?opt.value:''})} />
                         </div>
                         <div style={{flex:1}}>
                           <div style={{fontSize:11,color:'#636B78',marginBottom:3}}>생명보험</div>
                           <Select options={SAENGMYEONG_OPTIONS} styles={INS_SELECT_STYLES} placeholder="생명보험사 선택..." isClearable
                             value={SAENGMYEONG_COMPANIES.includes(insForm.company)?{value:insForm.company,label:insForm.company}:null}
-                            onChange={opt=>setInsForm({...insForm,company:opt?opt.value:''})} />
+                            onChange={(opt:any)=>setInsForm({...insForm,company:opt?opt.value:''})} />
                         </div>
                       </div>
                     </div>
@@ -1515,13 +1516,13 @@ export default function Customers() {
                                   <div style={{fontSize:11,color:'#636B78',marginBottom:3}}>손해보험</div>
                                   <Select options={SONHAE_OPTIONS} styles={INS_SELECT_STYLES} placeholder="손해보험사 선택..." isClearable
                                     value={SONHAE_COMPANIES.includes(editContractForm.company||'')?{value:editContractForm.company,label:editContractForm.company}:null}
-                                    onChange={opt=>setEditContractForm({...editContractForm,company:opt?opt.value:''})} />
+                                    onChange={(opt:any)=>setEditContractForm({...editContractForm,company:opt?opt.value:''})} />
                                 </div>
                                 <div style={{flex:1}}>
                                   <div style={{fontSize:11,color:'#636B78',marginBottom:3}}>생명보험</div>
                                   <Select options={SAENGMYEONG_OPTIONS} styles={INS_SELECT_STYLES} placeholder="생명보험사 선택..." isClearable
                                     value={SAENGMYEONG_COMPANIES.includes(editContractForm.company||'')?{value:editContractForm.company,label:editContractForm.company}:null}
-                                    onChange={opt=>setEditContractForm({...editContractForm,company:opt?opt.value:''})} />
+                                    onChange={(opt:any)=>setEditContractForm({...editContractForm,company:opt?opt.value:''})} />
                                 </div>
                               </div>
                             </div>
