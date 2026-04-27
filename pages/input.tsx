@@ -762,6 +762,18 @@ export default function InputPage() {
                     <span style={{color:'#8892A0',fontSize:12,flexShrink:0,fontVariantNumeric:'tabular-nums'}}>
                       {ct.monthly_fee ? `${Number(ct.monthly_fee).toLocaleString()}원` : '-'}
                     </span>
+                    <button
+                      onClick={() => {
+                        setConfirmedContracts(prev => prev.filter((_, idx) => idx !== i))
+                        setCurrentText('')
+                        setCurrentTextLoss('')
+                      }}
+                      style={{flexShrink:0,fontSize:11,padding:'2px 8px',borderRadius:4,border:'1px solid rgba(94,106,210,0.35)',background:'transparent',color:'#5E6AD2',cursor:'pointer',fontFamily:'inherit',transition:'all 120ms',whiteSpace:'nowrap'}}
+                      onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(94,106,210,0.1)' }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent' }}
+                    >
+                      재입력
+                    </button>
                   </div>
                 ))}
               </div>

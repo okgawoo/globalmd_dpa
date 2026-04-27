@@ -1,6 +1,6 @@
 /* ──────────────────────────────────────────────
    Input Page — DPA Design System
-   Colors: hardcoded (#5E6AD2 green theme)
+   Colors: hardcoded (#5E6AD2 purple theme)
 ────────────────────────────────────────────── */
 
 .page { padding: 20px 24px 96px; background: #F7F8FA; height: 100%; display: flex; flex-direction: column; box-sizing: border-box; }
