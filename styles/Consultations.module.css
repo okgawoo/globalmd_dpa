@@ -45,6 +45,7 @@
 .calNav {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 6px;
   margin-bottom: 14px;
 }
@@ -59,9 +60,14 @@
   transition: all 120ms;
 }
 .calNavBtn:hover { background: #F3F4F6; color: #1A1A2E; }
+.calNavGroup {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
 .calMonthLabel {
   font-size: 15px; font-weight: 700; color: #1A1A2E;
-  flex: 1; text-align: center;
+  min-width: 90px; text-align: center;
 }
 .calTodayBtn {
   font-size: 12px; font-weight: 500;
