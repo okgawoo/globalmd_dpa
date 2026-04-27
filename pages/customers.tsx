@@ -4,14 +4,14 @@ import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
 import { useConfirm } from '../lib/useConfirm'
 import styles from '../styles/Customers.module.css'
-import InsuranceCompanySelect from '../components/InsuranceCompanySelect'
 import { Users, User, UserPlus, Search } from 'lucide-react'
 
 type Tab = 'existing' | 'prospect'
 const AGE_FILTERS = ['연령대전체', '유아(0-7)', '10대', '20대', '30대', '40대', '50대', '60대+']
 
-// 공통 드롭다운 옵션
-const INSURANCE_COMPANIES = ['삼성생명','한화생명','교보생명','신한라이프','DB생명','흥국생명','동양생명','미래에셋생명','삼성화재','현대해상','DB손해보험','KB손해보험','메리츠화재','롯데손해보험','기타']
+// 보험사 목록
+const SONHAE_COMPANIES = ['삼성화재','현대해상','DB손해보험','KB손해보험','메리츠화재','흥국화재','롯데손해보험','MG손해보험','MG새마을금고','한화손해보험','AIG손해보험','NH농협손해보험','하나손해보험','캐롯손해보험','AXA손해보험']
+const SAENGMYEONG_COMPANIES = ['삼성생명','한화생명','교보생명','신한라이프','DB생명','흥국생명','동양생명','미래에셋생명','푸본현대생명','메트라이프','AIA생명','라이나생명','하나생명','ABL생명','KDB생명','NH농협생명','KB라이프','처브라이프','카디프생명','iM라이프','IBK연금보험','PCA생명','유니버셜생명','오렌지라이프','푸르덴셜생명']
 const INSURANCE_TYPES = ['건강','실손','운전자','자동차','암','치아','간병','CI','종신','기타']
 const PAYMENT_STATUSES = ['유지','완납','실효','실납','해지']
 const PAYMENT_YEARS = ['1년납','3년납','5년납','10년납','15년납','20년납','25년납','30년납','40년납','전기납','종신납','일시납']
@@ -853,8 +853,23 @@ export default function Customers() {
                     {addContracts.length > 1 && <button onClick={()=>setAddContracts((v:any)=>v.filter((_:any,j:number)=>j!==i))} style={{background:'none',border:'none',color:'hsl(var(--text-tertiary))',cursor:'pointer',fontSize:12}}>✕ 삭제</button>}
                   </div>
                   <div className={styles.editGrid}>
-                    <div className={styles.editField}><label>보험사</label>
-                      <InsuranceCompanySelect value={ct.company} onChange={v=>setAddContracts((prev:any)=>prev.map((c:any,j:number)=>j===i?{...c,company:v}:c))} />
+                    <div className={styles.editField} style={{gridColumn:'1 / -1'}}><label>보험사</label>
+                      <div style={{display:'flex',gap:6}}>
+                        <div style={{flex:1}}>
+                          <div style={{fontSize:11,color:'#636B78',marginBottom:3}}>손해보험</div>
+                          <select value={SONHAE_COMPANIES.includes(ct.company)?ct.company:''} onChange={e=>{if(e.target.value)setAddContracts((prev:any)=>prev.map((c:any,j:number)=>j===i?{...c,company:e.target.value}:c))}} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#F7F8FA',fontFamily:'inherit'}}>
+                            <option value="">선택</option>
+                            {SONHAE_COMPANIES.map(n=><option key={n}>{n}</option>)}
+                          </select>
+                        </div>
+                        <div style={{flex:1}}>
+                          <div style={{fontSize:11,color:'#636B78',marginBottom:3}}>생명보험</div>
+                          <select value={SAENGMYEONG_COMPANIES.includes(ct.company)?ct.company:''} onChange={e=>{if(e.target.value)setAddContracts((prev:any)=>prev.map((c:any,j:number)=>j===i?{...c,company:e.target.value}:c))}} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#F7F8FA',fontFamily:'inherit'}}>
+                            <option value="">선택</option>
+                            {SAENGMYEONG_COMPANIES.map(n=><option key={n}>{n}</option>)}
+                          </select>
+                        </div>
+                      </div>
                     </div>
                     <div className={styles.editField} style={{gridColumn:'1 / -1'}}><label>상품명</label><input value={ct.product_name} onChange={e=>setAddContracts((v:any)=>v.map((c:any,j:number)=>j===i?{...c,product_name:e.target.value}:c))} placeholder="무배당 건강보험" /></div>
                     <div className={styles.editField}><label>보험 종류</label>
@@ -1061,8 +1076,23 @@ export default function Customers() {
                     {editContractId === ct.id && (
                       <div className={styles.contractEditBox}>
                         <div className={styles.editGrid}>
-                          <div className={styles.editField}><label>보험사</label>
-                            <InsuranceCompanySelect value={editContractForm.company||''} onChange={v=>setEditContractForm({...editContractForm,company:v})} />
+                          <div className={styles.editField} style={{gridColumn:'1 / -1'}}><label>보험사</label>
+                            <div style={{display:'flex',gap:6}}>
+                              <div style={{flex:1}}>
+                                <div style={{fontSize:11,color:'#636B78',marginBottom:3}}>손해보험</div>
+                                <select value={SONHAE_COMPANIES.includes(editContractForm.company||'')?editContractForm.company:''} onChange={e=>{if(e.target.value)setEditContractForm({...editContractForm,company:e.target.value})}} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#F7F8FA',fontFamily:'inherit'}}>
+                                  <option value="">선택</option>
+                                  {SONHAE_COMPANIES.map(n=><option key={n}>{n}</option>)}
+                                </select>
+                              </div>
+                              <div style={{flex:1}}>
+                                <div style={{fontSize:11,color:'#636B78',marginBottom:3}}>생명보험</div>
+                                <select value={SAENGMYEONG_COMPANIES.includes(editContractForm.company||'')?editContractForm.company:''} onChange={e=>{if(e.target.value)setEditContractForm({...editContractForm,company:e.target.value})}} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#F7F8FA',fontFamily:'inherit'}}>
+                                  <option value="">선택</option>
+                                  {SAENGMYEONG_COMPANIES.map(n=><option key={n}>{n}</option>)}
+                                </select>
+                              </div>
+                            </div>
                           </div>
                           <div className={styles.editField} style={{gridColumn:'1 / -1'}}><label>상품명</label><input value={editContractForm.product_name||''} onChange={e=>setEditContractForm({...editContractForm,product_name:e.target.value})} /></div>
                           <div className={styles.editField}><label>월보험료(원)</label><input inputMode="numeric" value={editContractForm.monthly_fee?formatMoney(String(editContractForm.monthly_fee)):''} onChange={e=>setEditContractForm({...editContractForm,monthly_fee:parseMoney(e.target.value)})} placeholder="50,000" /></div>
@@ -1133,8 +1163,23 @@ export default function Customers() {
                 <div className={styles.editBox}>
                   <div className={styles.editSectionTitle}>보험 추가</div>
                   <div className={styles.editGrid}>
-                    <div className={styles.editField}><label>보험사</label>
-                      <InsuranceCompanySelect value={insForm.company} onChange={v=>setInsForm({...insForm,company:v})} />
+                    <div className={styles.editField} style={{gridColumn:'1 / -1'}}><label>보험사</label>
+                      <div style={{display:'flex',gap:6}}>
+                        <div style={{flex:1}}>
+                          <div style={{fontSize:11,color:'#636B78',marginBottom:3}}>손해보험</div>
+                          <select value={SONHAE_COMPANIES.includes(insForm.company)?insForm.company:''} onChange={e=>{if(e.target.value)setInsForm({...insForm,company:e.target.value})}} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#F7F8FA',fontFamily:'inherit'}}>
+                            <option value="">선택</option>
+                            {SONHAE_COMPANIES.map(n=><option key={n}>{n}</option>)}
+                          </select>
+                        </div>
+                        <div style={{flex:1}}>
+                          <div style={{fontSize:11,color:'#636B78',marginBottom:3}}>생명보험</div>
+                          <select value={SAENGMYEONG_COMPANIES.includes(insForm.company)?insForm.company:''} onChange={e=>{if(e.target.value)setInsForm({...insForm,company:e.target.value})}} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#F7F8FA',fontFamily:'inherit'}}>
+                            <option value="">선택</option>
+                            {SAENGMYEONG_COMPANIES.map(n=><option key={n}>{n}</option>)}
+                          </select>
+                        </div>
+                      </div>
                     </div>
                     <div className={styles.editField} style={{gridColumn:'1 / -1'}}><label>상품명</label><input value={insForm.product_name} onChange={e=>setInsForm({...insForm,product_name:e.target.value})} placeholder="무배당 건강보험" /></div>
                     <div className={styles.editField}><label>보험 종류</label>
@@ -1419,8 +1464,23 @@ export default function Customers() {
                       {isEditing && (
                         <div className={styles.contractEditBox}>
                           <div className={styles.editGrid}>
-                            <div className={styles.editField}><label>보험사</label>
-                              <InsuranceCompanySelect value={editContractForm.company||''} onChange={v=>setEditContractForm({...editContractForm,company:v})} />
+                            <div className={styles.editField} style={{gridColumn:'1 / -1'}}><label>보험사</label>
+                              <div style={{display:'flex',gap:6}}>
+                                <div style={{flex:1}}>
+                                  <div style={{fontSize:11,color:'#636B78',marginBottom:3}}>손해보험</div>
+                                  <select value={SONHAE_COMPANIES.includes(editContractForm.company||'')?editContractForm.company:''} onChange={e=>{if(e.target.value)setEditContractForm({...editContractForm,company:e.target.value})}} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#F7F8FA',fontFamily:'inherit'}}>
+                                    <option value="">선택</option>
+                                    {SONHAE_COMPANIES.map(n=><option key={n}>{n}</option>)}
+                                  </select>
+                                </div>
+                                <div style={{flex:1}}>
+                                  <div style={{fontSize:11,color:'#636B78',marginBottom:3}}>생명보험</div>
+                                  <select value={SAENGMYEONG_COMPANIES.includes(editContractForm.company||'')?editContractForm.company:''} onChange={e=>{if(e.target.value)setEditContractForm({...editContractForm,company:e.target.value})}} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#F7F8FA',fontFamily:'inherit'}}>
+                                    <option value="">선택</option>
+                                    {SAENGMYEONG_COMPANIES.map(n=><option key={n}>{n}</option>)}
+                                  </select>
+                                </div>
+                              </div>
                             </div>
                             <div className={styles.editField} style={{gridColumn:'1 / -1'}}><label>상품명</label><input value={editContractForm.product_name||''} onChange={e=>setEditContractForm({...editContractForm,product_name:e.target.value})} /></div>
                             <div className={styles.editField}><label>월보험료(원)</label><input inputMode="numeric" value={editContractForm.monthly_fee?formatMoney(String(editContractForm.monthly_fee)):''} onChange={e=>setEditContractForm({...editContractForm,monthly_fee:parseMoney(e.target.value)})} placeholder="50,000" /></div>
