@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
 
 interface Company {
@@ -18,18 +18,18 @@ interface Props {
 let cachedCompanies: Company[] | null = null
 
 export default function InsuranceCompanySelect({ value, onChange, style }: Props) {
-  const [손해, set손해] = useState<Company[]>([])
-  const [생명, set생명] = useState<Company[]>([])
+  const listId = useRef(`ins-co-${Math.random().toString(36).slice(2)}`).current
+  const [companies, setCompanies] = useState<Company[]>([])
   const [loaded, setLoaded] = useState(false)
+  const [inputVal, setInputVal] = useState(value)
 
-  // 현재 value가 어느 카테고리인지 판별
-  const category = 손해.find(c => c.name === value) ? '손해보험' : 생명.find(c => c.name === value) ? '생명보험' : ''
+  // 외부에서 value가 바뀌면 input도 동기화
+  useEffect(() => { setInputVal(value) }, [value])
 
   useEffect(() => {
     async function load() {
       if (cachedCompanies) {
-        set손해(cachedCompanies.filter(c => c.category === '손해보험'))
-        set생명(cachedCompanies.filter(c => c.category === '생명보험'))
+        setCompanies(cachedCompanies)
         setLoaded(true)
         return
       }
@@ -40,59 +40,55 @@ export default function InsuranceCompanySelect({ value, onChange, style }: Props
         .order('sort_order')
       if (data) {
         cachedCompanies = data
-        set손해(data.filter(c => c.category === '손해보험'))
-        set생명(data.filter(c => c.category === '생명보험'))
+        setCompanies(data)
       }
       setLoaded(true)
     }
     load()
   }, [])
 
-  const selectStyle: React.CSSProperties = {
+  // 손해보험 → 생명보험 순 정렬
+  const sorted = [
+    ...companies.filter(c => c.category === '손해보험'),
+    ...companies.filter(c => c.category === '생명보험'),
+  ]
+
+  const inputStyle: React.CSSProperties = {
     width: '100%',
     fontSize: 13,
-    padding: '6px 10px',
+    padding: '8px 10px',
     borderRadius: 6,
     border: '1px solid #E5E7EB',
-    background: '#fff',
-    color: '#1a1a1a',
+    background: '#F7F8FA',
+    color: '#1A1A2E',
+    fontFamily: 'inherit',
+    boxSizing: 'border-box' as const,
+    outline: 'none',
+    transition: 'border-color 120ms',
     ...style,
   }
 
-  if (!loaded) return <select style={selectStyle} disabled><option>로딩중...</option></select>
-
   return (
-    <div style={{ display: 'flex', gap: 6 }}>
-      <div style={{ flex: 1 }}>
-        <label style={{ fontSize: 12, color: '#666', marginBottom: 2, display: 'block' }}>손해보험</label>
-        <select
-          value={category === '손해보험' ? value : ''}
-          onChange={e => {
-            if (e.target.value) onChange(e.target.value)
-          }}
-          style={selectStyle}
-        >
-          <option value="">선택</option>
-          {손해.map(c => (
-            <option key={c.id} value={c.name}>{c.name}</option>
-          ))}
-        </select>
-      </div>
-      <div style={{ flex: 1 }}>
-        <label style={{ fontSize: 12, color: '#666', marginBottom: 2, display: 'block' }}>생명보험</label>
-        <select
-          value={category === '생명보험' ? value : ''}
-          onChange={e => {
-            if (e.target.value) onChange(e.target.value)
-          }}
-          style={selectStyle}
-        >
-          <option value="">선택</option>
-          {생명.map(c => (
-            <option key={c.id} value={c.name}>{c.name}</option>
-          ))}
-        </select>
-      </div>
-    </div>
+    <>
+      <input
+        list={listId}
+        value={inputVal}
+        disabled={!loaded}
+        placeholder={loaded ? '보험사명 입력 또는 선택...' : '로딩 중...'}
+        onChange={e => {
+          const v = e.target.value
+          setInputVal(v)
+          onChange(v)
+        }}
+        onFocus={e => { e.currentTarget.style.borderColor = '#5E6AD2'; e.currentTarget.style.boxShadow = '0 0 0 2px rgba(94,106,210,0.15)'; e.currentTarget.style.background = '#ffffff' }}
+        onBlur={e => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.background = '#F7F8FA' }}
+        style={inputStyle}
+      />
+      <datalist id={listId}>
+        {sorted.map(c => (
+          <option key={c.id} value={c.name} label={`[${c.category}] ${c.name}`} />
+        ))}
+      </datalist>
+    </>
   )
 }
