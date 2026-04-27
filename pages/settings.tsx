@@ -48,7 +48,7 @@ const TONE_OPTIONS = [
 ]
 
 function TabIcon({ tabKey, active }: { tabKey: SettingsTab; active: boolean }) {
-  const c = active ? 'hsl(var(--accent))' : 'hsl(var(--text-tertiary))'
+  const c = active ? '#5E6AD2' : '#8892A0'
   const s = { width: 15, height: 15, fill: 'none' as const, stroke: c, strokeWidth: 2, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const }
   if (tabKey === 'profile') return <svg {...s} viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
   if (tabKey === 'sms') return <svg {...s} viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
@@ -239,39 +239,28 @@ export default function SettingsPage() {
 
   if (loading) return <div className={styles.loading}>불러오는 중...</div>
 
-  const tabStyle = (active: boolean): React.CSSProperties => ({
-    padding: '10px 20px',
-    border: 'none',
-    background: 'transparent',
-    cursor: 'pointer',
-    fontSize: 14,
-    fontWeight: active ? 600 : 400,
-    color: active ? 'hsl(var(--accent))' : 'hsl(var(--text-secondary))',
-    borderBottom: active ? '2px solid hsl(var(--accent))' : '2px solid transparent',
-    transition: 'all 0.1s',
-    whiteSpace: 'nowrap',
-  })
-
   return (
-    <div className="px-6 pb-8 pt-5" style={{ background: 'hsl(var(--bg-app))', minHeight: '100%' }}>
+    <div className={styles.page}>
       {ConfirmDialog}
 
       {/* 페이지 헤더 */}
-      <div className="mb-5 flex items-end justify-between">
+      <div className={styles.pageHeader}>
         <div>
-          <h1 className="text-xl font-bold" style={{ color: 'hsl(var(--text-primary))' }}>설정</h1>
-          <p className="mt-0.5 text-[13px]" style={{ color: 'hsl(var(--text-secondary))' }}>계정 및 서비스 설정</p>
+          <h1 className={styles.pageTitle}>설정</h1>
+          <p className={styles.pageSub}>계정 및 서비스 설정</p>
         </div>
-        <span className="text-sm" style={{ color: 'hsl(var(--text-primary))' }}>{dateStr}</span>
+        <span className={styles.pageDate}>{dateStr}</span>
       </div>
 
       {/* 탭 + 콘텐츠 카드 */}
-      <div style={{ background: 'hsl(var(--bg-panel))', borderRadius: 10, border: '1px solid hsl(var(--border-default))', overflow: 'hidden' }}>
+      <div className={styles.card}>
 
         {/* 탭 메뉴 */}
-        <div style={{ display: 'flex', borderBottom: '1px solid hsl(var(--border-default))', padding: '0 8px' }}>
+        <div className={styles.tabBar}>
           {TABS.map(t => (
-            <button key={t.key} onClick={() => setTab(t.key)} style={tabStyle(tab === t.key)}>
+            <button key={t.key} onClick={() => setTab(t.key)}
+              className={[styles.tabBtn, tab === t.key ? styles.tabActive : ''].join(' ')}>
+              <TabIcon tabKey={t.key} active={tab === t.key} />
               {t.label}
             </button>
           ))}
@@ -413,8 +402,8 @@ export default function SettingsPage() {
 
             {/* STEP 1: 안내 */}
             {senderStatus !== 'verified' && smsAuthStep === 'intro' && (
-              <div style={{ background: '#F0FDF4', border: '1px solid #6EE7B7', borderRadius: 12, padding: '20px 16px', marginBottom: 16 }}>
-                <p style={{ fontWeight: 700, fontSize: 15, color: '#065F46', marginBottom: 12 }}>📋 문자 발신 서비스 이용 안내</p>
+              <div style={{ background: 'rgba(94,106,210,0.04)', border: '1px solid rgba(94,106,210,0.2)', borderRadius: 12, padding: '20px 16px', marginBottom: 16 }}>
+                <p style={{ fontWeight: 700, fontSize: 15, color: '#1A1A2E', marginBottom: 12 }}>📋 문자 발신 서비스 이용 안내</p>
                 <p style={{ fontSize: 13, color: '#374151', lineHeight: 1.7, marginBottom: 8 }}>
                   「전기통신사업법」 제84조의2에 따라 문자 발송 시 발신번호를 사전 등록해야 하며,
                   타인 명의 번호로의 무단 발신을 방지하기 위해 본인 확인 절차가 법적으로 요구됩니다.
@@ -423,8 +412,8 @@ export default function SettingsPage() {
                   아래 절차에 따라 본인 인증을 완료하시면 고객에게 본인 번호로 문자를 발송할 수 있습니다.
                 </p>
 
-                <div style={{ background: '#fff', borderRadius: 8, padding: '12px 14px', marginBottom: 16, border: '1px solid #D1FAE5' }}>
-                  <p style={{ fontWeight: 600, fontSize: 13, color: '#065F46', marginBottom: 8 }}>📝 진행 절차</p>
+                <div style={{ background: '#fff', borderRadius: 8, padding: '12px 14px', marginBottom: 16, border: '1px solid #E5E7EB' }}>
+                  <p style={{ fontWeight: 600, fontSize: 13, color: '#5E6AD2', marginBottom: 8 }}>📝 진행 절차</p>
                   {['1단계 — 서비스 이용 동의', '2단계 — 본인 정보 입력 (이름/생년월일/주소/발신번호)', '3단계 — 본인 서명 (모바일에서 직접 서명)', '4단계 — 통신서비스 이용증명원 업로드', '5단계 — 입력 내용 최종 확인', '6단계 — 제출 완료'].map((s, i) => (
                     <p key={i} style={{ fontSize: 12, color: '#374151', marginBottom: 4 }}>✓ {s}</p>
                   ))}
@@ -437,16 +426,16 @@ export default function SettingsPage() {
                   </p>
                 </div>
 
-                <div style={{ borderTop: '1px solid #D1FAE5', paddingTop: 14 }}>
-                  <p style={{ fontWeight: 600, fontSize: 13, color: '#065F46', marginBottom: 10 }}>서비스 이용에 동의하시겠습니까?</p>
+                <div style={{ borderTop: '1px solid #E5E7EB', paddingTop: 14 }}>
+                  <p style={{ fontWeight: 600, fontSize: 13, color: '#1A1A2E', marginBottom: 10 }}>서비스 이용에 동의하시겠습니까?</p>
                   <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, cursor: 'pointer', marginBottom: 8 }}>
-                    <input type="checkbox" checked={smsAgreed} onChange={e => setSmsAgreed(e.target.checked)} style={{ marginTop: 2, accentColor: '#1D9E75' }} />
+                    <input type="checkbox" checked={smsAgreed} onChange={e => setSmsAgreed(e.target.checked)} style={{ marginTop: 2, accentColor: '#5E6AD2' }} />
                     <span style={{ fontSize: 12, color: '#374151', lineHeight: 1.6 }}>
                       개인정보 수집·이용에 동의합니다. (수집항목: 이름, 생년월일, 주소, 전화번호 / 목적: 문자 발신번호 등록 대행 / 보유기간: 서비스 해지 시 즉시 파기)
                     </span>
                   </label>
                   <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, cursor: 'pointer', marginBottom: 14 }}>
-                    <input type="checkbox" checked={smsAgreed} onChange={e => setSmsAgreed(e.target.checked)} style={{ marginTop: 2, accentColor: '#1D9E75' }} />
+                    <input type="checkbox" checked={smsAgreed} onChange={e => setSmsAgreed(e.target.checked)} style={{ marginTop: 2, accentColor: '#5E6AD2' }} />
                     <span style={{ fontSize: 12, color: '#374151', lineHeight: 1.6 }}>
                       발신번호 등록 위임에 동의합니다. (위임내용: 본인 명의 번호를 주식회사 글로벌엠디에 발신번호 등록 업무 위임)
                     </span>
@@ -454,7 +443,7 @@ export default function SettingsPage() {
                   <button
                     onClick={() => { if (smsAgreed) setSmsAuthStep('form') }}
                     disabled={!smsAgreed}
-                    style={{ width: '100%', padding: '12px 0', borderRadius: 10, border: 'none', background: smsAgreed ? '#1D9E75' : '#D1D5DB', color: 'white', fontSize: 14, fontWeight: 600, cursor: smsAgreed ? 'pointer' : 'not-allowed' }}>
+                    style={{ width: '100%', padding: '12px 0', borderRadius: 10, border: 'none', background: smsAgreed ? '#5E6AD2' : '#D1D5DB', color: 'white', fontSize: 14, fontWeight: 600, cursor: smsAgreed ? 'pointer' : 'not-allowed' }}>
                     인증 시작하기
                   </button>
                 </div>
@@ -515,7 +504,7 @@ export default function SettingsPage() {
                           document.head.appendChild(script)
                         }
                       }}
-                      style={{ whiteSpace: 'nowrap', padding: '0 14px', borderRadius: 8, border: '1px solid #1D9E75', background: '#1D9E75', color: 'white', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                      style={{ whiteSpace: 'nowrap', padding: '0 14px', borderRadius: 8, border: '1px solid #5E6AD2', background: '#5E6AD2', color: 'white', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
                       주소 검색
                     </button>
                   </div>
@@ -550,7 +539,7 @@ export default function SettingsPage() {
                       }
                       setSmsAuthStep('sign')
                     }}
-                    style={{ flex: 2, padding: '11px 0', borderRadius: 10, border: 'none', background: '#1D9E75', color: 'white', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+                    style={{ flex: 2, padding: '11px 0', borderRadius: 10, border: 'none', background: '#5E6AD2', color: 'white', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
                     서명하러 가기
                   </button>
                 </div>
@@ -623,7 +612,7 @@ export default function SettingsPage() {
                       if (!signatureData) { alert('서명을 먼저 완성해주세요.'); return }
                       setSmsAuthStep('upload')
                     }}
-                    style={{ flex: 2, padding: '11px 0', borderRadius: 10, border: 'none', background: '#1D9E75', color: 'white', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+                    style={{ flex: 2, padding: '11px 0', borderRadius: 10, border: 'none', background: '#5E6AD2', color: 'white', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
                     확인하기
                   </button>
                 </div>
@@ -632,11 +621,11 @@ export default function SettingsPage() {
 
             {/* STEP 4: 통신서비스 이용증명원 업로드 */}
             {senderStatus !== 'verified' && smsAuthStep === 'upload' && (
-              <div style={{ background: '#fff', border: '1px solid #EDEBE4', borderRadius: 12, padding: '14px 10px', marginBottom: 16 }}>
+              <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 10px', marginBottom: 16 }}>
                 <p style={{ fontWeight: 700, fontSize: 16, color: '#1a1a1a', marginBottom: 4 }}>4단계 — 통신서비스 이용증명원 업로드</p>
                 <p style={{ fontSize: 13, color: '#999', marginBottom: 14 }}>통신사 앱 또는 고객센터에서 발급받은 이용증명원을 업로드해주세요.</p>
-                <div style={{ background: '#F0FDF4', border: '1px solid #6EE7B7', borderRadius: 8, padding: '12px 14px', marginBottom: 16 }}>
-                  <p style={{ fontSize: 14, color: '#065F46', fontWeight: 700, marginBottom: 10 }}>📋 통신사를 선택하면 발급 페이지로 이동합니다</p>
+                <div style={{ background: 'rgba(94,106,210,0.04)', border: '1px solid rgba(94,106,210,0.2)', borderRadius: 8, padding: '12px 14px', marginBottom: 16 }}>
+                  <p style={{ fontSize: 14, color: '#5E6AD2', fontWeight: 700, marginBottom: 10 }}>📋 통신사를 선택하면 발급 페이지로 이동합니다</p>
                   {(() => {
                     const carriers = [
                       { label: 'SKT', name: 'SKT (T World)', docName: '이용계약 등록사항 증명서', url: 'https://www.tworld.co.kr', path: 'MY > 나의 가입정보 > 이용계약 등록사항 증명서 조회', warn: '⚠️ 인터넷으로 직접 발급하면 생년월일 일부가 **로 가려져 나옵니다. 가려지지 않은 서류가 필요하므로 고객센터 114에 전화하여 "이용계약 등록사항 증명서 발급 요청"을 해주세요.' },
@@ -656,17 +645,17 @@ export default function SettingsPage() {
                         <select
                           value={selectedCarrier}
                           onChange={e => setSelectedCarrier(e.target.value)}
-                          style={{ width: '100%', padding: '11px 12px', borderRadius: 8, border: '1px solid #6EE7B7', background: '#fff', color: selectedCarrier ? '#1a1a1a' : '#999', fontSize: 15, cursor: 'pointer', marginBottom: 8 }}>
+                          style={{ width: '100%', padding: '11px 12px', borderRadius: 8, border: '1px solid #E5E7EB', background: '#fff', color: selectedCarrier ? '#1a1a1a' : '#999', fontSize: 15, cursor: 'pointer', marginBottom: 8 }}>
                           <option value="" disabled>통신사를 선택하세요</option>
                           {carriers.map(c => <option key={c.label} value={c.label}>{c.name}</option>)}
                         </select>
                         {found && (
-                          <div style={{ background: '#F0FDF4', border: '1px solid #6EE7B7', borderRadius: 8, padding: '12px 14px', marginBottom: 8 }}>
+                          <div style={{ background: 'rgba(94,106,210,0.04)', border: '1px solid rgba(94,106,210,0.2)', borderRadius: 8, padding: '12px 14px', marginBottom: 8 }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                               <p style={{ fontSize: 12, color: '#999' }}>서류명</p>
-                              <p style={{ fontSize: 14, color: '#065F46', fontWeight: 700 }}>{found.docName}</p>
+                              <p style={{ fontSize: 14, color: '#5E6AD2', fontWeight: 700 }}>{found.docName}</p>
                             </div>
-                            <div style={{ borderTop: '1px solid #D1FAE5', paddingTop: 8, marginBottom: 8 }}>
+                            <div style={{ borderTop: '1px solid #E5E7EB', paddingTop: 8, marginBottom: 8 }}>
                               <p style={{ fontSize: 12, color: '#999', marginBottom: 4 }}>발급 경로</p>
                               <p style={{ fontSize: 14, color: '#1a1a1a', fontWeight: 500 }}>{found.path}</p>
                             </div>
@@ -677,7 +666,7 @@ export default function SettingsPage() {
                             )}
                             {found.url && (
                               <button onClick={() => window.open(found.url, '_blank')}
-                                style={{ width: '100%', padding: '12px 0', borderRadius: 8, border: 'none', background: '#1D9E75', color: 'white', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
+                                style={{ width: '100%', padding: '12px 0', borderRadius: 8, border: 'none', background: '#5E6AD2', color: 'white', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
                                 {found.name} 발급 페이지 열기 →
                               </button>
                             )}
@@ -689,7 +678,7 @@ export default function SettingsPage() {
                   <p style={{ fontSize: 13, color: '#999', marginTop: 6, marginBottom: 10, lineHeight: 1.7 }}>발급 후 아래에 파일을 업로드해주세요.<br/>⚠️ 생년월일이 **로 가려진 서류는 사용할 수 없습니다.</p>
                 </div>
                 <label
-                  style={{ display: 'block', border: `2px dashed ${telecomDocFile ? '#1D9E75' : '#D1D5DB'}`, borderRadius: 10, padding: '20px', textAlign: 'center', cursor: 'pointer', background: telecomDocFile ? '#F0FDF4' : '#FAFAFA', marginBottom: 12 }}
+                  style={{ display: 'block', border: `2px dashed ${telecomDocFile ? '#5E6AD2' : '#D1D5DB'}`, borderRadius: 10, padding: '20px', textAlign: 'center', cursor: 'pointer', background: telecomDocFile ? 'rgba(94,106,210,0.05)' : '#FAFAFA', marginBottom: 12 }}
                   onDragOver={e => { e.preventDefault(); e.stopPropagation() }}
                   onDrop={e => {
                     e.preventDefault(); e.stopPropagation()
@@ -704,7 +693,7 @@ export default function SettingsPage() {
                     }} />
                   {telecomDocFile ? (
                     <div>
-                      <p style={{ fontSize: 14, color: '#065F46', fontWeight: 600 }}>✅ {telecomDocFile.name}</p>
+                      <p style={{ fontSize: 14, color: '#5E6AD2', fontWeight: 600 }}>✅ {telecomDocFile.name}</p>
                       <p style={{ fontSize: 13, color: '#999', marginTop: 4 }}>다른 파일로 변경하려면 다시 클릭하세요</p>
                     </div>
                   ) : (
@@ -763,7 +752,7 @@ export default function SettingsPage() {
                         setTelecomUploading(false)
                       }
                     }}
-                    style={{ flex: 2, padding: '11px 0', borderRadius: 10, border: 'none', background: telecomDocFile && !telecomUploading ? '#1D9E75' : '#D1D5DB', color: 'white', fontSize: 14, fontWeight: 600, cursor: telecomDocFile && !telecomUploading ? 'pointer' : 'not-allowed' }}>
+                    style={{ flex: 2, padding: '11px 0', borderRadius: 10, border: 'none', background: telecomDocFile && !telecomUploading ? '#5E6AD2' : '#D1D5DB', color: 'white', fontSize: 14, fontWeight: 600, cursor: telecomDocFile && !telecomUploading ? 'pointer' : 'not-allowed' }}>
                     {telecomUploading ? '검증 중...' : '다음'}
                   </button>
                 </div>
@@ -846,7 +835,7 @@ export default function SettingsPage() {
                         setSubmitting(false)
                       }
                     }}
-                    style={{ flex: 2, padding: '11px 0', borderRadius: 10, border: 'none', background: submitting ? '#9CA3AF' : '#1D9E75', color: 'white', fontSize: 14, fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer' }}>
+                    style={{ flex: 2, padding: '11px 0', borderRadius: 10, border: 'none', background: submitting ? '#9CA3AF' : '#5E6AD2', color: 'white', fontSize: 14, fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer' }}>
                     {submitting ? '제출 중...' : '제출하기'}
                   </button>
                 </div>
@@ -919,7 +908,7 @@ export default function SettingsPage() {
                 </div>
                 <div className={styles.usageInfo}>
                   <span>{smsUsage.used}건 사용</span>
-                  <span style={{ fontWeight: 700, color: '#1D9E75' }}>{smsUsage.remaining}건 남음</span>
+                  <span style={{ fontWeight: 700, color: '#5E6AD2' }}>{smsUsage.remaining}건 남음</span>
                   <span style={{ color: '#999' }}>/ {smsUsage.limit}건</span>
                 </div>
                 <div className={styles.usagePlan}>플랜: {smsUsage.plan?.toUpperCase()}</div>
