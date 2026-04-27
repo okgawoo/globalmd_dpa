@@ -107,7 +107,7 @@
   cursor: pointer;
   transition: background 100ms;
 }
-.calCellDay:hover { background: #F7F8FA; }
+.calCellDay:hover:not(:has(.calEvent:hover)) { background: #F7F8FA; }
 .calCellToday {
   background: rgba(94, 106, 210, 0.06) !important;
 }
@@ -133,9 +133,16 @@
   background: color-mix(in srgb, var(--ev-color, #5E6AD2) 12%, transparent);
   cursor: pointer;
   overflow: hidden;
-  transition: opacity 0.15s ease, filter 0.15s ease;
+  position: relative;
+  transition: opacity 0.15s ease, filter 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
-.calEvent:hover { opacity: 0.85; filter: brightness(0.92); }
+.calEvent:hover {
+  opacity: 0.85;
+  filter: brightness(0.92);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  z-index: 1;
+}
 .calEventDot {
   width: 6px; height: 6px;
   border-radius: 50%;
