@@ -19,21 +19,7 @@
   --sidebar-width: 220px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #111111;
-    --bg-card: #1c1c1c;
-    --bg-sidebar: #161616;
-    --border: #2a2a2a;
-    --text-primary: #f0f0f0;
-    --text-secondary: #aaa;
-    --text-muted: #666;
-    --green-light: #0d3d2e;
-    --amber-light: #3d2e0d;
-    --red-light: #3d1111;
-    --blue-light: #0d2a3d;
-  }
-}
+/* prefers-color-scheme 미사용 — 앱 자체 다크모드(data-theme)만 사용 */
 
 /* ── Admin 다크모드 ── */
 :root[data-theme="dark"] {
@@ -91,7 +77,6 @@ body {
   font-size: 14px;
   line-height: 1.5;
   overscroll-behavior-y: none;
-  background: #FAF9F5 !important;
 }
 
 button { cursor: pointer; font-family: inherit; }
