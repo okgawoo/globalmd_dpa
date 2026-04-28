@@ -30,7 +30,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const [dark, setDark] = useState(false)
   const [supportOpen, setSupportOpen] = useState(false)
   const [userInfo, setUserInfo] = useState<{ email: string; initial: string } | null>(null)
-  const [announcement, setAnnouncement] = useState<{ id: string; title: string; body: string; url?: string } | null>(null)
+  const [announcement, setAnnouncement] = useState<{ id: string; title: string; body: string; url?: string } | null>({
+    id: 'test-preview-001',
+    title: '신규 기능 업데이트',
+    body: 'AI 보장 분석이 더욱 정확해졌어요. 지금 확인해보세요!',
+    url: '/input',
+  })
   const mainColRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLElement>(null)
 
