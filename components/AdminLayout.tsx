@@ -408,50 +408,48 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        {/* Announcement Bar — fixed overlay, 레이아웃 흐름 영향 없음 */}
+        {/* Announcement — 헤더 중앙 플로팅 pill */}
         {announcement && (
           <div
             style={{
               position: 'fixed',
-              top: 52,
-              left: 240,
-              right: 0,
-              zIndex: 35,
-              background: 'linear-gradient(90deg, #4B56C0 0%, #5E6AD2 50%, #7B84E0 100%)',
+              top: 8,
+              left: '50%',
+              transform: `translateX(calc(-50% + 120px))`,
+              zIndex: 50,
+              background: '#1A1A2E',
               color: '#fff',
-              padding: '7px 48px 7px 16px',
+              borderRadius: 999,
+              padding: '6px 8px 6px 6px',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              gap: 12,
+              gap: 10,
+              boxShadow: '0 4px 20px rgba(0,0,0,0.28)',
+              maxWidth: 'calc(100vw - 320px)',
+              whiteSpace: 'nowrap',
             }}
           >
-            {/* 왼쪽 뱃지 */}
+            {/* 왼쪽 아이콘 뱃지 */}
             <div style={{
-              background: 'rgba(255,255,255,0.18)',
-              border: '1px solid rgba(255,255,255,0.3)',
+              background: '#5E6AD2',
               borderRadius: 999,
-              padding: '3px 10px',
-              fontSize: 11,
+              padding: '4px 10px',
+              fontSize: 12,
               fontWeight: 700,
-              letterSpacing: '0.04em',
               display: 'flex',
               alignItems: 'center',
               gap: 5,
               flexShrink: 0,
-              whiteSpace: 'nowrap',
             }}>
-              <span style={{ fontSize: 12 }}>✦</span>
+              <span style={{ fontStyle: 'italic', fontWeight: 800 }}>i</span>
               아이플래너
             </div>
 
-            {/* 중앙 텍스트 */}
-            <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 500, minWidth: 0 }}>
-              <span style={{ fontWeight: 700, flexShrink: 0 }}>{announcement.title}</span>
+            {/* 텍스트 */}
+            <span style={{ fontSize: 13, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <span style={{ fontWeight: 700 }}>{announcement.title}</span>
               {announcement.body && (
-                <span style={{ opacity: 0.85, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  — {announcement.body}
-                </span>
+                <span style={{ opacity: 0.75, marginLeft: 6 }}>— {announcement.body}</span>
               )}
             </span>
 
@@ -460,47 +458,43 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               <button
                 onClick={() => router.push(announcement.url!)}
                 style={{
-                  background: 'transparent',
-                  border: '1.5px solid rgba(255,255,255,0.7)',
+                  background: '#fff',
+                  border: 'none',
                   borderRadius: 999,
-                  color: '#fff',
-                  padding: '4px 14px',
+                  color: '#1A1A2E',
+                  padding: '5px 14px',
                   fontSize: 12,
-                  fontWeight: 600,
+                  fontWeight: 700,
                   cursor: 'pointer',
-                  whiteSpace: 'nowrap',
                   flexShrink: 0,
                   fontFamily: 'inherit',
-                  transition: 'background 120ms',
+                  transition: 'opacity 120ms',
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.15)' }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
+                onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85' }}
+                onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
               >
-                지금 확인하기 →
+                확인하기 →
               </button>
             )}
 
-            {/* 닫기 버튼 */}
+            {/* 닫기 */}
             <button
               onClick={dismissAnnouncement}
               style={{
-                position: 'absolute',
-                right: 14,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: 'rgba(255,255,255,0.15)',
+                background: 'rgba(255,255,255,0.12)',
                 border: 'none',
-                borderRadius: 6,
+                borderRadius: 999,
                 color: '#fff',
                 cursor: 'pointer',
-                width: 26,
-                height: 26,
+                width: 24,
+                height: 24,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                flexShrink: 0,
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.28)' }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.15)' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.22)' }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)' }}
             >
               <X style={{ width: 14, height: 14 }} />
             </button>
