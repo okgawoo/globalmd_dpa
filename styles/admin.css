@@ -137,6 +137,11 @@
   border-color: #444444 !important;
 }
 
+/* 사이드바 활성 메뉴 (#ECEDF8 → rgb(236, 237, 248)) */
+.admin-dark [style*="background: rgb(236, 237, 248)"] {
+  background: #2D2E4A !important;
+}
+
 /* AdminDashboard 페이지 래퍼 배경 (#F7F8FA → rgb(247, 248, 250)) */
 .admin-dark [style*="background: rgb(247, 248, 250)"] {
   background: #1E1E1E !important;
