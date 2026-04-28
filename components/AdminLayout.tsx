@@ -411,34 +411,76 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         {/* Announcement Bar — fixed overlay, 레이아웃 흐름 영향 없음 */}
         {announcement && (
           <div
-            onClick={announcement.url ? () => router.push(announcement.url!) : undefined}
             style={{
               position: 'fixed',
               top: 52,
               left: 240,
               right: 0,
               zIndex: 35,
-              background: '#5E6AD2',
+              background: 'linear-gradient(90deg, #4B56C0 0%, #5E6AD2 50%, #7B84E0 100%)',
               color: '#fff',
-              padding: '9px 48px',
+              padding: '7px 48px 7px 16px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 8,
-              fontSize: 13,
-              fontWeight: 500,
-              lineHeight: 1.5,
-              cursor: announcement.url ? 'pointer' : 'default',
+              gap: 12,
             }}
           >
-            <span style={{ display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0, maxWidth: 'calc(100% - 60px)' }}>
+            {/* 왼쪽 뱃지 */}
+            <div style={{
+              background: 'rgba(255,255,255,0.18)',
+              border: '1px solid rgba(255,255,255,0.3)',
+              borderRadius: 999,
+              padding: '3px 10px',
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: '0.04em',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 5,
+              flexShrink: 0,
+              whiteSpace: 'nowrap',
+            }}>
+              <span style={{ fontSize: 12 }}>✦</span>
+              아이플래너
+            </div>
+
+            {/* 중앙 텍스트 */}
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 500, minWidth: 0 }}>
               <span style={{ fontWeight: 700, flexShrink: 0 }}>{announcement.title}</span>
               {announcement.body && (
-                <span style={{ opacity: 0.88, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  — {announcement.body.length > 60 ? announcement.body.slice(0, 60) + '…' : announcement.body}
+                <span style={{ opacity: 0.85, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  — {announcement.body}
                 </span>
               )}
             </span>
+
+            {/* CTA 버튼 */}
+            {announcement.url && (
+              <button
+                onClick={() => router.push(announcement.url!)}
+                style={{
+                  background: 'transparent',
+                  border: '1.5px solid rgba(255,255,255,0.7)',
+                  borderRadius: 999,
+                  color: '#fff',
+                  padding: '4px 14px',
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                  fontFamily: 'inherit',
+                  transition: 'background 120ms',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.15)' }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
+              >
+                지금 확인하기 →
+              </button>
+            )}
+
+            {/* 닫기 버튼 */}
             <button
               onClick={dismissAnnouncement}
               style={{
@@ -446,7 +488,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 right: 14,
                 top: '50%',
                 transform: 'translateY(-50%)',
-                background: 'rgba(255,255,255,0.2)',
+                background: 'rgba(255,255,255,0.15)',
                 border: 'none',
                 borderRadius: 6,
                 color: '#fff',
@@ -457,8 +499,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.3)' }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.2)' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.28)' }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.15)' }}
             >
               <X style={{ width: 14, height: 14 }} />
             </button>
