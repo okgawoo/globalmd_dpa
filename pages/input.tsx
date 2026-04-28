@@ -680,7 +680,7 @@ export default function InputPage() {
       )}
 
       {inputTab === 'paste' && (
-        <div style={{display:'flex',flexDirection:isMobile?'column':'row',gap:16,alignItems:'flex-start'}}>
+        <div style={{display:'flex',flexDirection:isMobile?'column':'row',gap:16,flex:1,alignItems:'stretch'}}>
 
           {/* ── 왼쪽: 입력 패널 ── */}
           <div className={styles.pastePanel} style={!isMobile?{
@@ -689,7 +689,6 @@ export default function InputPage() {
             marginLeft:showResults?'0':'auto',
             marginRight:showResults?'0':'auto',
             transition:'width 0.35s ease, margin 0.35s ease',
-            height:'calc(100vh - 320px)',
             overflowY:'auto',
             boxSizing:'border-box',
           }:{}}>
@@ -783,7 +782,7 @@ export default function InputPage() {
             overflow:'hidden',
             transition:'width 0.35s ease, opacity 0.25s ease',
           }:{flex:1}}>
-          <div className={styles.pastePanel} style={{overflowY:'auto',height:'calc(100vh - 320px)',boxSizing:'border-box',minWidth:!isMobile&&showResults?'calc(50vw - 60px)':0}}>
+          <div className={styles.pastePanel} style={{overflowY:'auto',height:'100%',boxSizing:'border-box',minWidth:!isMobile&&showResults?'calc(50vw - 60px)':0}}>
 
             {/* 확인된 계약 목록 */}
             {confirmedContracts.length > 0 && (
