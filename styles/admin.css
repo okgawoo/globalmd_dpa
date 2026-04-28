@@ -68,6 +68,13 @@
   background: #1E1E1E !important;
   color: #F5F5F5 !important;
 }
+.admin-dark aside span,
+.admin-dark aside a,
+.admin-dark aside p,
+.admin-dark aside button,
+.admin-dark nav span {
+  color: #E8E8E8 !important;
+}
 
 /* 카드/패널 배경 */
 .admin-dark [class*="card"],
