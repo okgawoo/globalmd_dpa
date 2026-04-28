@@ -188,6 +188,9 @@
 .admin-dark [class*="calCellDay"]:hover {
   background: #2E2E3E !important;
 }
+.admin-dark [class*="calCellToday"] {
+  background: rgba(94, 106, 210, 0.18) !important;
+}
 .admin-dark [class*="calMonthLabel"] {
   color: #F5F5F5 !important;
 }
