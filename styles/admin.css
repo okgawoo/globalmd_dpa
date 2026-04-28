@@ -55,10 +55,12 @@
 }
 
 /* ── 다크모드 전역 적용 ── */
-.admin-dark,
-.admin-dark * {
-  border-color: rgba(255, 255, 255, 0.15) !important;
-}
+
+/* 스크롤바 */
+.admin-dark ::-webkit-scrollbar { width: 6px; height: 6px; }
+.admin-dark ::-webkit-scrollbar-track { background: rgba(255,255,255,0.04); }
+.admin-dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 999px; }
+.admin-dark ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
 
 .admin-dark aside,
 .admin-dark header,
@@ -138,7 +140,10 @@
 /* StatCard / SectionCard 등 className 없이 inline style로 #FFFFFF 하드코딩된 카드들 */
 .admin-dark [style*="background: rgb(255, 255, 255)"] {
   background: #262626 !important;
-  border-color: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+}
+.admin-dark [style*="background: rgb(255, 255, 255)"] * {
+  border-color: rgba(255, 255, 255, 0.10) !important;
 }
 
 /* 호버 상태 (#EFEFF1 → rgb(239, 239, 241)) — StatCard·리스트행·테이블행 공통 */

@@ -354,7 +354,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: '6px 24px',
-            boxShadow: '0 1px 6px rgba(0,0,0,0.05)',
+            boxShadow: dark ? 'none' : '0 4px 12px rgba(0,0,0,0.25)',
+            borderBottom: dark ? '1px solid rgba(255,255,255,0.12)' : 'none',
             background: 'var(--admin-header-bg)',
           }}
         >
@@ -408,8 +409,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        {/* Announcement — 헤더 중앙 플로팅 pill */}
-        {announcement && (
+        {/* Announcement — 헤더 중앙 플로팅 pill (대시보드·관리자 페이지만 표시) */}
+        {announcement && (router.pathname === '/' || router.pathname === '/admin') && (
           <div
             style={{
               position: 'fixed',

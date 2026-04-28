@@ -302,8 +302,8 @@ export default function AdminDashboard({
         {/* Middle right col */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, height: '100%' }}>
 
-          {/* 이번달 미팅 */}
-          <SectionCard title="이번달 미팅" sub="이번 달 상담 현황" onViewAll={() => router.push('/sales?tab=meeting')}>
+          {/* 이번달 고객 상담 */}
+          <SectionCard title={`${new Date().getMonth() + 1}월 고객 상담`} sub="이번 달 상담 현황" onViewAll={() => router.push('/sales?tab=meeting')}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)' }}>
               {meetingCols.map(({ label, value }, i) => (
                 <div
@@ -484,10 +484,10 @@ export default function AdminDashboard({
                 onMouseEnter={(e) => { e.currentTarget.style.background = '#ECEDF8'; e.currentTarget.style.borderColor = 'rgba(94,106,210,0.3)' }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = '#F7F8FA'; e.currentTarget.style.borderColor = '#E5E7EB' }}
               >
-                <div style={{ display: 'flex', height: 28, width: 28, alignItems: 'center', justifyContent: 'center', borderRadius: 8, background: '#ECEDF8', border: '1px solid rgba(94,106,210,0.2)' }}>
-                  <Icon style={{ width: 14, height: 14, color: '#5E6AD2' }} />
+                <div style={{ display: 'flex', height: 48, width: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 12, background: '#ECEDF8', border: '1px solid rgba(94,106,210,0.2)' }}>
+                  <Icon style={{ width: 22, height: 22, color: '#5E6AD2' }} />
                 </div>
-                <span style={{ fontSize: 11, fontWeight: 500, textAlign: 'center', lineHeight: 1.3, color: '#1A1A2E' }}>{label}</span>
+                <span style={{ fontSize: 13, fontWeight: 500, textAlign: 'center', lineHeight: 1.3, color: '#1A1A2E' }}>{label}</span>
               </button>
             ))}
           </div>

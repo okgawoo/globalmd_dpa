@@ -801,7 +801,7 @@ export default function Dashboard() {
               <div className={styles.webCardHeader}>
                 <div className={styles.webCardTitleGroup}>
                   <span className={styles.webCardAccent}></span>
-                  <span className={styles.webCardTitle}>이번달 미팅 현황</span>
+                  <span className={styles.webCardTitle}>{new Date().getMonth() + 1}월 고객 상담</span>
                 </div>
                 <button className={styles.webCardLink} onClick={() => router.push('/sales?tab=meeting')}>전체보기</button>
               </div>
