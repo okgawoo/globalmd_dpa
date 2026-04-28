@@ -194,6 +194,13 @@
 .admin-dark [class*="calMonthLabel"] {
   color: #F5F5F5 !important;
 }
+
+/* 오늘 일정 / 이번 주 일정 제목 탭 하이라이트 */
+.admin-dark [class*="dashSectionTitle"] {
+  background: rgba(94, 106, 210, 0.18) !important;
+  color: #F5F5F5 !important;
+  border-color: rgba(94, 106, 210, 0.25) !important;
+}
 .admin-dark [class*="calLegendCount"] {
   background: #333340 !important;
   color: #D0D0D0 !important;
