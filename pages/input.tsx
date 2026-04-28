@@ -688,7 +688,7 @@ export default function InputPage() {
           <div className={showResults || isMobile ? styles.pastePanel : styles.formWrap} style={!isMobile?{
             ...(showResults
               ? {flex:'0 0 auto', width:'calc(50% - 8px)', overflowY:'auto', boxSizing:'border-box'}
-              : {display:'flex', flexDirection:'column', minHeight:'calc(100vh - 285px)'}
+              : {display:'flex', flexDirection:'column', minHeight:'calc(100vh - 286px)'}
             ),
           }:{}}>
 
