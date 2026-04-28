@@ -308,3 +308,30 @@
   padding: 1px 6px; border-radius: 20;
   margin-left: 6px;
 }
+
+/* ─── 다크모드 ─── */
+:root[data-theme="dark"] .page { background: #1A1A2E; }
+:root[data-theme="dark"] .card { background: #262626; border-color: rgba(255,255,255,0.10); }
+:root[data-theme="dark"] .cardHeader { border-bottom-color: rgba(255,255,255,0.10); }
+:root[data-theme="dark"] .tabBar { border-bottom-color: rgba(255,255,255,0.10); }
+:root[data-theme="dark"] .tabBtn { color: rgba(255,255,255,0.5); }
+:root[data-theme="dark"] .tabBtn:hover { color: rgba(255,255,255,0.85); }
+:root[data-theme="dark"] .subTabBar { background: #2A2A2A; border-bottom-color: rgba(255,255,255,0.10); }
+:root[data-theme="dark"] .subTabBtn { color: rgba(255,255,255,0.5); }
+:root[data-theme="dark"] .subTabBtn:hover { color: rgba(255,255,255,0.85); }
+:root[data-theme="dark"] .subTabActive { color: #818CF8; border-bottom-color: #818CF8; }
+:root[data-theme="dark"] .th { background: #2A2A2A; border-bottom-color: rgba(255,255,255,0.10); color: rgba(255,255,255,0.4); }
+:root[data-theme="dark"] .statCard { background: #262626; border-color: rgba(255,255,255,0.10); }
+:root[data-theme="dark"] .refreshBtn { background: #333333; border-color: rgba(255,255,255,0.12); color: rgba(255,255,255,0.6); }
+:root[data-theme="dark"] .refreshBtn:hover { background: #3A3A3A; }
+:root[data-theme="dark"] .sendBtnDisabled { background: #333333; color: rgba(255,255,255,0.3); }
+:root[data-theme="dark"] .openLink { background: #333333; border-color: rgba(255,255,255,0.12); color: rgba(255,255,255,0.6); }
+:root[data-theme="dark"] .openLink:hover { background: #3A3A3A; }
+:root[data-theme="dark"] .fieldLabel { color: rgba(255,255,255,0.6); }
+:root[data-theme="dark"] .fieldInput { background: #333333; border-color: rgba(255,255,255,0.10); color: #F5F5F5; }
+:root[data-theme="dark"] .fieldInput:focus { background: #3A3A3A; border-color: rgba(94,106,210,0.7); }
+:root[data-theme="dark"] .fieldTextarea { background: #333333; border-color: rgba(255,255,255,0.10); color: #F5F5F5; }
+:root[data-theme="dark"] .fieldTextarea:focus { background: #3A3A3A; border-color: rgba(94,106,210,0.7); }
+:root[data-theme="dark"] .uploadArea { background: #2A2A2A; border-color: rgba(255,255,255,0.12); }
+:root[data-theme="dark"] .urlRow { border-bottom-color: rgba(255,255,255,0.08); }
+:root[data-theme="dark"] .urlValue { background: #333333; color: rgba(255,255,255,0.5); }

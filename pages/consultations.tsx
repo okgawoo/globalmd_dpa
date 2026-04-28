@@ -465,7 +465,7 @@ export default function Consultations() {
           <div className={styles.calGrid}>
             {DAYS_KR.map((d, i) => (
               <div key={d} className={styles.calDayHeader}
-                style={{ color: i === 0 ? 'hsl(0 65% 55%)' : i === 6 ? 'hsl(214 70% 55%)' : undefined }}>
+                style={{ color: i === 0 ? '#E24B4A' : i === 6 ? '#378ADD' : undefined }}>
                 {d}
               </div>
             ))}
@@ -487,8 +487,7 @@ export default function Consultations() {
                   className={[styles.calCell, styles.calCellDay, isToday ? styles.calCellToday : ''].join(' ')}
                   onClick={() => openNewPopup(dateStr)}
                 >
-                  <span className={styles.calDayNum}
-                    style={{ color: isSun ? 'hsl(0 65% 55%)' : isSat ? 'hsl(214 70% 55%)' : undefined }}>
+                  <span className={[styles.calDayNum, isSun ? styles.calDaySun : isSat ? styles.calDaySat : ''].join(' ')}>
                     {day}
                   </span>
 

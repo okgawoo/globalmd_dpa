@@ -343,3 +343,37 @@
   .mobileOnly { display: block; }
   .btnPrimary, .btnOutline, .btnDanger { width: 100%; text-align: center; }
 }
+
+/* ─── 다크모드 ─── */
+:root[data-theme="dark"] .page { background: #1A1A2E; }
+:root[data-theme="dark"] .card { background: #262626; border-color: rgba(255,255,255,0.10); }
+:root[data-theme="dark"] .tabBar { border-bottom-color: rgba(255,255,255,0.10); }
+:root[data-theme="dark"] .tabBtn { color: rgba(255,255,255,0.5); }
+:root[data-theme="dark"] .tabBtn:hover { color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.04); }
+:root[data-theme="dark"] .content { background: #262626; }
+:root[data-theme="dark"] .sectionTitle { color: #F5F5F5; }
+:root[data-theme="dark"] .sectionDesc { color: rgba(255,255,255,0.5); }
+:root[data-theme="dark"] .fieldLabel { color: rgba(255,255,255,0.6); }
+:root[data-theme="dark"] .fieldInput { background: #333333; border-color: rgba(255,255,255,0.10); color: #F5F5F5; }
+:root[data-theme="dark"] .fieldInput:focus { background: #3A3A3A; border-color: rgba(94,106,210,0.7); }
+:root[data-theme="dark"] .fieldTextarea { background: #333333; border-color: rgba(255,255,255,0.10); color: #F5F5F5; }
+:root[data-theme="dark"] .fieldTextarea:focus { background: #3A3A3A; border-color: rgba(94,106,210,0.7); }
+:root[data-theme="dark"] .btnOutline { border-color: rgba(255,255,255,0.15); color: rgba(255,255,255,0.6); background: transparent; }
+:root[data-theme="dark"] .btnOutline:hover { background: rgba(255,255,255,0.06); }
+:root[data-theme="dark"] .profileTable { border-color: rgba(255,255,255,0.10); }
+:root[data-theme="dark"] .profileGroupLabel { background: #2A2A2A; border-bottom-color: rgba(255,255,255,0.10); color: rgba(255,255,255,0.5); }
+:root[data-theme="dark"] .profileRow { border-bottom-color: rgba(255,255,255,0.08); }
+:root[data-theme="dark"] .profileLabel { background: #2A2A2A; border-right-color: rgba(255,255,255,0.10); color: rgba(255,255,255,0.6); }
+:root[data-theme="dark"] .toneBtn { border-color: rgba(255,255,255,0.12); color: rgba(255,255,255,0.6); background: transparent; }
+:root[data-theme="dark"] .toneBtn:hover { background: rgba(255,255,255,0.06); }
+:root[data-theme="dark"] .birthdayBtn { border-color: rgba(255,255,255,0.12); color: rgba(255,255,255,0.6); background: transparent; }
+:root[data-theme="dark"] .birthdayBtn:hover { background: rgba(255,255,255,0.06); }
+:root[data-theme="dark"] .usageCard { background: #2A2A2A; border-color: rgba(255,255,255,0.10); }
+:root[data-theme="dark"] .notifGroupLabel { border-bottom-color: rgba(255,255,255,0.10); color: rgba(255,255,255,0.5); }
+:root[data-theme="dark"] .notifItem { border-bottom-color: rgba(255,255,255,0.06); }
+:root[data-theme="dark"] .notifItem:hover { background: rgba(255,255,255,0.04); }
+:root[data-theme="dark"] .smsCard { background: #262626; border-color: rgba(255,255,255,0.10); }
+:root[data-theme="dark"] .smsPrevBtn { background: #333333; border-color: rgba(255,255,255,0.12); color: rgba(255,255,255,0.6); }
+:root[data-theme="dark"] .smsPrevBtn:hover { background: #3A3A3A; }
+:root[data-theme="dark"] .toggle { background: #444444; }
+:root[data-theme="dark"] .cancelText { color: #F87171; }

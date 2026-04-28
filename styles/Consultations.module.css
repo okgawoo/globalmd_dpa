@@ -131,6 +131,8 @@
   margin-bottom: 4px;
   line-height: 1;
 }
+.calDaySun { color: #E24B4A !important; }
+.calDaySat { color: #378ADD !important; }
 .calCellToday .calDayNum {
   color: #5E6AD2;
 }
@@ -858,3 +860,20 @@
 @media (min-width: 769px) {
   .page { max-width: 1200px; margin: 0 auto; width: 100%; }
 }
+
+/* ── 다크모드 ── */
+:root[data-theme="dark"] .page { background: #1A1A2E; }
+:root[data-theme="dark"] .card,
+:root[data-theme="dark"] .rightPanelCard { background: #262626; border-color: rgba(255,255,255,0.10); }
+:root[data-theme="dark"] .calNavBtn { border-color: rgba(255,255,255,0.10); color: rgba(255,255,255,0.6); }
+:root[data-theme="dark"] .calNavBtn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+:root[data-theme="dark"] .calTodayBtn { border-color: rgba(255,255,255,0.10); color: rgba(255,255,255,0.6); }
+:root[data-theme="dark"] .calMonthLabel { color: rgba(255,255,255,0.9); }
+:root[data-theme="dark"] .calGrid { border-top-color: rgba(255,255,255,0.10); border-left-color: rgba(255,255,255,0.10); }
+:root[data-theme="dark"] .calDayHeader { background: #2A2A2A; border-right-color: rgba(255,255,255,0.10); border-bottom-color: rgba(255,255,255,0.10); color: rgba(255,255,255,0.4); }
+:root[data-theme="dark"] .calCell { background: #262626; border-right-color: rgba(255,255,255,0.10); border-bottom-color: rgba(255,255,255,0.10); }
+:root[data-theme="dark"] .calCellDay:hover:not(:has(.calEvent:hover)) { background: rgba(255,255,255,0.04); }
+:root[data-theme="dark"] .calDayNum { color: rgba(255,255,255,0.85); }
+:root[data-theme="dark"] .calDaySun { color: #F87171 !important; }
+:root[data-theme="dark"] .calDaySat { color: #60A5FA !important; }
+:root[data-theme="dark"] .calLegend { border-top-color: rgba(255,255,255,0.10); }
