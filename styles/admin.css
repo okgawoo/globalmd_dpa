@@ -85,7 +85,7 @@
 .admin-dark [class*="customerItem"],
 .admin-dark [class*="contractBlock"] {
   background: #262626 !important;
-  color: #F5F5F5 !important;
+  color: #C8C8C8 !important;
 }
 
 /* 전체 페이지 배경 */
@@ -96,7 +96,7 @@
 .admin-dark [class*="content"],
 .admin-dark [class*="Content"] {
   background: #252525 !important;
-  color: #F5F5F5 !important;
+  color: #C8C8C8 !important;
 }
 
 /* 인풋/텍스트 영역 */
@@ -111,13 +111,15 @@
 /* 텍스트 색상 */
 .admin-dark h1,
 .admin-dark h2,
-.admin-dark h3,
+.admin-dark h3 {
+  color: #E8E8E8 !important;
+}
 .admin-dark p,
 .admin-dark span,
 .admin-dark label,
 .admin-dark td,
 .admin-dark th {
-  color: #F5F5F5 !important;
+  color: #C8C8C8 !important;
 }
 
 /* 구분선 */
