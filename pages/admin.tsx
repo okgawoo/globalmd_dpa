@@ -106,7 +106,7 @@ export default function AdminPage() {
       .from('youtube_videos')
       .select('*')
       .eq('channel_id', ch.id)
-      .order('created_at', { ascending: false })
+      .order('published_at', { ascending: false })
     setYtVideos(data || [])
   }
 
@@ -727,7 +727,7 @@ export default function AdminPage() {
                                 {v.status === 'error' && badge('#FEE2E2', '#991B1B', '오류')}
                               </td>
                               <td style={tdStyle({ color: '#636B78', whiteSpace: 'nowrap', fontSize: 12 })}>
-                                {new Date(v.created_at).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}
+                                {v.published_at || '-'}
                               </td>
                               <td style={tdStyle()} onClick={e => e.stopPropagation()}>
                                 <div style={{ display: 'flex', gap: 5 }}>

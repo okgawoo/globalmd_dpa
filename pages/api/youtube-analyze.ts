@@ -74,19 +74,32 @@ ${transcript.slice(0, 8000)}
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-5-20250929',
+      model: 'claude-opus-4-5',
       max_tokens: 2000,
       messages: [{ role: 'user', content: prompt }],
     }),
   })
 
   const data = await res.json()
+
+  // API 키 오류 등 에러 응답 체크
+  if (data.error) {
+    throw new Error(`Claude API 오류: ${data.error.message || JSON.stringify(data.error)}`)
+  }
+
   const text = data.content?.[0]?.text || ''
+  if (!text) {
+    throw new Error(`Claude 응답 없음: ${JSON.stringify(data)}`)
+  }
+
+  // JSON 블록 추출 시도
+  const jsonMatch = text.match(/\{[\s\S]*\}/)
+  const jsonStr = jsonMatch ? jsonMatch[0] : text
 
   try {
-    return JSON.parse(text)
+    return JSON.parse(jsonStr)
   } catch {
-    throw new Error('Claude 응답 파싱 실패')
+    throw new Error(`Claude 응답 파싱 실패: ${text.slice(0, 200)}`)
   }
 }
 
