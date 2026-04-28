@@ -36,7 +36,7 @@
 }
 
 /* ── Admin 다크모드 ── */
-.admin-dark {
+:root[data-theme="dark"] {
   --admin-bg: #1A1A1A;
   --admin-sidebar-bg: #141414;
   --admin-header-bg: #1E1E1E;
@@ -59,7 +59,7 @@
   --red-light: #3d1111;
   --blue-light: #0d2a3d;
 }
-.admin-light {
+:root[data-theme="light"] {
   --admin-bg: #F7F8FA;
   --admin-sidebar-bg: #FFFFFF;
   --admin-header-bg: #FFFFFF;
