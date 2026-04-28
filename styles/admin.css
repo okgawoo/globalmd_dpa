@@ -260,10 +260,10 @@
   color: #D0D0D0 !important;
 }
 
-/* 서브탭 활성 상태 — 텍스트/밑줄 색상 일치 */
+/* 서브탭 활성 상태 — 텍스트 흰색, 밑줄 보라색 */
 .admin-dark [class*="activeTab"] {
   color: #FFFFFF !important;
-  border-bottom-color: #FFFFFF !important;
+  border-bottom-color: #5E6AD2 !important;
 }
 
 /* ── 헤더 아이콘 & 텍스트 다크모드 규칙 ── */
