@@ -258,10 +258,21 @@
   color: #B8C0CC !important;
 }
 
-/* 헤더 내 인라인 dark-navy 텍스트 (SMS 카운트 등) */
+/* 헤더 내 인라인 dark-navy 텍스트 */
 .admin-dark header [style*="color: rgba(26, 26, 46"],
 .admin-dark header [style*="color: rgb(26, 26, 46)"] {
   color: #B8C0CC !important;
+}
+
+/* PRO 뱃지 — 로고 색상(#5E6AD2) 고정 */
+.admin-dark header [style*="border-radius: 999px"] {
+  color: #5E6AD2 !important;
+  border-color: #5E6AD2 !important;
+}
+
+/* SMS 카운트 숫자(999) — 로고 색상으로 */
+.admin-dark header [style*="font-weight: 600"][style*="color: rgba(26, 26, 46"] {
+  color: #5E6AD2 !important;
 }
 
 /* 사이드바 nav 링크 — 비활성 상태 */
