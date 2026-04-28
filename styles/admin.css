@@ -124,6 +124,15 @@
   border-color: #333333 !important;
 }
 
+/* 사이드바 구분선 — 더 흐리게 */
+.admin-dark aside hr,
+.admin-dark aside [class*="divider"],
+.admin-dark aside [style*="border"],
+.admin-dark aside [style*="background: rgb(229, 231, 235)"] {
+  border-color: rgba(255, 255, 255, 0.06) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
 /* ── AdminDashboard 인라인 하드코딩 배경색 오버라이드 ── */
 /* StatCard / SectionCard 등 className 없이 inline style로 #FFFFFF 하드코딩된 카드들 */
 .admin-dark [style*="background: rgb(255, 255, 255)"] {
