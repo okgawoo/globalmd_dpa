@@ -9,7 +9,7 @@
   .mobileLayout { display: none !important; }
 
   /* 페이지 래퍼 */
-  .pcWrap { padding: 24px; }
+  .pcWrap { padding: 24px; max-width: 1200px; margin: 0 auto; width: 100%; }
 
   /* 페이지 헤더 */
   .pageHeader {

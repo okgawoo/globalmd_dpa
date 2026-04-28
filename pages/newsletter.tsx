@@ -122,7 +122,7 @@ export default function Newsletter() {
   // ── 상세 화면 ──────────────────────────────────────────────
   if (selectedNewsletter) {
     return (
-      <div style={{ width: '100%', background: '#FAF9F5', minHeight: '100vh' }}>
+      <div style={{ width: '100%', maxWidth: '1200px', margin: '0 auto', background: '#FAF9F5', minHeight: '100vh' }}>
 
         {/* 헤더 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: '#fff', borderBottom: '1px solid #EDEBE4', position: 'sticky', top: 0, zIndex: 10 }}>
@@ -195,7 +195,7 @@ export default function Newsletter() {
 
   // ── 목록 화면 ──────────────────────────────────────────────
   return (
-    <div style={{ width: '100%', background: '#FAF9F5', minHeight: '100vh' }}>
+    <div style={{ width: '100%', maxWidth: '1200px', margin: '0 auto', background: '#FAF9F5', minHeight: '100vh' }}>
 
       {/* 헤더 */}
       <div style={{ padding: '16px 16px 12px', background: '#fff', borderBottom: '1px solid #EDEBE4' }}>

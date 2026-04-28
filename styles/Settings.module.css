@@ -9,6 +9,9 @@
   background: #F7F8FA;
   min-height: 100%;
   box-sizing: border-box;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
 }
 .pageHeader {
   display: flex;
@@ -31,7 +34,7 @@
   border: 1px solid #E5E7EB;
   border-radius: 14px;
   overflow: hidden;
-  max-width: 760px;
+  max-width: 1200px;
 }
 
 /* ── Tab Bar ── */
