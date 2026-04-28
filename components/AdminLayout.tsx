@@ -189,7 +189,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                       if (!isActive) {
                         e.currentTarget.style.background = 'var(--admin-hover)'
                         e.currentTarget.style.color = 'rgba(26,26,46,0.82)'
-                        e.currentTarget.style.borderColor = '#C0C7D1'
+                        e.currentTarget.style.borderColor = dark ? 'rgba(255,255,255,0.12)' : '#C0C7D1'
                       }
                     }}
                     onMouseLeave={(e) => {
@@ -223,7 +223,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                         if (!isActive) {
                           e.currentTarget.style.background = 'var(--admin-hover)'
                           e.currentTarget.style.color = 'rgba(26,26,46,0.82)'
-                          e.currentTarget.style.borderColor = '#C0C7D1'
+                          e.currentTarget.style.borderColor = dark ? 'rgba(255,255,255,0.12)' : '#C0C7D1'
                         }
                       }}
                       onMouseLeave={(e) => {
@@ -301,7 +301,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               if (router.pathname !== '/admin') {
                 e.currentTarget.style.background = 'var(--admin-hover)'
                 e.currentTarget.style.color = 'rgba(26,26,46,0.82)'
-                e.currentTarget.style.borderColor = '#C0C7D1'
+                e.currentTarget.style.borderColor = dark ? 'rgba(255,255,255,0.12)' : '#C0C7D1'
               }
             }}
             onMouseLeave={(e) => {
@@ -597,7 +597,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = 'var(--admin-hover)'
-              e.currentTarget.style.borderColor = '#C0C7D1'
+              e.currentTarget.style.borderColor = dark ? 'rgba(255,255,255,0.12)' : '#C0C7D1'
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'transparent'
