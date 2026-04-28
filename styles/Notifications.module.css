@@ -41,21 +41,23 @@
     margin-bottom: 16px;
   }
   .pcTab {
-    padding: 8px 20px;
-    font-size: 14px;
+    padding: 10px 16px;
+    font-size: 13px;
     font-weight: 500;
-    color: hsl(var(--text-tertiary));
+    color: #8892A0;
     background: none;
     border: none;
     border-bottom: 2px solid transparent;
     margin-bottom: -1px;
     cursor: pointer;
     transition: color 0.1s;
+    font-family: inherit;
+    white-space: nowrap;
   }
-  .pcTab:hover { color: hsl(var(--text-primary)); }
+  .pcTab:hover { color: #1A1A2E; }
   .pcTabActive {
-    color: hsl(var(--accent)) !important;
-    border-bottom-color: hsl(var(--accent)) !important;
+    color: #5E6AD2 !important;
+    border-bottom-color: #5E6AD2 !important;
     font-weight: 600;
   }
 
@@ -729,3 +731,9 @@
   /* 빈 상태 */
   .empty { padding: 30px; text-align: center; color: #999; font-size: 14px; }
 }
+
+/* ─── 다크모드 — pcTab ─── */
+:root[data-theme="dark"] .pcTabBar { border-bottom-color: rgba(255,255,255,0.10); }
+:root[data-theme="dark"] .pcTab { color: rgba(255,255,255,0.4); }
+:root[data-theme="dark"] .pcTab:hover { color: rgba(255,255,255,0.85); }
+:root[data-theme="dark"] .pcTabActive { color: #818CF8 !important; border-bottom-color: #818CF8 !important; }

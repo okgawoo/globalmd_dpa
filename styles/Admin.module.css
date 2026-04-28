@@ -91,22 +91,23 @@
 .subTabBar {
   display: flex;
   padding: 0 8px;
-  background: #F7F8FA;
+  background: transparent;
   border-bottom: 1px solid #E5E7EB;
 }
 
 .subTabBtn {
-  padding: 8px 16px;
+  padding: 10px 16px;
   border: none;
   background: transparent;
   cursor: pointer;
   font-size: 13px;
-  font-weight: 400;
-  color: #636B78;
+  font-weight: 500;
+  color: #8892A0;
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
   transition: all 0.1s;
   font-family: inherit;
+  white-space: nowrap;
 }
 
 .subTabBtn:hover { color: #1A1A2E; }
@@ -316,8 +317,8 @@
 :root[data-theme="dark"] .tabBar { border-bottom-color: rgba(255,255,255,0.10); }
 :root[data-theme="dark"] .tabBtn { color: rgba(255,255,255,0.5); }
 :root[data-theme="dark"] .tabBtn:hover { color: rgba(255,255,255,0.85); }
-:root[data-theme="dark"] .subTabBar { background: #2A2A2A; border-bottom-color: rgba(255,255,255,0.10); }
-:root[data-theme="dark"] .subTabBtn { color: rgba(255,255,255,0.5); }
+:root[data-theme="dark"] .subTabBar { background: transparent; border-bottom-color: rgba(255,255,255,0.10); }
+:root[data-theme="dark"] .subTabBtn { color: rgba(255,255,255,0.4); }
 :root[data-theme="dark"] .subTabBtn:hover { color: rgba(255,255,255,0.85); }
 :root[data-theme="dark"] .subTabActive { color: #818CF8; border-bottom-color: #818CF8; }
 :root[data-theme="dark"] .th { background: #2A2A2A; border-bottom-color: rgba(255,255,255,0.10); color: rgba(255,255,255,0.4); }

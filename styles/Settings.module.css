@@ -46,7 +46,7 @@
 }
 .tabBtn {
   display: flex; align-items: center; gap: 6px;
-  padding: 11px 18px;
+  padding: 10px 16px;
   font-size: 13px; font-weight: 500;
   color: #8892A0;
   background: transparent;

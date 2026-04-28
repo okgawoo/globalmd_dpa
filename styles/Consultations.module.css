@@ -535,10 +535,10 @@
   flex-shrink: 0;
 }
 .popupRightTab {
-  flex: 1; padding: 12px 8px;
+  flex: 1; padding: 10px 16px;
   background: none; border: none;
-  font-size: 12px; font-weight: 500;
-  color: #636B78;
+  font-size: 13px; font-weight: 500;
+  color: #8892A0;
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
   cursor: pointer; font-family: inherit;
@@ -877,3 +877,7 @@
 :root[data-theme="dark"] .calDaySun { color: #F87171 !important; }
 :root[data-theme="dark"] .calDaySat { color: #60A5FA !important; }
 :root[data-theme="dark"] .calLegend { border-top-color: rgba(255,255,255,0.10); }
+:root[data-theme="dark"] .popupRightTabs { border-bottom-color: rgba(255,255,255,0.10); }
+:root[data-theme="dark"] .popupRightTab { color: rgba(255,255,255,0.4); }
+:root[data-theme="dark"] .popupRightTab:hover { color: rgba(255,255,255,0.85); }
+:root[data-theme="dark"] .popupRightTabActive { color: #818CF8; border-bottom-color: #818CF8; }
