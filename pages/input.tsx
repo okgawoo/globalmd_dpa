@@ -685,7 +685,9 @@ export default function InputPage() {
           {/* ── 왼쪽: 입력 패널 ── */}
           <div className={styles.pastePanel} style={!isMobile?{
             flex:'0 0 auto',
-            alignSelf:'stretch',
+            height:'100%',
+            overflowY:'auto',
+            boxSizing:'border-box',
             width:showResults?'calc(50% - 8px)':'min(720px, 100%)',
             marginLeft:showResults?'0':'auto',
             marginRight:showResults?'0':'auto',
