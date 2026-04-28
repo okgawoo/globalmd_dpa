@@ -369,7 +369,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             </span>
 
             <span style={{ fontSize: 12, color: 'var(--admin-text-sub)' }}>
-              SMS <span style={{ color: 'rgba(26,26,46,0.82)', fontWeight: 600 }}>999</span>
+              SMS <span style={{ color: '#5E6AD2', fontWeight: 600 }}>999</span>
               <span style={{ color: 'var(--admin-text-sub)' }}> / 1,000</span>
             </span>
 
