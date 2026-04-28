@@ -734,6 +734,6 @@
 
 /* ─── 다크모드 — pcTab ─── */
 :root[data-theme="dark"] .pcTabBar { border-bottom-color: rgba(255,255,255,0.10); }
-:root[data-theme="dark"] .pcTab { color: #737373 !important; }
-:root[data-theme="dark"] .pcTab:hover { color: #B0B0B0 !important; }
+:root[data-theme="dark"] .pcTab { color: #A0A0A0 !important; }
+:root[data-theme="dark"] .pcTab:hover { color: #C8C8C8 !important; }
 :root[data-theme="dark"] .pcTabActive { color: #FFFFFF !important; border-bottom-color: #5E6AD2 !important; }

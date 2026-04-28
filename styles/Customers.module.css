@@ -766,6 +766,6 @@
 
 /* ─────────────────── 다크모드 ─────────────────── */
 :root[data-theme="dark"] .tabBar { border-bottom-color: rgba(255,255,255,0.10); }
-:root[data-theme="dark"] .iconTab { color: #737373 !important; }
-:root[data-theme="dark"] .iconTab:hover { color: #B0B0B0 !important; }
+:root[data-theme="dark"] .iconTab { color: #A0A0A0 !important; }
+:root[data-theme="dark"] .iconTab:hover { color: #C8C8C8 !important; }
 :root[data-theme="dark"] .activeIconTab { color: #FFFFFF !important; border-bottom-color: #5E6AD2 !important; }
