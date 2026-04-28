@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import styles from '../styles/Newsletter.module.css'
+import s from '../styles/Newsletter.module.css'
 
 // ─── 뉴스레터 데이터 ───────────────────────────────────────
 const NEWSLETTERS = [
@@ -23,7 +23,7 @@ const NEWSLETTERS = [
         tagBg: '#E6F1FB',
         title: 'GA 설계사 30만명 돌파했지만 1인당 생산성은 8.5% 급감',
         summary: '2025년 기준 생명·손해보험사 전속 설계사 수는 21만6000명으로 늘었지만, 이들이 거둔 수입보험료는 오히려 8.5% 감소했습니다. 대형 GA(설계사 500명 이상)의 수입수수료는 전년 대비 21.6% 증가해 외형은 커졌지만 1인당 생산성이 뚜렷하게 뒷걸음쳤습니다. 업계에서는 양적 팽창보다 질적 성장이 시급하다는 목소리가 높아지고 있습니다.',
-        tip: '경쟁이 치열해질수록 "많이 파는 설계사"보다 "잘 관리하는 설계사"가 살아남습니다. DPA로 고객 보장공백·완납임박 알림을 챙겨서 차별화된 서비스를 만들어보세요!',
+        tip: '경쟁이 치열해질수록 "많이 파는 설계사"보다 "잘 관리하는 설계사"가 살아남습니다. 아이플래너로 고객 보장공백·완납임박 알림을 챙겨서 차별화된 서비스를 만들어보세요!',
       },
       {
         tag: '신상품',
@@ -104,8 +104,14 @@ const TAG_ORDER: Record<string, number> = { '신상품': 0, '정책변화': 1, '
 
 export default function Newsletter() {
   const router = useRouter()
+
+  // 모바일 상태
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [expandedTip, setExpandedTip] = useState<number | null>(null)
+
+  // PC 상태
+  const [pcWeekId, setPcWeekId] = useState<string>(NEWSLETTERS[0]?.id ?? '')
+  const [pcExpandedTip, setPcExpandedTip] = useState<number | null>(null)
 
   useEffect(() => {
     if (selectedId) window.history.pushState({ newsletterId: selectedId }, '')
@@ -117,12 +123,105 @@ export default function Newsletter() {
     return () => window.removeEventListener('popstate', handlePopState)
   }, [])
 
+  const pcWeek = NEWSLETTERS.find(n => n.id === pcWeekId)
+
   const selectedNewsletter = NEWSLETTERS.find(n => n.id === selectedId)
 
-  // ── 상세 화면 ──────────────────────────────────────────────
+  // ── PC 레이아웃 ────────────────────────────────────────────
+  const pcLayout = (
+    <div className={s.pcWrap}>
+      {/* 페이지 헤더 */}
+      <div className={s.pageHeader}>
+        <h1 className={s.pageTitle}>뉴스레터</h1>
+        <span className={s.pageBadge}>매주 월요일 업데이트</span>
+        <p className={s.pageSub}>설계사를 위한 핵심 보험 뉴스</p>
+      </div>
+
+      {/* 2열 */}
+      <div className={s.twoCol}>
+
+        {/* 1열: 주차 목록 */}
+        <div className={s.colWeeks}>
+          <div className={s.colHeader}>발행 목록</div>
+          {NEWSLETTERS.map(nl => (
+            <div
+              key={nl.id}
+              className={[s.weekRow, nl.id === pcWeekId ? s.weekRowActive : ''].join(' ')}
+              onClick={() => { setPcWeekId(nl.id); setPcExpandedTip(null) }}
+            >
+              <div className={s.weekLabel}>{nl.week}</div>
+              <div className={s.weekMeta}>
+                <span className={s.weekDate}>{nl.date}</span>
+                <span className={s.weekCount}>{nl.items.length}건</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* 2열: 아티클 상세 */}
+        <div className={s.colContent}>
+          {pcWeek ? (
+            <>
+              <div className={s.contentHeader}>
+                <div className={s.contentTitle}>이번 주 꼭 알아야 할 보험 뉴스</div>
+                <div className={s.contentMeta}>아이플래너 주간 보험 브리핑 · {pcWeek.week} · {pcWeek.date}</div>
+              </div>
+
+              {pcWeek.items.map((item, i) => (
+                <div
+                  key={i}
+                  className={s.articleItem}
+                  onClick={() => setPcExpandedTip(pcExpandedTip === i ? null : i)}
+                >
+                  <div className={s.articleTop}>
+                    <span className={s.articleNum}>{i + 1}</span>
+                    <div className={s.articleBody}>
+                      <div className={s.articleTagRow}>
+                        <span
+                          className={s.articleTag}
+                          style={{ color: item.tagColor, background: item.tagBg }}
+                        >
+                          {item.tag}
+                        </span>
+                        <span className={s.articleTitle}>{item.title}</span>
+                      </div>
+                      <p className={s.articleSummary}>{item.summary}</p>
+                      {pcExpandedTip === i && (
+                        <div className={s.articleTip}>
+                          <span className={s.articleTipIcon}>💡</span>
+                          <span className={s.articleTipText}>
+                            <strong>설계사 활용 팁</strong>{item.tip}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <span className={[s.articleChevron, pcExpandedTip === i ? s.articleChevronOpen : ''].join(' ')}>›</span>
+                  </div>
+                </div>
+              ))}
+
+              <div className={s.footerNote}>
+                아이플래너 보험 브리핑 · 매주 월요일 발송<br />
+                본 뉴스레터는 아이플래너가 설계사님을 위해 자동으로 수집·요약한 내용입니다
+              </div>
+            </>
+          ) : (
+            <div className={s.emptyState}>
+              <span>📰</span>
+              <span>주차를 선택하면<br />뉴스를 확인할 수 있어요</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+
+  // ── 상세 화면 (모바일) ─────────────────────────────────────
   if (selectedNewsletter) {
     return (
-      <div style={{ width: '100%', maxWidth: '1200px', margin: '0 auto', background: '#FAF9F5', minHeight: '100vh' }}>
+      <>
+      {pcLayout}
+      <div className={s.mobileLayout} style={{ width: '100%', maxWidth: '1200px', margin: '0 auto', background: '#FAF9F5', minHeight: '100vh' }}>
 
         {/* 헤더 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: '#fff', borderBottom: '1px solid #EDEBE4', position: 'sticky', top: 0, zIndex: 10 }}>
@@ -140,7 +239,7 @@ export default function Newsletter() {
             <span style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>이번 주 꼭 알아야 할 보험 뉴스</span>
           </div>
           <p style={{ fontSize: 12, color: '#9CA3AF', marginLeft: 11, marginTop: 4 }}>
-            DPA 주간 보험 브리핑 · {selectedNewsletter.date}
+            아이플래너 주간 보험 브리핑 · {selectedNewsletter.date}
           </p>
         </div>
 
@@ -186,16 +285,22 @@ export default function Newsletter() {
         </div>
 
         <div style={{ padding: '20px 16px', textAlign: 'center', fontSize: 11, color: '#C7C7CC', lineHeight: 1.8 }}>
-          <p>DPA 보험 브리핑 · 매주 월요일 발송</p>
-          <p>본 뉴스레터는 DPA가 설계사님을 위해 자동으로 수집·요약한 내용입니다</p>
+          <p>아이플래너 보험 브리핑 · 매주 월요일 발송</p>
+          <p>본 뉴스레터는 아이플래너가 설계사님을 위해 자동으로 수집·요약한 내용입니다</p>
         </div>
       </div>
+      </>
     )
   }
 
-  // ── 목록 화면 ──────────────────────────────────────────────
+  // ── 목록 화면 (모바일) + PC 레이아웃 ──────────────────────
   return (
-    <div style={{ width: '100%', maxWidth: '1200px', margin: '0 auto', background: '#FAF9F5', minHeight: '100vh' }}>
+    <>
+      {/* PC 전용 */}
+      {pcLayout}
+
+      {/* 모바일 전용 */}
+      <div className={s.mobileLayout} style={{ width: '100%', maxWidth: '1200px', margin: '0 auto', background: '#FAF9F5', minHeight: '100vh' }}>
 
       {/* 헤더 */}
       <div style={{ padding: '16px 16px 12px', background: '#fff', borderBottom: '1px solid #EDEBE4' }}>
@@ -255,5 +360,6 @@ export default function Newsletter() {
         <span>매주 월요일 AI가 보험업계 뉴스를 자동으로 수집·정리합니다</span>
       </div>
     </div>
+    </>
   )
 }

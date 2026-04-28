@@ -13,10 +13,10 @@ const navItems = [
   { name: '대시보드', href: '/', icon: LayoutDashboard },
   { name: '데이터 입력', href: '/input', icon: FileEdit },
   { name: '고객 관리', href: '/customers', icon: Users },
+  { name: '고객 리포트', href: '/report', icon: BarChart2 },
   { name: '상담 일정', href: '/consultations', icon: CalendarDays },
   { name: '문자 발송', href: '/notifications', icon: Bell },
   { name: '뉴스레터', href: '/newsletter', icon: Mail },
-  { name: '미팅 리포트', href: '/report', icon: BarChart2 },
   { name: '영업 관리', href: '/sales', icon: TrendingUp },
 ]
 

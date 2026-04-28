@@ -42,12 +42,12 @@ function getBirthdayDays(birthDate: string): number | null {
 }
 
 const SCRIPTS: Record<string, Record<ToneType, string>> = {
-  birthday: { 정중: '{name} 님, 오늘 생신을 진심으로 축하드립니다.\n항상 건강하시고 행복하신 날 되시길 바랍니다.\n- 담당 설계사 드림', 친근: '안녕하세요 {name} 님! 😊\n오늘 생일이에요! 🎂\n항상 건강하고 행복하세요!', 애교: '{name} 님~ 생일 축하해요! 🎂🎉\n오늘 하루 정말 특별한 날 되세요!\n항상 곁에서 응원할게요 💚', 간결: '{name} 님, 생일 축하드립니다! 🎂' },
-  birthday_d1: { 정중: '{name} 님, 내일 생신이시군요.\n미리 진심으로 축하드립니다.\n- 담당 설계사 드림', 친근: '안녕하세요 {name} 님! 😊\n내일 생일이시잖아요! 🎂\n미리 축하드려요!', 애교: '{name} 님~ 내일 생일이죠? 🎂\n미리 축하해요! 💚', 간결: '{name} 님, 내일 생일 미리 축하드립니다! 🎂' },
-  birthday_week: { 정중: '{name} 님, 곧 생신이 다가오고 있습니다.\n미리 진심으로 축하드립니다.\n- 담당 설계사 드림', 친근: '안녕하세요 {name} 님! 😊\n곧 생일이에요! 🎂 미리 축하드려요!', 애교: '{name} 님~ 생일이 곧이에요! 🎂\n미리 축하드려요 💚', 간결: '{name} 님, 생일 곧 미리 축하드립니다! 🎂' },
-  nearDone: { 정중: '안녕하세요 {name} 님,\n가입하신 보험의 납입이 거의 완료될 예정입니다.\n완납 후 재설계를 검토해 드릴 수 있습니다.\n편하신 시간에 연락 주세요.\n- 담당 설계사 드림', 친근: '안녕하세요 {name} 님! 😊\n납입이 거의 다 됐어요! 🎉\n완납 후 더 좋은 조건으로 재설계할 수 있어요!', 애교: '{name} 님~ 드디어 완납 임박이에요! 🎊\n정말 수고 많으셨어요! 💚', 간결: '{name} 님, 보험 완납이 임박했습니다. 연락 주세요.' },
-  gap: { 정중: '안녕하세요 {name} 님,\n보험 검토 중 보장 공백이 확인되었습니다.\n한번 상담해 드리고 싶습니다.\n편하신 시간에 말씀 주세요.\n- 담당 설계사 드림', 친근: '안녕하세요 {name} 님! 😊\n보험을 확인해보니 보장 공백이 있어서요.\n시간 되실 때 통화 한번 해도 될까요? 📞', 애교: '{name} 님~ 보장 공백을 발견했어요! 😮\n더 잘 지켜드리고 싶어서요 💚', 간결: '{name} 님, 보장 공백이 확인됐습니다. 연락 주세요. 📞' },
-  expiry: { 정중: '안녕하세요 {name} 님,\n가입하신 보험이 곧 만기가 도래합니다.\n미리 안내드립니다.\n편하신 시간에 상담 부탁드립니다.\n- 담당 설계사 드림', 친근: '안녕하세요 {name} 님! 😊\n가입하신 보험이 곧 만기가 돼요!\n미리 알려드리려고 연락드렸어요.', 애교: '{name} 님~ 보험 만기가 다가오고 있어요! ⏰\n보장 공백 없이 잘 챙겨드리고 싶어서요 💚', 간결: '{name} 님, 보험 만기가 임박했습니다. 연락 주세요.' },
+  birthday: { 정중: '{name}고객님, 오늘 생신을 진심으로 축하드립니다.\n항상 건강하시고 행복하신 날 되시길 바랍니다.\n- 담당 설계사 드림', 친근: '안녕하세요 {name}고객님! 😊\n오늘 생일이에요! 🎂\n항상 건강하고 행복하세요!', 애교: '{name}고객님~ 생일 축하해요! 🎂🎉\n오늘 하루 정말 특별한 날 되세요!\n항상 곁에서 응원할게요 💚', 간결: '{name}고객님, 생일 축하드립니다! 🎂' },
+  birthday_d1: { 정중: '{name}고객님, 내일 생신이시군요.\n미리 진심으로 축하드립니다.\n- 담당 설계사 드림', 친근: '안녕하세요 {name}고객님! 😊\n내일 생일이시잖아요! 🎂\n미리 축하드려요!', 애교: '{name}고객님~ 내일 생일이죠? 🎂\n미리 축하해요! 💚', 간결: '{name}고객님, 내일 생일 미리 축하드립니다! 🎂' },
+  birthday_week: { 정중: '{name}고객님, 곧 생신이 다가오고 있습니다.\n미리 진심으로 축하드립니다.\n- 담당 설계사 드림', 친근: '안녕하세요 {name}고객님! 😊\n곧 생일이에요! 🎂 미리 축하드려요!', 애교: '{name}고객님~ 생일이 곧이에요! 🎂\n미리 축하드려요 💚', 간결: '{name}고객님, 생일 곧 미리 축하드립니다! 🎂' },
+  nearDone: { 정중: '안녕하세요 {name}고객님,\n가입하신 보험의 납입이 거의 완료될 예정입니다.\n완납 후 재설계를 검토해 드릴 수 있습니다.\n편하신 시간에 연락 주세요.\n- 담당 설계사 드림', 친근: '안녕하세요 {name}고객님! 😊\n납입이 거의 다 됐어요! 🎉\n완납 후 더 좋은 조건으로 재설계할 수 있어요!', 애교: '{name}고객님~ 드디어 완납 임박이에요! 🎊\n정말 수고 많으셨어요! 💚', 간결: '{name}고객님, 보험 완납이 임박했습니다. 연락 주세요.' },
+  gap: { 정중: '안녕하세요 {name}고객님,\n보험 검토 중 보장 공백이 확인되었습니다.\n한번 상담해 드리고 싶습니다.\n편하신 시간에 말씀 주세요.\n- 담당 설계사 드림', 친근: '안녕하세요 {name}고객님! 😊\n보험을 확인해보니 보장 공백이 있어서요.\n시간 되실 때 통화 한번 해도 될까요? 📞', 애교: '{name}고객님~ 보장 공백을 발견했어요! 😮\n더 잘 지켜드리고 싶어서요 💚', 간결: '{name}고객님, 보장 공백이 확인됐습니다. 연락 주세요. 📞' },
+  expiry: { 정중: '안녕하세요 {name}고객님,\n가입하신 보험이 곧 만기가 도래합니다.\n미리 안내드립니다.\n편하신 시간에 상담 부탁드립니다.\n- 담당 설계사 드림', 친근: '안녕하세요 {name}고객님! 😊\n가입하신 보험이 곧 만기가 돼요!\n미리 알려드리려고 연락드렸어요.', 애교: '{name}고객님~ 보험 만기가 다가오고 있어요! ⏰\n보장 공백 없이 잘 챙겨드리고 싶어서요 💚', 간결: '{name}고객님, 보험 만기가 임박했습니다. 연락 주세요.' },
 }
 
 function fmtDate(dateStr: string): string {
@@ -417,14 +417,14 @@ export default function NotificationsPage() {
                         onClick={() => selectNotif(n)}>
                         <div className={styles.custAvatar}>{n.customer.name.slice(0, 1)}</div>
                         <div className={styles.custInfo}>
-                          <div className={styles.custName}>{n.customer.name}</div>
-                          <div className={styles.custMeta}>{n.customer.phone || '연락처 없음'}</div>
+                          <span className={styles.custName}>{n.customer.name}</span>
+                          <span className={styles.custMeta}>· {n.customer.phone || '연락처 없음'}</span>
                         </div>
                         <div className={styles.custRight}>
                           <span className={styles.custBadge} style={{ background: cfg.badgeBg, color: cfg.badgeColor }}>
                             {n.badge}
                           </span>
-                          {lastMsg && <span className={styles.custLastSent}>{fmtDate(lastMsg.created_at)}</span>}
+                          <span className={styles.custLastSent} style={lastMsg ? { color: '#3D47B5' } : undefined}>{lastMsg ? fmtDate(lastMsg.created_at) : '미발송'}</span>
                         </div>
                       </div>
                     )
@@ -442,7 +442,7 @@ export default function NotificationsPage() {
                   <div className={styles.composeHeaderLeft}>
                     <div className={styles.composeAvatar}>{selected.customer.name.slice(0, 1)}</div>
                     <div>
-                      <div className={styles.composeName}>{selected.customer.name}고객님</div>
+                      <div className={styles.composeName}>{selected.customer.name}고객</div>
                       <div className={styles.composeMeta}>
                         {selected.customer.phone || '연락처 없음'}
                         <span className={styles.custBadge} style={{

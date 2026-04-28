@@ -18,7 +18,13 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'upload' | 'urls'>('dashboard')
   const fileRef = useRef<HTMLInputElement>(null)
 
-  const [topMenu, setTopMenu] = useState<'공지사항' | '설계사' | '보험공시'>('공지사항')
+  const [topMenu, setTopMenu] = useState<'공지사항' | '설계사' | '유튜브' | '보험공시'>('공지사항')
+
+  const [ytChannels, setYtChannels] = useState<any[]>([])
+  const [ytFormOpen, setYtFormOpen] = useState(false)
+  const [ytSaving, setYtSaving] = useState(false)
+  const [ytEditId, setYtEditId] = useState<string | null>(null)
+  const [ytForm, setYtForm] = useState({ name: '', handle: '', channel_url: '', summary: '', subscriber_count: '' })
   const [pushTitle, setPushTitle] = useState('')
   const [pushBody, setPushBody] = useState('')
   const [pushUrl, setPushUrl] = useState('')
@@ -40,6 +46,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (topMenu === '설계사') fetchAgentList()
+    if (topMenu === '유튜브') fetchYtChannels()
   }, [topMenu])
 
   async function checkUser() {
@@ -72,6 +79,37 @@ export default function AdminPage() {
     if (!session) return
     const res = await fetch('/api/admin-agents', { headers: { 'Authorization': `Bearer ${session.access_token}` } })
     if (res.ok) { const data = await res.json(); setSmsAuthList(data.smsAuthList || []) }
+  }
+
+  async function fetchYtChannels() {
+    const { data } = await supabase.from('youtube_channels').select('*').order('created_at', { ascending: false })
+    setYtChannels(data || [])
+  }
+
+  async function saveYtChannel() {
+    if (!ytForm.name.trim() || !ytForm.channel_url.trim()) { alert('채널명과 URL을 입력해주세요'); return }
+    setYtSaving(true)
+    if (ytEditId) {
+      await supabase.from('youtube_channels').update({ ...ytForm, updated_at: new Date().toISOString() }).eq('id', ytEditId)
+    } else {
+      await supabase.from('youtube_channels').insert([ytForm])
+    }
+    setYtSaving(false)
+    setYtFormOpen(false)
+    setYtEditId(null)
+    setYtForm({ name: '', handle: '', channel_url: '', summary: '', subscriber_count: '' })
+    fetchYtChannels()
+  }
+
+  async function deleteYtChannel(id: string) {
+    if (!confirm('채널을 삭제하시겠습니까?')) return
+    await supabase.from('youtube_channels').delete().eq('id', id)
+    fetchYtChannels()
+  }
+
+  async function toggleYtActive(id: string, current: boolean) {
+    await supabase.from('youtube_channels').update({ is_active: !current, updated_at: new Date().toISOString() }).eq('id', id)
+    fetchYtChannels()
   }
 
   async function fetchAgentList() {
@@ -145,9 +183,10 @@ export default function AdminPage() {
   const uploadRate = totalCategories > 0 ? Math.round((totalUploaded / totalCategories) * 100) : 0
   const recentValidationErrors = validations.filter(v => v.severity === 'error').length
 
-  const TAB_ITEMS: { key: '공지사항' | '설계사' | '보험공시'; label: string }[] = [
+  const TAB_ITEMS: { key: '공지사항' | '설계사' | '유튜브' | '보험공시'; label: string }[] = [
     { key: '공지사항', label: '공지사항 관리' },
     { key: '설계사', label: '설계사 관리' },
+    { key: '유튜브', label: 'YouTube 채널' },
     { key: '보험공시', label: '보험 공시 관리' },
   ]
 
@@ -362,6 +401,136 @@ export default function AdminPage() {
                           {resendResult[auth.id] && (
                             <span style={{ fontSize: 12, color: resendResult[auth.id].startsWith('발송') ? '#065F46' : '#991B1B' }}>{resendResult[auth.id]}</span>
                           )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ===== YouTube 채널 관리 ===== */}
+      {topMenu === '유튜브' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div className={styles.card}>
+            <div className={styles.cardHeader}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <p className={styles.cardTitle}>YouTube 채널 목록</p>
+                <span style={{ fontSize: 13, color: '#8892A0' }}>총 {ytChannels.length}개</span>
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button className={styles.refreshBtn} onClick={fetchYtChannels}>새로고침</button>
+                <button className={styles.primaryBtn} onClick={() => {
+                  setYtEditId(null)
+                  setYtForm({ name: '', handle: '', channel_url: '', summary: '', subscriber_count: '' })
+                  setYtFormOpen(true)
+                }}>+ 채널 추가</button>
+              </div>
+            </div>
+
+            {/* 추가 / 편집 폼 */}
+            {ytFormOpen && (
+              <div style={{ padding: 20, borderBottom: '1px solid #E5E7EB', background: '#F7F8FA' }}>
+                <p style={{ fontSize: 14, fontWeight: 600, color: '#1A1A2E', margin: '0 0 14px' }}>
+                  {ytEditId ? '채널 편집' : '채널 추가'}
+                </p>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+                  <div>
+                    <label className={styles.fieldLabel}>채널명 *</label>
+                    <input className={styles.fieldInput} placeholder="예: 보험명의 정닥터" value={ytForm.name}
+                      onChange={e => setYtForm(p => ({ ...p, name: e.target.value }))} />
+                  </div>
+                  <div>
+                    <label className={styles.fieldLabel}>채널 핸들</label>
+                    <input className={styles.fieldInput} placeholder="예: @보험명의정닥터" value={ytForm.handle}
+                      onChange={e => setYtForm(p => ({ ...p, handle: e.target.value }))} />
+                  </div>
+                  <div>
+                    <label className={styles.fieldLabel}>채널 URL *</label>
+                    <input className={styles.fieldInput} placeholder="https://www.youtube.com/@..." value={ytForm.channel_url}
+                      onChange={e => setYtForm(p => ({ ...p, channel_url: e.target.value }))} />
+                  </div>
+                  <div>
+                    <label className={styles.fieldLabel}>구독자 수</label>
+                    <input className={styles.fieldInput} placeholder="예: 11만명" value={ytForm.subscriber_count}
+                      onChange={e => setYtForm(p => ({ ...p, subscriber_count: e.target.value }))} />
+                  </div>
+                </div>
+                <div style={{ marginBottom: 14 }}>
+                  <label className={styles.fieldLabel}>채널 요약</label>
+                  <textarea className={styles.fieldTextarea} rows={3}
+                    placeholder="채널의 주요 콘텐츠, 특징, 계약 전환율이 높은 이유 등을 메모하세요"
+                    value={ytForm.summary}
+                    onChange={e => setYtForm(p => ({ ...p, summary: e.target.value }))} />
+                </div>
+                <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                  <button className={styles.refreshBtn} onClick={() => { setYtFormOpen(false); setYtEditId(null) }}>취소</button>
+                  <button className={styles.primaryBtn} style={{ padding: '7px 20px', fontSize: 13 }}
+                    onClick={saveYtChannel} disabled={ytSaving}>
+                    {ytSaving ? '저장 중...' : ytEditId ? '수정 완료' : '채널 추가'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* 채널 테이블 */}
+            {ytChannels.length === 0 ? (
+              <p style={{ padding: 48, textAlign: 'center', fontSize: 14, color: '#8892A0' }}>
+                등록된 채널이 없습니다. 채널을 추가해보세요.
+              </p>
+            ) : (
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead><tr>
+                  {['채널명', '핸들 / 구독자', 'URL', '요약', '상태', '등록일', '관리'].map(h =>
+                    <th key={h} className={styles.th}>{h}</th>
+                  )}
+                </tr></thead>
+                <tbody>
+                  {ytChannels.map(ch => (
+                    <tr key={ch.id}>
+                      <td style={tdStyle({ fontWeight: 600, whiteSpace: 'nowrap' })}>{ch.name}</td>
+                      <td style={tdStyle()}>
+                        <div style={{ fontSize: 13, color: '#636B78' }}>{ch.handle || '-'}</div>
+                        {ch.subscriber_count && (
+                          <div style={{ fontSize: 11, color: '#8892A0', marginTop: 2 }}>{ch.subscriber_count}</div>
+                        )}
+                      </td>
+                      <td style={tdStyle({ maxWidth: 160 })}>
+                        <a href={ch.channel_url} target="_blank" rel="noreferrer"
+                          style={{ fontSize: 12, color: '#5E6AD2', textDecoration: 'none', wordBreak: 'break-all' }}>
+                          {ch.channel_url.replace('https://www.youtube.com/', 'YT/')}
+                        </a>
+                      </td>
+                      <td style={tdStyle({ color: '#636B78', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' })}>
+                        {ch.summary || <span style={{ color: '#D1D5DB' }}>-</span>}
+                      </td>
+                      <td style={tdStyle()}>
+                        {badge(
+                          ch.is_active ? '#D1FAE5' : '#F3F4F6',
+                          ch.is_active ? '#065F46' : '#6B7280',
+                          ch.is_active ? '활성' : '비활성'
+                        )}
+                      </td>
+                      <td style={tdStyle({ color: '#636B78', whiteSpace: 'nowrap' })}>
+                        {new Date(ch.created_at).toLocaleDateString('ko-KR', { year: '2-digit', month: 'short', day: 'numeric' })}
+                      </td>
+                      <td style={tdStyle()}>
+                        <div style={{ display: 'flex', gap: 5 }}>
+                          <button className={styles.refreshBtn} onClick={() => {
+                            setYtEditId(ch.id)
+                            setYtForm({ name: ch.name, handle: ch.handle || '', channel_url: ch.channel_url, summary: ch.summary || '', subscriber_count: ch.subscriber_count || '' })
+                            setYtFormOpen(true)
+                          }}>편집</button>
+                          <button className={styles.refreshBtn}
+                            style={{ color: ch.is_active ? '#92400E' : '#065F46' }}
+                            onClick={() => toggleYtActive(ch.id, ch.is_active)}>
+                            {ch.is_active ? '비활성' : '활성화'}
+                          </button>
+                          <button className={styles.refreshBtn} style={{ color: '#991B1B' }}
+                            onClick={() => deleteYtChannel(ch.id)}>삭제</button>
                         </div>
                       </td>
                     </tr>
