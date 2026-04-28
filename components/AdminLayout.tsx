@@ -37,7 +37,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const saved = localStorage.getItem('admin_theme')
-    if (saved === 'dark') setDark(true)
+    if (saved === 'dark') {
+      setDark(true)
+      document.documentElement.setAttribute('data-theme', 'dark')
+    } else {
+      document.documentElement.setAttribute('data-theme', 'light')
+    }
   }, [])
 
   useEffect(() => {
@@ -90,6 +95,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     const next = !dark
     setDark(next)
     localStorage.setItem('admin_theme', next ? 'dark' : 'light')
+    document.documentElement.setAttribute('data-theme', next ? 'dark' : 'light')
   }
 
   async function handleLogout() {
@@ -116,7 +122,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   })
 
   return (
-    <div className={dark ? 'admin-dark' : 'admin-light'} style={{ display: 'flex', minHeight: '100vh', background: 'var(--admin-bg)', color: 'var(--admin-text)' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--admin-bg)', color: 'var(--admin-text)' }}>
       {ConfirmDialog}
 
       {/* ── Sidebar ── */}
