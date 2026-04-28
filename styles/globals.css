@@ -37,27 +37,27 @@
 
 /* ── Admin 다크모드 ── */
 :root[data-theme="dark"] {
-  --admin-bg: #1A1A1A;
-  --admin-sidebar-bg: #141414;
-  --admin-header-bg: #1E1E1E;
-  --admin-border: #2E2E2E;
-  --admin-text: #F0F0F0;
-  --admin-text-sub: #888888;
-  --admin-hover: #2A2A2A;
-  --admin-support-bg: #1E1E1E;
+  --admin-bg: #1A1A2E;
+  --admin-sidebar-bg: #16162A;
+  --admin-header-bg: #1E1E35;
+  --admin-border: rgba(255,255,255,0.08);
+  --admin-text: #FFFFFF;
+  --admin-text-sub: rgba(255,255,255,0.5);
+  --admin-hover: rgba(255,255,255,0.06);
+  --admin-support-bg: #1E1E35;
 
-  /* 공통 CSS 변수 오버라이드 (카드/배경/텍스트) */
-  --bg: #1A1A1A;
-  --bg-card: #242424;
-  --bg-sidebar: #141414;
-  --border: #2E2E2E;
-  --text-primary: #F0F0F0;
-  --text-secondary: #AAAAAA;
-  --text-muted: #666666;
-  --green-light: #0d3d2e;
-  --amber-light: #3d2e0d;
-  --red-light: #3d1111;
-  --blue-light: #0d2a3d;
+  /* 공통 CSS 변수 오버라이드 */
+  --bg: #1A1A2E;
+  --bg-card: #252540;
+  --bg-sidebar: #16162A;
+  --border: rgba(255,255,255,0.08);
+  --text-primary: #FFFFFF;
+  --text-secondary: rgba(255,255,255,0.7);
+  --text-muted: rgba(255,255,255,0.4);
+  --green-light: rgba(29,158,117,0.15);
+  --amber-light: rgba(239,159,39,0.15);
+  --red-light: rgba(226,75,74,0.15);
+  --blue-light: rgba(55,138,221,0.15);
 }
 :root[data-theme="light"] {
   --admin-bg: #F7F8FA;
