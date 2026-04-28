@@ -79,7 +79,6 @@
     border-radius: 14px;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 6px 0;
   }
   .catRow {
     display: flex;
