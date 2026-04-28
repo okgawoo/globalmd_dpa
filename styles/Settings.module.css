@@ -348,8 +348,9 @@
 :root[data-theme="dark"] .page { background: #1A1A2E; }
 :root[data-theme="dark"] .card { background: #262626; border-color: rgba(255,255,255,0.10); }
 :root[data-theme="dark"] .tabBar { border-bottom-color: rgba(255,255,255,0.10); }
-:root[data-theme="dark"] .tabBtn { color: rgba(255,255,255,0.5); }
-:root[data-theme="dark"] .tabBtn:hover { color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.04); }
+:root[data-theme="dark"] .tabBtn { color: rgba(255,255,255,0.65); }
+:root[data-theme="dark"] .tabBtn:hover { color: #FFFFFF; }
+:root[data-theme="dark"] .tabActive { color: #FFFFFF; border-bottom-color: #5E6AD2; }
 :root[data-theme="dark"] .content { background: #262626; }
 :root[data-theme="dark"] .sectionTitle { color: #F5F5F5; }
 :root[data-theme="dark"] .sectionDesc { color: rgba(255,255,255,0.5); }
