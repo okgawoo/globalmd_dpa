@@ -166,6 +166,12 @@
   border-color: #333333 !important;
 }
 
+/* 서브탭 활성 상태 — 텍스트/밑줄 색상 일치 */
+.admin-dark [class*="activeTab"] {
+  color: #FFFFFF !important;
+  border-bottom-color: #FFFFFF !important;
+}
+
 /* ── 헤더 아이콘 & 텍스트 다크모드 규칙 ── */
 
 /* HeaderIconBtn — 아이콘 버튼 색상 (color: rgba(26,26,46,0.82) 인라인 하드코딩) */
