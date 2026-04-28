@@ -303,7 +303,7 @@ export default function AdminDashboard({
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, height: '100%' }}>
 
           {/* 이번달 미팅 */}
-          <SectionCard title="이번달 미팅" onViewAll={() => router.push('/sales?tab=meeting')}>
+          <SectionCard title="이번달 미팅" sub="이번 달 상담 현황" onViewAll={() => router.push('/sales?tab=meeting')}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)' }}>
               {meetingCols.map(({ label, value }, i) => (
                 <div
