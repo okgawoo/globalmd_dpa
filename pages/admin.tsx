@@ -25,6 +25,15 @@ export default function AdminPage() {
   const [ytSaving, setYtSaving] = useState(false)
   const [ytEditId, setYtEditId] = useState<string | null>(null)
   const [ytForm, setYtForm] = useState({ name: '', handle: '', channel_url: '', summary: '', subscriber_count: '' })
+  const [ytSelectedChannel, setYtSelectedChannel] = useState<any | null>(null)
+  const [ytVideos, setYtVideos] = useState<any[]>([])
+  const [ytVideoFormOpen, setYtVideoFormOpen] = useState(false)
+  const [ytVideoUrl, setYtVideoUrl] = useState('')
+  const [ytVideoTitle, setYtVideoTitle] = useState('')
+  const [ytVideoAdding, setYtVideoAdding] = useState(false)
+  const [ytSelectedVideo, setYtSelectedVideo] = useState<any | null>(null)
+  const [ytAnalysis, setYtAnalysis] = useState<any | null>(null)
+  const [ytAnalyzing, setYtAnalyzing] = useState<string | null>(null)
   const [pushTitle, setPushTitle] = useState('')
   const [pushBody, setPushBody] = useState('')
   const [pushUrl, setPushUrl] = useState('')
@@ -84,6 +93,82 @@ export default function AdminPage() {
   async function fetchYtChannels() {
     const { data } = await supabase.from('youtube_channels').select('*').order('created_at', { ascending: false })
     setYtChannels(data || [])
+  }
+
+  async function selectYtChannel(ch: any) {
+    setYtSelectedChannel(ch)
+    setYtSelectedVideo(null)
+    setYtAnalysis(null)
+    setYtVideoFormOpen(false)
+    const { data } = await supabase
+      .from('youtube_videos')
+      .select('*')
+      .eq('channel_id', ch.id)
+      .order('created_at', { ascending: false })
+    setYtVideos(data || [])
+  }
+
+  async function addYtVideo() {
+    if (!ytVideoUrl.trim() || !ytSelectedChannel) return
+    const match = ytVideoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
+    if (!match) { alert('올바른 YouTube URL을 입력해주세요'); return }
+    const videoId = match[1]
+    setYtVideoAdding(true)
+    await supabase.from('youtube_videos').insert([{
+      channel_id: ytSelectedChannel.id,
+      video_id: videoId,
+      video_url: ytVideoUrl,
+      title: ytVideoTitle || null,
+      status: 'pending',
+    }])
+    setYtVideoUrl('')
+    setYtVideoTitle('')
+    setYtVideoFormOpen(false)
+    setYtVideoAdding(false)
+    selectYtChannel(ytSelectedChannel)
+  }
+
+  async function deleteYtVideo(id: string) {
+    if (!confirm('영상을 삭제하시겠습니까?')) return
+    await supabase.from('youtube_videos').delete().eq('id', id)
+    selectYtChannel(ytSelectedChannel)
+  }
+
+  async function analyzeYtVideo(video: any) {
+    setYtAnalyzing(video.id)
+    try {
+      const res = await fetch('/api/youtube-analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ videoRowId: video.id }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        selectYtChannel(ytSelectedChannel)
+        fetchYtAnalysis(video.id)
+      } else {
+        alert(`분석 실패: ${data.error}`)
+        selectYtChannel(ytSelectedChannel)
+      }
+    } catch (err: any) {
+      alert(`오류: ${err.message}`)
+    }
+    setYtAnalyzing(null)
+  }
+
+  async function fetchYtAnalysis(videoId: string) {
+    const { data } = await supabase
+      .from('youtube_analyses')
+      .select('*')
+      .eq('video_id', videoId)
+      .single()
+    setYtAnalysis(data || null)
+  }
+
+  async function selectYtVideo(v: any) {
+    setYtSelectedVideo(v)
+    setYtAnalysis(null)
+    if (v.status === 'done') await fetchYtAnalysis(v.id)
   }
 
   async function saveYtChannel() {
@@ -414,38 +499,34 @@ export default function AdminPage() {
 
       {/* ===== YouTube 채널 관리 ===== */}
       {topMenu === '유튜브' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div className={styles.card}>
+        <div style={{ display: 'flex', gap: 16, height: 'calc(100vh - 210px)', minHeight: 500 }}>
+
+          {/* ── 왼쪽: 채널 목록 ── */}
+          <div className={styles.card} style={{ width: 260, flexShrink: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className={styles.cardHeader}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <p className={styles.cardTitle}>YouTube 채널 목록</p>
-                <span style={{ fontSize: 13, color: '#8892A0' }}>총 {ytChannels.length}개</span>
-              </div>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button className={styles.refreshBtn} onClick={fetchYtChannels}>새로고침</button>
-                <button className={styles.primaryBtn} onClick={() => {
-                  setYtEditId(null)
-                  setYtForm({ name: '', handle: '', channel_url: '', summary: '', subscriber_count: '' })
-                  setYtFormOpen(true)
-                }}>+ 채널 추가</button>
-              </div>
+              <p className={styles.cardTitle}>채널 목록</p>
+              <button className={styles.primaryBtn} onClick={() => {
+                setYtEditId(null)
+                setYtForm({ name: '', handle: '', channel_url: '', summary: '', subscriber_count: '' })
+                setYtFormOpen(true)
+              }}>+ 추가</button>
             </div>
 
-            {/* 추가 / 편집 폼 */}
+            {/* 채널 추가/편집 폼 */}
             {ytFormOpen && (
-              <div style={{ padding: 20, borderBottom: '1px solid #E5E7EB', background: '#F7F8FA' }}>
-                <p style={{ fontSize: 14, fontWeight: 600, color: '#1A1A2E', margin: '0 0 14px' }}>
+              <div style={{ padding: 14, borderBottom: '1px solid #E5E7EB', background: '#F7F8FA', flexShrink: 0 }}>
+                <p style={{ fontSize: 13, fontWeight: 600, color: '#1A1A2E', margin: '0 0 10px' }}>
                   {ytEditId ? '채널 편집' : '채널 추가'}
                 </p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   <div>
                     <label className={styles.fieldLabel}>채널명 *</label>
-                    <input className={styles.fieldInput} placeholder="예: 보험명의 정닥터" value={ytForm.name}
+                    <input className={styles.fieldInput} placeholder="보험명의 정닥터" value={ytForm.name}
                       onChange={e => setYtForm(p => ({ ...p, name: e.target.value }))} />
                   </div>
                   <div>
-                    <label className={styles.fieldLabel}>채널 핸들</label>
-                    <input className={styles.fieldInput} placeholder="예: @보험명의정닥터" value={ytForm.handle}
+                    <label className={styles.fieldLabel}>핸들</label>
+                    <input className={styles.fieldInput} placeholder="@보험명의정닥터" value={ytForm.handle}
                       onChange={e => setYtForm(p => ({ ...p, handle: e.target.value }))} />
                   </div>
                   <div>
@@ -455,88 +536,264 @@ export default function AdminPage() {
                   </div>
                   <div>
                     <label className={styles.fieldLabel}>구독자 수</label>
-                    <input className={styles.fieldInput} placeholder="예: 11만명" value={ytForm.subscriber_count}
+                    <input className={styles.fieldInput} placeholder="11만명" value={ytForm.subscriber_count}
                       onChange={e => setYtForm(p => ({ ...p, subscriber_count: e.target.value }))} />
                   </div>
-                </div>
-                <div style={{ marginBottom: 14 }}>
-                  <label className={styles.fieldLabel}>채널 요약</label>
-                  <textarea className={styles.fieldTextarea} rows={3}
-                    placeholder="채널의 주요 콘텐츠, 특징, 계약 전환율이 높은 이유 등을 메모하세요"
-                    value={ytForm.summary}
-                    onChange={e => setYtForm(p => ({ ...p, summary: e.target.value }))} />
-                </div>
-                <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                  <button className={styles.refreshBtn} onClick={() => { setYtFormOpen(false); setYtEditId(null) }}>취소</button>
-                  <button className={styles.primaryBtn} style={{ padding: '7px 20px', fontSize: 13 }}
-                    onClick={saveYtChannel} disabled={ytSaving}>
-                    {ytSaving ? '저장 중...' : ytEditId ? '수정 완료' : '채널 추가'}
-                  </button>
+                  <div>
+                    <label className={styles.fieldLabel}>요약</label>
+                    <textarea className={styles.fieldTextarea} rows={2}
+                      placeholder="채널 특징, 전환율이 높은 이유 등 메모"
+                      value={ytForm.summary}
+                      onChange={e => setYtForm(p => ({ ...p, summary: e.target.value }))} />
+                  </div>
+                  <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                    <button className={styles.refreshBtn} onClick={() => { setYtFormOpen(false); setYtEditId(null) }}>취소</button>
+                    <button className={styles.primaryBtn} style={{ padding: '6px 14px', fontSize: 12 }}
+                      onClick={saveYtChannel} disabled={ytSaving}>
+                      {ytSaving ? '저장 중...' : ytEditId ? '수정' : '추가'}
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* 채널 테이블 */}
-            {ytChannels.length === 0 ? (
-              <p style={{ padding: 48, textAlign: 'center', fontSize: 14, color: '#8892A0' }}>
-                등록된 채널이 없습니다. 채널을 추가해보세요.
-              </p>
-            ) : (
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead><tr>
-                  {['채널명', '핸들 / 구독자', 'URL', '요약', '상태', '등록일', '관리'].map(h =>
-                    <th key={h} className={styles.th}>{h}</th>
+            {/* 채널 리스트 */}
+            <div style={{ overflowY: 'auto', flex: 1 }}>
+              {ytChannels.length === 0 ? (
+                <p style={{ padding: 24, textAlign: 'center', fontSize: 13, color: '#8892A0' }}>채널을 추가해보세요</p>
+              ) : ytChannels.map(ch => (
+                <div key={ch.id}
+                  onClick={() => selectYtChannel(ch)}
+                  style={{
+                    padding: '12px 14px',
+                    cursor: 'pointer',
+                    borderBottom: '1px solid #E5E7EB',
+                    borderLeft: `3px solid ${ytSelectedChannel?.id === ch.id ? '#5E6AD2' : 'transparent'}`,
+                    background: ytSelectedChannel?.id === ch.id ? '#F0F0FD' : 'transparent',
+                    transition: 'background 0.1s',
+                  }}
+                  onMouseEnter={e => { if (ytSelectedChannel?.id !== ch.id) e.currentTarget.style.background = '#F7F8FA' }}
+                  onMouseLeave={e => { if (ytSelectedChannel?.id !== ch.id) e.currentTarget.style.background = 'transparent' }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: ytSelectedChannel?.id === ch.id ? '#5E6AD2' : '#1A1A2E' }}>
+                      {ch.name}
+                    </span>
+                    {badge(ch.is_active ? '#D1FAE5' : '#F3F4F6', ch.is_active ? '#065F46' : '#6B7280', ch.is_active ? '활성' : '비활성')}
+                  </div>
+                  <div style={{ fontSize: 11, color: '#8892A0' }}>
+                    {ch.handle && <span>{ch.handle}</span>}
+                    {ch.subscriber_count && <span> · {ch.subscriber_count}</span>}
+                  </div>
+                  {ch.summary && (
+                    <div style={{ fontSize: 11, color: '#8892A0', marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {ch.summary}
+                    </div>
                   )}
-                </tr></thead>
-                <tbody>
-                  {ytChannels.map(ch => (
-                    <tr key={ch.id}>
-                      <td style={tdStyle({ fontWeight: 600, whiteSpace: 'nowrap' })}>{ch.name}</td>
-                      <td style={tdStyle()}>
-                        <div style={{ fontSize: 13, color: '#636B78' }}>{ch.handle || '-'}</div>
-                        {ch.subscriber_count && (
-                          <div style={{ fontSize: 11, color: '#8892A0', marginTop: 2 }}>{ch.subscriber_count}</div>
-                        )}
-                      </td>
-                      <td style={tdStyle({ maxWidth: 160 })}>
-                        <a href={ch.channel_url} target="_blank" rel="noreferrer"
-                          style={{ fontSize: 12, color: '#5E6AD2', textDecoration: 'none', wordBreak: 'break-all' }}>
-                          {ch.channel_url.replace('https://www.youtube.com/', 'YT/')}
-                        </a>
-                      </td>
-                      <td style={tdStyle({ color: '#636B78', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' })}>
-                        {ch.summary || <span style={{ color: '#D1D5DB' }}>-</span>}
-                      </td>
-                      <td style={tdStyle()}>
-                        {badge(
-                          ch.is_active ? '#D1FAE5' : '#F3F4F6',
-                          ch.is_active ? '#065F46' : '#6B7280',
-                          ch.is_active ? '활성' : '비활성'
-                        )}
-                      </td>
-                      <td style={tdStyle({ color: '#636B78', whiteSpace: 'nowrap' })}>
-                        {new Date(ch.created_at).toLocaleDateString('ko-KR', { year: '2-digit', month: 'short', day: 'numeric' })}
-                      </td>
-                      <td style={tdStyle()}>
-                        <div style={{ display: 'flex', gap: 5 }}>
-                          <button className={styles.refreshBtn} onClick={() => {
-                            setYtEditId(ch.id)
-                            setYtForm({ name: ch.name, handle: ch.handle || '', channel_url: ch.channel_url, summary: ch.summary || '', subscriber_count: ch.subscriber_count || '' })
-                            setYtFormOpen(true)
-                          }}>편집</button>
-                          <button className={styles.refreshBtn}
-                            style={{ color: ch.is_active ? '#92400E' : '#065F46' }}
-                            onClick={() => toggleYtActive(ch.id, ch.is_active)}>
-                            {ch.is_active ? '비활성' : '활성화'}
-                          </button>
-                          <button className={styles.refreshBtn} style={{ color: '#991B1B' }}
-                            onClick={() => deleteYtChannel(ch.id)}>삭제</button>
+                  <div style={{ display: 'flex', gap: 4, marginTop: 6 }} onClick={e => e.stopPropagation()}>
+                    <button className={styles.refreshBtn} style={{ fontSize: 11, padding: '2px 8px' }}
+                      onClick={() => {
+                        setYtEditId(ch.id)
+                        setYtForm({ name: ch.name, handle: ch.handle || '', channel_url: ch.channel_url, summary: ch.summary || '', subscriber_count: ch.subscriber_count || '' })
+                        setYtFormOpen(true)
+                      }}>편집</button>
+                    <button className={styles.refreshBtn} style={{ fontSize: 11, padding: '2px 8px', color: '#991B1B' }}
+                      onClick={() => deleteYtChannel(ch.id)}>삭제</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── 오른쪽: 영상 목록 + 분석 결과 ── */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, overflow: 'hidden', minWidth: 0 }}>
+            {!ytSelectedChannel ? (
+              <div className={styles.card} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <p style={{ fontSize: 14, color: '#8892A0', textAlign: 'center', lineHeight: 1.8 }}>
+                  왼쪽에서 채널을 선택하세요
+                </p>
+              </div>
+            ) : (
+              <>
+                {/* 영상 목록 카드 */}
+                <div className={styles.card} style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                  <div className={styles.cardHeader}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <p className={styles.cardTitle}>{ytSelectedChannel.name}</p>
+                      <span style={{ fontSize: 13, color: '#8892A0' }}>영상 {ytVideos.length}개</span>
+                    </div>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <a href={ytSelectedChannel.channel_url} target="_blank" rel="noreferrer"
+                        style={{ fontSize: 12, color: '#5E6AD2', textDecoration: 'none', padding: '5px 10px', border: '1px solid #5E6AD2', borderRadius: 6 }}>
+                        채널 열기
+                      </a>
+                      <button className={styles.primaryBtn} onClick={() => setYtVideoFormOpen(v => !v)}>
+                        + 영상 추가
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 영상 추가 폼 */}
+                  {ytVideoFormOpen && (
+                    <div style={{ padding: '14px 20px', borderBottom: '1px solid #E5E7EB', background: '#F7F8FA', flexShrink: 0 }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 200px', gap: 10, marginBottom: 10 }}>
+                        <div>
+                          <label className={styles.fieldLabel}>YouTube URL *</label>
+                          <input className={styles.fieldInput} placeholder="https://www.youtube.com/watch?v=..."
+                            value={ytVideoUrl} onChange={e => setYtVideoUrl(e.target.value)} />
                         </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                        <div>
+                          <label className={styles.fieldLabel}>영상 제목 (선택)</label>
+                          <input className={styles.fieldInput} placeholder="제목 직접 입력"
+                            value={ytVideoTitle} onChange={e => setYtVideoTitle(e.target.value)} />
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                        <button className={styles.refreshBtn} onClick={() => setYtVideoFormOpen(false)}>취소</button>
+                        <button className={styles.primaryBtn} style={{ padding: '7px 20px', fontSize: 13 }}
+                          onClick={addYtVideo} disabled={ytVideoAdding}>
+                          {ytVideoAdding ? '추가 중...' : '영상 추가'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 영상 테이블 */}
+                  <div style={{ overflowY: 'auto', flex: 1 }}>
+                    {ytVideos.length === 0 ? (
+                      <p style={{ padding: 40, textAlign: 'center', fontSize: 13, color: '#8892A0' }}>
+                        영상을 추가해보세요
+                      </p>
+                    ) : (
+                      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <thead><tr>
+                          {['영상', '상태', '등록일', '분석'].map(h => <th key={h} className={styles.th}>{h}</th>)}
+                        </tr></thead>
+                        <tbody>
+                          {ytVideos.map(v => (
+                            <tr key={v.id}
+                              onClick={() => selectYtVideo(v)}
+                              style={{ cursor: 'pointer', background: ytSelectedVideo?.id === v.id ? '#F0F0FD' : 'transparent' }}
+                              onMouseEnter={e => { if (ytSelectedVideo?.id !== v.id) e.currentTarget.style.background = '#F7F8FA' }}
+                              onMouseLeave={e => { if (ytSelectedVideo?.id !== v.id) e.currentTarget.style.background = 'transparent' }}
+                            >
+                              <td style={tdStyle({ maxWidth: 300 })}>
+                                <div style={{ fontWeight: 500, fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                  {v.title || `영상 (${v.video_id})`}
+                                </div>
+                                <a href={v.video_url} target="_blank" rel="noreferrer"
+                                  onClick={e => e.stopPropagation()}
+                                  style={{ fontSize: 11, color: '#5E6AD2', textDecoration: 'none' }}>
+                                  youtu.be/{v.video_id}
+                                </a>
+                              </td>
+                              <td style={tdStyle({ whiteSpace: 'nowrap' })}>
+                                {v.status === 'done' && badge('#D1FAE5', '#065F46', '분석완료')}
+                                {v.status === 'pending' && badge('#F3F4F6', '#6B7280', '미분석')}
+                                {v.status === 'analyzing' && badge('#EFF6FF', '#1D4ED8', '분석중...')}
+                                {v.status === 'error' && badge('#FEE2E2', '#991B1B', '오류')}
+                              </td>
+                              <td style={tdStyle({ color: '#636B78', whiteSpace: 'nowrap', fontSize: 12 })}>
+                                {new Date(v.created_at).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}
+                              </td>
+                              <td style={tdStyle()} onClick={e => e.stopPropagation()}>
+                                <div style={{ display: 'flex', gap: 5 }}>
+                                  <button className={styles.primaryBtn}
+                                    style={{ fontSize: 12, padding: '4px 12px', opacity: ytAnalyzing === v.id ? 0.6 : 1 }}
+                                    disabled={ytAnalyzing === v.id || v.status === 'analyzing'}
+                                    onClick={() => analyzeYtVideo(v)}>
+                                    {ytAnalyzing === v.id ? '분석중...' : v.status === 'done' ? '재분석' : '분석하기'}
+                                  </button>
+                                  <button className={styles.refreshBtn} style={{ fontSize: 12, color: '#991B1B' }}
+                                    onClick={() => deleteYtVideo(v.id)}>삭제</button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    )}
+                  </div>
+                </div>
+
+                {/* 분석 결과 카드 */}
+                {ytSelectedVideo && (
+                  <div className={styles.card} style={{ flexShrink: 0, maxHeight: 320, overflowY: 'auto' }}>
+                    <div className={styles.cardHeader} style={{ position: 'sticky', top: 0, background: '#fff', zIndex: 1 }}>
+                      <p className={styles.cardTitle}>
+                        분석 결과 — {ytSelectedVideo.title || ytSelectedVideo.video_id}
+                      </p>
+                      {ytSelectedVideo.status === 'error' && (
+                        <span style={{ fontSize: 12, color: '#991B1B' }}>{ytSelectedVideo.error_message}</span>
+                      )}
+                    </div>
+                    {!ytAnalysis ? (
+                      <p style={{ padding: 24, textAlign: 'center', fontSize: 13, color: '#8892A0' }}>
+                        {ytSelectedVideo.status === 'pending' ? '분석하기 버튼을 눌러주세요' :
+                          ytSelectedVideo.status === 'error' ? '분석 중 오류가 발생했습니다. 재분석해보세요.' :
+                            '분석 결과를 불러오는 중...'}
+                      </p>
+                    ) : (
+                      <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+                        {/* 요약 */}
+                        <div>
+                          <p style={{ fontSize: 12, fontWeight: 700, color: '#5E6AD2', margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>요약</p>
+                          <p style={{ fontSize: 13, color: '#1A1A2E', lineHeight: 1.7, margin: 0 }}>{ytAnalysis.summary}</p>
+                        </div>
+                        {/* 핵심 포인트 */}
+                        {ytAnalysis.key_points?.length > 0 && (
+                          <div>
+                            <p style={{ fontSize: 12, fontWeight: 700, color: '#5E6AD2', margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>핵심 포인트</p>
+                            <ul style={{ margin: 0, paddingLeft: 16, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                              {ytAnalysis.key_points.map((p: string, i: number) => (
+                                <li key={i} style={{ fontSize: 13, color: '#1A1A2E', lineHeight: 1.6 }}>{p}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        {/* 피칭 포인트 */}
+                        {ytAnalysis.pitch_points?.length > 0 && (
+                          <div>
+                            <p style={{ fontSize: 12, fontWeight: 700, color: '#5E6AD2', margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>피칭 포인트</p>
+                            <ul style={{ margin: 0, paddingLeft: 16, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                              {ytAnalysis.pitch_points.map((p: string, i: number) => (
+                                <li key={i} style={{ fontSize: 13, color: '#1A1A2E', lineHeight: 1.6 }}>{p}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        {/* 화법 */}
+                        {ytAnalysis.scripts?.length > 0 && (
+                          <div>
+                            <p style={{ fontSize: 12, fontWeight: 700, color: '#5E6AD2', margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>화법 예시</p>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                              {ytAnalysis.scripts.map((s: string, i: number) => (
+                                <div key={i} style={{ background: '#F0F0FD', borderRadius: 8, padding: '8px 12px', borderLeft: '3px solid #5E6AD2', fontSize: 13, color: '#3D47B5', lineHeight: 1.6 }}>
+                                  {s}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        {/* 비교 기준 */}
+                        {ytAnalysis.comparison_criteria?.length > 0 && (
+                          <div>
+                            <p style={{ fontSize: 12, fontWeight: 700, color: '#5E6AD2', margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>비교 기준</p>
+                            <ul style={{ margin: 0, paddingLeft: 16, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                              {ytAnalysis.comparison_criteria.map((c: string, i: number) => (
+                                <li key={i} style={{ fontSize: 13, color: '#1A1A2E', lineHeight: 1.6 }}>{c}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        <p style={{ fontSize: 11, color: '#8892A0', margin: 0 }}>
+                          분석일: {new Date(ytAnalysis.analyzed_at).toLocaleString('ko-KR')}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
