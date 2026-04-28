@@ -364,6 +364,7 @@ export default function NotificationsPage() {
 
             {/* 열 1: 카테고리 */}
             <div className={styles.colCat}>
+              <div className={styles.colHeader}>알림 유형</div>
               {ISSUE_ORDER.map(type => {
                 const cfg = ISSUE_CONFIG[type]
                 const count = notifMap[type].length
