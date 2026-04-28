@@ -166,6 +166,14 @@
   border-color: #333333 !important;
 }
 
+/* 고객 리스트 행 호버/선택 상태 */
+.admin-dark [class*="custRow"]:hover {
+  background: #2E2E3E !important;
+}
+.admin-dark [class*="custRow"][class*="active"] {
+  background: #2D2E4A !important;
+}
+
 /* 서브탭 활성 상태 — 텍스트/밑줄 색상 일치 */
 .admin-dark [class*="activeTab"] {
   color: #FFFFFF !important;
