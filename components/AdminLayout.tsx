@@ -33,7 +33,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const [announcement, setAnnouncement] = useState<{ id: string; title: string; body: string; url?: string } | null>(null)
   const mainColRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLElement>(null)
-  const announcementRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const saved = localStorage.getItem('admin_theme')
@@ -68,25 +67,27 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       .limit(1)
       .maybeSingle()
       .then(({ data }) => {
-        if (data) {
-          const dismissed = sessionStorage.getItem('announcement_dismissed')
-          if (dismissed !== data.id) setAnnouncement(data)
+        const ann = data || {
+          id: 'test-preview-001',
+          title: '신규 기능 업데이트',
+          body: 'AI 보장 분석이 더욱 정확해졌어요. 지금 확인해보세요!',
+          url: '/input',
         }
+        const dismissed = sessionStorage.getItem('announcement_dismissed')
+        if (dismissed !== ann.id) setAnnouncement(ann)
       })
   }, [])
 
   useEffect(() => {
     function updateOffset() {
-      const headerH = headerRef.current?.offsetHeight ?? 28
-      const annoH = announcementRef.current?.offsetHeight ?? 0
-      mainColRef.current?.style.setProperty('--layout-offset', `${headerH + annoH}px`)
+      const headerH = headerRef.current?.offsetHeight ?? 52
+      mainColRef.current?.style.setProperty('--layout-offset', `${headerH}px`)
     }
     updateOffset()
     const ro = new ResizeObserver(updateOffset)
     if (headerRef.current) ro.observe(headerRef.current)
-    if (announcementRef.current) ro.observe(announcementRef.current)
     return () => ro.disconnect()
-  }, [announcement])
+  }, [])
 
   function dismissAnnouncement() {
     if (announcement) {
@@ -402,12 +403,16 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        {/* Announcement Bar */}
+        {/* Announcement Bar — fixed overlay, 레이아웃 흐름 영향 없음 */}
         {announcement && (
           <div
-            ref={announcementRef}
             onClick={announcement.url ? () => router.push(announcement.url!) : undefined}
             style={{
+              position: 'fixed',
+              top: 52,
+              left: 240,
+              right: 0,
+              zIndex: 35,
               background: '#5E6AD2',
               color: '#fff',
               padding: '9px 48px',
@@ -418,8 +423,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               fontSize: 13,
               fontWeight: 500,
               lineHeight: 1.5,
-              position: 'relative',
-              flexShrink: 0,
               cursor: announcement.url ? 'pointer' : 'default',
             }}
           >
