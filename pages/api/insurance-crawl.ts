@@ -50,34 +50,65 @@ async function getSessionCookie(): Promise<string> {
   return setCookies.map(c => c.split(';')[0].trim()).join('; ')
 }
 
+const JSON_SMART_HEADERS = (cookie: string) => ({
+  ...HEADERS,
+  'Content-Type': 'application/json',
+  'Cookie': cookie,
+  'Referer': `${MERITZ_BASE}/disclosure/product-announcement/product-list.do`,
+  'Origin': MERITZ_BASE,
+})
+
+const BASE_HEADER = {
+  encryDivCd: '0',
+  globId: '',
+  langDivCd: 'KR',
+  screenId: '/disclosure/product-announcement/product-list.do',
+  envirInfoDivCd: 'P',
+  transGrpCd: 'F',
+  transsLcatgBizafairCd: 'CS',
+  firstTranssLcatgBizafairCd: 'HP',
+  syncDivCd: 'S',
+  reqRespnsDivCd: 'Q',
+}
+
 async function getProductList(cookie: string, srtSq: number) {
-  const res = await fetch(`${MERITZ_BASE}/json.smart?v=${Date.now()}`, {
+  // 1단계: 카테고리별 상품 목록 조회 → cmCommCd 추출
+  const res1 = await fetch(`${MERITZ_BASE}/json.smart?v=${Date.now()}`, {
     method: 'POST',
-    headers: {
-      ...HEADERS,
-      'Content-Type': 'application/json',
-      'Cookie': cookie,
-      'Referer': `${MERITZ_BASE}/disclosure/product-announcement/product-list.do`,
-      'Origin': MERITZ_BASE,
-    },
+    headers: JSON_SMART_HEADERS(cookie),
     body: JSON.stringify({
-      header: {
-        encryDivCd: '0',
-        globId: '',
-        rcvmsgSrvId: 'f.cg.he.cu.ua.o.bc.PbanBc.retrievePdList',
-        langDivCd: 'KR',
-        screenId: '/disclosure/product-announcement/product-list.do',
-        envirInfoDivCd: 'P',
-        transGrpCd: 'F',
-        transsLcatgBizafairCd: 'CS',
-        firstTranssLcatgBizafairCd: 'HP',
-        syncDivCd: 'S',
-      },
+      header: { ...BASE_HEADER, rcvmsgSrvId: 'f.cg.he.cu.ua.o.bc.PbanBc.retrievePdList' },
       body: { notfYn: 'Y', srtSq },
     }),
   })
-  const data = await res.json()
-  return data.body?.salPdList || []
+  const data1 = await res1.json()
+  const pdDtlList: any[] = data1.body?.pdDtlList || []
+
+  // cmCommCd 중복 제거
+  const cmCommCds = [...new Set(pdDtlList.map((p: any) => p.cmCommCd).filter(Boolean))] as string[]
+  console.log(`[insurance-crawl] srtSq=${srtSq} → cmCommCds:`, cmCommCds)
+
+  if (cmCommCds.length === 0) return []
+
+  // 2단계: cmCommCd별 판매상품 목록 조회 → salPdList (file3#[E] 포함)
+  const allProducts: any[] = []
+  for (const cmPdDivCd of cmCommCds) {
+    const res2 = await fetch(`${MERITZ_BASE}/json.smart?v=${Date.now()}`, {
+      method: 'POST',
+      headers: JSON_SMART_HEADERS(cookie),
+      body: JSON.stringify({
+        header: { ...BASE_HEADER, rcvmsgSrvId: 'f.cg.he.cu.ua.o.bc.PbanBc.retrieveSalPdList' },
+        body: { cmPdDivCd, notfYn: 'Y', bcType: 'SALPD_LST' },
+      }),
+    })
+    const data2 = await res2.json()
+    const salPdList: any[] = data2.body?.salPdList || []
+    console.log(`[insurance-crawl] cmPdDivCd=${cmPdDivCd} salPdList count:`, salPdList.length)
+    if (salPdList[0]) console.log(`[insurance-crawl] salPdList[0] keys:`, Object.keys(salPdList[0]))
+    allProducts.push(...salPdList)
+  }
+
+  return allProducts
 }
 
 async function downloadPdf(cookie: string, encPath: string, fileName: string): Promise<Buffer> {
@@ -96,6 +127,7 @@ async function downloadPdf(cookie: string, encPath: string, fileName: string): P
 async function runCrawl(srtSqs: number[]) {
   // 세션 쿠키 자동 발급
   const cookie = await getSessionCookie()
+  console.log(`[insurance-crawl] cookie length=${cookie.length}, value=${cookie.slice(0, 100)}`)
   if (!cookie) throw new Error('세션 쿠키 발급 실패')
 
   const results: { category: string; product: string; success: boolean; isNew?: boolean; error?: string }[] = []
