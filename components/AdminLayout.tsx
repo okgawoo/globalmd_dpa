@@ -417,21 +417,22 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               left: '50%',
               transform: `translateX(calc(-50% + 120px))`,
               zIndex: 50,
-              background: '#1A1A2E',
+              background: '#5E6AD2',
               color: '#fff',
               borderRadius: 999,
               padding: '6px 8px 6px 6px',
               display: 'flex',
               alignItems: 'center',
               gap: 10,
-              boxShadow: '0 4px 20px rgba(0,0,0,0.28)',
+              boxShadow: '0 4px 20px rgba(94,106,210,0.45)',
               maxWidth: 'calc(100vw - 320px)',
               whiteSpace: 'nowrap',
             }}
           >
             {/* 왼쪽 아이콘 뱃지 */}
             <div style={{
-              background: '#5E6AD2',
+              background: 'rgba(255,255,255,0.2)',
+              border: '1px solid rgba(255,255,255,0.35)',
               borderRadius: 999,
               padding: '4px 10px',
               fontSize: 12,
@@ -458,10 +459,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               <button
                 onClick={() => router.push(announcement.url!)}
                 style={{
-                  background: '#fff',
-                  border: 'none',
+                  background: 'rgba(255,255,255,0.2)',
+                  border: '1.5px solid rgba(255,255,255,0.7)',
                   borderRadius: 999,
-                  color: '#1A1A2E',
+                  color: '#fff',
                   padding: '5px 14px',
                   fontSize: 12,
                   fontWeight: 700,
@@ -470,8 +471,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                   fontFamily: 'inherit',
                   transition: 'opacity 120ms',
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85' }}
-                onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.32)' }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.2)' }}
               >
                 확인하기 →
               </button>
