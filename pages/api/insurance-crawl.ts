@@ -154,7 +154,8 @@ async function runCrawl(srtSqs: number[]) {
 
       const productName = product.ttlNm || '상품명 없음'
       const fileName = `${productName}_요약서.pdf`
-      const storagePath = `meritz/${category.name}/${fileName}`
+      const today = new Date().toISOString().slice(0, 10) // 2026-04-29
+      const storagePath = `meritz/${category.name}/${today}/${fileName}`
 
       // 이미 저장된 파일은 스킵 (신규만 다운로드)
       if (existingPaths.has(storagePath)) {
