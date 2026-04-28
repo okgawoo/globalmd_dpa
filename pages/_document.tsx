@@ -22,6 +22,7 @@ export default function Document() {
         <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-72x72.png" />
       </Head>
       <body>
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('admin_theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();` }} />
         <Main />
         <NextScript />
       </body>
