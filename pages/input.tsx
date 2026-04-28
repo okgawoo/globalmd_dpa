@@ -680,17 +680,19 @@ export default function InputPage() {
       )}
 
       {inputTab === 'paste' && (
-        <div style={{display:'flex',flexDirection:isMobile?'column':'row',gap:16,flex:1,alignItems:'stretch'}}>
+        <div style={!isMobile
+          ? showResults
+            ? {display:'flex',flexDirection:'row',gap:16,flex:1,alignItems:'stretch'}
+            : {flex:1,display:'flex',flexDirection:'column'}
+          : {display:'flex',flexDirection:'column',gap:16}}>
 
           {/* ── 왼쪽: 입력 패널 ── */}
           <div className={styles.pastePanel} style={!isMobile?{
-            flex:'0 0 auto',
-            width:showResults?'calc(50% - 8px)':'min(720px, 100%)',
-            marginLeft:showResults?'0':'auto',
-            marginRight:showResults?'0':'auto',
+            ...(showResults
+              ? {flex:'0 0 auto', width:'calc(50% - 8px)'}
+              : {flex:1, maxWidth:'720px', margin:'0 auto', overflowY:'auto', boxSizing:'border-box'}
+            ),
             transition:'width 0.35s ease, margin 0.35s ease',
-            overflowY:'auto',
-            boxSizing:'border-box',
           }:{}}>
 
             {/* 저장 방식 — 첫 계약에만 표시 */}
