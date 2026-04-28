@@ -124,10 +124,9 @@
   border-color: #333333 !important;
 }
 
-/* 사이드바 구분선 — 초기 상태 (흐리게) */
-.admin-dark aside hr,
-.admin-dark aside [class*="divider"] {
-  border-color: rgba(255, 255, 255, 0.02) !important;
+/* 사이드바 구분선 — div[background: var(--admin-border)] 타겟 */
+.admin-dark aside [style*="var(--admin-border)"] {
+  background: rgba(255, 255, 255, 0.03) !important;
 }
 
 /* ── AdminDashboard 인라인 하드코딩 배경색 오버라이드 ── */
