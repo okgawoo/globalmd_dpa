@@ -758,12 +758,12 @@ export default function InputPage() {
               <div style={{flex:1,...(!isMobile?{display:'flex',flexDirection:'column'}:{})}}>
                 <div style={{fontSize:13,fontWeight:600,color:'#5E6AD2',marginBottom:4,textTransform:'uppercase',letterSpacing:'0.04em'}}>정액형</div>
                 <textarea className={styles.pasteArea} value={currentText} onChange={e => setCurrentText(e.target.value)}
-                  placeholder="정액형 보장내역 붙여넣기 (Ctrl+V)" rows={48} />
+                  placeholder="정액형 보장내역 붙여넣기 (Ctrl+V)" rows={20} />
               </div>
               <div style={{flex:1,...(!isMobile?{display:'flex',flexDirection:'column'}:{})}}>
                 <div style={{fontSize:13,fontWeight:600,color:'#636B78',marginBottom:4,textTransform:'uppercase',letterSpacing:'0.04em'}}>실손형</div>
                 <textarea className={styles.pasteArea} value={currentTextLoss} onChange={e => setCurrentTextLoss(e.target.value)}
-                  placeholder="실손형 보장내역 붙여넣기 (Ctrl+V)" rows={48} />
+                  placeholder="실손형 보장내역 붙여넣기 (Ctrl+V)" rows={20} />
               </div>
             </div>
 
