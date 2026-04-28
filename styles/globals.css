@@ -35,6 +35,28 @@
   }
 }
 
+/* ── Admin 다크모드 ── */
+.admin-dark {
+  --admin-bg: #1A1A1A;
+  --admin-sidebar-bg: #141414;
+  --admin-header-bg: #1E1E1E;
+  --admin-border: #2E2E2E;
+  --admin-text: #F0F0F0;
+  --admin-text-sub: #888888;
+  --admin-hover: #2A2A2A;
+  --admin-support-bg: #1E1E1E;
+}
+.admin-light {
+  --admin-bg: #F7F8FA;
+  --admin-sidebar-bg: #FFFFFF;
+  --admin-header-bg: #FFFFFF;
+  --admin-border: #E5E7EB;
+  --admin-text: rgba(26,26,46,0.82);
+  --admin-text-sub: #636B78;
+  --admin-hover: #EFEFF1;
+  --admin-support-bg: #FFFFFF;
+}
+
 /* 웹(데스크톱) 전용 배경색: 모바일은 #FAF9F5 유지 */
 @media (min-width: 769px) {
   :root { --bg: #F8F8F6; }
