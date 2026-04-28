@@ -129,6 +129,11 @@
   background: rgba(255, 255, 255, 0.03) !important;
 }
 
+/* Recharts 차트 호버 커서 — 다크모드 */
+.admin-dark .recharts-tooltip-cursor {
+  fill: rgba(255, 255, 255, 0.06) !important;
+}
+
 /* ── AdminDashboard 인라인 하드코딩 배경색 오버라이드 ── */
 /* StatCard / SectionCard 등 className 없이 inline style로 #FFFFFF 하드코딩된 카드들 */
 .admin-dark [style*="background: rgb(255, 255, 255)"] {
