@@ -116,7 +116,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   })
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#F7F8FA', color: 'rgba(26,26,46,0.82)' }}>
+    <div className={dark ? 'admin-dark' : ''} style={{ display: 'flex', minHeight: '100vh', background: dark ? '#252525' : '#F7F8FA', color: dark ? '#F5F5F5' : 'rgba(26,26,46,0.82)' }}>
       {ConfirmDialog}
 
       {/* ── Sidebar ── */}
