@@ -57,7 +57,7 @@
 /* ── 다크모드 전역 적용 ── */
 .admin-dark,
 .admin-dark * {
-  border-color: #333333 !important;
+  border-color: rgba(255, 255, 255, 0.09) !important;
 }
 
 .admin-dark aside,
@@ -128,7 +128,7 @@
 /* StatCard / SectionCard 등 className 없이 inline style로 #FFFFFF 하드코딩된 카드들 */
 .admin-dark [style*="background: rgb(255, 255, 255)"] {
   background: #262626 !important;
-  border-color: #333333 !important;
+  border-color: rgba(255, 255, 255, 0.09) !important;
 }
 
 /* 호버 상태 (#EFEFF1 → rgb(239, 239, 241)) — StatCard·리스트행·테이블행 공통 */
