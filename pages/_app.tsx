@@ -12,7 +12,7 @@ import { AdminProvider, useAdmin } from '../lib/AdminContext'
 
 function LayoutWrapper({ children }: { children: ReactNode }) {
   const { isAdmin, loading } = useAdmin()
-  if (loading) return <Layout>{children}</Layout>
+  if (loading) return null
   if (isAdmin) return <AdminLayout>{children}</AdminLayout>
   return <Layout>{children}</Layout>
 }
