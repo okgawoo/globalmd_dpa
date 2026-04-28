@@ -123,3 +123,29 @@
 .admin-dark [class*="divider"] {
   border-color: #333333 !important;
 }
+
+/* ── AdminDashboard 인라인 하드코딩 배경색 오버라이드 ── */
+/* StatCard / SectionCard 등 className 없이 inline style로 #FFFFFF 하드코딩된 카드들 */
+.admin-dark [style*="background: rgb(255, 255, 255)"] {
+  background: #262626 !important;
+  border-color: #333333 !important;
+}
+
+/* AdminDashboard 페이지 래퍼 배경 (#F7F8FA → rgb(247, 248, 250)) */
+.admin-dark [style*="background: rgb(247, 248, 250)"] {
+  background: #1E1E1E !important;
+}
+
+/* 카드 내부 텍스트 인라인 색상 오버라이드 */
+.admin-dark [style*="color: rgb(26, 26, 46)"],
+.admin-dark [style*="color: rgb(99, 107, 120)"],
+.admin-dark [style*="color: rgb(136, 146, 160)"] {
+  color: #D0D0D0 !important;
+}
+
+/* 테이블 sticky 헤더 */
+.admin-dark thead[style*="background: rgb(255, 255, 255)"],
+.admin-dark th[style*="background: rgb(255, 255, 255)"] {
+  background: #262626 !important;
+  border-color: #333333 !important;
+}
