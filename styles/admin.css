@@ -176,6 +176,26 @@
   background: #2D2E4A !important;
 }
 
+/* 상담 일정 — 캘린더 셀/헤더 배경 */
+.admin-dark [class*="calCell"] {
+  background: #262626 !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+.admin-dark [class*="calDayHeader"] {
+  background: #1E1E1E !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+.admin-dark [class*="calCellDay"]:hover {
+  background: #2E2E3E !important;
+}
+.admin-dark [class*="calMonthLabel"] {
+  color: #F5F5F5 !important;
+}
+.admin-dark [class*="calLegendCount"] {
+  background: #333340 !important;
+  color: #D0D0D0 !important;
+}
+
 /* 상담 일정 — 미팅 아이템, 타임라인, 리포트, 고객 선택 */
 .admin-dark [class*="dashItem"]:hover,
 .admin-dark [class*="tlItemClickable"]:hover,
