@@ -397,7 +397,7 @@ export default function AdminDashboard({
         {/* 최근 등록 고객 */}
         <div style={{ gridColumn: 'span 2' }}>
           <SectionCard title="최근 등록 고객" sub={`총 ${customers.length}명`} onViewAll={() => router.push('/customers')}>
-            <div style={{ maxHeight: 180, overflowY: 'auto', padding: '0 8px' }}>
+            <div style={{ maxHeight: 300, overflowY: 'auto', padding: '0 8px' }}>
               <table style={{ width: '100%', fontSize: 14, tableLayout: 'fixed', borderCollapse: 'collapse' }}>
                 <colgroup>
                   <col style={{ width: '16%' }} /><col style={{ width: '13%' }} /><col style={{ width: '9%' }} />
