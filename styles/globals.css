@@ -45,6 +45,19 @@
   --admin-text-sub: #888888;
   --admin-hover: #2A2A2A;
   --admin-support-bg: #1E1E1E;
+
+  /* 공통 CSS 변수 오버라이드 (카드/배경/텍스트) */
+  --bg: #1A1A1A;
+  --bg-card: #242424;
+  --bg-sidebar: #141414;
+  --border: #2E2E2E;
+  --text-primary: #F0F0F0;
+  --text-secondary: #AAAAAA;
+  --text-muted: #666666;
+  --green-light: #0d3d2e;
+  --amber-light: #3d2e0d;
+  --red-light: #3d1111;
+  --blue-light: #0d2a3d;
 }
 .admin-light {
   --admin-bg: #F7F8FA;
@@ -55,6 +68,15 @@
   --admin-text-sub: #636B78;
   --admin-hover: #EFEFF1;
   --admin-support-bg: #FFFFFF;
+
+  /* 공통 CSS 변수 오버라이드 */
+  --bg: #F7F8FA;
+  --bg-card: #FFFFFF;
+  --bg-sidebar: #FFFFFF;
+  --border: #E5E7EB;
+  --text-primary: rgba(26,26,46,0.82);
+  --text-secondary: #636B78;
+  --text-muted: #999999;
 }
 
 /* 웹(데스크톱) 전용 배경색: 모바일은 #FAF9F5 유지 */
