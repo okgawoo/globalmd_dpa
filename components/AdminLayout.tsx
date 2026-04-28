@@ -413,7 +413,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           <div
             style={{
               position: 'fixed',
-              top: 8,
+              top: 62,
               left: '50%',
               transform: `translateX(calc(-50% + 120px))`,
               zIndex: 50,
