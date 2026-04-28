@@ -688,7 +688,7 @@ export default function InputPage() {
           <div className={showResults || isMobile ? styles.pastePanel : styles.formWrap} style={!isMobile?{
             ...(showResults
               ? {flex:'0 0 auto', width:'calc(50% - 8px)', overflowY:'auto', boxSizing:'border-box'}
-              : {display:'flex', flexDirection:'column'}
+              : {display:'flex', flexDirection:'column', minHeight:'calc(100vh - 313px)'}
             ),
           }:{}}>
 
@@ -758,12 +758,12 @@ export default function InputPage() {
               <div style={{flex:1,...(!isMobile?{display:'flex',flexDirection:'column'}:{})}}>
                 <div style={{fontSize:13,fontWeight:600,color:'#5E6AD2',marginBottom:4,textTransform:'uppercase',letterSpacing:'0.04em'}}>정액형</div>
                 <textarea className={styles.pasteArea} value={currentText} onChange={e => setCurrentText(e.target.value)}
-                  placeholder="정액형 보장내역 붙여넣기 (Ctrl+V)" rows={76} />
+                  placeholder="정액형 보장내역 붙여넣기 (Ctrl+V)" rows={8} />
               </div>
               <div style={{flex:1,...(!isMobile?{display:'flex',flexDirection:'column'}:{})}}>
                 <div style={{fontSize:13,fontWeight:600,color:'#636B78',marginBottom:4,textTransform:'uppercase',letterSpacing:'0.04em'}}>실손형</div>
                 <textarea className={styles.pasteArea} value={currentTextLoss} onChange={e => setCurrentTextLoss(e.target.value)}
-                  placeholder="실손형 보장내역 붙여넣기 (Ctrl+V)" rows={76} />
+                  placeholder="실손형 보장내역 붙여넣기 (Ctrl+V)" rows={8} />
               </div>
             </div>
 
