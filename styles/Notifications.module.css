@@ -9,7 +9,7 @@
   .mobileLayout { display: none !important; }
 
   /* 페이지 래퍼 */
-  .pcWrap { padding: 24px; max-width: 1200px; margin: 0 auto; width: 100%; }
+  .pcWrap { padding: 24px 32px 96px; max-width: 1200px; margin: 0 auto; width: 100%; }
 
   /* 페이지 헤더 */
   .pageHeader {
@@ -68,17 +68,17 @@
   .threeCol {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
     height: calc(100vh - 190px);
-    background: hsl(var(--bg-panel));
-    border: 1px solid hsl(var(--border-default));
-    border-radius: 10px;
-    overflow: hidden;
   }
 
   /* 열 1: 카테고리 */
   .colCat {
-    border-right: 1px solid hsl(var(--border-default));
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 14px;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 6px 0;
   }
   .catRow {
@@ -141,8 +141,11 @@
 
   /* 열 2: 고객 리스트 */
   .colCusts {
-    border-right: 1px solid hsl(var(--border-default));
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 14px;
     overflow-y: auto;
+    overflow-x: hidden;
     display: flex;
     flex-direction: column;
   }
@@ -232,7 +235,9 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    background: hsl(var(--bg-panel));
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 14px;
   }
   .composePlaceholder {
     flex: 1;
@@ -428,7 +433,7 @@
   .btnCopy:disabled, .btnKakao:disabled { opacity: 0.4; cursor: not-allowed; }
 
   /* ── 단체문자 탭 ── */
-  .pcBulkWrap { padding: 4px 0; }
+  .pcBulkWrap { padding: 0; }
 
   .bulkSubTabRow {
     display: flex;
@@ -460,7 +465,13 @@
   .bulkGrid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 12px;
+  }
+  .bulkGrid > div {
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 14px;
+    padding: 16px 20px;
   }
 
   .bulkFilterRow {
@@ -500,9 +511,9 @@
   }
 
   .bulkCustList {
-    background: hsl(var(--bg-panel));
-    border: 1px solid hsl(var(--border-default));
-    border-radius: 10px;
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 14px;
     overflow: hidden;
     max-height: calc(100vh - 420px);
     overflow-y: auto;
@@ -674,9 +685,9 @@
   .bulkHistoryEmpty {
     padding: 32px;
     text-align: center;
-    border: 1px solid hsl(var(--border-default));
-    border-radius: 10px;
-    background: hsl(var(--bg-panel));
+    border: 1px solid #E5E7EB;
+    border-radius: 14px;
+    background: #FFFFFF;
   }
   .bulkHistoryEmpty p { font-size: 14px; color: hsl(var(--text-tertiary)); margin: 0 0 4px; }
   .bulkHistoryEmpty p:last-child { font-size: 13px; }
