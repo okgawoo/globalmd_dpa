@@ -131,6 +131,12 @@
   border-color: #333333 !important;
 }
 
+/* 호버 상태 (#EFEFF1 → rgb(239, 239, 241)) — StatCard·리스트행·테이블행 공통 */
+.admin-dark [style*="background: rgb(239, 239, 241)"] {
+  background: #333340 !important;
+  border-color: #444444 !important;
+}
+
 /* AdminDashboard 페이지 래퍼 배경 (#F7F8FA → rgb(247, 248, 250)) */
 .admin-dark [style*="background: rgb(247, 248, 250)"] {
   background: #1E1E1E !important;
