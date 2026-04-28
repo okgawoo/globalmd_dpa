@@ -348,9 +348,9 @@
 :root[data-theme="dark"] .page { background: #1A1A2E; }
 :root[data-theme="dark"] .card { background: #262626; border-color: rgba(255,255,255,0.10); }
 :root[data-theme="dark"] .tabBar { border-bottom-color: rgba(255,255,255,0.10); }
-:root[data-theme="dark"] .tabBtn { color: rgba(255,255,255,0.65); }
-:root[data-theme="dark"] .tabBtn:hover { color: #FFFFFF; }
-:root[data-theme="dark"] .tabActive { color: #FFFFFF; border-bottom-color: #5E6AD2; }
+:root[data-theme="dark"] .tabBtn { color: #737373 !important; }
+:root[data-theme="dark"] .tabBtn:hover { color: #B0B0B0 !important; }
+:root[data-theme="dark"] .tabActive { color: #FFFFFF !important; border-bottom-color: #5E6AD2 !important; }
 :root[data-theme="dark"] .content { background: #262626; }
 :root[data-theme="dark"] .sectionTitle { color: #F5F5F5; }
 :root[data-theme="dark"] .sectionDesc { color: rgba(255,255,255,0.5); }

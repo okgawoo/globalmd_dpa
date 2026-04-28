@@ -878,6 +878,6 @@
 :root[data-theme="dark"] .calDaySat { color: #60A5FA !important; }
 :root[data-theme="dark"] .calLegend { border-top-color: rgba(255,255,255,0.10); }
 :root[data-theme="dark"] .popupRightTabs { border-bottom-color: rgba(255,255,255,0.10); }
-:root[data-theme="dark"] .popupRightTab { color: rgba(255,255,255,0.65); }
-:root[data-theme="dark"] .popupRightTab:hover { color: #FFFFFF; }
-:root[data-theme="dark"] .popupRightTabActive { color: #FFFFFF; border-bottom-color: #5E6AD2; }
+:root[data-theme="dark"] .popupRightTab { color: #737373 !important; }
+:root[data-theme="dark"] .popupRightTab:hover { color: #B0B0B0 !important; }
+:root[data-theme="dark"] .popupRightTabActive { color: #FFFFFF !important; border-bottom-color: #5E6AD2 !important; }
