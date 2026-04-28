@@ -268,7 +268,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 {userInfo.initial}
               </div>
               <div style={{ minWidth: 0, flex: 1 }}>
-                <p style={{ fontSize: 12, fontWeight: 500, color: 'rgba(26,26,46,0.82)', lineHeight: 1.4, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <p style={{ fontSize: 12, fontWeight: 500, color: 'var(--admin-text)', lineHeight: 1.4, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {userInfo.email.split('@')[0]}
                 </p>
                 <p style={{ fontSize: 11, color: 'var(--admin-text-sub)', lineHeight: 1.4, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -452,7 +452,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         )}
 
         {/* Content */}
-        <main style={{ flex: 1, overflowY: 'auto', height: 0 }}>
+        <main style={{ flex: 1, overflowY: 'auto', height: 0, background: 'var(--admin-bg)', color: 'var(--admin-text)' }}>
           {children}
         </main>
       </div>
