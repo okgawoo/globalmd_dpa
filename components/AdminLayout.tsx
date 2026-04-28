@@ -116,7 +116,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   })
 
   return (
-    <div className={dark ? 'admin-dark' : ''} style={{ display: 'flex', minHeight: '100vh', background: dark ? '#252525' : '#F7F8FA', color: dark ? '#F5F5F5' : 'rgba(26,26,46,0.82)' }}>
+    <div className={dark ? 'admin-dark' : 'admin-light'} style={{ display: 'flex', minHeight: '100vh', background: 'var(--admin-bg)', color: 'var(--admin-text)' }}>
       {ConfirmDialog}
 
       {/* ── Sidebar ── */}
@@ -130,8 +130,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           height: '100vh',
           width: 240,
           flexDirection: 'column',
-          background: '#FFFFFF',
-          borderRight: '1px solid #E5E7EB',
+          background: 'var(--admin-sidebar-bg)',
+          borderRight: '1px solid var(--admin-border)',
           boxShadow: '2px 0 12px rgba(0,0,0,0.06)',
         }}
       >
@@ -155,7 +155,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           <span style={{ fontSize: 16, fontWeight: 700, color: 'rgba(26,26,46,0.82)', letterSpacing: '-0.4px', lineHeight: 1 }}>아이플래너</span>
         </div>
 
-        <div style={{ height: 1, background: '#E5E7EB', margin: '0 12px' }} />
+        <div style={{ height: 1, background: 'var(--admin-border)', margin: '0 12px' }} />
 
         {/* Nav */}
         <nav style={{ flex: 1, overflowY: 'auto', padding: '12px 8px' }}>
@@ -169,7 +169,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                     style={navLinkStyle(isActive)}
                     onMouseEnter={(e) => {
                       if (!isActive) {
-                        e.currentTarget.style.background = '#EFEFF1'
+                        e.currentTarget.style.background = 'var(--admin-hover)'
                         e.currentTarget.style.color = 'rgba(26,26,46,0.82)'
                         e.currentTarget.style.borderColor = '#C0C7D1'
                       }
@@ -192,7 +192,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
           {/* Account section */}
           <div style={{ marginTop: 16 }}>
-            <div style={{ height: 1, background: '#E5E7EB', margin: '0 12px 8px' }} />
+            <div style={{ height: 1, background: 'var(--admin-border)', margin: '0 12px 8px' }} />
             <ul style={{ display: 'flex', flexDirection: 'column', gap: 2, listStyle: 'none', padding: 0, margin: 0 }}>
               {accountItems.map((item) => {
                 const isActive = router.pathname === item.href
@@ -203,7 +203,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                       style={navLinkStyle(isActive)}
                       onMouseEnter={(e) => {
                         if (!isActive) {
-                          e.currentTarget.style.background = '#EFEFF1'
+                          e.currentTarget.style.background = 'var(--admin-hover)'
                           e.currentTarget.style.color = 'rgba(26,26,46,0.82)'
                           e.currentTarget.style.borderColor = '#C0C7D1'
                         }
@@ -228,7 +228,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
         {/* Bottom – user profile + admin + logout */}
         <div style={{ padding: 12 }}>
-          <div style={{ height: 1, background: '#E5E7EB', marginBottom: 10 }} />
+          <div style={{ height: 1, background: 'var(--admin-border)', marginBottom: 10 }} />
 
           {/* User profile card */}
           {userInfo && (
@@ -240,8 +240,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 padding: '10px 12px',
                 borderRadius: 8,
                 marginBottom: 8,
-                background: '#EFEFF1',
-                border: '1px solid #E5E7EB',
+                background: 'var(--admin-hover)',
+                border: '1px solid var(--admin-border)',
               }}
             >
               <div
@@ -265,7 +265,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 <p style={{ fontSize: 12, fontWeight: 500, color: 'rgba(26,26,46,0.82)', lineHeight: 1.4, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {userInfo.email.split('@')[0]}
                 </p>
-                <p style={{ fontSize: 11, color: '#8892A0', lineHeight: 1.4, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <p style={{ fontSize: 11, color: 'var(--admin-text-sub)', lineHeight: 1.4, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {userInfo.email}
                 </p>
               </div>
@@ -281,7 +281,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             }}
             onMouseEnter={(e) => {
               if (router.pathname !== '/admin') {
-                e.currentTarget.style.background = '#EFEFF1'
+                e.currentTarget.style.background = 'var(--admin-hover)'
                 e.currentTarget.style.color = 'rgba(26,26,46,0.82)'
                 e.currentTarget.style.borderColor = '#C0C7D1'
               }
@@ -314,7 +314,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               cursor: 'pointer',
               transition: 'all 0.1s',
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = '#EFEFF1' }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--admin-hover)' }}
             onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
           >
             <LogOut style={{ width: 16, height: 16, flexShrink: 0 }} />
@@ -337,11 +337,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             justifyContent: 'space-between',
             padding: '6px 24px',
             boxShadow: '0 1px 6px rgba(0,0,0,0.05)',
-            background: '#FFFFFF',
-            flexShrink: 0,
+            background: 'var(--admin-header-bg)',
           }}
         >
-          <span style={{ fontSize: 13, fontWeight: 500, fontStyle: 'italic', color: '#636B78', letterSpacing: '0.01em' }}>
+          <span style={{ fontSize: 13, fontWeight: 500, fontStyle: 'italic', color: 'var(--admin-text-sub)', letterSpacing: '0.01em' }}>
             insurance planner
           </span>
 
@@ -350,12 +349,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               PRO
             </span>
 
-            <span style={{ fontSize: 12, color: '#636B78' }}>
+            <span style={{ fontSize: 12, color: 'var(--admin-text-sub)' }}>
               SMS <span style={{ color: 'rgba(26,26,46,0.82)', fontWeight: 600 }}>999</span>
-              <span style={{ color: '#8892A0' }}> / 1,000</span>
+              <span style={{ color: 'var(--admin-text-sub)' }}> / 1,000</span>
             </span>
 
-            <div style={{ width: 1, height: 14, background: '#E5E7EB', margin: '0 4px' }} />
+            <div style={{ width: 1, height: 14, background: 'var(--admin-border)', margin: '0 4px' }} />
 
             <HeaderIconBtn onClick={toggleTheme} title={dark ? '라이트 모드' : '다크 모드'}>
               {dark ? <Sun style={{ width: 16, height: 16 }} /> : <Moon style={{ width: 16, height: 16 }} />}
@@ -483,8 +482,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           bottom: 96,
           width: 400,
           borderRadius: 20,
-          background: '#FFFFFF',
-          border: '1px solid #E5E7EB',
+          background: 'var(--admin-support-bg)',
+          border: '1px solid var(--admin-border)',
           boxShadow: '0 24px 60px rgba(0,0,0,0.18), 0 4px 20px rgba(0,0,0,0.1)',
           transform: supportOpen ? 'translateX(0) scale(1)' : 'translateX(calc(100% + 32px)) scale(0.96)',
           opacity: supportOpen ? 1 : 0,
@@ -500,7 +499,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             justifyContent: 'space-between',
             padding: '16px 20px',
             flexShrink: 0,
-            borderBottom: '1px solid #E5E7EB',
+            borderBottom: '1px solid var(--admin-border)',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -520,7 +519,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             </div>
             <div>
               <p style={{ fontSize: 14, fontWeight: 600, color: 'rgba(26,26,46,0.82)', margin: 0 }}>스마트 고객센터</p>
-              <p style={{ fontSize: 12, color: '#8892A0', margin: 0 }}>무엇이든 물어보세요</p>
+              <p style={{ fontSize: 12, color: 'var(--admin-text-sub)', margin: 0 }}>무엇이든 물어보세요</p>
             </div>
           </div>
           <button
@@ -532,14 +531,14 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               alignItems: 'center',
               justifyContent: 'center',
               borderRadius: 6,
-              color: '#636B78',
+              color: 'var(--admin-text-sub)',
               border: '1px solid transparent',
               background: 'transparent',
               cursor: 'pointer',
               transition: 'all 0.1s',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#EFEFF1'
+              e.currentTarget.style.background = 'var(--admin-hover)'
               e.currentTarget.style.borderColor = '#C0C7D1'
             }}
             onMouseLeave={(e) => {
@@ -621,7 +620,7 @@ function HeaderIconBtn({
         cursor: 'pointer',
         transition: 'all 0.1s',
       }}
-      onMouseEnter={(e) => { e.currentTarget.style.background = '#EFEFF1' }}
+      onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--admin-hover)' }}
       onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
     >
       {children}
