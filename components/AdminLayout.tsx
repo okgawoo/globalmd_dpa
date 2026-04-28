@@ -40,8 +40,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     if (saved === 'dark') {
       setDark(true)
       document.documentElement.setAttribute('data-theme', 'dark')
+      document.body.style.background = '#1A1A2E'
+      document.body.style.color = '#FFFFFF'
     } else {
       document.documentElement.setAttribute('data-theme', 'light')
+      document.body.style.background = ''
+      document.body.style.color = ''
     }
   }, [])
 
@@ -96,6 +100,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     setDark(next)
     localStorage.setItem('admin_theme', next ? 'dark' : 'light')
     document.documentElement.setAttribute('data-theme', next ? 'dark' : 'light')
+    document.body.style.background = next ? '#1A1A2E' : ''
+    document.body.style.color = next ? '#FFFFFF' : ''
   }
 
   async function handleLogout() {
