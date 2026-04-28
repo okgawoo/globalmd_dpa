@@ -147,6 +147,11 @@
   background: #1E1E1E !important;
 }
 
+/* 카드 내부 구분선 (#E5E7EB → rgb(229, 231, 235)) */
+.admin-dark [style*="background: rgb(229, 231, 235)"] {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
 /* 카드 내부 텍스트 인라인 색상 오버라이드 */
 .admin-dark [style*="color: rgb(26, 26, 46)"],
 .admin-dark [style*="color: rgb(99, 107, 120)"],
