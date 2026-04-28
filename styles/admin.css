@@ -166,12 +166,53 @@
   border-color: #333333 !important;
 }
 
-/* 고객 리스트 행 호버/선택 상태 */
+/* ── 전체 페이지 리스트 행 & 클릭 요소 호버/선택 다크모드 ── */
+
+/* 고객 관리 */
 .admin-dark [class*="custRow"]:hover {
   background: #2E2E3E !important;
 }
 .admin-dark [class*="custRow"][class*="active"] {
   background: #2D2E4A !important;
+}
+
+/* 상담 일정 — 미팅 아이템, 타임라인, 리포트, 고객 선택 */
+.admin-dark [class*="dashItem"]:hover,
+.admin-dark [class*="tlItemClickable"]:hover,
+.admin-dark [class*="reportListItem"]:hover,
+.admin-dark [class*="custOption"]:hover {
+  background: #2E2E3E !important;
+}
+.admin-dark [class*="tlItemSelected"],
+.admin-dark [class*="reportListItemActive"],
+.admin-dark [class*="custOptionActive"] {
+  background: #2D2E4A !important;
+}
+
+/* 설정 페이지 — 알림/항목 호버 */
+.admin-dark [class*="notifItem"]:hover {
+  background: #2E2E3E !important;
+}
+
+/* 공통 버튼 호버 (#F3F4F6 계열) */
+.admin-dark [class*="calNavBtn"]:hover,
+.admin-dark [class*="calLegendBtn"]:hover,
+.admin-dark [class*="popupClose"]:hover,
+.admin-dark [class*="statusBtn"]:hover,
+.admin-dark [class*="tlEditBtn"]:hover,
+.admin-dark [class*="tlNoteCancel"]:hover,
+.admin-dark [class*="covCloseBtn"]:hover,
+.admin-dark [class*="guideBtn"]:hover,
+.admin-dark [class*="guideCloseBtn"]:hover,
+.admin-dark [class*="btnSecondary"]:hover,
+.admin-dark [class*="btnOutline"]:hover,
+.admin-dark [class*="toneBtn"]:hover,
+.admin-dark [class*="birthdayBtn"]:hover,
+.admin-dark [class*="smsPrevBtn"]:hover,
+.admin-dark [class*="refreshBtn"]:hover,
+.admin-dark [class*="openLink"]:hover {
+  background: #2E2E3E !important;
+  color: #D0D0D0 !important;
 }
 
 /* 서브탭 활성 상태 — 텍스트/밑줄 색상 일치 */
