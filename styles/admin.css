@@ -149,3 +149,34 @@
   background: #262626 !important;
   border-color: #333333 !important;
 }
+
+/* ── 헤더 아이콘 & 텍스트 다크모드 규칙 ── */
+
+/* HeaderIconBtn — 아이콘 버튼 색상 (color: rgba(26,26,46,0.82) 인라인 하드코딩) */
+.admin-dark header button {
+  color: #B8C0CC !important;
+}
+
+/* 헤더 내 인라인 dark-navy 텍스트 (SMS 카운트 등) */
+.admin-dark header [style*="color: rgba(26, 26, 46"],
+.admin-dark header [style*="color: rgb(26, 26, 46)"] {
+  color: #B8C0CC !important;
+}
+
+/* 사이드바 nav 링크 — 비활성 상태 */
+.admin-dark aside a[style*="color: rgba(26, 26, 46"],
+.admin-dark aside a[style*="color: rgb(26, 26, 46)"] {
+  color: #B8C0CC !important;
+}
+
+/* 사이드바 하단 로그아웃 버튼 */
+.admin-dark aside button[style*="color: rgba(26, 26, 46"],
+.admin-dark aside button[style*="color: rgb(26, 26, 46)"] {
+  color: #B8C0CC !important;
+}
+
+/* 유저 프로필 카드 텍스트 */
+.admin-dark aside p[style*="color: rgba(26, 26, 46"],
+.admin-dark aside p[style*="color: rgb(26, 26, 46)"] {
+  color: #B8C0CC !important;
+}
