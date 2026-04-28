@@ -81,7 +81,7 @@
 
 /* 웹(데스크톱) 전용 배경색: 모바일은 #FAF9F5 유지 */
 @media (min-width: 769px) {
-  :root { --bg: #F8F8F6; }
+  :root:not([data-theme="dark"]) { --bg: #F8F8F6; }
 }
 
 body {
@@ -134,12 +134,3 @@ a { text-decoration: none; color: inherit; }
   color: #fff; font-size: 14px; font-weight: 700; cursor: pointer;
 }
 .dpa-modal-btn-danger:hover { opacity: 0.9; }
-
-/* ── Admin 다크모드 콘텐츠 영역 강제 적용 ── */
-@media (min-width: 769px) {
-  :root[data-theme="dark"] body,
-  :root[data-theme="dark"] main {
-    background: #1A1A2E !important;
-    color: #FFFFFF !important;
-  }
-}
