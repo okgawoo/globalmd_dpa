@@ -41,6 +41,9 @@
     margin-bottom: 16px;
   }
   .pcTab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     padding: 10px 16px;
     font-size: 13px;
     font-weight: 500;

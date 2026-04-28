@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import styles from '../styles/Notifications.module.css'
 import SmsSlidePanel from '../components/SmsSlide'
+import { Sparkles, Users } from 'lucide-react'
 
 type ToneType = '정중' | '친근' | '애교' | '간결'
 type IssueType = 'nearDone' | 'gap' | 'birthday' | 'expiry' | 'longNoContact' | 'anniversary'
@@ -344,10 +345,14 @@ export default function NotificationsPage() {
 
         {/* 탭바 */}
         <div className={styles.pcTabBar}>
-          {[{ key: 'ai', label: 'AI 추천' }, { key: 'bulk', label: '단체문자' }].map(tab => (
+          {[
+            { key: 'ai', label: 'AI 추천', icon: Sparkles },
+            { key: 'bulk', label: '단체문자', icon: Users },
+          ].map(tab => (
             <button key={tab.key}
               className={[styles.pcTab, pcTab === tab.key ? styles.pcTabActive : ''].join(' ')}
               onClick={() => { setPcTab(tab.key as any); sessionStorage.setItem('pc_notif_tab', tab.key) }}>
+              <tab.icon style={{ width: 14, height: 14, flexShrink: 0 }} />
               {tab.label}
             </button>
           ))}
