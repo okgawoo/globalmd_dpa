@@ -311,7 +311,7 @@
 }
 
 @media (min-width: 769px) {
-  .pasteArea { min-height: 200px; }
+  .pasteArea { flex: 1; height: 0; min-height: 200px; }
 }
 
 /* Parse Button */
