@@ -53,3 +53,73 @@
   --border-default: 0 0% 30%;
   --border-hover: 0 0% 40%;
 }
+
+/* ── 다크모드 전역 적용 ── */
+.admin-dark,
+.admin-dark * {
+  border-color: #333333 !important;
+}
+
+.admin-dark aside,
+.admin-dark header,
+.admin-dark nav {
+  background: #1E1E1E !important;
+  color: #F5F5F5 !important;
+}
+
+/* 카드/패널 배경 */
+.admin-dark [class*="card"],
+.admin-dark [class*="Card"],
+.admin-dark [class*="panel"],
+.admin-dark [class*="Panel"],
+.admin-dark [class*="wrap"],
+.admin-dark [class*="Wrap"],
+.admin-dark [class*="block"],
+.admin-dark [class*="Block"],
+.admin-dark [class*="section"],
+.admin-dark [class*="Section"],
+.admin-dark [class*="formWrap"],
+.admin-dark [class*="listItem"],
+.admin-dark [class*="customerItem"],
+.admin-dark [class*="contractBlock"] {
+  background: #262626 !important;
+  color: #F5F5F5 !important;
+}
+
+/* 전체 페이지 배경 */
+.admin-dark [class*="page"],
+.admin-dark [class*="Page"],
+.admin-dark main,
+.admin-dark [class*="mainCol"],
+.admin-dark [class*="content"],
+.admin-dark [class*="Content"] {
+  background: #252525 !important;
+  color: #F5F5F5 !important;
+}
+
+/* 인풋/텍스트 영역 */
+.admin-dark input,
+.admin-dark textarea,
+.admin-dark select {
+  background: #333333 !important;
+  color: #F5F5F5 !important;
+  border-color: #444444 !important;
+}
+
+/* 텍스트 색상 */
+.admin-dark h1,
+.admin-dark h2,
+.admin-dark h3,
+.admin-dark p,
+.admin-dark span,
+.admin-dark label,
+.admin-dark td,
+.admin-dark th {
+  color: #F5F5F5 !important;
+}
+
+/* 구분선 */
+.admin-dark hr,
+.admin-dark [class*="divider"] {
+  border-color: #333333 !important;
+}
