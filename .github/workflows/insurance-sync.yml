@@ -1,0 +1,36 @@
+name: 보험 공시 자동 수집 (주간)
+
+on:
+  schedule:
+    # 매주 월요일 오전 9시 (KST = UTC+9, 즉 UTC 00:00)
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+    # 수동 실행도 가능
+
+jobs:
+  insurance-crawl:
+    name: 메리츠화재 공시 크롤링
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 보험 공시 수집 API 호출
+        run: |
+          echo "크롤링 시작: $(date)"
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+            "${{ secrets.APP_URL }}/api/insurance-crawl" \
+            -H "Content-Type: application/json" \
+            -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
+            --max-time 300)
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | head -n -1)
+
+          echo "HTTP 상태: $HTTP_CODE"
+          echo "응답: $BODY"
+
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "크롤링 실패 (HTTP $HTTP_CODE)"
+            exit 1
+          fi
+
+          echo "크롤링 완료"

@@ -15,7 +15,44 @@ export default function AdminPage() {
   const [uploading, setUploading] = useState(false)
   const [uploadResult, setUploadResult] = useState<any>(null)
   const [dragOver, setDragOver] = useState(false)
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'upload' | 'urls'>('dashboard')
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'upload' | 'urls' | 'crawl'>('dashboard')
+
+  // 보험사 공시
+  const [selectedInsurer, setSelectedInsurer] = useState<string | null>(null)
+  const [crawlSrtSqs, setCrawlSrtSqs] = useState<number[]>([6, 4]) // 기본: 암+질병
+  const [crawling, setCrawling] = useState(false)
+  const [crawlResults, setCrawlResults] = useState<any>(null)
+  const [meritzPdfs, setMeritzPdfs] = useState<any[]>([])
+
+  const INSURERS = [
+    { id: 'meritz', name: '메리츠화재', type: '손해보험', active: true },
+    { id: 'db', name: 'DB손해보험', type: '손해보험', active: false },
+    { id: 'hyundai', name: '현대해상', type: '손해보험', active: false },
+    { id: 'kb', name: 'KB손해보험', type: '손해보험', active: false },
+    { id: 'hanwha', name: '한화손해보험', type: '손해보험', active: false },
+    { id: 'samsung', name: '삼성화재', type: '손해보험', active: false },
+    { id: 'lotte', name: '롯데손해보험', type: '손해보험', active: false },
+    { id: 'mgs', name: 'MG손해보험', type: '손해보험', active: false },
+    { id: 'heungkuk', name: '흥국화재', type: '손해보험', active: false },
+    { id: 'samsung_life', name: '삼성생명', type: '생명보험', active: false },
+    { id: 'hanwha_life', name: '한화생명', type: '생명보험', active: false },
+    { id: 'kyobo', name: '교보생명', type: '생명보험', active: false },
+    { id: 'nhlife', name: 'NH농협생명', type: '생명보험', active: false },
+    { id: 'meritz_life', name: '메리츠생명', type: '생명보험', active: false },
+  ]
+
+  const CRAWL_CATEGORIES = [
+    { srtSq: 6, name: '암보험' },
+    { srtSq: 4, name: '질병보험 (뇌/심혈관)' },
+    { srtSq: 11, name: '생활보험 (간병/치매)' },
+    { srtSq: 5, name: '어린이보험' },
+    { srtSq: 2, name: '운전자보험' },
+    { srtSq: 7, name: '상해보험' },
+    { srtSq: 3, name: '통합보험 (실손)' },
+    { srtSq: 1, name: '자동차보험' },
+    { srtSq: 8, name: '연금저축보험' },
+    { srtSq: 14, name: '배상책임보험' },
+  ]
   const fileRef = useRef<HTMLInputElement>(null)
 
   const [topMenu, setTopMenu] = useState<'공지사항' | '설계사' | '유튜브' | '보험공시'>('공지사항')
@@ -58,6 +95,7 @@ export default function AdminPage() {
   useEffect(() => {
     if (topMenu === '설계사') fetchAgentList()
     if (topMenu === '유튜브') fetchYtChannels()
+    if (topMenu === '보험공시') fetchMeritzPdfs()
   }, [topMenu])
 
   async function checkUser() {
@@ -90,6 +128,31 @@ export default function AdminPage() {
     if (!session) return
     const res = await fetch('/api/admin-agents', { headers: { 'Authorization': `Bearer ${session.access_token}` } })
     if (res.ok) { const data = await res.json(); setSmsAuthList(data.smsAuthList || []) }
+  }
+
+  async function fetchMeritzPdfs() {
+    const { data } = await supabase.from('meritz_pdf_files').select('*').order('crawled_at', { ascending: false })
+    setMeritzPdfs(data || [])
+  }
+
+  async function startCrawl() {
+    if (crawlSrtSqs.length === 0) return alert('카테고리를 선택해주세요')
+    setCrawling(true)
+    setCrawlResults(null)
+    try {
+      const res = await fetch('/api/insurance-crawl', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ srtSqs: crawlSrtSqs }),
+      })
+      const data = await res.json()
+      setCrawlResults(data)
+      fetchMeritzPdfs()
+    } catch (e: any) {
+      alert(`오류: ${e.message}`)
+    } finally {
+      setCrawling(false)
+    }
   }
 
   async function fetchYtChannels() {
@@ -338,6 +401,7 @@ export default function AdminPage() {
               { key: 'dashboard', label: '현황 대시보드' },
               { key: 'upload', label: '파일 업로드' },
               { key: 'urls', label: 'URL 목록' },
+              { key: 'crawl', label: '보험사 공시' },
             ].map(tab => (
               <button key={tab.key} onClick={() => setActiveTab(tab.key as any)}
                 className={[styles.subTabBtn, activeTab === tab.key ? styles.subTabActive : ''].join(' ')}>
@@ -989,6 +1053,122 @@ export default function AdminPage() {
                 </div>
               ))}
             </>
+          )}
+
+          {/* 보험사 공시 */}
+          {activeTab === 'crawl' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+              {/* 보험사 카드 목록 */}
+              <div className={styles.card} style={{ padding: 20 }}>
+                <p className={styles.cardTitle} style={{ marginBottom: 14 }}>보험사 선택</p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {INSURERS.map(ins => (
+                    <button
+                      key={ins.id}
+                      onClick={() => ins.active && setSelectedInsurer(ins.id === selectedInsurer ? null : ins.id)}
+                      style={{
+                        padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: 500,
+                        border: selectedInsurer === ins.id ? '2px solid #5E6AD2' : '1px solid #E5E7EB',
+                        background: selectedInsurer === ins.id ? '#F0F0FD' : ins.active ? '#fff' : '#F7F8FA',
+                        color: selectedInsurer === ins.id ? '#5E6AD2' : ins.active ? '#1A1A2E' : '#C0C8D0',
+                        cursor: ins.active ? 'pointer' : 'not-allowed',
+                        position: 'relative',
+                      }}
+                    >
+                      {ins.name}
+                      {!ins.active && <span style={{ fontSize: 10, marginLeft: 4, color: '#C0C8D0' }}>준비중</span>}
+                      <span style={{ fontSize: 10, color: '#8892A0', marginLeft: 4 }}>({ins.type.slice(0, 2)})</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 선택된 보험사: 메리츠 */}
+              {selectedInsurer === 'meritz' && (<>
+
+                {/* 카테고리 선택 + 다운로드 */}
+                <div className={styles.card} style={{ padding: 24 }}>
+                  <p className={styles.cardTitle} style={{ marginBottom: 12 }}>카테고리별 요약서 다운로드</p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 16 }}>
+                    {CRAWL_CATEGORIES.map(cat => (
+                      <label key={cat.srtSq} style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: 13, color: '#1A1A2E' }}>
+                        <input
+                          type="checkbox"
+                          checked={crawlSrtSqs.includes(cat.srtSq)}
+                          onChange={e => {
+                            if (e.target.checked) setCrawlSrtSqs(prev => [...prev, cat.srtSq])
+                            else setCrawlSrtSqs(prev => prev.filter(s => s !== cat.srtSq))
+                          }}
+                          style={{ width: 14, height: 14, accentColor: '#5E6AD2' }}
+                        />
+                        {cat.name}
+                      </label>
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <button className={styles.primaryBtn} style={{ opacity: crawling ? 0.6 : 1 }} disabled={crawling} onClick={startCrawl}>
+                      {crawling ? '다운로드 중...' : '요약서 다운로드'}
+                    </button>
+                    <span style={{ fontSize: 12, color: '#8892A0' }}>카테고리당 1.5초 간격 (서버 부하 방지)</span>
+                  </div>
+                </div>
+
+                {/* 결과 */}
+                {crawlResults && (
+                  <div className={styles.card} style={{ padding: 20 }}>
+                    <p className={styles.cardTitle} style={{ marginBottom: 10 }}>
+                      다운로드 결과 — 신규 {crawlResults.newCount}건 / 스킵 {crawlResults.skipCount}건 / 실패 {crawlResults.failCount}건
+                    </p>
+                    <div style={{ maxHeight: 240, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      {crawlResults.results?.map((r: any, i: number) => (
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
+                          <span style={{ color: r.success ? '#065F46' : '#991B1B', fontWeight: 700 }}>{r.success ? '✓' : '✗'}</span>
+                          <span style={{ color: '#636B78' }}>[{r.category}]</span>
+                          <span style={{ color: '#1A1A2E' }}>{r.product}</span>
+                          {r.error && <span style={{ color: '#991B1B' }}>— {r.error}</span>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 저장된 PDF 목록 */}
+                <div className={styles.card}>
+                  <div className={styles.cardHeader}>
+                    <p className={styles.cardTitle}>메리츠화재 저장된 요약서</p>
+                    <button className={styles.refreshBtn} onClick={fetchMeritzPdfs} style={{ fontSize: 12 }}>새로고침</button>
+                  </div>
+                  {meritzPdfs.length === 0 ? (
+                    <p style={{ padding: 24, textAlign: 'center', fontSize: 13, color: '#8892A0' }}>아직 다운로드된 파일이 없어요</p>
+                  ) : (
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      <thead><tr>
+                        {['카테고리', '상품명', '크기', '저장일'].map(h => <th key={h} className={styles.th}>{h}</th>)}
+                      </tr></thead>
+                      <tbody>
+                        {meritzPdfs.map(pdf => (
+                          <tr key={pdf.id}>
+                            <td style={tdStyle()}>{badge('#EFF6FF', '#1D4ED8', pdf.category_name)}</td>
+                            <td style={tdStyle({ fontSize: 13 })}>{pdf.product_name}</td>
+                            <td style={tdStyle({ color: '#636B78', fontSize: 12 })}>{pdf.file_size ? `${Math.round(pdf.file_size / 1024)}KB` : '-'}</td>
+                            <td style={tdStyle({ color: '#636B78', fontSize: 12 })}>{new Date(pdf.crawled_at).toLocaleDateString('ko-KR')}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              </>)}
+
+              {/* 미선택 안내 */}
+              {!selectedInsurer && (
+                <div className={styles.card} style={{ padding: 40, textAlign: 'center' }}>
+                  <p style={{ fontSize: 14, color: '#8892A0' }}>위에서 보험사를 선택하세요</p>
+                  <p style={{ fontSize: 12, color: '#C0C8D0', marginTop: 6 }}>현재 메리츠화재만 공시 API 연동 완료</p>
+                </div>
+              )}
+            </div>
           )}
         </div>
       )}
