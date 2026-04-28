@@ -1,0 +1,39 @@
+name: YouTube 채널 신규 영상 동기화
+
+on:
+  schedule:
+    # 매주 월요일 오전 9시 (KST = UTC+9, 그러므로 UTC 0시)
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+    # 수동 실행 가능 (GitHub Actions 탭에서 Run workflow 클릭)
+
+jobs:
+  sync-youtube:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: 신규 영상 동기화 API 호출
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.APP_URL }}/api/youtube-sync")
+
+          echo "응답 코드: $response"
+
+          if [ "$response" != "200" ]; then
+            echo "동기화 실패 (HTTP $response)"
+            exit 1
+          fi
+
+          echo "동기화 완료"
+
+      - name: 결과 확인
+        run: |
+          curl -s \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.APP_URL }}/api/youtube-sync" | head -c 500

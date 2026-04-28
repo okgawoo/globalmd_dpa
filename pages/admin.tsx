@@ -34,6 +34,8 @@ export default function AdminPage() {
   const [ytSelectedVideo, setYtSelectedVideo] = useState<any | null>(null)
   const [ytAnalysis, setYtAnalysis] = useState<any | null>(null)
   const [ytAnalyzing, setYtAnalyzing] = useState<string | null>(null)
+  const [ytFetchingAll, setYtFetchingAll] = useState(false)
+  const [ytFetchResult, setYtFetchResult] = useState<any>(null)
   const [pushTitle, setPushTitle] = useState('')
   const [pushBody, setPushBody] = useState('')
   const [pushUrl, setPushUrl] = useState('')
@@ -163,6 +165,24 @@ export default function AdminPage() {
       .eq('video_id', videoId)
       .single()
     setYtAnalysis(data || null)
+  }
+
+  async function fetchAllYtVideos(channelRowId: string) {
+    setYtFetchingAll(true)
+    setYtFetchResult(null)
+    try {
+      const res = await fetch('/api/youtube-fetch-all', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ channelRowId }),
+      })
+      const data = await res.json()
+      setYtFetchResult(data)
+      if (data.success) selectYtChannel(ytSelectedChannel)
+    } catch (err: any) {
+      setYtFetchResult({ error: err.message })
+    }
+    setYtFetchingAll(false)
   }
 
   async function selectYtVideo(v: any) {
@@ -622,11 +642,24 @@ export default function AdminPage() {
                       <p className={styles.cardTitle}>{ytSelectedChannel.name}</p>
                       <span style={{ fontSize: 13, color: '#8892A0' }}>영상 {ytVideos.length}개</span>
                     </div>
-                    <div style={{ display: 'flex', gap: 6 }}>
+                    <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                      {ytFetchResult && (
+                        <span style={{ fontSize: 12, color: ytFetchResult.error ? '#991B1B' : '#065F46' }}>
+                          {ytFetchResult.error
+                            ? `오류: ${ytFetchResult.error}`
+                            : `신규 ${ytFetchResult.newCount}개 추가 (전체 ${ytFetchResult.totalFetched}개 확인)`}
+                        </span>
+                      )}
                       <a href={ytSelectedChannel.channel_url} target="_blank" rel="noreferrer"
                         style={{ fontSize: 12, color: '#5E6AD2', textDecoration: 'none', padding: '5px 10px', border: '1px solid #5E6AD2', borderRadius: 6 }}>
                         채널 열기
                       </a>
+                      <button className={styles.refreshBtn}
+                        disabled={ytFetchingAll}
+                        style={{ opacity: ytFetchingAll ? 0.6 : 1, whiteSpace: 'nowrap' }}
+                        onClick={() => fetchAllYtVideos(ytSelectedChannel.id)}>
+                        {ytFetchingAll ? '수집 중...' : '전체 영상 가져오기'}
+                      </button>
                       <button className={styles.primaryBtn} onClick={() => setYtVideoFormOpen(v => !v)}>
                         + 영상 추가
                       </button>
