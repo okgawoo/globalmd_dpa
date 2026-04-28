@@ -127,7 +127,7 @@
 /* 사이드바 구분선 — 초기 상태 (흐리게) */
 .admin-dark aside hr,
 .admin-dark aside [class*="divider"] {
-  border-color: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.04) !important;
 }
 
 /* ── AdminDashboard 인라인 하드코딩 배경색 오버라이드 ── */
