@@ -91,7 +91,7 @@ body {
   font-size: 14px;
   line-height: 1.5;
   overscroll-behavior-y: none;
-  color-scheme: light;
+  background: #FAF9F5 !important;
 }
 
 button { cursor: pointer; font-family: inherit; }
