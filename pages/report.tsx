@@ -25,6 +25,7 @@ const BLOCK_DEFS = [
   { id: 'contracts',           label: '보유계약',           hasAI: false, icon: '📄' },
   { id: 'coverage_analysis',   label: '보장분석',           hasAI: false, icon: '📊' },
   { id: 'gap_analysis',        label: '보장공백 진단',       hasAI: true,  icon: '⚠️' },
+  { id: 'claim_cases',         label: '또래 유사 사례',      hasAI: true,  icon: '📋' },
   { id: 'key_insight',         label: '후킹멘트',           hasAI: true,  icon: '💡' },
   { id: 'age_comparison',      label: '나이별 시사점',       hasAI: true,  icon: '📅' },
   { id: 'rejection_risk',      label: '지급거절 위험 체크',  hasAI: true,  icon: '🚨' },
@@ -39,7 +40,7 @@ type BlockDef = { id: BlockId; label: string; hasAI: boolean; icon: string; enab
 
 const DEFAULT_ENABLED: BlockId[] = [
   'header','contracts','coverage_analysis',
-  'gap_analysis','key_insight','age_comparison','consultation_script',
+  'gap_analysis','claim_cases','key_insight','age_comparison','consultation_script',
 ]
 const initBlocks = (): BlockDef[] =>
   BLOCK_DEFS.map(b => ({ ...b, enabled: DEFAULT_ENABLED.includes(b.id) }))
@@ -82,16 +83,19 @@ export default function ReportPage() {
   // reportData 들어오면 편집 텍스트 초기화
   useEffect(() => {
     if (!reportData) return
-    setEditContent({
+    setEditContent(prev => ({
+      ...prev,
       key_insight: reportData.keyInsight || '',
       consultation_script: (reportData.consultationScripts || []).join('\n\n'),
       age_comparison: reportData.ageComparison?.note || '',
       pitch_points: (reportData.gapAnalysis || [])
         .map((g: any) => `• ${g.category}: ${g.message}`).join('\n'),
-      rejection_risk: '',
-      peer_comparison: '',
-      remodel_suggestion: '',
-    })
+      claim_cases: prev.claim_cases || (reportData.claimCases || [])
+        .map((c: any) => `■ ${c.name} (${c.masked_id})\n${c.situation}\n→ 수령 보험금: ${c.payout}`).join('\n\n'),
+      rejection_risk: prev.rejection_risk || '',
+      peer_comparison: prev.peer_comparison || '',
+      remodel_suggestion: prev.remodel_suggestion || '',
+    }))
   }, [reportData])
 
   const filtered = customers.filter(c =>
@@ -342,6 +346,7 @@ function EditorBlock({ block, agent, customer, localStats, reportData, editConte
   onEdit: (val: string) => void
   onAIGenerate: () => void
 }) {
+  const [confirmed, setConfirmed] = useState(false)
   return (
     <div className={styles.editorBlock}>
       <div className={styles.editorBlockHeader}>
@@ -349,26 +354,46 @@ function EditorBlock({ block, agent, customer, localStats, reportData, editConte
           <span>{block.icon}</span>
           <span>{block.label}</span>
         </div>
-        {block.id === 'header' && (
-          <span style={{ fontSize: 11, color: '#B0B8C4', marginLeft: 'auto' }}>명함 정보는 설정에서 수정할 수 있습니다</span>
-        )}
-        {block.hasAI && (
-          <button className={styles.aiBtn} onClick={onAIGenerate} disabled={loading}>
-            {loading ? '⏳' : '✨ AI 추천 생성'}
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
+          {block.id === 'header' && !confirmed && (
+            <span style={{ fontSize: 13, color: '#B0B8C4' }}>명함 정보는 설정에서 수정할 수 있습니다</span>
+          )}
+          {block.hasAI && !confirmed && (
+            <button className={styles.aiBtn} onClick={onAIGenerate} disabled={loading}>
+              {loading ? '⏳' : '✨ AI 추천 생성'}
+            </button>
+          )}
+          <button
+            onClick={() => setConfirmed(v => !v)}
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: confirmed ? '#636B78' : '#5E6AD2',
+              background: confirmed ? '#F3F4F6' : '#EEF0FB',
+              border: 'none',
+              borderRadius: 6,
+              padding: '4px 10px',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          >
+            {confirmed ? '수정' : '확인'}
           </button>
-        )}
+        </div>
       </div>
-      <div className={styles.editorBlockContent}>
-        <BlockContent
-          id={block.id}
-          agent={agent}
-          customer={customer}
-          localStats={localStats}
-          reportData={reportData}
-          editContent={editContent}
-          onEdit={onEdit}
-        />
-      </div>
+      {!confirmed && (
+        <div className={styles.editorBlockContent}>
+          <BlockContent
+            id={block.id}
+            agent={agent}
+            customer={customer}
+            localStats={localStats}
+            reportData={reportData}
+            editContent={editContent}
+            onEdit={onEdit}
+          />
+        </div>
+      )}
     </div>
   )
 }
@@ -403,7 +428,7 @@ function BlockContent({ id, agent, customer, localStats, reportData, editContent
         <div style={{ display: 'flex', gap: 32, alignItems: 'center' }}>
 
           {/* 좌: 고객 정보 */}
-          <div style={{ flex: 1, textAlign: 'left' }}>
+          <div style={{ flex: 1, textAlign: 'left', paddingLeft: 12 }}>
             {/* 이름 */}
             <div style={{ fontSize: 26, fontWeight: 700, color: customer ? '#1A1A2E' : gc, marginBottom: 6 }}>
               {customer ? customer.name : '홍길동 고객님'}
@@ -540,6 +565,19 @@ function BlockContent({ id, agent, customer, localStats, reportData, editContent
             </div>
           ))}
         </div>
+      )
+
+    // 또래 유사 사례
+    case 'claim_cases':
+      if (noData) return <Placeholder ai>AI 분석 생성 버튼을 눌러주세요</Placeholder>
+      return (
+        <textarea
+          className={styles.editableArea}
+          value={editContent.claim_cases || ''}
+          onChange={e => onEdit(e.target.value)}
+          placeholder="또래 유사 사례..."
+          rows={8}
+        />
       )
 
     // 후킹멘트
