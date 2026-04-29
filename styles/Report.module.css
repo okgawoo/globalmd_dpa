@@ -470,6 +470,19 @@
 .reportTitle    { font-size: 22px; font-weight: 800; color: #1A1A2E; margin-bottom: 4px; }
 .reportSubtitle { font-size: 12px; color: #636B78; }
 
+/* 설계사 명함 — 에디터 명함형 (가로 비율) */
+.agentCardBiz {
+  width: 320px;
+  height: 184px;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 10px;
+  padding: 16px 20px;
+  background: #F7F8FA;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
 /* 설계사 명함 (PDF용) */
 .agentCard {
   width: 170px;

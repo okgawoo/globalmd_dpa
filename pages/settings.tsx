@@ -106,6 +106,7 @@ export default function SettingsPage() {
 
   // SNS
   const [sns, setSns] = useState({ kakao: '', instagram: '', x: '', facebook: '' })
+  const [fax, setFax] = useState('')
 
   const { confirm, ConfirmDialog } = useConfirm()
 
@@ -127,6 +128,7 @@ export default function SettingsPage() {
       const s = ag.settings || {}
       setDefaultTone(s.default_tone || '친근')
       if (s.sns) setSns(prev => ({ ...prev, ...s.sns }))
+      setFax(s.fax || '')
       setSenderStatus(s.sender_verified ? 'verified' : 'none')
 
       if (s.notifications) {
@@ -169,7 +171,7 @@ export default function SettingsPage() {
     await supabase.from('dpa_agents').update({
       email: editEmail,
       phone: editPhone,
-      settings: { ...agent.settings, sns },
+      settings: { ...agent.settings, sns, fax },
     }).eq('id', agent.id)
     await fetchAgent()
     setSavingProfile(false)
@@ -305,6 +307,16 @@ export default function SettingsPage() {
                     onChange={e => setEditPhone(formatPhone(e.target.value))} placeholder="010-0000-0000" />
                 </div>
               </div>
+              <div className={styles.profileRow}>
+                <div className={styles.profileLabel}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 17 13 17"/><polyline points="22 11 13 11"/><polyline points="22 5 13 5"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H11"/><path d="M4 4.5A2.5 2.5 0 0 1 6.5 7H11v13H6.5A2.5 2.5 0 0 1 4 17.5v-13z"/></svg>
+                  팩스
+                </div>
+                <div className={styles.profileValue}>
+                  <input className={styles.profileInput} value={fax}
+                    onChange={e => setFax(e.target.value)} placeholder="02-0000-0000" />
+                </div>
+              </div>
               <div className={styles.profileGroupLabel}>SNS 계정</div>
               <div className={styles.profileRow}>
                 <div className={styles.profileLabel}>
@@ -365,6 +377,10 @@ export default function SettingsPage() {
               <div className={styles.field}>
                 <label className={styles.fieldLabel}>연락처</label>
                 <input className={styles.fieldInput} value={editPhone} onChange={e => setEditPhone(formatPhone(e.target.value))} placeholder="010-0000-0000" />
+              </div>
+              <div className={styles.field}>
+                <label className={styles.fieldLabel}>팩스</label>
+                <input className={styles.fieldInput} value={fax} onChange={e => setFax(e.target.value)} placeholder="02-0000-0000" />
               </div>
               <div className={styles.field}>
                 <label className={styles.fieldLabel}>카카오톡</label>

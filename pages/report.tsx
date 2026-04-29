@@ -390,7 +390,7 @@ const BLOCK_PLACEHOLDERS: Record<string, string> = {
 function BlockContent({ id, agent, customer, localStats, reportData, editContent, onEdit }: any) {
   const noData = !reportData
 
-  if (!customer) return <BlockSkeleton text={BLOCK_PLACEHOLDERS[id] || '고객 선택 후 표시됩니다'} />
+  if (!customer && id !== 'agent_card') return <BlockSkeleton text={BLOCK_PLACEHOLDERS[id] || '고객 선택 후 표시됩니다'} />
 
   switch (id) {
 
@@ -398,22 +398,29 @@ function BlockContent({ id, agent, customer, localStats, reportData, editContent
     case 'agent_card':
       if (!agent) return <Placeholder>설계사 정보를 불러오는 중...</Placeholder>
       return (
-        <div className={styles.agentCardEditor}>
-          <div className={styles.agentCardEditorAccent} />
-          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-            <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#5E6AD2', color: 'white', fontSize: 16, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              {agent.name?.[0] || 'A'}
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <div className={styles.agentCardBiz}>
+            <div className={styles.agentCardAccent} />
+            <div style={{ display: 'flex', gap: 20, height: '100%', alignItems: 'center' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                <div style={{ width: 52, height: 52, borderRadius: '50%', background: '#5E6AD2', color: 'white', fontSize: 22, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {agent.name?.[0] || 'A'}
+                </div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#1A1A2E' }}>{agent.name || '설계사'}</div>
+                <div style={{ fontSize: 11, color: '#8892A0' }}>보험 컨설턴트</div>
+              </div>
+              <div style={{ width: 1, height: '60%', background: '#E5E7EB', flexShrink: 0 }} />
+              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 5 }}>
+                <div style={{ fontSize: 12, color: '#636B78', lineHeight: 1.8 }}>
+                  {agent.phone         && <div>📞 {agent.phone}</div>}
+                  {agent.settings?.fax && <div>📠 {agent.settings.fax}</div>}
+                  {agent.email         && <div>✉ {agent.email}</div>}
+                  {agent.sns?.kakao     && <div>💬 {agent.sns.kakao}</div>}
+                  {agent.sns?.instagram && <div>📸 {agent.sns.instagram}</div>}
+                </div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#5E6AD2', marginTop: 4, letterSpacing: '0.04em' }}>iPlanner</div>
+              </div>
             </div>
-            <div>
-              <div style={{ fontWeight: 700, fontSize: 14, color: '#1A1A2E' }}>{agent.name || '설계사'}</div>
-              <div style={{ fontSize: 11, color: '#8892A0' }}>보험 컨설턴트 · iPlanner</div>
-            </div>
-          </div>
-          <div style={{ display: 'flex', gap: 20, marginTop: 10, fontSize: 12, color: '#636B78', flexWrap: 'wrap' }}>
-            {agent.phone    && <span>📞 {agent.phone}</span>}
-            {agent.email    && <span>✉ {agent.email}</span>}
-            {agent.sns?.kakao    && <span>💬 {agent.sns.kakao}</span>}
-            {agent.sns?.instagram && <span>📸 {agent.sns.instagram}</span>}
           </div>
         </div>
       )
@@ -869,6 +876,7 @@ function AgentCard({ agent }: { agent: any }) {
       <div className={styles.agentTitle}>보험 컨설턴트</div>
       <div className={styles.agentInfo}>
         {agent.phone && <div>📞 {agent.phone}</div>}
+        {agent.fax   && <div>📠 {agent.fax}</div>}
         {agent.email && <div>✉ {agent.email}</div>}
         {agent.sns?.kakao && <div>💬 {agent.sns.kakao}</div>}
         {agent.sns?.instagram && <div>📸 {agent.sns.instagram}</div>}
