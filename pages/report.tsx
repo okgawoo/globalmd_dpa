@@ -404,7 +404,7 @@ function BlockContent({ id, agent, customer, localStats, reportData, editContent
             <div style={{ display: 'flex', height: '100%' }}>
 
               {/* 왼쪽: 아바타 — 카드 세로 중앙 */}
-              <div style={{ width: 110, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: 88, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <div style={{ width: 76, height: 76, borderRadius: '50%', background: '#5E6AD2', color: 'white', fontSize: 30, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {agent.name?.[0] || 'A'}
                 </div>
