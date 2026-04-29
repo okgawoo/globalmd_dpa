@@ -1374,7 +1374,7 @@ export default function Customers() {
       {/* 재입력 모달 */}
       {reentryOpen && (
         <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.5)',zIndex:500,display:'flex',alignItems:'center',justifyContent:'center',padding:'20px'}} onClick={() => setReentryOpen(false)}>
-          <div style={{background:'white',borderRadius:16,width:'100%',maxWidth:1040,maxHeight:'88vh',display:'flex',flexDirection:'column',boxSizing:'border-box',boxShadow:'0 20px 60px rgba(0,0,0,0.2)'}} onClick={e => e.stopPropagation()}>
+          <div style={{background:'white',borderRadius:16,width:'100%',maxWidth:1040,height:'88vh',display:'flex',flexDirection:'column',boxSizing:'border-box',boxShadow:'0 20px 60px rgba(0,0,0,0.2)'}} onClick={e => e.stopPropagation()}>
             {/* 헤더 */}
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'18px 24px',borderBottom:'1px solid #E5E7EB',flexShrink:0}}>
               <div style={{fontSize:16,fontWeight:700,color:'#1A1A2E'}}>보험 재입력 — {selected?.name}</div>
@@ -1449,10 +1449,14 @@ export default function Customers() {
                 ) : (
                   <div style={{display:'flex',flexDirection:'column',gap:6}}>
                     {selectedContracts.map((ct, idx) => (
-                      <div key={ct.id} style={{display:'flex',alignItems:'center',gap:8,padding:'10px 12px',borderRadius:8,border:`1px solid ${reentryReplaceId===ct.id?'#5E6AD2':'#E5E7EB'}`,background:reentryReplaceId===ct.id?'#F0F1FC':'#F7F8FA'}}>
+                      <div key={ct.id} style={{display:'flex',alignItems:'center',gap:6,padding:'10px 12px',borderRadius:8,border:`1px solid ${reentryReplaceId===ct.id?'#5E6AD2':'#E5E7EB'}`,background:reentryReplaceId===ct.id?'#F0F1FC':'#F7F8FA'}}>
                         <span style={{fontSize:13,color:'#1A1A2E',flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{idx+1}. {ct.company}{ct.product_name?` · ${ct.product_name}`:''}</span>
-                        <button onClick={() => { setReentryReplaceId(ct.id); setTimeout(() => reentryTextareaRef.current?.focus(), 50) }} style={{fontSize:11,padding:'3px 9px',borderRadius:4,border:`1px solid ${reentryReplaceId===ct.id?'#5E6AD2':'#D0D3F0'}`,background:reentryReplaceId===ct.id?'#5E6AD2':'white',color:reentryReplaceId===ct.id?'white':'#5E6AD2',cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>교체</button>
-                        <button onClick={async (e) => { e.stopPropagation(); await deleteContract(ct.id, e as any); if (reentryReplaceId===ct.id) setReentryReplaceId(null) }} style={{fontSize:11,padding:'3px 8px',borderRadius:4,border:'1px solid #E5E7EB',background:'white',color:'#8892A0',cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>✕</button>
+                        {reentryReplaceId===ct.id ? (
+                          <button onClick={() => setReentryReplaceId(null)} style={{fontSize:11,padding:'3px 9px',borderRadius:4,border:'1px solid #D0D3F0',background:'white',color:'#636B78',cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>취소</button>
+                        ) : (
+                          <button onClick={() => { setReentryReplaceId(ct.id); setTimeout(() => reentryTextareaRef.current?.focus(), 50) }} style={{fontSize:11,padding:'3px 9px',borderRadius:4,border:'1px solid #D0D3F0',background:'white',color:'#5E6AD2',cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>교체</button>
+                        )}
+                        <button onClick={async (e) => { e.stopPropagation(); await deleteContract(ct.id, e as any); if (reentryReplaceId===ct.id) setReentryReplaceId(null) }} style={{fontSize:11,padding:'3px 8px',borderRadius:4,border:'1px solid #FECACA',background:'#FEF2F2',color:'#DC2626',cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>삭제</button>
                       </div>
                     ))}
                   </div>
