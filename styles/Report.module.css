@@ -516,7 +516,7 @@
   background: #111827;
 }
 
-/* ── A4 페이지 ── */
+/* ── A4 페이지 (레거시, 미사용) ── */
 .a4Page {
   width: 100%;
   max-width: 794px;
@@ -532,6 +532,37 @@
   border-radius: 4px;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
+}
+
+/* ── 연속 흐름 문서 ── */
+.reportDoc {
+  width: 100%;
+  max-width: 794px;
+  background: white;
+  padding: 48px 56px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.35);
+  border-radius: 4px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* 섹션 구분 (화면: 점선 + 여백 / 인쇄: 새 페이지) */
+.reportSection {
+  margin-top: 48px;
+  padding-top: 40px;
+  border-top: 1.5px dashed #D1D5DB;
+  page-break-before: always;
+  break-before: page;
+}
+
+/* 설계사 전용 섹션 */
+.reportAgentSection {
+  margin-top: 48px;
+  padding-top: 40px;
+  border-top: 2px solid #1A1A2E;
+  page-break-before: always;
+  break-before: page;
 }
 
 /* ── 리포트 내부 요소 ── */
@@ -842,9 +873,29 @@
   .a4Page:last-of-type { page-break-after: avoid; break-after: avoid; }
   .pageBreakHint { display: none; }
   .contractTable thead tr { background: #1A1A2E !important; }
+
+  /* 연속 흐름 문서 인쇄 */
+  .reportDoc {
+    padding: 0;
+    box-shadow: none;
+    border-radius: 0;
+    max-width: none;
+    width: 100%;
+    background: white !important;
+  }
+  .reportSection {
+    border-top: none;
+    margin-top: 0;
+    padding-top: 0;
+  }
+  .reportAgentSection {
+    border-top: none;
+    margin-top: 0;
+    padding-top: 0;
+  }
 }
 
-@page { size: A4; margin: 0; }
+@page { size: A4; margin: 15mm; }
 
 /* ── 반응형 모바일 ── */
 @media (max-width: 768px) {

@@ -980,10 +980,6 @@ function ReportModal({ data, blocks, editContent, localCoverageSummary, localCom
   const isEnabled = (id: string) => blocks.find(b => b.id === id)?.enabled ?? true
   const genDate = new Date(data.generatedAt).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })
 
-  const PAGE1_CONTRACTS = 8
-  const contracts1 = data.contracts.slice(0, PAGE1_CONTRACTS)
-  const contracts2 = data.contracts.slice(PAGE1_CONTRACTS)
-
   const coverageSrc = data.coverageSummary?.length ? data.coverageSummary : localCoverageSummary
   const chartData = (coverageSrc || [])
     .filter((c: any) => c.unit !== '유무' && c.total > 0)
@@ -1017,8 +1013,6 @@ function ReportModal({ data, blocks, editContent, localCoverageSummary, localCom
     || editContent?.age_comparison || data.ageComparison?.note
     || editContent?.claim_cases
 
-  const totalPages = (contracts2.length > 0 ? 2 : 1) + (hasLastPage ? 1 : 0) + (hasAgentPage ? 1 : 0)
-
   return (
     <div className={styles.modalOverlay} onClick={e => { if (e.target === e.currentTarget) onClose() }}>
       <div className={styles.modalPanel}>
@@ -1027,7 +1021,7 @@ function ReportModal({ data, blocks, editContent, localCoverageSummary, localCom
             <div style={{ width: 28, height: 28, borderRadius: 6, background: '#5E6AD2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, color: 'white' }}>iP</div>
             <div>
               <div className={styles.modalTopbarTitle}>{data.customer.name} 고객 보험 분석 리포트</div>
-              <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 1 }}>{genDate} &nbsp;·&nbsp; {totalPages}페이지</div>
+              <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 1 }}>{genDate}</div>
             </div>
           </div>
           <div className={styles.modalTopbarBtns}>
@@ -1037,9 +1031,9 @@ function ReportModal({ data, blocks, editContent, localCoverageSummary, localCom
         </div>
 
         <div className={styles.modalBody}>
+          <div className={styles.reportDoc}>
 
-          {/* ── PAGE 1 ── */}
-          <div className={styles.a4Page}>
+            {/* ── 섹션 1: 헤더 + 통계 + 계약 ── */}
             <div className={styles.reportHeaderRow}>
               <div>
                 <div className={styles.reportBrand}>iPlanner · Meeting Report</div>
@@ -1070,41 +1064,21 @@ function ReportModal({ data, blocks, editContent, localCoverageSummary, localCom
             </div>
 
             <div className={styles.sectionTitle}>보유 계약 현황</div>
-            <ContractTable contracts={contracts1} />
+            <ContractTable contracts={data.contracts} />
 
-            {contracts2.length === 0 && (
-              <div className={styles.reportFooter}>
-                <span>iPlanner v1.0 &nbsp;|&nbsp; AI 포함 설계사 전용</span>
-                <span>1 / {totalPages}</span>
-              </div>
-            )}
-          </div>
+            <div className={styles.reportFooter}>
+              <span>iPlanner v1.0 &nbsp;|&nbsp; AI 포함 설계사 전용</span>
+              <span>{genDate}</span>
+            </div>
 
-          {/* ── PAGE 2 (계약 초과) ── */}
-          {contracts2.length > 0 && (
-            <>
-              <div className={styles.pageBreakHint}>2페이지</div>
-              <div className={styles.a4Page}>
-                <div className={styles.sectionTitle}>보유 계약 현황 (계속)</div>
-                <ContractTable contracts={contracts2} />
-                <div className={styles.reportFooter}>
-                  <span>iPlanner v1.0 &nbsp;|&nbsp; AI 포함 설계사 전용</span>
-                  <span>2 / {totalPages}</span>
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* ── 마지막 페이지: 차트 + 공백 + 스크립트 ── */}
-          {hasLastPage && (
-            <>
-              <div className={styles.pageBreakHint}>{contracts2.length > 0 ? '3페이지' : '2페이지'}</div>
-              <div className={styles.a4Page}>
+            {/* ── 섹션 2: 분석 (페이지 나눔) ── */}
+            {hasLastPage && (
+              <div className={styles.reportSection}>
 
                 {isEnabled('coverage_analysis') && coverageSrc.length > 0 && (
                   <>
                     <div className={styles.sectionTitle}>보장 분석</div>
-                    <table className={styles.contractTable} style={{ marginBottom: 20 }}>
+                    <table className={styles.contractTable} style={{ marginBottom: 24 }}>
                       <thead>
                         <tr>
                           <th>보장 카테고리</th>
@@ -1160,10 +1134,10 @@ function ReportModal({ data, blocks, editContent, localCoverageSummary, localCom
                 {isEnabled('company_chart') && pieData.length > 0 && (
                   <>
                     <div className={styles.sectionTitle}>월 보험료 분배</div>
-                    <div style={{ height: 180, marginBottom: 20 }}>
+                    <div style={{ height: 200, marginBottom: 24 }}>
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
-                          <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={75} dataKey="value">
+                          <Pie data={pieData} cx="50%" cy="50%" innerRadius={55} outerRadius={80} dataKey="value">
                             {pieData.map((entry: any, i: number) => (
                               <Cell key={i} fill={entry.fill} />
                             ))}
@@ -1179,7 +1153,7 @@ function ReportModal({ data, blocks, editContent, localCoverageSummary, localCom
                 {isEnabled('age_comparison') && (editContent?.age_comparison || data.ageComparison?.note) && (
                   <>
                     <div className={styles.sectionTitle}>나이별 시사점</div>
-                    <div style={{ background: '#F0F1FB', borderRadius: 10, padding: '14px 16px', marginBottom: 20 }}>
+                    <div style={{ background: '#F0F1FB', borderRadius: 10, padding: '14px 16px', marginBottom: 24 }}>
                       <div style={{ fontSize: 12, color: '#1A1A2E', lineHeight: 1.8 }}>
                         {editContent?.age_comparison || data.ageComparison?.note}
                       </div>
@@ -1225,7 +1199,7 @@ function ReportModal({ data, blocks, editContent, localCoverageSummary, localCom
                 {isEnabled('claim_cases') && editContent?.claim_cases && (
                   <>
                     <div className={styles.sectionTitle}>보상 사례</div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
                       {editContent.claim_cases.split('\n\n').filter(Boolean).map((block: string, i: number) => (
                         <div key={i} style={{ background: '#F7F8FA', border: '1px solid #E5E7EB', borderRadius: 8, padding: '12px 14px' }}>
                           {block.split('\n').map((line: string, j: number) => (
@@ -1241,19 +1215,14 @@ function ReportModal({ data, blocks, editContent, localCoverageSummary, localCom
 
                 <div className={styles.reportFooter}>
                   <span>iPlanner v1.0 &nbsp;|&nbsp; AI 포함 설계사 전용</span>
-                  <span>{contracts2.length > 0 ? 3 : 2} / {totalPages}</span>
+                  <span>{genDate}</span>
                 </div>
               </div>
-            </>
-          )}
+            )}
 
-          {/* ── 설계사 전용 페이지 (항상 마지막, 별개 페이지) ── */}
-          {hasAgentPage && (
-            <>
-              <div className={styles.pageBreakHint}>설계사 전용 페이지</div>
-              <div className={styles.a4Page} style={{ minHeight: 'auto' }}>
-
-                {/* 설계사 전용 헤더 */}
+            {/* ── 섹션 3: 설계사 전용 (항상 새 페이지) ── */}
+            {hasAgentPage && (
+              <div className={styles.reportAgentSection}>
                 <div className={styles.agentPageHeader}>
                   <div className={styles.agentPageHeaderBar} />
                   <div>
@@ -1262,7 +1231,6 @@ function ReportModal({ data, blocks, editContent, localCoverageSummary, localCom
                   </div>
                 </div>
 
-                {/* 후킹멘트 */}
                 {agentKeyInsight && (
                   <div style={{ marginBottom: 20 }}>
                     <div className={styles.sectionTitle}>후킹멘트</div>
@@ -1273,7 +1241,6 @@ function ReportModal({ data, blocks, editContent, localCoverageSummary, localCom
                   </div>
                 )}
 
-                {/* 피칭 포인트 */}
                 {agentPitchPoints.length > 0 && (
                   <div style={{ marginBottom: 20 }}>
                     <div className={styles.sectionTitle}>핵심 피칭 포인트</div>
@@ -1288,7 +1255,6 @@ function ReportModal({ data, blocks, editContent, localCoverageSummary, localCom
                   </div>
                 )}
 
-                {/* 화법 스크립트 */}
                 {agentScripts && (
                   <div style={{ marginBottom: 20 }}>
                     <div className={styles.sectionTitle}>화법 스크립트</div>
@@ -1305,11 +1271,12 @@ function ReportModal({ data, blocks, editContent, localCoverageSummary, localCom
 
                 <div className={styles.reportFooter}>
                   <span>iPlanner v1.0 &nbsp;|&nbsp; 설계사 전용 — 고객 공유 금지</span>
-                  <span>{totalPages} / {totalPages}</span>
+                  <span>{genDate}</span>
                 </div>
               </div>
-            </>
-          )}
+            )}
+
+          </div>
         </div>
       </div>
     </div>
