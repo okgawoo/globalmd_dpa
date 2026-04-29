@@ -349,6 +349,9 @@ function EditorBlock({ block, agent, customer, localStats, reportData, editConte
           <span>{block.icon}</span>
           <span>{block.label}</span>
         </div>
+        {block.id === 'header' && (
+          <span style={{ fontSize: 11, color: '#B0B8C4', marginLeft: 'auto' }}>명함 정보는 설정에서 수정할 수 있습니다</span>
+        )}
         {block.hasAI && (
           <button className={styles.aiBtn} onClick={onAIGenerate} disabled={loading}>
             {loading ? '⏳' : '✨ AI 추천 생성'}
@@ -396,13 +399,14 @@ function BlockContent({ id, agent, customer, localStats, reportData, editContent
     case 'header': {
       const gc = '#D1D5DB' // ghost color
       return (
+        <div>
         <div style={{ display: 'flex', gap: 32, alignItems: 'center' }}>
 
           {/* 좌: 고객 정보 */}
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: 1, textAlign: 'left' }}>
             {/* 이름 */}
             <div style={{ fontSize: 26, fontWeight: 700, color: customer ? '#1A1A2E' : gc, marginBottom: 6 }}>
-              {customer ? customer.name : '홍길동'}
+              {customer ? customer.name : '홍길동 고객님'}
             </div>
             {/* 나이·성별·직업 */}
             <div style={{ fontSize: 15, color: customer ? '#636B78' : gc, marginBottom: 20 }}>
@@ -459,6 +463,7 @@ function BlockContent({ id, agent, customer, localStats, reportData, editContent
             </div>
           )}
 
+        </div>
         </div>
       )
     }
