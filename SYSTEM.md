@@ -9,25 +9,73 @@
 ## DB 테이블 구조
 
 ```
-dpa_agents
-  └─ dpa_customers (agent_id)
-       └─ dpa_contracts (customer_id)
-            └─ dpa_coverages (contract_id)
+── 고객/계약 ──────────────────────────────────────────────────────
+dpa_agents (3행)
+  role: 'admin' | 'agent' | 'demo'
+  plan_type, demo_expires_at, slug, profile_image_url, settings(JSON)
+  └─ dpa_customers (38행)
+       customer_type: 'existing'(마이고객) | 'prospect'(관심고객)
+       gender: '남'|'여'  birth_date, age, job, phone, email
+       └─ dpa_contracts (178행)
+            payment_status: '유지'|'실효'|'해지'  insurance_type
+            monthly_fee, payment_years, expiry_age, contract_start
+            └─ dpa_coverages (2558행)
+                 category, coverage_name, amount
+                 brain_coverage_type, heart_coverage_type
 
-dpa_insurance_companies       보험사 마스터 (손해 13개 + 생명 26개)
-dpa_insurance_sources         공시 파일 업로드 이력
-dpa_insurance_products        공시 파싱 결과 (보장 데이터)
-dpa_insurance_validations     파싱 경고 로그
+── 상담/일정 ──────────────────────────────────────────────────────
+dpa_meetings (37행)          상담 일정 캘린더
+  agent_id, customer_id, meeting_date, meeting_time
+  status, pipeline_stage, type, cancel_count
 
-youtube_channels              설계사 유튜브 채널 목록
-youtube_videos                채널별 영상 목록 (status: pending/analyzing/done/error)
-youtube_analyses              영상 분석 결과 (Claude 추출)
+dpa_consultations (10행)     상담 기록 (meetings와 연관)
+  meeting_date, meeting_type, notes, status
 
-push_subscriptions            웹푸시 구독 정보
-push_notifications            발송 이력
-push_notification_reads       읽음 이력
+── SMS ────────────────────────────────────────────────────────────
+dpa_messages (14행)          SMS 발송 이력 (Solapi 연동)
+  message_type, tone, sent_script, status
+  solapi_group_id, solapi_message_id, campaign_id
 
-meritz_pdf_files              메리츠 공시실 PDF 수집 이력
+dpa_sms_auth (1행)           SMS 발신번호 인증 서류
+  sender_phone, signature_data, doc_url_*, status
+
+dpa_sms_campaigns (0행)      SMS 캠페인 설정
+  filter_age_min/max, filter_gender, filter_customer_type
+
+── AI 지원 채팅 ────────────────────────────────────────────────────
+dpa_support_chats (45행)     AI 고객지원 채팅 이력
+  agent_id, role, content, is_escalated
+
+── 보험공시 ────────────────────────────────────────────────────────
+dpa_insurance_companies (39행)   보험사 마스터 (손해 13개 + 생명 26개)
+  name, category(손해보험|생명보험), aliases(JSON), is_active
+
+dpa_insurance_categories (21행)  보험 카테고리 마스터
+  source(life|damage), category, site_url, sort_order, is_priority
+
+dpa_insurance_sources (23행)     공시 파일 업로드 이력
+  source(life|damage), category, file_name, row_count, status: active|superseded
+
+dpa_insurance_products (7147행)  공시 파싱 결과 (보장 데이터)
+  source_id, company, product_name, coverage_name
+  payment_reason, payment_amount, premium_male, premium_female
+
+dpa_insurance_validations (400행) 파싱 경고 로그
+  check_type: missing_premium, severity: warning|error
+
+meritz_pdf_files (0행)           메리츠 공시실 PDF 수집 이력
+  category_name, srt_sq, product_name, storage_path, status
+
+── YouTube 지식 엔진 ───────────────────────────────────────────────
+youtube_channels (1행)       등록 채널 (is_active)
+youtube_videos (5714행)      채널별 영상 (status: pending|analyzing|done|error)
+youtube_analyses (10행)      Claude 분석 결과
+  summary, key_points[], pitch_points[], scripts[], comparison_criteria[]
+
+── 웹푸시 알림 ─────────────────────────────────────────────────────
+push_subscriptions (19행)    웹푸시 구독 정보 (endpoint, p256dh, auth)
+push_notifications (9행)     발송 이력
+push_notification_reads (12행) 읽음 이력
 ```
 
 ---
