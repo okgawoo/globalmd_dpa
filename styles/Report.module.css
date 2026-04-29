@@ -167,7 +167,7 @@
   top: 20px;
   max-height: calc(100vh - 100px);
   background: white;
-  border: 1.5px solid #D8DCE3;
+  border: 1px solid #D1D5DB;
   border-radius: 12px;
   overflow: hidden;
 }
