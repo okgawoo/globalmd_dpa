@@ -1418,15 +1418,15 @@ export default function Customers() {
                     <button
                       onClick={handleReentryParse}
                       disabled={!canAnalyze}
-                      style={{flexShrink:0,width:'100%',padding:'11px',borderRadius:8,border:'none',background:canAnalyze?'#5E6AD2':'#E5E7EB',color:canAnalyze?'white':'#8892A0',fontSize:14,fontWeight:600,cursor:canAnalyze?'pointer':'not-allowed',transition:'background 0.15s'}}
+                      style={{width:'100%',padding:'11px',borderRadius:8,border:'none',background:canAnalyze?'#5E6AD2':'#E5E7EB',color:canAnalyze?'white':'#8892A0',fontSize:14,fontWeight:600,cursor:canAnalyze?'pointer':'not-allowed',transition:'background 0.15s',flexShrink:0}}
                     >
-                      {reentryParsing ? 'AI 분석 중...' : !modeActive ? '교체할 계약 선택 또는 추가계약을 먼저' : 'AI 분석하기'}
+                      {reentryParsing ? 'AI 분석 중...' : 'AI 분석하기'}
                     </button>
                   )
                 })()}
               </div>
               {/* 오른쪽 — 현재 계약 목록 + 분석 결과 */}
-              <div style={{padding:'20px 24px',display:'flex',flexDirection:'column',overflowY:'auto',justifyContent:'flex-start',height:'100%',boxSizing:'border-box'}}>
+              <div style={{padding:'0',display:'flex',flexDirection:'column',height:'100%',boxSizing:'border-box'}}>
                 <style>{`
                   @keyframes reentryWaveUp {
                     0% { opacity:1; transform:translateY(0); max-height:60px; margin-bottom:8px; }
@@ -1442,6 +1442,8 @@ export default function Customers() {
                     to { opacity:1; transform:translateY(0); }
                   }
                 `}</style>
+                {/* 스크롤 가능 영역 */}
+                <div style={{flex:1,overflowY:'auto',padding:'20px 24px 12px',boxSizing:'border-box'}}>
                 <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0,marginBottom:10}}>
                   <div style={{fontSize:13,fontWeight:600,color:'#636B78',textTransform:'uppercase',letterSpacing:'0.04em'}}>현재 계약 목록</div>
                   {!reentryParsed && !reentryReturning && (
@@ -1504,12 +1506,7 @@ export default function Customers() {
                               )}
                             </div>
                             <div style={{fontSize:13,color:'#1A1A2E',marginBottom:2}}>{reentryParsed.contracts[0].company} · {reentryParsed.contracts[0].product_name}</div>
-                            <div style={{fontSize:12,color:'#636B78',marginBottom:10}}>{reentryParsed.contracts[0].monthly_fee>0?`${reentryParsed.contracts[0].monthly_fee.toLocaleString()}원/월 · `:''}{reentryParsed.contracts[0].coverages?.length||0}개 보장항목</div>
-                            <div style={{display:'flex',justifyContent:'flex-end'}}>
-                              <button onClick={handleRentrySave} disabled={reSaving} style={{padding:'10px 24px',borderRadius:8,border:'none',background:reSaving?'#E5E7EB':'#5E6AD2',color:reSaving?'#8892A0':'white',fontSize:14,fontWeight:600,cursor:reSaving?'not-allowed':'pointer'}}>
-                                {reSaving ? '저장 중...' : '교체 저장'}
-                              </button>
-                            </div>
+                            <div style={{fontSize:12,color:'#636B78'}}>{reentryParsed.contracts[0].monthly_fee>0?`${reentryParsed.contracts[0].monthly_fee.toLocaleString()}원/월 · `:''}{reentryParsed.contracts[0].coverages?.length||0}개 보장항목</div>
                           </div>
                         )
                       })()}
@@ -1526,12 +1523,7 @@ export default function Customers() {
                   <div style={{padding:'14px',background:'#F7F8FA',borderRadius:8,border:'1px solid #E5E7EB',animation:'reentryFadeIn 0.3s ease'}}>
                     <div style={{fontSize:12,fontWeight:600,color:'#5E6AD2',marginBottom:4}}>분석 완료</div>
                     <div style={{fontSize:13,color:'#1A1A2E',marginBottom:2}}>{reentryParsed.contracts[0].company} · {reentryParsed.contracts[0].product_name}</div>
-                    <div style={{fontSize:12,color:'#636B78',marginBottom:10}}>{reentryParsed.contracts[0].monthly_fee>0?`${reentryParsed.contracts[0].monthly_fee.toLocaleString()}원/월 · `:''}{reentryParsed.contracts[0].coverages?.length||0}개 보장항목</div>
-                    <div style={{display:'flex',justifyContent:'flex-end'}}>
-                      <button onClick={handleRentrySave} disabled={reSaving} style={{padding:'10px 24px',borderRadius:8,border:'none',background:reSaving?'#E5E7EB':'#5E6AD2',color:reSaving?'#8892A0':'white',fontSize:14,fontWeight:600,cursor:reSaving?'not-allowed':'pointer'}}>
-                        {reSaving ? '저장 중...' : '추가 저장'}
-                      </button>
-                    </div>
+                    <div style={{fontSize:12,color:'#636B78'}}>{reentryParsed.contracts[0].monthly_fee>0?`${reentryParsed.contracts[0].monthly_fee.toLocaleString()}원/월 · `:''}{reentryParsed.contracts[0].coverages?.length||0}개 보장항목</div>
                   </div>
                 )}
                 {!reentryReplaceId && reentryParsed && !reentryParsed.contracts?.[0] && (
@@ -1539,6 +1531,23 @@ export default function Customers() {
                     계약 정보를 인식하지 못했어요. 텍스트를 확인 후 다시 시도해 주세요.
                   </div>
                 )}
+                </div>
+                {/* 하단 저장 버튼 */}
+                {(() => {
+                  const canSave = !!(reentryParsed?.contracts?.[0]) && !reSaving
+                  const saveLabel = reSaving ? '저장 중...' : reentryReplaceId ? '교체 저장' : '추가 저장'
+                  return (
+                    <div style={{padding:'12px 24px 20px',flexShrink:0,borderTop:'1px solid #E5E7EB'}}>
+                      <button
+                        onClick={handleRentrySave}
+                        disabled={!canSave}
+                        style={{width:'100%',padding:'11px',borderRadius:8,border:'none',background:canSave?'#5E6AD2':'#E5E7EB',color:canSave?'white':'#8892A0',fontSize:14,fontWeight:600,cursor:canSave?'pointer':'not-allowed',transition:'background 0.15s'}}
+                      >
+                        {saveLabel}
+                      </button>
+                    </div>
+                  )
+                })()}
               </div>
             </div>
           </div>
