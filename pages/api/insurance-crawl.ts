@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { createClient } from '@supabase/supabase-js'
+import { createHash } from 'crypto'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -29,6 +30,29 @@ const KEYWORD_CATEGORIES: { keyword: string; name: string }[] = [
   { keyword: '사망보험', name: '사망보험' },
   { keyword: '태아보험', name: '태아보험' },
 ]
+
+const CATEGORY_EN_MAP: Record<string, string> = {
+  '암보험': 'cancer',
+  '질병보험': 'disease',
+  '생활보험': 'living',
+  '어린이보험': 'children',
+  '운전자보험': 'driver',
+  '상해보험': 'accident',
+  '통합보험': 'comprehensive',
+  '자동차보험': 'auto',
+  '연금저축보험': 'pension',
+  '배상책임보험': 'liability',
+  '화재보험': 'fire',
+  '치아보험': 'dental',
+  '사망보험': 'death',
+  '태아보험': 'prenatal',
+}
+
+// 한글 포함 상품명 → ASCII 안전 파일명 (md5 앞 8자리 + 날짜)
+function safeStorageName(productName: string, today: string): string {
+  const hash = createHash('md5').update(productName).digest('hex').slice(0, 8)
+  return `${hash}_${today}.pdf`
+}
 
 const HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36',
@@ -160,9 +184,10 @@ async function processProducts(
     if (!encPath) continue
 
     const productName = product.ttlNm || '상품명 없음'
-    const fileName = `${productName}_요약서.pdf`
     const today = new Date().toISOString().slice(0, 10)
-    const storagePath = `meritz/${categoryName}/${today}/${fileName}`
+    const catEn = CATEGORY_EN_MAP[categoryName] || categoryName.replace(/[^a-zA-Z0-9]/g, '-')
+    const fileName = safeStorageName(productName, today)
+    const storagePath = `meritz/${catEn}/${today}/${fileName}`
 
     if (existingPaths.has(storagePath)) {
       results.push({ category: categoryName, product: productName, success: true, isNew: false })
