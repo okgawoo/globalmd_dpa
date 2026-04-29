@@ -1425,7 +1425,7 @@ export default function Customers() {
                 })()}
               </div>
               {/* 오른쪽 — 현재 계약 목록 + 분석 결과 */}
-              <div style={{padding:'20px 24px',display:'flex',flexDirection:'column',overflowY:'auto',justifyContent:(reentryParsing||!!reentryParsed)?'center':'flex-start'}}>
+              <div style={{padding:'20px 24px',display:'flex',flexDirection:'column',overflowY:'auto',justifyContent:'flex-start'}}>
                 <style>{`
                   @keyframes reentryWaveUp {
                     0% { opacity:1; transform:translateY(0); max-height:60px; }
