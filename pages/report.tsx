@@ -68,14 +68,16 @@ export default function ReportPage() {
     }
   }
 
-  async function generateReport() {
-    if (!selected || !agent) return
+  async function generateReport(customer?: any) {
+    const target = customer || selected
+    if (!target || !agent) return
+    setSelected(target)
     setLoading(true)
     try {
       const res = await fetch('/api/generate-report', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ customerId: selected.id, agentId: agent.id }),
+        body: JSON.stringify({ customerId: target.id, agentId: agent.id }),
       })
       const data = await res.json()
       if (data.error) { alert(data.error); return }
@@ -194,6 +196,63 @@ export default function ReportPage() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* 고객 전체 목록 */}
+      <div className={styles.listCard}>
+        <div className={styles.listHeader}>
+          <span className={styles.listTitle}>전체 고객</span>
+          <span className={styles.listCount}>총 {customers.length}명</span>
+        </div>
+        <table className={styles.customerTable}>
+          <thead>
+            <tr>
+              <th>고객명</th>
+              <th>나이</th>
+              <th>성별</th>
+              <th>직업</th>
+              <th>유지계약</th>
+              <th>월보험료</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {customers.length === 0 ? (
+              <tr>
+                <td colSpan={7} style={{ textAlign: 'center', color: '#8892A0', padding: '32px 0' }}>고객이 없어요</td>
+              </tr>
+            ) : customers.map(c => {
+              const s = getCustomerStats(c.id)
+              return (
+                <tr key={c.id} onClick={() => { selectCustomer(c); window.scrollTo({ top: 0, behavior: 'smooth' }) }}>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div className={styles.customerAvatar}>{c.name?.[0]}</div>
+                      <span style={{ fontWeight: 600 }}>{c.name}</span>
+                    </div>
+                  </td>
+                  <td style={{ color: '#636B78' }}>{c.age ? `${c.age}세` : '—'}</td>
+                  <td style={{ color: '#636B78' }}>{c.gender || '—'}</td>
+                  <td style={{ color: '#636B78' }}>{c.job || '—'}</td>
+                  <td style={{ color: '#636B78' }}>{s.contractCount}건</td>
+                  <td style={{ color: '#636B78' }}>{s.monthlyTotal > 0 ? `${s.monthlyTotal.toLocaleString()}원` : '—'}</td>
+                  <td>
+                    <button
+                      className={styles.reportBtn}
+                      disabled={loading && selected?.id === c.id}
+                      onClick={e => {
+                        e.stopPropagation()
+                        generateReport(c)
+                      }}
+                    >
+                      {loading && selected?.id === c.id ? '생성중...' : '리포트 생성'}
+                    </button>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
       </div>
 
       {modalOpen && reportData && (

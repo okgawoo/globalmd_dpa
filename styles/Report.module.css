@@ -44,13 +44,18 @@
 .searchInput:focus { border-color: #5E6AD2; background: white; }
 
 .dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 50;
   background: white;
   border: 1px solid #E5E7EB;
   border-radius: 8px;
   margin-top: 4px;
-  max-height: 200px;
+  max-height: 240px;
   overflow-y: auto;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
 }
 .dropdownItem {
   padding: 11px 14px;
@@ -112,6 +117,96 @@
 }
 .generateBtn:hover { background: #4A56C0; }
 .generateBtn:disabled { background: #E5E7EB; color: #8892A0; cursor: not-allowed; }
+
+/* ── 고객 목록 테이블 ── */
+.listCard {
+  background: white;
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.listHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.listTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1A1A2E;
+}
+
+.listCount {
+  font-size: 12px;
+  color: #8892A0;
+}
+
+.customerTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.customerTable thead tr {
+  background: #F7F8FA;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.customerTable thead th {
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: #8892A0;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.customerTable tbody tr {
+  border-bottom: 1px solid #F3F4F6;
+  transition: background 0.1s;
+  cursor: pointer;
+}
+
+.customerTable tbody tr:last-child { border-bottom: none; }
+.customerTable tbody tr:hover { background: #F7F8FA; }
+
+.customerTable tbody td {
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #1A1A2E;
+  vertical-align: middle;
+}
+
+.customerAvatar {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: #5E6AD2;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.reportBtn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid #5E6AD2;
+  background: white;
+  color: #5E6AD2;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.reportBtn:hover { background: #5E6AD2; color: white; }
+.reportBtn:disabled { border-color: #E5E7EB; color: #8892A0; cursor: not-allowed; background: white; }
 
 /* ── 리포트 모달 ── */
 .modalOverlay {
