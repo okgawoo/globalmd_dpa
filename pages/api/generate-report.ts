@@ -31,23 +31,24 @@ function getStatus(category: string, total: number): 'good' | 'ok' | 'low' {
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end()
 
-  const { customerId, agentId } = req.body
-  if (!customerId || !agentId) return res.status(400).json({ error: '필수 파라미터 누락' })
+  const { customerId } = req.body
+  if (!customerId) return res.status(400).json({ error: '고객 정보가 없어요' })
 
   // 1. 고객/계약/보장 데이터 조회
   const [
     { data: customer },
     { data: contracts },
-    { data: agent },
     { data: youtubeAnalyses },
   ] = await Promise.all([
     supabase.from('dpa_customers').select('*').eq('id', customerId).single(),
     supabase.from('dpa_contracts').select('*, dpa_coverages(*)').eq('customer_id', customerId).eq('payment_status', '유지'),
-    supabase.from('dpa_agents').select('*').eq('id', agentId).single(),
     supabase.from('youtube_analyses').select('summary, key_points, pitch_points, scripts, comparison_criteria').limit(10),
   ])
 
   if (!customer) return res.status(404).json({ error: '고객을 찾을 수 없어요' })
+
+  // customer.agent_id(= auth user_id)로 agent 조회
+  const { data: agent } = await supabase.from('dpa_agents').select('*').eq('user_id', customer.agent_id).single()
 
   // 2. 통계 계산
   const activeContracts = contracts || []

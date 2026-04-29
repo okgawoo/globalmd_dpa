@@ -27,6 +27,7 @@ export default function ReportPage() {
   const [contracts, setContracts] = useState<any[]>([])
   const [searchQ, setSearchQ] = useState('')
   const [showDropdown, setShowDropdown] = useState(false)
+  const [highlightedIndex, setHighlightedIndex] = useState(-1)
   const [selected, setSelected] = useState<any>(null)
   const [agent, setAgent] = useState<any>(null)
   const [loading, setLoading] = useState(false)
@@ -71,14 +72,14 @@ export default function ReportPage() {
 
   async function generateReport(customer?: any) {
     const target = customer || selected
-    if (!target || !agent) return
+    if (!target) return
     setSelected(target)
     setLoading(true)
     try {
       const res = await fetch('/api/generate-report', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ customerId: target.id, agentId: agent.id }),
+        body: JSON.stringify({ customerId: target.id }),
       })
       const data = await res.json()
       if (data.error) { alert(data.error); return }
@@ -114,18 +115,25 @@ export default function ReportPage() {
               className={styles.searchInput}
               placeholder="고객 이름 또는 연락처 검색"
               value={searchQ}
-              onChange={e => { setSearchQ(e.target.value); setShowDropdown(true); setSelected(null) }}
+              onChange={e => { setSearchQ(e.target.value); setShowDropdown(true); setSelected(null); setHighlightedIndex(-1) }}
               onFocus={() => setShowDropdown(true)}
-              onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
+              onBlur={() => setTimeout(() => { setShowDropdown(false); setHighlightedIndex(-1) }, 150)}
+              onKeyDown={e => {
+                if (!showDropdown || !searchQ) return
+                if (e.key === 'ArrowDown') { e.preventDefault(); setHighlightedIndex(i => Math.min(i + 1, filtered.length - 1)) }
+                else if (e.key === 'ArrowUp') { e.preventDefault(); setHighlightedIndex(i => Math.max(i - 1, 0)) }
+                else if (e.key === 'Enter') { e.preventDefault(); if (highlightedIndex >= 0 && filtered[highlightedIndex]) selectCustomer(filtered[highlightedIndex]) }
+                else if (e.key === 'Escape') { setShowDropdown(false); setHighlightedIndex(-1) }
+              }}
             />
             {showDropdown && searchQ && (
               <div className={styles.dropdown}>
                 {filtered.length === 0 ? (
                   <div style={{ padding: '12px 14px', fontSize: 13, color: '#8892A0' }}>검색 결과 없음</div>
-                ) : filtered.map(c => {
+                ) : filtered.map((c, idx) => {
                   const s = getCustomerStats(c.id)
                   return (
-                    <div key={c.id} className={styles.dropdownItem} onMouseDown={() => selectCustomer(c)}>
+                    <div key={c.id} className={styles.dropdownItem} style={idx === highlightedIndex ? { background: '#F0F1FB' } : {}} onMouseDown={() => selectCustomer(c)}>
                       <span style={{ width: 28, height: 28, borderRadius: '50%', background: '#5E6AD2', color: 'white', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{c.name?.[0]}</span>
                       <span>{c.name}</span>
                       <span style={{ fontSize: 11, color: '#8892A0' }}>{c.age ? `${c.age}세` : ''}</span>
@@ -302,7 +310,8 @@ function ReportModal({ data, onClose }: { data: any; onClose: () => void }) {
   const totalPages = (contracts2.length > 0 ? 2 : 1) + (hasLastPage ? 1 : 0)
 
   return (
-    <div className={styles.modalOverlay}>
+    <div className={styles.modalOverlay} onClick={e => { if (e.target === e.currentTarget) onClose() }}>
+      <div className={styles.modalPanel}>
       <div className={styles.modalTopbar}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ width: 28, height: 28, borderRadius: 6, background: '#5E6AD2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, color: 'white' }}>iP</div>
@@ -513,6 +522,7 @@ function ReportModal({ data, onClose }: { data: any; onClose: () => void }) {
           </>
         )}
 
+      </div>
       </div>
     </div>
   )
