@@ -239,6 +239,7 @@ export default function Customers() {
   const [reentryParsing, setReentryParsing] = useState(false)
   const [reentryParsed, setReentryParsed] = useState<any>(null)
   const [reentryReplaceId, setReentryReplaceId] = useState<string | null>(null)
+  const [reentryAddMode, setReentryAddMode] = useState(false)
   const [reSaving, setReSaving] = useState(false)
   const [reentryReturning, setReentryReturning] = useState(false)
   const reentryTextareaRef = useRef<HTMLTextAreaElement>(null)
@@ -668,6 +669,7 @@ export default function Customers() {
       setReentryText('')
       setReentryParsed(null)
       setReentryReplaceId(null)
+      setReentryAddMode(false)
       await fetchAll()
     } catch (e: any) {
       alert('저장 중 오류: ' + e.message)
@@ -1159,7 +1161,7 @@ export default function Customers() {
               </div>
               <div className={styles.section}>
                 보험 계약 현황
-                <button onClick={() => { setReentryOpen(true); setReentryParsed(null); setReentryTextFixed(''); setReentryTextLoss(''); setReentryReplaceId(null) }} style={{marginLeft:'auto',fontSize:11,padding:'3px 10px',borderRadius:5,border:'1px solid #E5E7EB',background:'white',color:'#636B78',cursor:'pointer',fontWeight:500,letterSpacing:0,textTransform:'none'}}>재입력</button>
+                <button onClick={() => { setReentryOpen(true); setReentryParsed(null); setReentryTextFixed(''); setReentryTextLoss(''); setReentryReplaceId(null); setReentryAddMode(false) }} style={{marginLeft:'auto',fontSize:11,padding:'3px 10px',borderRadius:5,border:'1px solid #E5E7EB',background:'white',color:'#636B78',cursor:'pointer',fontWeight:500,letterSpacing:0,textTransform:'none'}}>재입력</button>
               </div>
               {selectedContracts.map((ct, idx) => {
                 const cvs = selectedCoverages.filter(cv => cv.contract_id === ct.id)
@@ -1374,46 +1376,53 @@ export default function Customers() {
 
       {/* 재입력 모달 */}
       {reentryOpen && (
-        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.5)',zIndex:500,display:'flex',alignItems:'center',justifyContent:'center',padding:'20px'}} onClick={() => setReentryOpen(false)}>
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.5)',zIndex:500,display:'flex',alignItems:'center',justifyContent:'center',padding:'20px'}} onClick={() => { setReentryOpen(false); setReentryAddMode(false); setReentryReplaceId(null) }}>
           <div style={{background:'white',borderRadius:16,width:'100%',maxWidth:1040,maxHeight:'88vh',minHeight:'60vh',display:'flex',flexDirection:'column',boxSizing:'border-box',boxShadow:'0 20px 60px rgba(0,0,0,0.2)'}} onClick={e => e.stopPropagation()}>
             {/* 헤더 */}
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'18px 24px',borderBottom:'1px solid #E5E7EB',flexShrink:0}}>
               <div style={{fontSize:16,fontWeight:700,color:'#1A1A2E'}}>보험 재입력 — {selected?.name}</div>
-              <button onClick={() => setReentryOpen(false)} style={{background:'none',border:'none',fontSize:20,color:'#8892A0',cursor:'pointer',lineHeight:1,padding:0}}>✕</button>
+              <button onClick={() => { setReentryOpen(false); setReentryAddMode(false); setReentryReplaceId(null) }} style={{background:'none',border:'none',fontSize:20,color:'#8892A0',cursor:'pointer',lineHeight:1,padding:0}}>✕</button>
             </div>
             {/* 2열 본문 */}
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',flex:1,overflow:'hidden',minHeight:320}}>
               {/* 왼쪽 — 붙여넣기 입력 */}
               <div style={{padding:'20px 24px',display:'flex',flexDirection:'column',gap:12,borderRight:'1px solid #E5E7EB',overflow:'hidden'}}>
-                <div style={{fontSize:11,fontWeight:600,color:'#636B78',textTransform:'uppercase',letterSpacing:'0.04em',flexShrink:0}}>보장내역 붙여넣기</div>
+                <div style={{fontSize:13,fontWeight:600,color:'#636B78',textTransform:'uppercase',letterSpacing:'0.04em',flexShrink:0}}>보장내역 붙여넣기</div>
                 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,flex:1,minHeight:0}}>
                   <div style={{display:'flex',flexDirection:'column'}}>
-                    <div style={{fontSize:11,color:'#636B78',fontWeight:600,marginBottom:4,flexShrink:0}}>정액형</div>
+                    <div style={{fontSize:13,color:'#5E6AD2',fontWeight:600,marginBottom:4,flexShrink:0,textTransform:'uppercase',letterSpacing:'0.04em'}}>정액형</div>
                     <textarea
                       ref={reentryTextareaRef}
                       value={reentryTextFixed}
                       onChange={e => { setReentryTextFixed(e.target.value); setReentryParsed(null) }}
-                      placeholder="정액형 보장내역 붙여넣기"
-                      style={{flex:1,width:'100%',padding:'10px 12px',borderRadius:8,border:'1px solid #E5E7EB',fontSize:12,fontFamily:'inherit',resize:'none',boxSizing:'border-box',lineHeight:1.5,color:'#1A1A2E',outline:'none'}}
+                      placeholder="정액형 보장내역 붙여넣기 (Ctrl+V)"
+                      style={{flex:1,width:'100%',padding:'12px 14px',borderRadius:8,border:'1px solid #E5E7EB',fontSize:13,fontFamily:'inherit',resize:'none',boxSizing:'border-box',lineHeight:1.7,color:'#1a1a1a',outline:'none',background:'#F7F8FA'}}
                     />
                   </div>
                   <div style={{display:'flex',flexDirection:'column'}}>
-                    <div style={{fontSize:11,color:'#636B78',fontWeight:600,marginBottom:4,flexShrink:0}}>실손형</div>
+                    <div style={{fontSize:13,color:'#636B78',fontWeight:600,marginBottom:4,flexShrink:0,textTransform:'uppercase',letterSpacing:'0.04em'}}>실손형</div>
                     <textarea
                       value={reentryTextLoss}
                       onChange={e => { setReentryTextLoss(e.target.value); setReentryParsed(null) }}
-                      placeholder="실손형 보장내역 붙여넣기"
-                      style={{flex:1,width:'100%',padding:'10px 12px',borderRadius:8,border:'1px solid #E5E7EB',fontSize:12,fontFamily:'inherit',resize:'none',boxSizing:'border-box',lineHeight:1.5,color:'#1A1A2E',outline:'none'}}
+                      placeholder="실손형 보장내역 붙여넣기 (Ctrl+V)"
+                      style={{flex:1,width:'100%',padding:'12px 14px',borderRadius:8,border:'1px solid #E5E7EB',fontSize:13,fontFamily:'inherit',resize:'none',boxSizing:'border-box',lineHeight:1.7,color:'#1a1a1a',outline:'none',background:'#F7F8FA'}}
                     />
                   </div>
                 </div>
-                <button
-                  onClick={handleReentryParse}
-                  disabled={reentryParsing || (!reentryTextFixed.trim() && !reentryTextLoss.trim())}
-                  style={{flexShrink:0,width:'100%',padding:'11px',borderRadius:8,border:'none',background:reentryParsing||(!reentryTextFixed.trim()&&!reentryTextLoss.trim())?'#E5E7EB':'#5E6AD2',color:reentryParsing||(!reentryTextFixed.trim()&&!reentryTextLoss.trim())?'#8892A0':'white',fontSize:14,fontWeight:600,cursor:reentryParsing||(!reentryTextFixed.trim()&&!reentryTextLoss.trim())?'not-allowed':'pointer',transition:'background 0.15s'}}
-                >
-                  {reentryParsing ? 'AI 분석 중...' : 'AI 분석하기'}
-                </button>
+                {(() => {
+                  const modeActive = !!reentryReplaceId || reentryAddMode
+                  const hasText = !!(reentryTextFixed.trim() || reentryTextLoss.trim())
+                  const canAnalyze = modeActive && hasText && !reentryParsing
+                  return (
+                    <button
+                      onClick={handleReentryParse}
+                      disabled={!canAnalyze}
+                      style={{flexShrink:0,width:'100%',padding:'11px',borderRadius:8,border:'none',background:canAnalyze?'#5E6AD2':'#E5E7EB',color:canAnalyze?'white':'#8892A0',fontSize:14,fontWeight:600,cursor:canAnalyze?'pointer':'not-allowed',transition:'background 0.15s'}}
+                    >
+                      {reentryParsing ? 'AI 분석 중...' : !modeActive ? '교체할 계약 선택 또는 추가계약을 먼저' : 'AI 분석하기'}
+                    </button>
+                  )
+                })()}
               </div>
               {/* 오른쪽 — 현재 계약 목록 + 분석 결과 */}
               <div style={{padding:'20px 24px',display:'flex',flexDirection:'column',overflowY:'auto',justifyContent:(reentryParsing||!!reentryParsed)?'center':'flex-start'}}>
@@ -1434,14 +1443,19 @@ export default function Customers() {
                   }
                 `}</style>
                 <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0,marginBottom:10}}>
-                  <div style={{fontSize:11,fontWeight:600,color:'#636B78',textTransform:'uppercase',letterSpacing:'0.04em'}}>현재 계약 목록</div>
-                  {reentryReplaceId && !(reentryParsing || reentryParsed) && (
-                    <button onClick={() => setReentryReplaceId(null)} style={{fontSize:11,padding:'3px 9px',borderRadius:4,border:'1px solid #E5E7EB',background:'white',color:'#636B78',cursor:'pointer'}}>+ 새 계약 추가</button>
+                  <div style={{fontSize:13,fontWeight:600,color:'#636B78',textTransform:'uppercase',letterSpacing:'0.04em'}}>현재 계약 목록</div>
+                  {!(reentryParsing || reentryParsed) && (
+                    <button
+                      onClick={() => { setReentryAddMode(v => !v); setReentryReplaceId(null); setReentryParsed(null) }}
+                      style={{fontSize:12,padding:'4px 12px',borderRadius:20,border:`1.5px solid ${reentryAddMode?'#5E6AD2':'#D0D3F0'}`,background:reentryAddMode?'#5E6AD2':'white',color:reentryAddMode?'white':'#5E6AD2',fontWeight:600,cursor:'pointer',transition:'all 0.15s',whiteSpace:'nowrap'}}
+                    >
+                      + 추가계약
+                    </button>
                   )}
                 </div>
                 {!(reentryParsing || reentryParsed) && (
-                  <div style={{flexShrink:0,padding:'8px 12px',borderRadius:8,background:reentryReplaceId?'#EEF0FB':'#F0F1FC',border:`1px solid ${reentryReplaceId?'#5E6AD2':'#D0D3F0'}`,fontSize:12,color:'#5E6AD2',fontWeight:500,marginBottom:10}}>
-                    {reentryReplaceId ? '교체 모드 — 왼쪽에 붙여넣고 AI 분석하기를 눌러주세요' : '새 계약 추가 모드 — 교체할 계약이 있으면 아래에서 선택하세요'}
+                  <div style={{flexShrink:0,padding:'8px 12px',borderRadius:8,background:reentryReplaceId?'#EEF0FB':reentryAddMode?'#EEF0FB':'#F7F8FA',border:`1px solid ${(reentryReplaceId||reentryAddMode)?'#5E6AD2':'#E5E7EB'}`,fontSize:13,color:(reentryReplaceId||reentryAddMode)?'#5E6AD2':'#8892A0',fontWeight:500,marginBottom:10}}>
+                    {reentryReplaceId ? '교체 모드 — 왼쪽에 붙여넣고 AI 분석하기를 눌러주세요' : reentryAddMode ? '추가 모드 — 왼쪽에 붙여넣고 AI 분석하기를 눌러주세요' : '교체할 계약을 선택하거나 추가계약을 눌러주세요'}
                   </div>
                 )}
                 {selectedContracts.length === 0 && (
@@ -1472,7 +1486,7 @@ export default function Customers() {
                             setTimeout(() => { setReentryReplaceId(null); setReentryReturning(false) }, delay)
                           }} style={{fontSize:11,padding:'3px 9px',borderRadius:4,border:'1px solid rgba(255,255,255,0.4)',background:'rgba(255,255,255,0.15)',color:'white',cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>취소</button>
                         ) : (
-                          <button onClick={() => { setReentryReplaceId(ct.id); setTimeout(() => reentryTextareaRef.current?.focus(), 50) }} style={{fontSize:11,padding:'3px 9px',borderRadius:4,border:'1px solid #D0D3F0',background:'white',color:'#5E6AD2',cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>교체</button>
+                          <button onClick={() => { setReentryReplaceId(ct.id); setReentryAddMode(false); setReentryParsed(null); setTimeout(() => reentryTextareaRef.current?.focus(), 50) }} style={{fontSize:11,padding:'3px 9px',borderRadius:4,border:'1px solid #D0D3F0',background:'white',color:'#5E6AD2',cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>교체</button>
                         )}
                         {!isSelected && <button onClick={async (e) => { e.stopPropagation(); await deleteContract(ct.id, e as any); if (isSelected) setReentryReplaceId(null) }} style={{fontSize:11,padding:'3px 8px',borderRadius:4,border:'1px solid #FECACA',background:'#FEF2F2',color:'#DC2626',cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>삭제</button>}
                       </div>
@@ -1698,7 +1712,7 @@ export default function Customers() {
 
                 <div className={styles.section} style={{justifyContent:'space-between'}}>
                   <span>보험 계약 현황</span>
-                  <button onClick={() => { setReentryOpen(true); setReentryParsed(null); setReentryTextFixed(''); setReentryTextLoss(''); setReentryReplaceId(null) }} style={{fontSize:11,padding:'3px 10px',borderRadius:5,border:'1px solid #E5E7EB',background:'white',color:'#636B78',cursor:'pointer',fontWeight:500,letterSpacing:0,textTransform:'none'}}>재입력</button>
+                  <button onClick={() => { setReentryOpen(true); setReentryParsed(null); setReentryTextFixed(''); setReentryTextLoss(''); setReentryReplaceId(null); setReentryAddMode(false) }} style={{fontSize:11,padding:'3px 10px',borderRadius:5,border:'1px solid #E5E7EB',background:'white',color:'#636B78',cursor:'pointer',fontWeight:500,letterSpacing:0,textTransform:'none'}}>재입력</button>
                 </div>
                 {selectedContracts.map((ct, idx) => {
                   const groups = getCoveragesByContract(ct.id)
