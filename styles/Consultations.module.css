@@ -78,12 +78,12 @@
 }
 .calTodayBtn {
   justify-self: end;
-  font-size: 12px; font-weight: 500;
+  font-size: 12px; font-weight: 600;
   padding: 4px 12px;
-  border: 1px solid #E5E7EB;
+  border: 1px solid rgba(94, 106, 210, 0.25);
   border-radius: 6px;
-  background: transparent;
-  color: #636B78;
+  background: rgba(94, 106, 210, 0.10);
+  color: #5E6AD2;
   cursor: pointer;
   transition: all 120ms;
   font-family: inherit;
