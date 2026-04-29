@@ -1490,7 +1490,7 @@ export default function Customers() {
                         )}
                         {!isSelected && <button onClick={async (e) => { e.stopPropagation(); await deleteContract(ct.id, e as any); if (isSelected) setReentryReplaceId(null) }} style={{fontSize:11,padding:'3px 8px',borderRadius:4,border:'1px solid #FECACA',background:'#FEF2F2',color:'#DC2626',cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>삭제</button>}
                       </div>
-                      {/* 분석 결과 — 선택 계약 바로 아래 */}
+                      {/* 분석 결과 or 에러 — 선택 계약 바로 아래 */}
                       {isSelected && reentryParsed && reentryParsed.contracts?.[0] && (
                         <div style={{padding:'14px',background:'#F0FBF7',borderRadius:8,border:'1px solid #B5E5D5',marginTop:8,animation:'reentryFadeIn 0.3s ease'}}>
                           <div style={{fontSize:12,fontWeight:600,color:'#0F6E56',marginBottom:4}}>분석 완료</div>
@@ -1501,6 +1501,11 @@ export default function Customers() {
                               {reSaving ? '저장 중...' : '교체 저장'}
                             </button>
                           </div>
+                        </div>
+                      )}
+                      {isSelected && reentryParsed && !reentryParsed.contracts?.[0] && (
+                        <div style={{padding:'10px 14px',background:'#FEF3E2',borderRadius:8,border:'1px solid #FCD34D',fontSize:13,color:'#92400E',marginTop:8,animation:'reentryFadeIn 0.3s ease'}}>
+                          계약 정보를 인식하지 못했어요. 텍스트를 확인 후 다시 시도해 주세요.
                         </div>
                       )}
                     </div>
@@ -1519,7 +1524,7 @@ export default function Customers() {
                     </div>
                   </div>
                 )}
-                {reentryParsed && !reentryParsed.contracts?.[0] && (
+                {!reentryReplaceId && reentryParsed && !reentryParsed.contracts?.[0] && (
                   <div style={{padding:'10px 14px',background:'#FEF3E2',borderRadius:8,border:'1px solid #FCD34D',fontSize:13,color:'#92400E',animation:'reentryFadeIn 0.3s ease'}}>
                     계약 정보를 인식하지 못했어요. 텍스트를 확인 후 다시 시도해 주세요.
                   </div>
