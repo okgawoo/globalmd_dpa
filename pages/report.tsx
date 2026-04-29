@@ -92,69 +92,108 @@ export default function ReportPage() {
 
   return (
     <div className={styles.page}>
-      <div>
-        <div className={styles.pageTitle}>고객 리포트</div>
-        <div className={styles.pageDesc}>고객을 선택하고 AI 보장 분석 리포트를 생성하세요</div>
+      {/* 페이지 헤더 */}
+      <div className={styles.pageHeader}>
+        <div>
+          <div className={styles.pageTitle}>고객 리포트</div>
+          <div className={styles.pageDesc}>고객을 선택하고 AI 보장 분석 리포트를 생성하세요</div>
+        </div>
       </div>
 
-      <div className={styles.searchBox}>
-        <label className={styles.searchLabel}>고객 선택</label>
-        <input
-          className={styles.searchInput}
-          placeholder="고객 이름 또는 연락처 검색"
-          value={searchQ}
-          onChange={e => { setSearchQ(e.target.value); setShowDropdown(true); setSelected(null) }}
-          onFocus={() => setShowDropdown(true)}
-          onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
-        />
-        {showDropdown && searchQ && (
-          <div className={styles.dropdown}>
-            {filtered.length === 0 ? (
-              <div style={{ padding: '12px 14px', fontSize: 13, color: '#8892A0' }}>검색 결과 없음</div>
-            ) : filtered.map(c => {
-              const s = getCustomerStats(c.id)
-              return (
-                <div key={c.id} className={styles.dropdownItem} onMouseDown={() => selectCustomer(c)}>
-                  <span style={{ width: 28, height: 28, borderRadius: '50%', background: '#5E6AD2', color: 'white', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{c.name?.[0]}</span>
-                  <span>{c.name}</span>
-                  <span style={{ fontSize: 11, color: '#8892A0' }}>{c.age ? `${c.age}세` : ''}</span>
-                  <span className={styles.dropdownMeta}>{s.contractCount}건 · {s.monthlyTotal.toLocaleString()}원</span>
-                </div>
-              )
-            })}
-          </div>
-        )}
+      {/* 2열: 고객 검색 + 안내 */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 20, alignItems: 'start' }}>
 
-        {selected && (
-          <>
-            <div className={styles.selectedCard} style={{ marginTop: 12 }}>
-              <div className={styles.selectedAvatar}>{selected.name?.[0]}</div>
-              <div style={{ flex: 1 }}>
-                <div className={styles.selectedName}>{selected.name}</div>
-                <div className={styles.selectedMeta}>{selected.age ? `${selected.age}세` : ''}{selected.gender ? ` · ${selected.gender}` : ''}{selected.job ? ` · ${selected.job}` : ''}</div>
-                {stats && (
-                  <div className={styles.selectedStats}>
-                    <div className={styles.statItem}>
-                      <div className={styles.statValue}>{stats.contractCount}건</div>
-                      <div className={styles.statLabel}>유지 계약</div>
+        {/* 좌: 고객 선택 카드 */}
+        <div className={styles.searchBox}>
+          <label className={styles.searchLabel}>고객 선택</label>
+          <div style={{ position: 'relative' }}>
+            <input
+              className={styles.searchInput}
+              placeholder="고객 이름 또는 연락처 검색"
+              value={searchQ}
+              onChange={e => { setSearchQ(e.target.value); setShowDropdown(true); setSelected(null) }}
+              onFocus={() => setShowDropdown(true)}
+              onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
+            />
+            {showDropdown && searchQ && (
+              <div className={styles.dropdown}>
+                {filtered.length === 0 ? (
+                  <div style={{ padding: '12px 14px', fontSize: 13, color: '#8892A0' }}>검색 결과 없음</div>
+                ) : filtered.map(c => {
+                  const s = getCustomerStats(c.id)
+                  return (
+                    <div key={c.id} className={styles.dropdownItem} onMouseDown={() => selectCustomer(c)}>
+                      <span style={{ width: 28, height: 28, borderRadius: '50%', background: '#5E6AD2', color: 'white', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{c.name?.[0]}</span>
+                      <span>{c.name}</span>
+                      <span style={{ fontSize: 11, color: '#8892A0' }}>{c.age ? `${c.age}세` : ''}</span>
+                      <span className={styles.dropdownMeta}>{s.contractCount}건 · {s.monthlyTotal.toLocaleString()}원</span>
                     </div>
-                    <div className={styles.statItem}>
-                      <div className={styles.statValue}>{stats.monthlyTotal.toLocaleString()}원</div>
-                      <div className={styles.statLabel}>월 보험료</div>
-                    </div>
-                  </div>
-                )}
+                  )
+                })}
               </div>
+            )}
+          </div>
+
+          {selected ? (
+            <>
+              <div className={styles.selectedCard} style={{ marginTop: 16 }}>
+                <div className={styles.selectedAvatar}>{selected.name?.[0]}</div>
+                <div style={{ flex: 1 }}>
+                  <div className={styles.selectedName}>{selected.name}</div>
+                  <div className={styles.selectedMeta}>
+                    {selected.age ? `${selected.age}세` : ''}
+                    {selected.gender ? ` · ${selected.gender}` : ''}
+                    {selected.job ? ` · ${selected.job}` : ''}
+                  </div>
+                  {stats && (
+                    <div className={styles.selectedStats}>
+                      <div className={styles.statItem}>
+                        <div className={styles.statValue}>{stats.contractCount}건</div>
+                        <div className={styles.statLabel}>유지 계약</div>
+                      </div>
+                      <div className={styles.statItem}>
+                        <div className={styles.statValue}>{stats.monthlyTotal.toLocaleString()}원</div>
+                        <div className={styles.statLabel}>월 보험료</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <button className={styles.generateBtn} onClick={generateReport} disabled={loading}>
+                {loading ? '⏳ AI 분석 중...' : '리포트 생성하기'}
+              </button>
+            </>
+          ) : (
+            <div style={{ marginTop: 16, padding: '20px', background: '#F7F8FA', borderRadius: 8, textAlign: 'center', color: '#8892A0', fontSize: 13 }}>
+              위에서 고객을 검색해 선택하세요
             </div>
-            <button
-              className={styles.generateBtn}
-              onClick={generateReport}
-              disabled={loading}
-            >
-              {loading ? 'AI 분석 중...' : '리포트 생성하기'}
-            </button>
-          </>
-        )}
+          )}
+        </div>
+
+        {/* 우: 안내 카드 */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 10, padding: '20px 20px' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#1A1A2E', marginBottom: 12 }}>리포트에 포함되는 내용</div>
+            {[
+              { icon: '📋', text: '보유 계약 현황' },
+              { icon: '📊', text: '카테고리별 보장 분석' },
+              { icon: '⚠️', text: '보장 공백 진단' },
+              { icon: '🤖', text: 'AI 상담 스크립트 (YouTube 기반)' },
+              { icon: '🖨️', text: 'A4 인쇄 / PDF 저장' },
+            ].map(({ icon, text }) => (
+              <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 0', borderBottom: '1px solid #F3F4F6', fontSize: 13, color: '#636B78' }}>
+                <span style={{ fontSize: 15 }}>{icon}</span>{text}
+              </div>
+            ))}
+          </div>
+
+          <div style={{ background: '#F0F1FB', border: '1px solid #D1D5F0', borderRadius: 10, padding: '16px 20px' }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#5E6AD2', marginBottom: 6 }}>AI 분석 엔진</div>
+            <div style={{ fontSize: 12, color: '#636B78', lineHeight: 1.7 }}>
+              최신 유튜브 영상 10개 분석 내용을 반영한 실전 상담 화법이 자동 생성됩니다.
+            </div>
+          </div>
+        </div>
       </div>
 
       {modalOpen && reportData && (
