@@ -1470,7 +1470,7 @@ export default function Customers() {
                   return (
                     <div key={ct.id} style={{
                       overflow: 'hidden',
-                      maxHeight: 120,
+                      maxHeight: isSelected ? 'none' : 120,
                       animation: isAnimating
                         ? `reentryWaveUp 0.4s ease ${idx * 0.13}s forwards`
                         : isReturning
@@ -1495,7 +1495,14 @@ export default function Customers() {
                       </div>
                       {/* 분석 결과 or 에러 — 선택 계약 바로 아래 */}
                       {isSelected && reentryParsed && reentryParsed.contracts?.[0] && (() => {
-                        const isDiff = reentryParsed.contracts[0].company && ct.company && reentryParsed.contracts[0].company !== ct.company
+                        const c0 = reentryParsed.contracts[0]
+                        const isValid = !!(c0.product_name || c0.company) && (c0.coverages?.length || 0) > 0
+                        if (!isValid) return (
+                          <div style={{padding:'10px 14px',background:'#FEF3E2',borderRadius:8,border:'1px solid #FCD34D',fontSize:13,color:'#B45309',fontWeight:500,marginTop:8,animation:'reentryFadeIn 0.3s ease'}}>
+                            보험 보장내역을 인식하지 못했어요. 실제 보장내역 텍스트를 붙여넣어 주세요.
+                          </div>
+                        )
+                        const isDiff = c0.company && ct.company && c0.company !== ct.company
                         return (
                           <div style={{padding:'14px',background:'#F7F8FA',borderRadius:8,border:`1px solid ${isDiff?'#F59E0B':'#E5E7EB'}`,marginTop:8,animation:'reentryFadeIn 0.3s ease'}}>
                             <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:4}}>
@@ -1506,8 +1513,8 @@ export default function Customers() {
                                 </div>
                               )}
                             </div>
-                            <div style={{fontSize:13,color:'#1A1A2E',marginBottom:2}}>{reentryParsed.contracts[0].company} · {reentryParsed.contracts[0].product_name}</div>
-                            <div style={{fontSize:12,color:'#636B78'}}>{reentryParsed.contracts[0].monthly_fee>0?`${reentryParsed.contracts[0].monthly_fee.toLocaleString()}원/월 · `:''}{reentryParsed.contracts[0].coverages?.length||0}개 보장항목</div>
+                            <div style={{fontSize:13,color:'#1A1A2E',marginBottom:2}}>{c0.company} · {c0.product_name}</div>
+                            <div style={{fontSize:12,color:'#636B78'}}>{c0.monthly_fee>0?`${c0.monthly_fee.toLocaleString()}원/월 · `:''}{c0.coverages?.length||0}개 보장항목</div>
                           </div>
                         )
                       })()}
@@ -1520,13 +1527,22 @@ export default function Customers() {
                   )
                 })}
                 {/* 새 계약 추가 모드 — 분석 결과 */}
-                {!reentryReplaceId && reentryParsed && reentryParsed.contracts?.[0] && (
-                  <div style={{padding:'14px',background:'#F7F8FA',borderRadius:8,border:'1px solid #E5E7EB',animation:'reentryFadeIn 0.3s ease'}}>
-                    <div style={{fontSize:12,fontWeight:600,color:'#5E6AD2',marginBottom:4}}>분석 완료</div>
-                    <div style={{fontSize:13,color:'#1A1A2E',marginBottom:2}}>{reentryParsed.contracts[0].company} · {reentryParsed.contracts[0].product_name}</div>
-                    <div style={{fontSize:12,color:'#636B78'}}>{reentryParsed.contracts[0].monthly_fee>0?`${reentryParsed.contracts[0].monthly_fee.toLocaleString()}원/월 · `:''}{reentryParsed.contracts[0].coverages?.length||0}개 보장항목</div>
-                  </div>
-                )}
+                {!reentryReplaceId && reentryParsed && reentryParsed.contracts?.[0] && (() => {
+                  const c0 = reentryParsed.contracts[0]
+                  const isValid = !!(c0.product_name || c0.company) && (c0.coverages?.length || 0) > 0
+                  if (!isValid) return (
+                    <div style={{padding:'10px 14px',background:'#FEF3E2',borderRadius:8,border:'1px solid #FCD34D',fontSize:13,color:'#B45309',fontWeight:500,animation:'reentryFadeIn 0.3s ease'}}>
+                      보험 보장내역을 인식하지 못했어요. 실제 보장내역 텍스트를 붙여넣어 주세요.
+                    </div>
+                  )
+                  return (
+                    <div style={{padding:'14px',background:'#F7F8FA',borderRadius:8,border:'1px solid #E5E7EB',animation:'reentryFadeIn 0.3s ease'}}>
+                      <div style={{fontSize:12,fontWeight:600,color:'#5E6AD2',marginBottom:4}}>분석 완료</div>
+                      <div style={{fontSize:13,color:'#1A1A2E',marginBottom:2}}>{c0.company} · {c0.product_name}</div>
+                      <div style={{fontSize:12,color:'#636B78'}}>{c0.monthly_fee>0?`${c0.monthly_fee.toLocaleString()}원/월 · `:''}{c0.coverages?.length||0}개 보장항목</div>
+                    </div>
+                  )
+                })()}
                 {!reentryReplaceId && reentryParsed && !reentryParsed.contracts?.[0] && (
                   <div style={{padding:'10px 14px',background:'#F7F8FA',borderRadius:8,border:'1px solid #E5E7EB',fontSize:13,color:'#636B78',animation:'reentryFadeIn 0.3s ease'}}>
                     계약 정보를 인식하지 못했어요. 텍스트를 확인 후 다시 시도해 주세요.
@@ -1535,7 +1551,8 @@ export default function Customers() {
                 </div>
                 {/* 하단 저장 버튼 */}
                 {(() => {
-                  const canSave = !!(reentryParsed?.contracts?.[0]) && !reSaving
+                  const c0 = reentryParsed?.contracts?.[0]
+                  const canSave = !!(c0 && (c0.product_name || c0.company) && (c0.coverages?.length || 0) > 0) && !reSaving
                   const saveLabel = reSaving ? '저장 중...' : reentryReplaceId ? '교체 저장' : '추가 저장'
                   return (
                     <div style={{padding:'12px 24px 20px',flexShrink:0,borderTop:'1px solid #E5E7EB'}}>
