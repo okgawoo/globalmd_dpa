@@ -811,8 +811,8 @@ function BlockContent({ id, agent, customer, localStats, customerContracts, loca
 
     // 보장공백 진단
     case 'gap_analysis':
-      if (noData) return <Placeholder ai loading={isGenerating}>AI 분석 생성 버튼을 눌러주세요</Placeholder>
-      if (!reportData.gapAnalysis?.length) return <Placeholder>공백 항목이 없어요 🎉</Placeholder>
+      if (noData && !editContent.gap_analysis) return <Placeholder ai loading={isGenerating}>AI 분석 생성 버튼을 눌러주세요</Placeholder>
+      if (!reportData?.gapAnalysis?.length) return <Placeholder>공백 항목이 없어요 🎉</Placeholder>
       return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {reportData.gapAnalysis.map((g: any, i: number) => (
@@ -832,7 +832,7 @@ function BlockContent({ id, agent, customer, localStats, customerContracts, loca
 
     // 또래 유사 사례
     case 'claim_cases':
-      if (noData) return <Placeholder ai loading={isGenerating}>AI 분석 생성 버튼을 눌러주세요</Placeholder>
+      if (noData && !editContent.claim_cases) return <Placeholder ai loading={isGenerating}>AI 분석 생성 버튼을 눌러주세요</Placeholder>
       return (
         <textarea
           className={styles.editableArea}
@@ -845,7 +845,7 @@ function BlockContent({ id, agent, customer, localStats, customerContracts, loca
 
     // 후킹멘트
     case 'key_insight':
-      if (noData) return <Placeholder ai loading={isGenerating}>AI 분석 생성 버튼을 눌러주세요</Placeholder>
+      if (noData && !editContent.key_insight) return <Placeholder ai loading={isGenerating}>AI 분석 생성 버튼을 눌러주세요</Placeholder>
       return (
         <textarea
           className={styles.editableArea}
@@ -858,8 +858,8 @@ function BlockContent({ id, agent, customer, localStats, customerContracts, loca
 
     // 나이별 시사점
     case 'age_comparison':
-      if (noData) return <Placeholder ai loading={isGenerating}>AI 분석 생성 버튼을 눌러주세요</Placeholder>
-      if (!reportData.ageComparison?.note) return <Placeholder>나이 정보가 없어요</Placeholder>
+      if (noData && !editContent.age_comparison) return <Placeholder ai loading={isGenerating}>AI 분석 생성 버튼을 눌러주세요</Placeholder>
+      if (!reportData?.ageComparison?.note && !editContent.age_comparison) return <Placeholder>나이 정보가 없어요</Placeholder>
       return (
         <div>
           <textarea
@@ -870,12 +870,12 @@ function BlockContent({ id, agent, customer, localStats, customerContracts, loca
             rows={3}
           />
           <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {reportData.ageComparison.at_60_monthly_increase > 0 && (
+            {reportData?.ageComparison?.at_60_monthly_increase > 0 && (
               <div style={{ fontSize: 12, color: '#5E6AD2', fontWeight: 600 }}>
                 📈 60세 시 예상 추가 보험료: +{reportData.ageComparison.at_60_monthly_increase.toLocaleString()}원/월
               </div>
             )}
-            {reportData.ageComparison.at_65_note && (
+            {reportData?.ageComparison?.at_65_note && (
               <div style={{ fontSize: 11, color: '#EF4444' }}>⚠️ {reportData.ageComparison.at_65_note}</div>
             )}
           </div>
@@ -884,7 +884,7 @@ function BlockContent({ id, agent, customer, localStats, customerContracts, loca
 
     // 피칭 포인트
     case 'pitch_points':
-      if (noData) return <Placeholder ai loading={isGenerating}>AI 분석 생성 버튼을 눌러주세요</Placeholder>
+      if (noData && !editContent.pitch_points) return <Placeholder ai loading={isGenerating}>AI 분석 생성 버튼을 눌러주세요</Placeholder>
       return (
         <textarea
           className={styles.editableArea}
@@ -897,7 +897,7 @@ function BlockContent({ id, agent, customer, localStats, customerContracts, loca
 
     // 화법 스크립트
     case 'consultation_script':
-      if (noData) return <Placeholder ai loading={isGenerating}>AI 분석 생성 버튼을 눌러주세요</Placeholder>
+      if (noData && !editContent.consultation_script) return <Placeholder ai loading={isGenerating}>AI 분석 생성 버튼을 눌러주세요</Placeholder>
       return (
         <textarea
           className={styles.editableArea}
@@ -908,9 +908,9 @@ function BlockContent({ id, agent, customer, localStats, customerContracts, loca
         />
       )
 
-    // 기타 AI 블록
+    // 기타 AI 블록 (rejection_risk, peer_comparison, remodel_suggestion 등)
     default:
-      if (noData) return <Placeholder ai loading={isGenerating}>AI 분석 생성 버튼을 눌러주세요</Placeholder>
+      if (noData && !editContent[id]) return <Placeholder ai loading={isGenerating}>AI 분석 생성 버튼을 눌러주세요</Placeholder>
       return (
         <textarea
           className={styles.editableArea}
