@@ -238,13 +238,14 @@
 /* Section title */
 .dashSectionTitle {
   font-size: 13px; font-weight: 700;
-  color: #1A1A2E;
+  color: #1D9E75;
   display: flex; align-items: center; gap: 6px;
-  padding: 12px 16px;
+  padding: 10px 16px;
+  background: #E1F5EE;
+  border-bottom: 1px solid #C6EBE0;
 }
 .dashSectionTitleToday {
-  background: rgba(94, 106, 210, 0.05);
-  border-bottom: 1px solid #E5E7EB;
+  border-top: none;
 }
 
 .countBadge {
