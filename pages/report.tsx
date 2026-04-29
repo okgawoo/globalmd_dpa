@@ -1014,7 +1014,7 @@ function ReportModal({ data, blocks, editContent, localCoverageSummary, localCom
     || editContent?.claim_cases
 
   return (
-    <div className={styles.modalOverlay} onClick={e => { if (e.target === e.currentTarget) onClose() }}>
+    <div className={`${styles.modalOverlay} report-print-overlay`} onClick={e => { if (e.target === e.currentTarget) onClose() }}>
       <div className={`${styles.modalPanel} report-print-area`}>
         <div className={`${styles.modalTopbar} report-print-topbar`}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -1144,7 +1144,7 @@ function ReportModal({ data, blocks, editContent, localCoverageSummary, localCom
                 {isEnabled('company_chart') && pieData.length > 0 && (
                   <>
                     <div className={styles.sectionTitle}>월 보험료 분배</div>
-                    <div style={{ height: 200, marginBottom: 24 }}>
+                    <div className={styles.chartWrap} style={{ height: 200, marginBottom: 24 }}>
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                           <Pie data={pieData} cx="50%" cy="50%" innerRadius={55} outerRadius={80} dataKey="value">

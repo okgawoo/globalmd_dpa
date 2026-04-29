@@ -866,6 +866,17 @@
     margin-top: 0;
     padding-top: 0;
   }
+
+  /* recharts: 인쇄 시 고정 크기로 강제 */
+  .chartWrap {
+    height: 200px !important;
+    overflow: hidden !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+  .chartWrap svg {
+    width: 100% !important;
+  }
 }
 
 @page { size: A4; margin: 15mm; }
