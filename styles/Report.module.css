@@ -548,13 +548,11 @@
   /* 테이블 헤더 배경 인쇄용 */
   .contractTable thead tr {
     background: #1A1A2E !important;
+  }
+  /* 색상 출력 허용 */
+  .a4Page {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
-  }
-  /* 전체 색상 출력 허용 */
-  * {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
   }
 }
 
