@@ -214,6 +214,14 @@
     line-height: 1.75;
     margin-top: 8px;
   }
+  /* 출처 */
+  .articleSource {
+    font-size: 11px;
+    color: #8892A0;
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+
   .articleChevron {
     font-size: 18px;
     color: #8892A0;

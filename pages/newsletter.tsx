@@ -5,6 +5,40 @@ import s from '../styles/Newsletter.module.css'
 // ─── 뉴스레터 데이터 ───────────────────────────────────────
 const NEWSLETTERS = [
   {
+    id: 'w2026-18',
+    week: '2026년 4월 4주차',
+    date: '2026.04.30',
+    items: [
+      {
+        tag: '신상품',
+        tagColor: '#1D9E75',
+        tagBg: '#E6F7F1',
+        title: '5세대 실손보험 5월 출시 확정 — 보험료 최대 40% 저렴, 전환 시 50% 추가 할인 검토',
+        summary: '금융당국 인가가 완료되면서 5세대 실손보험이 5월 초 정식 출시됩니다. 기존 2세대 실손 대비 보험료가 최대 40% 저렴하며, 비급여 진료를 중증·비중증으로 구분해 보장을 차등 적용하는 것이 핵심 변화입니다. 금융당국은 1·2세대 실손 가입자가 5세대로 전환 시 3년간 보험료를 50% 할인해주는 방안도 함께 검토 중입니다. 단, 도수치료 등 비중증 비급여 항목의 보장은 대폭 축소됩니다.',
+        tip: '5세대 출시를 계기로 기존 구형 실손 보유 고객에게 전환 상담 기회를 만드세요. 단, 비급여 이용이 잦은 고객(도수치료 등)은 전환 시 손해가 날 수 있어 신중한 안내가 필요합니다!',
+        source: '뉴스1 · 전자신문 (2026.04.28)',
+      },
+      {
+        tag: '정책변화',
+        tagColor: '#B45309',
+        tagBg: '#FEF3E2',
+        title: 'GA 수수료 1200%룰 7월 시행 — 3개월 유예 가능성 검토 중, 설계사 대이동 조짐',
+        summary: '7월 본격 시행 예정인 GA 1200%룰을 앞두고 일부 대형 GA들이 전산 준비 부족을 이유로 최대 3개월 시행 유예를 당국에 요청한 것으로 알려졌습니다. 이 규칙은 GA 소속 설계사의 초년도 수수료를 월 납입보험료의 12배(1,200%) 이내로 제한하는 것으로, 기존에 GA가 보험사 수수료 외에 추가로 얹어주던 구조가 원천 차단됩니다. 수수료 유리한 GA를 찾아 이동하는 설계사들이 늘어나며 업계 내 리쿠르팅 경쟁도 과열 조짐을 보이고 있습니다.',
+        tip: '7월 이후엔 초년도 목돈 수수료가 사라지고 계약 유지율이 직접 수입과 연결됩니다. 지금 당장 기존 고객 관리에 집중하는 게 장기적으로 가장 좋은 전략입니다!',
+        source: 'StraightNews · 중앙이코노미뉴스 (2026.04)',
+      },
+      {
+        tag: '소비자보호',
+        tagColor: '#185FA5',
+        tagBg: '#E6F1FB',
+        title: '손보협회, 금융권 최초 「소비자보호 협의체」 출범 — 자동차사고 과실비율 기준 정비 착수',
+        summary: '손해보험협회가 4월 28일 금융권 최초로 소비자보호 협의체를 공식 출범시켰습니다. 첫 과제로 자동차사고 과실비율 인정기준의 일관성 문제를 다루기로 했으며, 유사한 사고 유형에서도 과실비율 산정이 들쭉날쭉하다는 소비자 불만을 반영한 것입니다. 협의체에는 법학 교수·변호사·소비자단체 등 외부 전문가가 참여해 독립성을 높였습니다. 향후 논의 결과는 보험 약관 및 표준 지침 개정에 반영될 예정입니다.',
+        tip: '자동차 사고 관련 분쟁 상담 시 "과실비율 기준이 곧 정비됩니다"라는 정보를 공유하면 고객 신뢰도를 높일 수 있어요. 자동차보험 상담 시 적극 활용하세요!',
+        source: '보험AI뉴스 다자비 (2026.04.28)',
+      },
+    ],
+  },
+  {
     id: 'w2026-17',
     week: '2026년 4월 3주차',
     date: '2026.04.21',
@@ -186,6 +220,9 @@ export default function Newsletter() {
                         <span className={s.articleTitle}>{item.title}</span>
                       </div>
                       <p className={s.articleSummary}>{item.summary}</p>
+                      {(item as any).source && (
+                        <div className={s.articleSource}>출처: {(item as any).source}</div>
+                      )}
                       {pcExpandedTip === i && (
                         <div className={s.articleTip}>
                           <span className={s.articleTipIcon}>💡</span>
@@ -263,6 +300,9 @@ export default function Newsletter() {
                     </div>
                     {/* 요약 */}
                     <p style={{ fontSize: 13, color: '#555', lineHeight: 1.65, margin: 0 }}>{item.summary}</p>
+                    {(item as any).source && (
+                      <p style={{ fontSize: 11, color: '#9CA3AF', margin: '6px 0 0', lineHeight: 1.4 }}>출처: {(item as any).source}</p>
+                    )}
                   </div>
                   {/* 펼치기 화살표 */}
                   <span style={{ fontSize: 13, color: '#C7C7CC', flexShrink: 0, marginTop: 2, transition: 'transform 0.2s', transform: expandedTip === i ? 'rotate(90deg)' : 'none' }}>›</span>
