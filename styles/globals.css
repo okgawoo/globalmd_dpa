@@ -122,47 +122,4 @@ a { text-decoration: none; color: inherit; }
 }
 .dpa-modal-btn-danger:hover { opacity: 0.9; }
 
-/* ── 리포트 인쇄 전용: body.report-printing 일 때 모달 내용만 출력 ── */
-@media print {
-  body.report-printing * {
-    visibility: hidden !important;
-  }
-
-  /* 오버레이: static으로 전환해 페이지 반복 방지 */
-  body.report-printing .report-print-overlay,
-  body.report-printing .report-print-area,
-  body.report-printing .report-print-area * {
-    visibility: visible !important;
-  }
-  body.report-printing .report-print-overlay {
-    position: static !important;
-    background: white !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    overflow: visible !important;
-    height: auto !important;
-    display: block !important;
-    align-items: unset !important;
-    justify-content: unset !important;
-  }
-
-  /* 패널: 자연스럽게 페이지 흐름 따름 */
-  body.report-printing .report-print-area {
-    position: static !important;
-    width: 100% !important;
-    max-width: none !important;
-    max-height: none !important;
-    height: auto !important;
-    overflow: visible !important;
-    background: white !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-  }
-
-  body.report-printing .report-print-topbar {
-    display: none !important;
-    visibility: hidden !important;
-  }
-}
+/* 리포트 인쇄는 새 창(window.open) 방식으로 처리 — 별도 print CSS 불필요 */

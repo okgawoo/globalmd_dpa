@@ -838,16 +838,8 @@
   line-height: 1.6;
 }
 
-/* ── 인쇄 ── */
+/* ── 인쇄 (새 창에서 열릴 때 적용) ── */
 @media print {
-  .modalBody {
-    padding: 0;
-    overflow: visible;
-    background: white !important;
-  }
-  .contractTable thead tr { background: #1A1A2E !important; }
-
-  /* 연속 흐름 문서 인쇄 */
   .reportDoc {
     padding: 0;
     box-shadow: none;
@@ -857,25 +849,23 @@
     background: white !important;
   }
   .reportSection {
-    border-top: none;
-    margin-top: 0;
-    padding-top: 0;
+    border-top: 1px dashed #D1D5DB;
+    page-break-before: always;
+    break-before: page;
   }
   .reportAgentSection {
-    border-top: none;
-    margin-top: 0;
-    padding-top: 0;
+    border-top: 2px solid #1A1A2E;
+    page-break-before: always;
+    break-before: page;
   }
+  .contractTable thead tr { background: #1A1A2E !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
-  /* recharts: 인쇄 시 고정 크기로 강제 */
+  /* recharts: 인쇄 시 컨테이너 고정 */
   .chartWrap {
     height: 200px !important;
     overflow: hidden !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
-  }
-  .chartWrap svg {
-    width: 100% !important;
   }
 }
 
