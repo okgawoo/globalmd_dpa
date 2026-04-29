@@ -456,7 +456,7 @@ export default function ReportPage() {
       </div>
 
       {modalOpen && reportData && (
-        <ReportModal data={reportData} blocks={blocks} localCoverageSummary={localCoverageSummary} localCompanyDistribution={localCompanyDistribution} onClose={() => setModalOpen(false)} />
+        <ReportModal data={reportData} blocks={blocks} editContent={editContent} localCoverageSummary={localCoverageSummary} localCompanyDistribution={localCompanyDistribution} onClose={() => setModalOpen(false)} />
       )}
     </div>
   )
@@ -880,7 +880,7 @@ function Placeholder({ children, ai }: { children: React.ReactNode; ai?: boolean
 /* ─────────────────────────────────────────────────────────
    PDF 미리보기 모달 (A4 인쇄용)
 ───────────────────────────────────────────────────────── */
-function ReportModal({ data, blocks, localCoverageSummary, localCompanyDistribution, onClose }: { data: any; blocks: BlockDef[]; localCoverageSummary: any[]; localCompanyDistribution: any[]; onClose: () => void }) {
+function ReportModal({ data, blocks, editContent, localCoverageSummary, localCompanyDistribution, onClose }: { data: any; blocks: BlockDef[]; editContent: Record<string, any>; localCoverageSummary: any[]; localCompanyDistribution: any[]; onClose: () => void }) {
   const isEnabled = (id: string) => blocks.find(b => b.id === id)?.enabled ?? true
   const genDate = new Date(data.generatedAt).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })
 
@@ -899,12 +899,27 @@ function ReportModal({ data, blocks, localCoverageSummary, localCompanyDistribut
     name: d.company, value: d.amount, percent: d.percent, fill: PIE_COLORS[i % PIE_COLORS.length],
   }))
 
+  // 설계사 전용 데이터 (editContent는 string 형태로 저장됨)
+  const agentKeyInsightText = editContent?.key_insight || data.keyInsight || ''
+  const agentKeyInsight     = isEnabled('key_insight') && !!agentKeyInsightText
+
+  const agentPitchPoints: string[] = isEnabled('pitch_points') && editContent?.pitch_points
+    ? editContent.pitch_points.split('\n').map((s: string) => s.replace(/^[•\-]\s*/, '').trim()).filter(Boolean)
+    : []
+
+  const agentScriptLines: string[] = isEnabled('consultation_script') && editContent?.consultation_script
+    ? editContent.consultation_script.split('\n\n').map((s: string) => s.trim()).filter(Boolean)
+    : data.consultationScripts || []
+  const agentScripts = agentScriptLines.length > 0
+
+  const hasAgentPage = !!(agentKeyInsight || agentPitchPoints.length > 0 || agentScripts)
+
+  // 일반 페이지 (설계사 전용 블록 제외)
   const hasLastPage = chartData.length > 0 || pieData.length > 0
     || data.gapAnalysis?.length > 0
-    || data.consultationScripts?.length > 0
     || data.ageComparison?.note
 
-  const totalPages = (contracts2.length > 0 ? 2 : 1) + (hasLastPage ? 1 : 0)
+  const totalPages = (contracts2.length > 0 ? 2 : 1) + (hasLastPage ? 1 : 0) + (hasAgentPage ? 1 : 0)
 
   return (
     <div className={styles.modalOverlay} onClick={e => { if (e.target === e.currentTarget) onClose() }}>
@@ -962,13 +977,6 @@ function ReportModal({ data, blocks, localCoverageSummary, localCompanyDistribut
                 <div className={styles.statCardLabel}>보장항목</div>
               </div>
             </div>
-
-            {data.keyInsight && (
-              <div className={styles.insightBox}>
-                <div className={styles.insightLabel}>핵심 포인트</div>
-                <div className={styles.insightText}>{data.keyInsight}</div>
-              </div>
-            )}
 
             <div className={styles.sectionTitle}>보유 계약 현황</div>
             <ContractTable contracts={contracts1} />
@@ -1085,10 +1093,60 @@ function ReportModal({ data, blocks, localCoverageSummary, localCompanyDistribut
                   </>
                 )}
 
-                {data.consultationScripts?.length > 0 && (
-                  <>
+                <div className={styles.reportFooter}>
+                  <span>iPlanner v1.0 &nbsp;|&nbsp; AI 포함 설계사 전용</span>
+                  <span>{contracts2.length > 0 ? 3 : 2} / {totalPages}</span>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* ── 설계사 전용 페이지 (항상 마지막, 별개 페이지) ── */}
+          {hasAgentPage && (
+            <>
+              <div className={styles.pageBreakHint}>설계사 전용 페이지</div>
+              <div className={styles.a4Page}>
+
+                {/* 설계사 전용 헤더 */}
+                <div className={styles.agentPageHeader}>
+                  <div className={styles.agentPageHeaderBar} />
+                  <div>
+                    <div className={styles.agentPageTitle}>설계사 전용</div>
+                    <div className={styles.agentPageSubtitle}>{data.customer.name} 고객 미팅 준비 자료 &nbsp;·&nbsp; {genDate}</div>
+                  </div>
+                </div>
+
+                {/* 후킹멘트 */}
+                {agentKeyInsight && (
+                  <div style={{ marginBottom: 20 }}>
+                    <div className={styles.sectionTitle}>후킹멘트</div>
+                    <div className={styles.insightBox}>
+                      <div className={styles.insightLabel}>미팅 시작 시 읽어줄 핵심 포인트</div>
+                      <div className={styles.insightText}>{agentKeyInsightText}</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 피칭 포인트 */}
+                {agentPitchPoints.length > 0 && (
+                  <div style={{ marginBottom: 20 }}>
+                    <div className={styles.sectionTitle}>핵심 피칭 포인트</div>
+                    <div className={styles.agentPointsList}>
+                      {agentPitchPoints.map((point: string, i: number) => (
+                        <div key={i} className={styles.agentPointItem}>
+                          <div className={styles.agentPointNum}>{i + 1}</div>
+                          <div className={styles.agentPointText}>{point}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 화법 스크립트 */}
+                {agentScripts && (
+                  <div style={{ marginBottom: 20 }}>
                     <div className={styles.sectionTitle}>화법 스크립트</div>
-                    {data.consultationScripts.map((script: string, i: number) => (
+                    {agentScriptLines.map((script: string, i: number) => (
                       <div key={i} className={styles.scriptBox}>
                         <div className={styles.scriptNum}>화법 {i + 1}</div>
                         <div className={styles.scriptText}>
@@ -1096,11 +1154,11 @@ function ReportModal({ data, blocks, localCoverageSummary, localCompanyDistribut
                         </div>
                       </div>
                     ))}
-                  </>
+                  </div>
                 )}
 
                 <div className={styles.reportFooter}>
-                  <span>iPlanner v1.0 &nbsp;|&nbsp; AI 포함 설계사 전용</span>
+                  <span>iPlanner v1.0 &nbsp;|&nbsp; 설계사 전용 — 고객 공유 금지</span>
                   <span>{totalPages} / {totalPages}</span>
                 </div>
               </div>
