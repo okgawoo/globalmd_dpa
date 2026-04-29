@@ -1,934 +1,328 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react'
-import SmsSlidePanel from '../components/SmsSlide'
-import { useRouter } from 'next/router'
+import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import styles from '../styles/Sales.module.css'
-
-const FLOW_STAGES = [
-  { key: '첫 인사', icon: '📞', label: '첫 인사' },
-  { key: '통화', icon: '💬', label: '통화 / 문자' },
-  { key: '미팅확정', icon: '🤝', label: '미팅 확정' },
-  { key: '미팅완료', icon: '✅', label: '미팅 완료' },
-  { key: '계약검토', icon: '📋', label: '계약 검토' },
-  { key: '계약완료', icon: '🎉', label: '계약 완료' },
-]
-
-const TYPE_OPTIONS = ['첫 인사', '통화', '문자', '미팅', '방문']
-const STATUS_OPTIONS = ['대기', '확정', '취소', '완료']
-
-// ── 드래그로 닫히는 슬라이드업 패널 컴포넌트 ──
-function FlowPanel({ onClose, title, children }: { onClose: () => void; title: string; children: React.ReactNode }) {
-  const panelRef = useRef<HTMLDivElement>(null)
-  const overlayRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const panel = panelRef.current
-    if (!panel) return
-    let startY = 0, curY = 0, dragging = false
-
-    const onStart = (e: TouchEvent) => {
-      startY = e.touches[0].clientY
-      dragging = true
-      panel.style.transition = 'none'
-      e.stopPropagation()
-    }
-    const onMove = (e: TouchEvent) => {
-      if (!dragging) return
-      e.stopPropagation()
-      e.preventDefault()
-      curY = e.touches[0].clientY - startY
-      if (curY > 0) panel.style.transform = `translateY(${curY}px)`
-    }
-    const onEnd = (e: TouchEvent) => {
-      if (!dragging) return
-      dragging = false
-      e.stopPropagation()
-      panel.style.transition = 'transform 0.3s ease'
-      if (curY > 100) {
-        panel.style.transform = 'translateY(100%)'
-        setTimeout(onClose, 280)
-      } else {
-        panel.style.transform = 'translateY(0)'
-      }
-      curY = 0
-    }
-
-    panel.addEventListener('touchstart', onStart, { passive: true })
-    panel.addEventListener('touchmove', onMove, { passive: false })
-    panel.addEventListener('touchend', onEnd, { passive: true })
-    return () => {
-      panel.removeEventListener('touchstart', onStart)
-      panel.removeEventListener('touchmove', onMove)
-      panel.removeEventListener('touchend', onEnd)
-    }
-  }, [onClose])
-
-  return (
-    <div ref={overlayRef} onClick={onClose} style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.45)',zIndex:300,display:'flex',alignItems:'flex-end'}}>
-      <div
-        ref={panelRef}
-        onClick={e => e.stopPropagation()}
-        style={{width:'100%',maxWidth:'100vw',boxSizing:'border-box',background:'white',borderRadius:'20px 20px 0 0',maxHeight:'85vh',display:'flex',flexDirection:'column',animation:'slideUp 0.3s ease'}}
-      >
-        {/* 핸들 */}
-        <div style={{display:'flex',justifyContent:'center',padding:'12px 0 4px',cursor:'grab',flexShrink:0}}>
-          <div style={{width:40,height:4,borderRadius:2,background:'#D1D5DB'}} />
-        </div>
-        {/* 헤더 */}
-        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'8px 20px 12px',borderBottom:'1px solid #F3F4F6',flexShrink:0}}>
-          <span style={{fontSize:16,fontWeight:700,color:'#111827'}}>{title}</span>
-          <button onClick={e => { e.stopPropagation(); onClose() }} style={{background:'none',border:'none',fontSize:18,color:'#9CA3AF',cursor:'pointer',padding:4}}>✕</button>
-        </div>
-        {/* 내용 */}
-        <div style={{overflowY:'auto',overflowX:'hidden',flex:1,paddingBottom:32,boxSizing:'border-box'}}>
-          {children}
-        </div>
-      </div>
-    </div>
-  )
-}
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, LineChart, Line, CartesianGrid } from 'recharts'
 
 export default function Sales() {
-  const router = useRouter()
-  const [agentId, setAgentId] = useState('')
-  const [meetings, setMeetings] = useState<any[]>([])
-  const [customers, setCustomers] = useState<any[]>([])
   const [contracts, setContracts] = useState<any[]>([])
-  const [coverages, setCoverages] = useState<any[]>([])
+  const [messages, setMessages] = useState<any[]>([])
+  const [customers, setCustomers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'contact' | 'meeting' | 'flow'>('contact')
-  const [meetingSubTab, setMeetingSubTab] = useState<'today' | 'week' | 'next' | 'past'>('today')
-  const [sortAsc, setSortAsc] = useState(true) // true = 오름차순(오늘 가까운 순)
-  const [showForm, setShowForm] = useState(false)
-  const [showFlow, setShowFlow] = useState(false)
-  const [editingMemoStage, setEditingMemoStage] = useState<string | null>(null)
-  const [editingMemoText, setEditingMemoText] = useState('')
-  const [customerSearch, setCustomerSearch] = useState('')
-  const [highlightId, setHighlightId] = useState<string|null>(null)
-  const [smsOpen, setSmsOpen] = useState(false)
-  const [smsCustomer, setSmsCustomer] = useState<any>(null)
-  const [editId, setEditId] = useState<string|null>(null)
-  const [editForm, setEditForm] = useState<any>({})
-  const [selectedCustomer, setSelectedCustomer] = useState<any>(null)
-
-  const [form, setForm] = useState({
-    customer_id: '',
-    introducer: '',
-    meeting_date: new Date().toISOString().split('T')[0],
-    meeting_time: '',
-    location: '',
-    type: '미팅',
-    status: '대기',
-    pipeline_stage: '첫 인사',
-    memo: '',
-  })
-
-  const now = new Date()
-  const todayStr = now.toISOString().split('T')[0]
-
-  useEffect(() => { init() }, [])
-
-  // meetingId에 해당하는 미팅 날짜 기준으로 탭 자동 전환
-  useEffect(() => {
-    const { meetingId } = router.query
-    if (!meetingId || meetings.length === 0) return
-    const target = meetings.find((m: any) => m.id === meetingId)
-    if (!target) return
-    const today = new Date().toISOString().split('T')[0]
-    const weekStart = (() => { const d = new Date(); d.setDate(d.getDate() - d.getDay() + 1); return d.toISOString().split('T')[0] })()
-    const weekEnd = (() => { const d = new Date(); d.setDate(d.getDate() - d.getDay() + 7); return d.toISOString().split('T')[0] })()
-    const nextWeekStart = (() => { const d = new Date(); d.setDate(d.getDate() - d.getDay() + 8); return d.toISOString().split('T')[0] })()
-    const nextWeekEnd = (() => { const d = new Date(); d.setDate(d.getDate() - d.getDay() + 14); return d.toISOString().split('T')[0] })()
-    setActiveTab('meeting')
-    if (target.meeting_date === today) setMeetingSubTab('today')
-    else if (target.meeting_date >= weekStart && target.meeting_date <= weekEnd) setMeetingSubTab('week')
-    else if (target.meeting_date >= nextWeekStart && target.meeting_date <= nextWeekEnd) setMeetingSubTab('next')
-    else setMeetingSubTab('past')
-  }, [meetings, router.query])
-
-  // meetingId에 해당하는 미팅 날짜 기준으로 탭 자동 전환
-  useEffect(() => {
-    const { meetingId } = router.query
-    if (!meetingId || meetings.length === 0) return
-    const target = meetings.find((m: any) => m.id === meetingId)
-    if (!target) return
-    const today = new Date().toISOString().split('T')[0]
-    const weekStart = (() => { const d = new Date(); d.setDate(d.getDate() - d.getDay() + 1); return d.toISOString().split('T')[0] })()
-    const weekEnd = (() => { const d = new Date(); d.setDate(d.getDate() - d.getDay() + 7); return d.toISOString().split('T')[0] })()
-    const nextWeekStart = (() => { const d = new Date(); d.setDate(d.getDate() - d.getDay() + 8); return d.toISOString().split('T')[0] })()
-    const nextWeekEnd = (() => { const d = new Date(); d.setDate(d.getDate() - d.getDay() + 14); return d.toISOString().split('T')[0] })()
-    if (target.meeting_date === today) setMeetingSubTab('today')
-    else if (target.meeting_date >= weekStart && target.meeting_date <= weekEnd) setMeetingSubTab('week')
-    else if (target.meeting_date >= nextWeekStart && target.meeting_date <= nextWeekEnd) setMeetingSubTab('next')
-    else setMeetingSubTab('past')
-  }, [meetings, router.query])
+  const [monthlyGoal, setMonthlyGoal] = useState(0)
+  const [editingGoal, setEditingGoal] = useState(false)
+  const [goalInput, setGoalInput] = useState('')
 
   useEffect(() => {
-    // localStorage에서 정렬 설정 로드
-    const saved = localStorage.getItem('dpa_sort_asc')
-    if (saved !== null) setSortAsc(saved === 'true')
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) return
+      supabase.from('dpa_agents').select('id').eq('user_id', data.user.id).single().then(({ data: agent }) => {
+        if (agent) fetchData(agent.id)
+      })
+    })
+    const saved = localStorage.getItem('monthly_goal')
+    if (saved) setMonthlyGoal(parseInt(saved))
   }, [])
 
-  useEffect(() => {
-    const { meetingId, tab, sub, showForm: showFormParam } = router.query
-    if (tab === 'meeting') { setActiveTab('meeting'); if (sub) setMeetingSubTab(sub as any) }
-    else if (tab === 'flow') setActiveTab('flow')
-    else if (tab === 'contact') setActiveTab('contact')
-    if (showFormParam === 'true') setShowForm(true)
-    if (meetingId) {
-      setActiveTab('meeting')
-      setHighlightId(meetingId as string)
-      // meetingId 날짜에 맞는 탭은 meetings 로드 후 처리 (아래 useEffect)
-    }
-  }, [router.query])
-
-  async function init() {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { router.push('/login'); return }
-    setAgentId(user.id)
-    await fetchAll(user.id)
+  async function fetchData(aId: string) {
+    const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1).toISOString()
+    const [{ data: contractData }, { data: msgData }, { data: custData }] = await Promise.all([
+      supabase.from('dpa_contracts').select('*').eq('agent_id', aId),
+      supabase.from('dpa_messages').select('id, sent_at, created_at, message_type').eq('agent_id', aId).gte('sent_at', sixMonthsAgo),
+      supabase.from('dpa_customers').select('id, created_at').eq('agent_id', aId).gte('created_at', sixMonthsAgo),
+    ])
+    setContracts(contractData || [])
+    setMessages(msgData || [])
+    setCustomers(custData || [])
     setLoading(false)
   }
 
-  async function fetchAll(aid: string) {
-    const [{ data: m }, { data: c }, { data: ct }, { data: cv }] = await Promise.all([
-      supabase.from('dpa_meetings').select('*').eq('agent_id', aid).order('meeting_date', { ascending: true }),
-      supabase.from('dpa_customers').select('*').eq('agent_id', aid),
-      supabase.from('dpa_contracts').select('*').eq('agent_id', aid),
-      supabase.from('dpa_coverages').select('*'),
-    ])
-    setMeetings(m || [])
-    setCustomers(c || [])
-    setContracts(ct || [])
-    setCoverages(cv || [])
-  }
+  const now = new Date()
+  const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+  const thisMonthContracts = contracts.filter(c => c.created_at >= thisMonthStart)
+  const thisMonthFee = thisMonthContracts.reduce((sum, c) => sum + (c.monthly_fee || 0), 0)
+  const totalFee = contracts.reduce((sum, c) => sum + (c.monthly_fee || 0), 0)
+  const uniqueCustomers = new Set(contracts.map(c => c.customer_id)).size
 
-  const todayMeetings = meetings.filter(m => m.meeting_date === todayStr)
-  const upcomingMeetings = meetings.filter(m => m.meeting_date > todayStr && m.status !== '취소' && m.status !== '완료')
-  const contactMeetings = meetings.filter(m => (m.type === '전화' || m.type === '문자') && m.status !== '취소' && m.status !== '완료')
-  const pastMeetings = meetings.filter(m => m.meeting_date < todayStr).sort((a,b) => b.meeting_date.localeCompare(a.meeting_date))
-  // 이번 주 (오늘 포함 앞뒤 7일)
-  const weekStart = new Date(); weekStart.setDate(weekStart.getDate() - weekStart.getDay())
-  const weekEnd = new Date(weekStart); weekEnd.setDate(weekEnd.getDate() + 6)
-  const weekStartStr = weekStart.toISOString().slice(0,10)
-  const weekEndStr = weekEnd.toISOString().slice(0,10)
-  const weekMeetings = meetings.filter(m => m.meeting_date >= weekStartStr && m.meeting_date <= weekEndStr).sort((a,b) => a.meeting_date.localeCompare(b.meeting_date))
-  const weekDays = Array.from({length:7}, (_,i) => { const d = new Date(weekStart); d.setDate(d.getDate()+i); return d.toISOString().slice(0,10) })
-  // 다음 주
-  const nextWeekStart = new Date(weekStart); nextWeekStart.setDate(nextWeekStart.getDate() + 7)
-  const nextWeekEnd = new Date(nextWeekStart); nextWeekEnd.setDate(nextWeekEnd.getDate() + 6)
-  const nextWeekStartStr = nextWeekStart.toISOString().slice(0,10)
-  const nextWeekEndStr = nextWeekEnd.toISOString().slice(0,10)
-  const nextWeekMeetings = meetings.filter(m => m.meeting_date >= nextWeekStartStr && m.meeting_date <= nextWeekEndStr).sort((a,b) => a.meeting_date.localeCompare(b.meeting_date))
-  const nextWeekDays = Array.from({length:7}, (_,i) => { const d = new Date(nextWeekStart); d.setDate(d.getDate()+i); return d.toISOString().slice(0,10) })
+  // 최근 6개월 공통 라벨 생성
+  const last6MonthsMeta = Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1)
+    const nd = new Date(now.getFullYear(), now.getMonth() - (5 - i) + 1, 1)
+    return { label: `${d.getMonth() + 1}월`, from: d.toISOString(), to: nd.toISOString() }
+  })
 
-  // 오늘 연락할 고객
-  const nearDone = customers.filter(c => {
-    const cContracts = contracts.filter(ct => ct.customer_id === c.id)
-    return cContracts.some(ct => {
-      if (ct.payment_status === '완납') return false
-      if (ct.contract_start && ct.payment_years) {
-        const match = ct.payment_years.match(/(\d+)년/)
-        if (match) {
-          const total = parseInt(match[1]) * 12
-          const [y, mo] = ct.contract_start.split('.').map(Number)
-          if (y && mo) {
-            const paid = (now.getFullYear() - y) * 12 + (now.getMonth() + 1 - mo) + 1
-            return Math.min(Math.round(Math.max(0, paid) / total * 100), 100) >= 90
-          }
-        }
-      }
-      return false
+  // 계약 차트 데이터
+  const last6Months = last6MonthsMeta.map(({ label, from, to }) => ({
+    label,
+    count: contracts.filter(c => c.created_at >= from && c.created_at < to).length,
+  }))
+
+  // 발송 차트 데이터 (문자/카톡 구분)
+  const last6MonthsMessages = last6MonthsMeta.map(({ label, from, to }) => {
+    const inRange = messages.filter(m => {
+      const t = m.sent_at || m.created_at
+      return t >= from && t < to
     })
+    const kakao = inRange.filter(m => m.message_type === 'kakao').length
+    const sms = inRange.length - kakao
+    return { label, sms, kakao, total: inRange.length }
   })
 
-  const birthdayContacts = customers.filter(c => {
-    if (!c.birth_date) return false
-    const b = new Date(c.birth_date)
-    return b.getMonth() === now.getMonth() && Math.abs(b.getDate() - now.getDate()) <= 7
+  // 신규 고객 차트 데이터
+  const last6MonthsCustomers = last6MonthsMeta.map(({ label, from, to }) => ({
+    label,
+    count: customers.filter(c => c.created_at >= from && c.created_at < to).length,
+  }))
+
+  const typeBreakdown: Record<string, { count: number; fee: number }> = {}
+  contracts.forEach(c => {
+    const t = c.insurance_type || '기타'
+    if (!typeBreakdown[t]) typeBreakdown[t] = { count: 0, fee: 0 }
+    typeBreakdown[t].count++
+    typeBreakdown[t].fee += c.monthly_fee || 0
   })
+  const typeData = Object.entries(typeBreakdown)
+    .map(([name, d]) => ({ name, ...d }))
+    .sort((a, b) => b.count - a.count)
 
-  const gapCustomers = customers.filter(c => {
-    const cContracts = contracts.filter(ct => ct.customer_id === c.id)
-    const cCoverages = coverages.filter((cv: any) => cContracts.some(ct => ct.id === cv.contract_id))
-    const brainTypes = cCoverages.filter((cv: any) => cv.category === '뇌혈관').map((cv: any) => cv.brain_coverage_type)
-    return brainTypes.length === 0 || brainTypes.every((t: string) => t === '뇌출혈')
-  })
+  const goalProgress = monthlyGoal > 0 ? Math.min(Math.round((thisMonthContracts.length / monthlyGoal) * 100), 100) : 0
 
-  const getMeetingBadge = (m: any) => {
-    const c = customers.find((c: any) => c.id === m.customer_id)
-    if (!c) return { text: '알수없음', color: '#6B7280', bg: '#F3F4F6' }
-    if (c.customer_type === 'prospect') return { text: '관심고객', color: '#B45309', bg: '#FEF3E2' }
-    return { text: '마이고객', color: '#1D4ED8', bg: '#EFF6FF' }
-  }
-
-  const getMeetingName = (m: any) => {
-    const c = customers.find(c => c.id === m.customer_id)
-    return c ? c.name : '이름 없음'
-  }
-
-  // 공통 미팅 카드 렌더러
-  const renderMeetingCard = (m: any, opts?: { showDate?: boolean, dateColor?: string, opacity?: number }) => {
-    const badge = getMeetingBadge(m)
-    const isToday = m.meeting_date === todayStr
-    const isHighlighted = highlightId === m.id
-    const dateObj = new Date(m.meeting_date + 'T00:00:00')
-    const dateLabel = isToday ? '오늘' : `${dateObj.getMonth()+1}/${dateObj.getDate()}(${['일','월','화','수','목','금','토'][dateObj.getDay()]})`
-    const dateColor = opts?.dateColor || (isToday ? '#1D9E75' : 'var(--text-secondary)')
-    const showDate = opts?.showDate !== false
-
-    return (
-      <div key={m.id}
-        ref={el => { if (el && isHighlighted) setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300) }}
-        className={styles.meetingCard}
-        style={{
-          borderLeft: isHighlighted ? '3px solid #1D9E75' : isToday ? '3px solid #1D9E75' : '3px solid transparent',
-          background: isHighlighted ? 'var(--green-light)' : 'var(--bg-card)',
-          opacity: opts?.opacity ?? 1,
-          transition: 'background 0.3s',
-          marginBottom: 6,
-        }}
-      >
-        <div className={styles.meetingTop}>
-          <span className={styles.meetingName}>{getMeetingName(m)}</span>
-          <span className={styles.statusBadge} style={{background:badge.bg,color:badge.color}}>{badge.text}</span>
-        </div>
-        {showDate && (
-          <div style={{fontSize:12,color:dateColor,marginTop:2,fontWeight:isToday?600:400}}>
-            📅 {dateLabel} {m.meeting_time||''}
-          </div>
-        )}
-        {!showDate && m.meeting_time && (
-          <div style={{fontSize:12,color:'var(--text-secondary)',marginTop:2}}>🕐 {m.meeting_time}</div>
-        )}
-        <div className={styles.meetingBottom}>
-          <span className={styles.meetingLocation}>📍 {m.location||'장소 미정'}</span>
-          <div style={{display:'flex',alignItems:'center',gap:6,marginLeft:'auto'}}>
-            <span className={styles.typeBadge}>{m.type||'미팅'}</span>
-            {m.cancel_count > 0 && <span className={styles.cancelWarn}>⚠ 취소 {m.cancel_count}회</span>}
-            {m.customer_id && (
-              <button className={styles.actionBtn} style={{background:'var(--green-light)',color:'var(--green)',fontWeight:600,padding:'3px 10px',fontSize:11}}
-                onClick={e=>{e.stopPropagation();const c=customers.find((c:any)=>c.id===m.customer_id);setSmsCustomer(c);setSmsOpen(true)}}>
-                📱 문자
-              </button>
-            )}
-          </div>
-        </div>
-        {m.memo && <div style={{fontSize:12,color:'var(--text-muted)',marginTop:6}}>💬 {m.memo}</div>}
-        {editId === m.id ? (
-          <div style={{marginTop:10,background:'var(--bg)',borderRadius:8,padding:10}}>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:8}}>
-              <div><label style={{fontSize:11,color:'var(--text-secondary)'}}>날짜</label><input type="date" value={editForm.meeting_date||''} onChange={e=>setEditForm((f:any)=>({...f,meeting_date:e.target.value}))} style={{width:'100%',fontSize:13,padding:'6px 8px',border:'1px solid var(--border)',borderRadius:6,background:'var(--bg-card)',color:'var(--text-primary)'}} /></div>
-              <div><label style={{fontSize:11,color:'var(--text-secondary)'}}>시간</label><input type="time" value={editForm.meeting_time||''} onChange={e=>setEditForm((f:any)=>({...f,meeting_time:e.target.value}))} style={{width:'100%',fontSize:13,padding:'6px 8px',border:'1px solid var(--border)',borderRadius:6,background:'var(--bg-card)',color:'var(--text-primary)'}} /></div>
-            </div>
-            <div style={{marginBottom:8}}><label style={{fontSize:11,color:'var(--text-secondary)'}}>장소</label><input value={editForm.location||''} onChange={e=>setEditForm((f:any)=>({...f,location:e.target.value}))} placeholder="장소" style={{width:'100%',fontSize:13,padding:'6px 8px',border:'1px solid var(--border)',borderRadius:6,background:'var(--bg-card)',color:'var(--text-primary)'}} /></div>
-            <div style={{marginBottom:8}}><label style={{fontSize:11,color:'var(--text-secondary)'}}>메모</label><input value={editForm.memo||''} onChange={e=>setEditForm((f:any)=>({...f,memo:e.target.value}))} placeholder="메모" style={{width:'100%',fontSize:13,padding:'6px 8px',border:'1px solid var(--border)',borderRadius:6,background:'var(--bg-card)',color:'var(--text-primary)'}} /></div>
-            <div style={{display:'flex',gap:6}}>
-              <button onClick={()=>handleEdit(m.id)} style={{flex:1,padding:'7px',background:'#1D9E75',color:'white',border:'none',borderRadius:6,fontSize:13,cursor:'pointer'}}>저장</button>
-              <button onClick={()=>setEditId(null)} style={{flex:1,padding:'7px',background:'var(--bg)',color:'var(--text-secondary)',border:'none',borderRadius:6,fontSize:13,cursor:'pointer'}}>취소</button>
-            </div>
-          </div>
-        ) : (
-          <>
-            <div className={styles.actionRow}>
-              <button className={styles.actionBtn} onClick={()=>{setEditId(m.id);setEditForm(m)}}>✏️ 수정</button>
-              {STATUS_OPTIONS.filter(s=>s!==m.status).map(s=>(
-                <button key={s} className={styles.actionBtn} onClick={()=>updateStatus(m.id,s)}>{s}</button>
-              ))}
-              {m.customer_id && (
-                <button className={styles.actionBtn} onClick={()=>{
-                  const c=customers.find((c:any)=>c.id===m.customer_id)
-                  setSelectedCustomer(c); setShowFlow(true)
-                }}>영업 이력</button>
-              )}
-            </div>
-            {m.customer_id && (
-              <div className={styles.actionRow} style={{marginTop:4}}>
-                {(['existing','prospect'] as const).filter(t=>{
-                  const c=customers.find((c:any)=>c.id===m.customer_id)
-                  return c?.customer_type!==t
-                }).map(t=>(
-                  <button key={t} className={styles.actionBtn} style={{fontSize:11,color:'var(--text-secondary)'}}
-                    onClick={()=>supabase.from('dpa_customers').update({customer_type:t}).eq('id',m.customer_id).then(()=>fetchAll(agentId))}>
-                    {t==='existing'?'마이고객으로 이동':'관심고객으로 이동'}
-                  </button>
-                ))}
-              </div>
-            )}
-          </>
-        )}
-      </div>
-    )
-  }
-
-  const getStatusClass = (s: string) => {
-    if (s === '확정') return styles.statusConfirmed
-    if (s === '대기') return styles.statusPending
-    if (s === '취소') return styles.statusCancelled
-    return styles.statusDone
-  }
-
-  // 영업 플로우 단계 계산
-  const getCustomerFlow = (customerId: string) => {
-    const customerMeetings = meetings.filter(m => m.customer_id === customerId)
-    const stages = FLOW_STAGES.map(s => s.key)
-    let currentStageIdx = -1
-
-    // 가장 높은 단계 찾기
-    customerMeetings.forEach(m => {
-      if (m.pipeline_stage) {
-        const idx = stages.indexOf(m.pipeline_stage)
-        if (idx > currentStageIdx) currentStageIdx = idx
-      }
-    })
-
-    return { currentStageIdx, customerMeetings }
-  }
-
-  async function handleEdit(id: string) {
-    const { error } = await supabase.from('dpa_meetings').update({
-      meeting_date: editForm.meeting_date,
-      meeting_time: editForm.meeting_time,
-      location: editForm.location,
-      status: editForm.status,
-      memo: editForm.memo,
-    }).eq('id', id)
-    if (error) { alert('수정 실패: ' + error.message); return }
-    setEditId(null)
-    await fetchAll(agentId)
-  }
-
-  async function handleSubmit() {
-    if (!form.meeting_date) return alert('날짜를 입력해주세요')
-    if (!form.customer_id) return alert('고객을 선택해주세요')
-
-    const payload: any = {
-      agent_id: agentId,
-      meeting_date: form.meeting_date,
-      meeting_time: form.meeting_time,
-      location: form.location,
-      type: form.type,
-      status: form.status,
-      pipeline_stage: form.pipeline_stage,
-      memo: form.memo,
+  function saveGoal() {
+    const val = parseInt(goalInput)
+    if (!isNaN(val) && val > 0) {
+      setMonthlyGoal(val)
+      localStorage.setItem('monthly_goal', val.toString())
     }
-
-    payload.customer_id = form.customer_id
-    payload.introducer = form.introducer
-
-    const { error } = await supabase.from('dpa_meetings').insert(payload)
-    if (error) { alert('저장 실패: ' + error.message); return }
-
-    setShowForm(false)
-    setForm({ customer_id: '', introducer: '', meeting_date: todayStr, meeting_time: '', location: '', type: '미팅', status: '대기', pipeline_stage: '첫 인사', memo: '' })
-setCustomerSearch('')
-    await fetchAll(agentId)
+    setEditingGoal(false)
   }
 
-  async function updateStatus(id: string, status: string) {
-    const m = meetings.find(m => m.id === id)
-    const updates: any = { status }
-    if (status === '취소') updates.cancel_count = (m?.cancel_count || 0) + 1
-    await supabase.from('dpa_meetings').update(updates).eq('id', id)
-    await fetchAll(agentId)
-  }
+  const card = (i: number, label: string, value: string, sub: string, color = '#5E6AD2') => (
+    <div key={i} style={{ background: '#fff', borderRadius: 8, border: '1px solid #E5E7EB', padding: '12px 14px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+      <p style={{ fontSize: 12, color: '#636B78', fontWeight: 500, margin: '0 0 8px' }}>{label}</p>
+      <p style={{ fontSize: 20, fontWeight: 700, color, margin: '0 0 2px', whiteSpace: 'nowrap' }}>{value}</p>
+      <p style={{ fontSize: 11, color: '#8892A0', margin: 0 }}>{sub}</p>
+    </div>
+  )
 
-  if (loading) return <div className={styles.loading}>불러오는 중...</div>
+  // 공통 바차트 렌더러
+  const miniBarChart = (
+    data: { label: string; count: number }[],
+    currentFill: string,
+    otherFill: string,
+    tooltipLabel: string,
+    unit: string
+  ) => (
+    <ResponsiveContainer width="100%" height={160}>
+      <BarChart data={data} margin={{ top: 4, right: 8, left: -24, bottom: 0 }}>
+        <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#8892A0' }} axisLine={false} tickLine={false} />
+        <YAxis tick={{ fontSize: 11, fill: '#8892A0' }} axisLine={false} tickLine={false} allowDecimals={false} />
+        <Tooltip formatter={(v: any) => [`${v}${unit}`, tooltipLabel]} cursor={{ fill: 'rgba(94,106,210,0.06)' }} />
+        <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+          {data.map((_, i) => (
+            <Cell key={i} fill={i === 5 ? currentFill : otherFill} />
+          ))}
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
+  )
+
+  if (loading) return <div style={{ padding: 60, textAlign: 'center', fontSize: 14, color: '#8892A0' }}>로딩 중...</div>
+
+  const thisMonthMessages = messages.filter(m => {
+    const t = m.sent_at || m.created_at
+    return t >= thisMonthStart
+  }).length
+  const thisMonthCustomers = customers.filter(c => c.created_at >= thisMonthStart).length
 
   return (
-    <>
-      {smsOpen && smsCustomer && (
-        <SmsSlidePanel
-          isOpen={smsOpen}
-          onClose={() => { setSmsOpen(false); setSmsCustomer(null) }}
-          customer={smsCustomer}
-          meetings={meetings}
-          contracts={contracts}
-          coverages={coverages}
-          agentId={agentId}
-        />
-      )}
-      {/* 탭 */}
-      <div style={{ display: 'flex', borderBottom: '2px solid #EDEBE4', marginBottom: 0, background: 'none' }}>
-        {[
-          { key: 'contact', label: '✨ AI추천' },
-          { key: 'meeting', label: '📅 미팅 일정' },
-          { key: 'flow',    label: '📊 영업 이력' },
-        ].map(tab => (
-          <button key={tab.key}
-            onClick={() => { setActiveTab(tab.key as any); router.push(`/sales?tab=${tab.key}`, undefined, { shallow: true }) }}
-            style={{ padding: '10px 20px', fontSize: 14, fontWeight: activeTab === tab.key ? 700 : 500, color: activeTab === tab.key ? '#1D9E75' : '#999', background: 'none', border: 'none', borderBottom: activeTab === tab.key ? '2px solid #1D9E75' : '2px solid transparent', marginBottom: '-2px', cursor: 'pointer' }}>
-            {tab.label}
-          </button>
-        ))}
+    <div style={{ padding: '24px 20px', maxWidth: 900, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+      {/* 헤더 */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <div>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1A1A2E', margin: 0 }}>영업 현황</h1>
+          <p style={{ fontSize: 13, color: '#8892A0', margin: '4px 0 0' }}>
+            {now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long' })} 기준
+          </p>
+        </div>
       </div>
-    <div className={styles.wrap}
-      onTouchStart={e => { (e.currentTarget as any)._touchStartX = e.touches[0].clientX }}
-      onTouchMove={e => {
-        const startX = (e.currentTarget as any)._touchStartX
-        const dx = e.touches[0].clientX - startX
-        // 우→좌 스와이프 막기 (좌→우는 허용)
-        if (dx < -10) e.stopPropagation()
-      }}
-    >
-      <style>{`@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }`}</style>
 
-      {/* ── 미팅 일정 탭 ── */}
-      {activeTab === 'meeting' && (
-        <div style={{paddingTop:12}}>
+      {/* KPI 카드 4개 */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+        {card(0, '이번달 계약', `${thisMonthContracts.length}건`, `전체 ${contracts.length}건`, '#5E6AD2')}
+        {card(1, '이번달 월보험료', `${Math.round(thisMonthFee / 10000)}만원`, `전체 ${Math.round(totalFee / 10000)}만원`, '#0D9488')}
+        {card(2, '계약 보유 고객', `${uniqueCustomers}명`, `전체 계약 ${contracts.length}건`, '#1A1A2E')}
+        {card(3, '취급 보험 종류', `${typeData.length}종`, `월평균 ${Math.round(totalFee / 10000 / Math.max(last6Months.filter(m => m.count > 0).length, 1))}만원`, '#1A1A2E')}
+      </div>
 
-          {/* 하위 탭 + 정렬 아이콘 */}
-          <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:16,borderBottom:'1px solid #F3F4F6',paddingBottom:8}}>
-            <div style={{display:'flex',gap:6,flex:1,flexWrap:'wrap'}}>
-              {(['today','week','next','past'] as const).map(t => (
-                <button key={t}
-                  onClick={() => { setMeetingSubTab(t); router.push(`/sales?tab=meeting&sub=${t}`, undefined, {shallow:true}) }}
-                  style={{
-                    padding:'5px 12px', borderRadius:16, fontSize:12, fontWeight:600, border:'none', cursor:'pointer',
-                    background: meetingSubTab === t ? '#1D9E75' : '#F3F4F6',
-                    color: meetingSubTab === t ? 'white' : '#6B7280'
-                  }}>
-                  {t==='today'?'오늘':t==='week'?'이번 주':t==='next'?'다음 주':'지난 미팅'}
-                </button>
-              ))}
-            </div>
+      {/* Row 1 — 계약 그래프 + 목표 */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+
+        {/* 월별 계약 그래프 */}
+        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #E5E7EB', padding: 20 }}>
+          <p style={{ fontSize: 15, fontWeight: 700, color: '#1A1A2E', margin: '0 0 16px' }}>최근 6개월 계약 현황</p>
+          {miniBarChart(last6Months, '#5E6AD2', '#C7C9F0', '계약 수', '건')}
+        </div>
+
+        {/* 목표 관리 */}
+        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #E5E7EB', padding: 20 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <p style={{ fontSize: 15, fontWeight: 700, color: '#1A1A2E', margin: 0 }}>이번달 목표</p>
             <button
-              onClick={() => { const next = !sortAsc; setSortAsc(next); localStorage.setItem('dpa_sort_asc', String(next)) }}
-              style={{padding:'5px 10px',borderRadius:16,fontSize:13,border:'1px solid var(--border)',background:'var(--bg-card)',cursor:'pointer',color:'var(--text-secondary)',flexShrink:0}}>
-              {'⇅'}
+              onClick={() => { setGoalInput(monthlyGoal.toString()); setEditingGoal(true) }}
+              style={{ fontSize: 12, color: '#5E6AD2', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}
+            >
+              {monthlyGoal > 0 ? '수정' : '+ 목표 설정'}
             </button>
           </div>
 
-          {/* 오늘 */}
-          {meetingSubTab === 'today' && (() => {
-            const sorted = sortAsc
-              ? [...todayMeetings].sort((a,b) => (a.meeting_time||'').localeCompare(b.meeting_time||''))
-              : [...todayMeetings].sort((a,b) => (b.meeting_time||'').localeCompare(a.meeting_time||''))
-            return (
-              <div>
-                <div className={styles.sectionHeader}>
-                  <span style={{ display:'flex', alignItems:'center', gap:8, fontSize:13, fontWeight:600, color:'#1a1a1a' }}><span style={{ width:3, height:12, background:'#1D9E75', borderRadius:2, display:'inline-block', flexShrink:0 }}></span>오늘 미팅 ({sorted.length}건)</span>
-                  <button className={styles.addBtn} onClick={() => setShowForm(true)}>+ 미팅 추가</button>
-                </div>
-                {sorted.length === 0 && <div className={styles.empty}>미팅이 없어요 😊</div>}
-                <div className={styles.meetingList}>
-                  {sorted.map(m => renderMeetingCard(m, { showDate: true }))}
-                </div>
-              </div>
-            )
-          })()}
-
-          {/* 이번 주 */}
-          {meetingSubTab === 'week' && (
-            <div className={styles.meetingList}>
-              {(sortAsc ? weekDays : [...weekDays].reverse()).map(day => {
-                const raw = weekMeetings.filter(m => m.meeting_date === day)
-                if (raw.length === 0) return null
-                const dayMeetings = [...raw].sort((a,b) => (a.meeting_time||'').localeCompare(b.meeting_time||''))
-                const dateObj = new Date(day + 'T00:00:00')
-                const isToday = day === todayStr
-                const dayLabel = ['일','월','화','수','목','금','토'][dateObj.getDay()]
-                const monthDay = `${dateObj.getMonth()+1}/${dateObj.getDate()}`
-                return (
-                  <div key={day} style={{marginBottom:12}}>
-                    <div style={{display:'flex',alignItems:'center',gap:8,padding:'5px 10px',borderRadius:8,marginBottom:4,background:isToday?'#ECFDF5':'#F9FAFB',border:isToday?'1px solid #1D9E75':'1px solid #F3F4F6'}}>
-                      <span style={{fontWeight:700,fontSize:13,color:isToday?'#1D9E75':'#374151'}}>{monthDay}({dayLabel})</span>
-                      {isToday && <span style={{fontSize:10,background:'#1D9E75',color:'white',borderRadius:10,padding:'1px 6px'}}>오늘</span>}
-                      <span style={{fontSize:11,color:'#9CA3AF',marginLeft:'auto'}}>{dayMeetings.length}건</span>
-                    </div>
-                    {dayMeetings.map(m => renderMeetingCard(m, { showDate: false }))}
-                  </div>
-                )
-              })}
-              <div style={{textAlign:'center',marginTop:8}}>
-                <button className={styles.addBtn} onClick={()=>setShowForm(true)}>+ 미팅 추가</button>
-              </div>
-            </div>
-          )}
-
-          {/* 다음 주 */}
-          {meetingSubTab === 'next' && (
-            <div className={styles.meetingList}>
-              {(sortAsc ? nextWeekDays : [...nextWeekDays].reverse()).map(day => {
-                const raw = nextWeekMeetings.filter(m => m.meeting_date === day)
-                if (raw.length === 0) return null
-                const dayMeetings = [...raw].sort((a,b) => (a.meeting_time||'').localeCompare(b.meeting_time||''))
-                const dateObj = new Date(day + 'T00:00:00')
-                const dayLabel = ['일','월','화','수','목','금','토'][dateObj.getDay()]
-                const monthDay = `${dateObj.getMonth()+1}/${dateObj.getDate()}`
-                return (
-                  <div key={day} style={{marginBottom:12}}>
-                    <div style={{display:'flex',alignItems:'center',gap:8,padding:'5px 10px',borderRadius:8,marginBottom:4,background:'#F9FAFB',border:'1px solid #F3F4F6'}}>
-                      <span style={{fontWeight:700,fontSize:13,color:'#374151'}}>{monthDay}({dayLabel})</span>
-                      <span style={{fontSize:11,color:'#9CA3AF',marginLeft:'auto'}}>{dayMeetings.length}건</span>
-                    </div>
-                    {dayMeetings.map(m => renderMeetingCard(m, { showDate: false }))}
-                  </div>
-                )
-              })}
-              <div style={{textAlign:'center',marginTop:8}}>
-                <button className={styles.addBtn} onClick={()=>setShowForm(true)}>+ 미팅 추가</button>
-              </div>
-            </div>
-          )}
-
-          {/* 지난 미팅 */}
-          {meetingSubTab === 'past' && (
-            <div>
-              <div className={styles.sectionHeader}>
-                <span style={{ display:'flex', alignItems:'center', gap:8, fontSize:13, fontWeight:600, color:'#1a1a1a' }}><span style={{ width:3, height:12, background:'#1D9E75', borderRadius:2, display:'inline-block', flexShrink:0 }}></span>지난 미팅 ({pastMeetings.length}건)</span>
-              </div>
-              {pastMeetings.length === 0 ? (
-                <div className={styles.empty}>지난 미팅 기록이 없어요</div>
-              ) : (
-                <div className={styles.meetingList}>
-                  {(() => {
-                    const sorted = sortAsc ? [...pastMeetings].reverse() : pastMeetings
-                    return sorted.map(m => renderMeetingCard(m, { showDate: true, dateColor: 'var(--text-muted)', opacity: m.status==='취소' ? 0.6 : 1 }))
-                  })()}
-                </div>
-              )}
-            </div>
-          )}
-
-        </div>
-      )}
-
-            {/* ── 영업 진행 탭 ── */}
-      {activeTab === 'flow' && (
-        <div style={{paddingTop:16}}>
-          <div className={styles.sectionHeader}>
-            <span style={{ display:'flex', alignItems:'center', gap:8, fontSize:13, fontWeight:600, color:'#1a1a1a' }}><span style={{ width:3, height:12, background:'#1D9E75', borderRadius:2, display:'inline-block', flexShrink:0 }}></span>고객별 영업 진행 현황</span>
-            <button className={styles.addBtn} onClick={() => setShowForm(true)}>+ 추가</button>
-          </div>
-
-          {customers.length === 0 && (
-            <div className={styles.empty}>등록된 고객이 없어요</div>
-          )}
-
-          {customers.map(c => {
-            const { currentStageIdx } = getCustomerFlow(c.id)
-            if (currentStageIdx < 0) return null
-            const currentStage = FLOW_STAGES[currentStageIdx]
-            return (
-              <div key={c.id} className={styles.meetingCard} style={{cursor:'pointer',overflow:'hidden'}} onClick={() => { setSelectedCustomer(c); setShowFlow(true) }}>
-                <div className={styles.meetingTop}>
-                  <span className={styles.meetingName}>
-                    {c.name}고객
-                    <span style={{fontSize:10,padding:'1px 6px',borderRadius:10,marginLeft:6,fontWeight:700,
-                      background: c.customer_type==='existing' ? '#EFF6FF' : c.customer_type==='prospect' ? '#FEF3C7' : '#F3F4F6',
-                      color: c.customer_type==='existing' ? '#1D4ED8' : c.customer_type==='prospect' ? '#92400E' : '#6B7280'
-                    }}>
-                      {c.customer_type==='existing'?'마이고객':'관심고객'}
-                    </span>
-                  </span>
-                  <span style={{ fontSize: 12, color: '#6B7280' }}>{c.age}세</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontSize: 14 }}>{currentStage.icon}</span>
-                  <span style={{ fontSize: 12, color: '#1D9E75', fontWeight: 500 }}>{currentStage.label}</span>
-                  <span style={{ fontSize: 11, color: '#9CA3AF', marginLeft: 'auto' }}>탭해서 상세 보기 →</span>
-                </div>
-                {/* 미니 진행바 */}
-                <div style={{ display: 'flex', gap: 3, marginTop: 10 }}>
-                  {FLOW_STAGES.map((s, i) => (
-                    <div key={s.key} style={{
-                      flex: 1, height: 4, borderRadius: 2,
-                      background: i < currentStageIdx ? '#1D9E75' : i === currentStageIdx ? '#1D9E75' : '#EDEBE4',
-                      opacity: i === currentStageIdx ? 1 : i < currentStageIdx ? 0.6 : 0.3,
-                    }} />
-                  ))}
-                </div>
-              </div>
-            )
-          })}
-
-          {customers.filter(c => getCustomerFlow(c.id).currentStageIdx >= 0).length === 0 && (
-            <div className={styles.empty}>
-              아직 영업 진행 중인 고객이 없어요<br />
-              미팅을 추가하면 여기서 진행 현황을 볼 수 있어요 😊
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ── 연락할 고객 탭 ── */}
-      {activeTab === 'contact' && (
-        <div style={{paddingTop:16}}>
-
-          {/* AI 추천 섹션 */}
-          <div className={styles.sectionHeader}>
-            <span style={{ display:'flex', alignItems:'center', gap:8, fontSize:13, fontWeight:600, color:'#1a1a1a' }}><span style={{ width:3, height:12, background:'#1D9E75', borderRadius:2, display:'inline-block', flexShrink:0 }}></span>AI추천 일정 ({nearDone.length + birthdayContacts.length + gapCustomers.length}명)</span>
-          </div>
-
-          {nearDone.map(c => (
-            <div key={c.id} className={styles.contactCard}>
-              <span className={styles.contactIcon}>🔥</span>
-              <div style={{flex:1}}>
-                <div className={styles.contactName}>
-                  {c.name}고객
-                  <span style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:'#F3E8FF',color:'#7C3AED',marginLeft:6,fontWeight:700}}>AI추천</span>
-                </div>
-                <div className={styles.contactReason}>완납 임박 → 재설계 제안</div>
-              </div>
-              <button className={styles.contactBtn} onClick={() => router.push(`/customers?id=${c.id}`)}>고객 보기</button>
-            </div>
-          ))}
-
-          {birthdayContacts.map(c => (
-            <div key={c.id} className={styles.contactCard}>
-              <span className={styles.contactIcon}>🎂</span>
-              <div style={{flex:1}}>
-                <div className={styles.contactName}>
-                  {c.name}고객
-                  <span style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:'#F3E8FF',color:'#7C3AED',marginLeft:6,fontWeight:700}}>AI추천</span>
-                </div>
-                <div className={styles.contactReason}>생일 → 안부 연락</div>
-              </div>
-              <button className={styles.contactBtn} onClick={() => router.push(`/customers?id=${c.id}`)}>고객 보기</button>
-            </div>
-          ))}
-
-          {gapCustomers.map(c => (
-            <div key={c.id} className={styles.contactCard}>
-              <span className={styles.contactIcon}>⚠️</span>
-              <div style={{flex:1}}>
-                <div className={styles.contactName}>
-                  {c.name}고객
-                  <span style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:'#F3E8FF',color:'#7C3AED',marginLeft:6,fontWeight:700}}>AI추천</span>
-                </div>
-                <div className={styles.contactReason}>보장 공백 → 뇌혈관 확대 제안</div>
-              </div>
-              <button className={styles.contactBtn} onClick={() => router.push(`/customers?id=${c.id}`)}>고객 보기</button>
-            </div>
-          ))}
-
-          {nearDone.length === 0 && birthdayContacts.length === 0 && gapCustomers.length === 0 && (
-            <div className={styles.empty} style={{marginBottom:8}}>AI 추천 고객이 없어요 😊</div>
-          )}
-
-          {/* 직접 추가 연락 섹션 */}
-          <div className={styles.sectionHeader} style={{marginTop:16}}>
-            <span style={{ display:'flex', alignItems:'center', gap:8, fontSize:13, fontWeight:600, color:'#1a1a1a' }}><span style={{ width:3, height:12, background:'#1D9E75', borderRadius:2, display:'inline-block', flexShrink:0 }}></span>직접 추가 ({contactMeetings.length}건)</span>
-            <button className={styles.addBtn} onClick={() => { setForm(f => ({...f, type:'전화'})); setShowForm(true) }}>+ 연락 추가</button>
-          </div>
-
-          {contactMeetings.length === 0 ? (
-            <div className={styles.empty}>직접 추가한 연락 일정이 없어요</div>
-          ) : contactMeetings.map(m => {
-            const badge = getMeetingBadge(m)
-            const dateObj = new Date(m.meeting_date)
-            const dateLabel = `${dateObj.getMonth()+1}/${dateObj.getDate()}(${['일','월','화','수','목','금','토'][dateObj.getDay()]})`
-            return (
-              <div key={m.id} className={styles.contactCard}>
-                <span className={styles.contactIcon}>{m.type === '문자' ? '💬' : '📞'}</span>
-                <div style={{flex:1}}>
-                  <div className={styles.contactName}>
-                    {getMeetingName(m)}고객
-                    <span style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:badge.bg,color:badge.color,marginLeft:6,fontWeight:600}}>{badge.text}</span>
-                  </div>
-                  <div className={styles.contactReason}>{dateLabel} {m.meeting_time || ''} · {m.type} {m.memo ? `· ${m.memo}` : ''}</div>
-                </div>
-                <button className={styles.contactBtn} onClick={() => router.push(`/customers`)}>고객 보기</button>
-              </div>
-            )
-          })}
-
-        </div>
-      )}
-
-      {/* ── 영업 흐름 팝업 (슬라이드업 + 드래그 닫기) ── */}
-      {showFlow && selectedCustomer && (
-        <FlowPanel
-          onClose={() => setShowFlow(false)}
-          title={`${selectedCustomer.name}고객 영업 흐름`}
-        >
-
-            {(() => {
-              const { currentStageIdx, customerMeetings } = getCustomerFlow(selectedCustomer.id)
-              return (
-                <div style={{padding:"16px 20px 16px 52px"}}>
-                  {FLOW_STAGES.map((stage, i) => {
-                    const isDone = i < currentStageIdx
-                    const isCurrent = i === currentStageIdx
-                    const isLocked = i > currentStageIdx
-                    const stageMeetings = customerMeetings.filter(m => m.pipeline_stage === stage.key)
-                    const lastMeeting = stageMeetings[stageMeetings.length - 1]
-
-                    return (
-                      <div key={stage.key} className={styles.flowStage}>
-                        {i < FLOW_STAGES.length - 1 && (
-                          <div className={[styles.flowLine, isDone ? styles.done : ''].join(' ')} />
-                        )}
-                        <div className={styles.flowStageInner}>
-                          <div className={[styles.flowDot, isDone ? styles.done : isCurrent ? styles.current : styles.locked].join(' ')}>
-                            {isDone ? '✓' : stage.icon}
-                          </div>
-                          <div className={styles.flowContent}>
-                            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                              <div>
-                                <span className={[styles.flowStageName, isDone ? styles.done : isCurrent ? styles.current : styles.locked].join(' ')}>
-                                  {stage.label}
-                                </span>
-                                {isCurrent && <span className={styles.flowCurrentBadge}>진행중</span>}
-                              </div>
-                              {(isDone || isCurrent) && (
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    if (editingMemoStage === stage.key) { setEditingMemoStage(null) }
-                                    else { setEditingMemoStage(stage.key); setEditingMemoText(lastMeeting?.memo || '') }
-                                  }}
-                                  style={{background:'none',border:'none',fontSize:13,cursor:'pointer',color:'#9CA3AF',padding:'2px 4px'}}
-                                >✏️</button>
-                              )}
-                            </div>
-                            {lastMeeting && (
-                              <div className={styles.flowStageDate}>
-                                {lastMeeting.meeting_date} {lastMeeting.meeting_time && `· ${lastMeeting.meeting_time}`}
-                                {lastMeeting.location && ` · ${lastMeeting.location}`}
-                              </div>
-                            )}
-                            {editingMemoStage === stage.key ? (
-                              <div style={{marginTop:6}}>
-                                <textarea
-                                  value={editingMemoText}
-                                  onChange={e => setEditingMemoText(e.target.value)}
-                                  placeholder="메모를 입력하세요..."
-                                  style={{width:'100%',padding:'8px',fontSize:12,border:'1px solid #1D9E75',borderRadius:8,boxSizing:'border-box',resize:'none',height:72,color:'#111827'}}
-                                />
-                                <div style={{display:'flex',gap:6,marginTop:4}}>
-                                  <button
-                                    onClick={async () => {
-                                      if (!lastMeeting) return
-                                      await supabase.from('dpa_meetings').update({memo: editingMemoText}).eq('id', lastMeeting.id)
-                                      setEditingMemoStage(null)
-                                      await fetchAll(agentId)
-                                    }}
-                                    style={{flex:1,padding:'6px',background:'#1D9E75',color:'white',border:'none',borderRadius:6,fontSize:12,cursor:'pointer'}}
-                                  >저장</button>
-                                  <button
-                                    onClick={() => setEditingMemoStage(null)}
-                                    style={{flex:1,padding:'6px',background:'#F3F4F6',color:'#6B7280',border:'none',borderRadius:6,fontSize:12,cursor:'pointer'}}
-                                  >취소</button>
-                                </div>
-                              </div>
-                            ) : lastMeeting?.memo ? (
-                              <div style={{fontSize:11,color:'#9CA3AF',marginTop:2}}>💬 {lastMeeting.memo}</div>
-                            ) : null}
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              )
-            })()}
-
-            <button style={{margin:"0 20px",padding:"12px",background:"#1D9E75",color:"white",border:"none",borderRadius:10,fontSize:14,fontWeight:600,cursor:"pointer",width:"calc(100% - 40px)"}} onClick={() => {
-              setShowFlow(false)
-              setForm(f => ({ ...f, customer_id: selectedCustomer.id }))
-
-              setShowForm(true)
-            }}>+ 다음 단계 추가</button>
-        </FlowPanel>
-      )}
-
-      {/* ── 미팅 추가 폼 (슬라이드업) ── */}
-      {showForm && (
-        <div className={styles.formOverlay} onClick={() => setShowForm(false)}>
-          <div className={styles.formPanel} onClick={e => e.stopPropagation()}
-            ref={(el) => {
-              if (!el) return
-              let startY = 0, curY = 0, dragging = false
-              const onStart = (e: TouchEvent) => { startY = e.touches[0].clientY; dragging = true; el.style.transition = 'none'; e.stopPropagation() }
-              const onMove = (e: TouchEvent) => { if (!dragging) return; e.stopPropagation(); e.preventDefault(); curY = e.touches[0].clientY - startY; if (curY > 0) el.style.transform = `translateY(${curY}px)` }
-              const onEnd = (e: TouchEvent) => { if (!dragging) return; dragging = false; e.stopPropagation(); el.style.transition = 'transform 0.3s ease'; if (curY > 100) { el.style.transform = 'translateY(100%)'; setTimeout(() => setShowForm(false), 280) } else { el.style.transform = 'translateY(0)' }; curY = 0 }
-              el.addEventListener('touchstart', onStart, { passive: true })
-              el.addEventListener('touchmove', onMove, { passive: false })
-              el.addEventListener('touchend', onEnd, { passive: true })
-            }}
-          >
-            {/* 핸들 */}
-            <div style={{display:'flex',justifyContent:'center',padding:'12px 0 4px',cursor:'grab'}}>
-              <div style={{width:40,height:4,borderRadius:2,background:'#D1D5DB'}} />
-            </div>
-            <button className={styles.formClose} onClick={() => setShowForm(false)}>✕</button>
-            <div className={styles.formTitle}>일정 등록</div>
-
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>고객 선택 *</label>
+          {editingGoal ? (
+            <div style={{ display: 'flex', gap: 8 }}>
               <input
-                className={styles.formInput}
-                placeholder="이름으로 검색..."
-                value={customerSearch}
-                onChange={e => { setCustomerSearch(e.target.value); setForm(f => ({ ...f, customer_id: '' })) }}
+                type="number"
+                value={goalInput}
+                onChange={e => setGoalInput(e.target.value)}
+                placeholder="목표 계약 건수"
+                autoFocus
+                onKeyDown={e => e.key === 'Enter' && saveGoal()}
+                style={{ flex: 1, padding: '8px 12px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 14, fontFamily: 'inherit', outline: 'none' }}
               />
-              {customerSearch && (
-                <div className={styles.customerDropdown}>
-                  {customers.filter(c => c.name.toLowerCase().includes(customerSearch.toLowerCase())).length === 0
-                    ? <div className={styles.customerDropdownEmpty}>검색 결과 없음</div>
-                    : customers.filter(c => c.name.toLowerCase().includes(customerSearch.toLowerCase())).map(c => (
-                      <div key={c.id} className={styles.customerDropdownItem}
-                        onClick={() => { setForm(f => ({ ...f, customer_id: c.id })); setCustomerSearch(c.name) }}>
-                        <span>{c.name}고객</span>
-                        <span style={{ fontSize: 11, color: '#9CA3AF', marginLeft: 6 }}>{c.customer_type === 'existing' ? '마이' : '관심'} · {c.age}세</span>
-                      </div>
-                    ))
-                  }
+              <button onClick={saveGoal} style={{ padding: '8px 14px', background: '#5E6AD2', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>저장</button>
+              <button onClick={() => setEditingGoal(false)} style={{ padding: '8px 10px', background: 'none', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>취소</button>
+            </div>
+          ) : monthlyGoal > 0 ? (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                <span style={{ fontSize: 13, color: '#636B78' }}>{thisMonthContracts.length}건 / {monthlyGoal}건</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: goalProgress >= 100 ? '#10B981' : '#5E6AD2' }}>{goalProgress}%</span>
+              </div>
+              <div style={{ background: '#F3F4F6', borderRadius: 999, height: 10, overflow: 'hidden' }}>
+                <div style={{ width: `${goalProgress}%`, height: '100%', background: goalProgress >= 100 ? '#10B981' : '#5E6AD2', borderRadius: 999, transition: 'width 0.5s ease' }} />
+              </div>
+              <p style={{ fontSize: 12, color: '#8892A0', margin: '10px 0 0' }}>
+                {goalProgress >= 100 ? '🎉 이번달 목표 달성!' : `목표까지 ${monthlyGoal - thisMonthContracts.length}건 남았어요`}
+              </p>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 20, paddingTop: 16, borderTop: '1px solid #F3F4F6' }}>
+                <div style={{ textAlign: 'center' }}>
+                  <p style={{ fontSize: 11, color: '#8892A0', margin: '0 0 4px' }}>이번달 월보험료</p>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: '#1A1A2E', margin: 0 }}>{Math.round(thisMonthFee / 10000)}만원</p>
                 </div>
-              )}
-            </div>
-
-            <div className={styles.formRow}>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>날짜 *</label>
-                <input type="date" className={styles.formInput} value={form.meeting_date} onChange={e => setForm(f => ({ ...f, meeting_date: e.target.value }))} />
-              </div>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>시간</label>
-                <input type="time" className={styles.formInput} value={form.meeting_time} onChange={e => setForm(f => ({ ...f, meeting_time: e.target.value }))} />
-              </div>
-            </div>
-
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>장소</label>
-              <input className={styles.formInput} placeholder="스타벅스 강남점" value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} />
-            </div>
-
-            <div className={styles.formRow}>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>접촉 유형</label>
-                <select className={styles.formSelect} value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))}>
-                  {TYPE_OPTIONS.map(t => <option key={t} value={t}>{t}</option>)}
-                </select>
-              </div>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>상태</label>
-                <select className={styles.formSelect} value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
-                  {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
-                </select>
+                <div style={{ textAlign: 'center' }}>
+                  <p style={{ fontSize: 11, color: '#8892A0', margin: '0 0 4px' }}>건당 평균</p>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: '#1A1A2E', margin: 0 }}>
+                    {thisMonthContracts.length > 0 ? `${Math.round(thisMonthFee / thisMonthContracts.length / 1000) / 10}만원` : '-'}
+                  </p>
+                </div>
+                <div style={{ textAlign: 'center' }}>
+                  <p style={{ fontSize: 11, color: '#8892A0', margin: '0 0 4px' }}>달성률</p>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: goalProgress >= 100 ? '#10B981' : '#5E6AD2', margin: 0 }}>{goalProgress}%</p>
+                </div>
               </div>
             </div>
-
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>영업 단계</label>
-              <select className={styles.formSelect} value={form.pipeline_stage} onChange={e => setForm(f => ({ ...f, pipeline_stage: e.target.value }))}>
-                {FLOW_STAGES.map(s => <option key={s.key} value={s.key}>{s.icon} {s.label}</option>)}
-              </select>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 120, flexDirection: 'column', gap: 8 }}>
+              <p style={{ fontSize: 13, color: '#8892A0', margin: 0 }}>이번달 목표를 설정해보세요</p>
+              <button
+                onClick={() => { setGoalInput(''); setEditingGoal(true) }}
+                style={{ fontSize: 13, color: '#5E6AD2', background: 'rgba(94,106,210,0.08)', border: 'none', borderRadius: 8, padding: '8px 16px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600 }}
+              >
+                + 목표 설정
+              </button>
             </div>
-
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>메모</label>
-              <input className={styles.formInput} placeholder="특이사항 메모" value={form.memo} onChange={e => setForm(f => ({ ...f, memo: e.target.value }))} />
-            </div>
-
-            <button className={styles.submitBtn} onClick={handleSubmit}>저장하기</button>
-          </div>
+          )}
         </div>
-      )}
+      </div>
+
+      {/* Row 2 — 발송 + 신규고객 차트 */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+
+        {/* 문자/카톡 구분 발송 */}
+        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #E5E7EB', padding: 20 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <p style={{ fontSize: 15, fontWeight: 700, color: '#1A1A2E', margin: 0 }}>월별 발송 현황</p>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#636B78' }}>
+                <span style={{ width: 8, height: 8, borderRadius: 2, background: '#5E6AD2', display: 'inline-block' }} />문자
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#636B78' }}>
+                <span style={{ width: 8, height: 8, borderRadius: 2, background: '#FACC15', display: 'inline-block' }} />카톡
+              </span>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 16, marginBottom: 12 }}>
+            <div>
+              <p style={{ fontSize: 11, color: '#8892A0', margin: '0 0 2px' }}>이번달 합계</p>
+              <p style={{ fontSize: 18, fontWeight: 700, color: '#1A1A2E', margin: 0 }}>{thisMonthMessages}건</p>
+            </div>
+            <div>
+              <p style={{ fontSize: 11, color: '#8892A0', margin: '0 0 2px' }}>문자</p>
+              <p style={{ fontSize: 18, fontWeight: 700, color: '#5E6AD2', margin: 0 }}>
+                {messages.filter(m => { const t = m.sent_at || m.created_at; return t >= thisMonthStart && m.message_type !== 'kakao' }).length}건
+              </p>
+            </div>
+            <div>
+              <p style={{ fontSize: 11, color: '#8892A0', margin: '0 0 2px' }}>카톡</p>
+              <p style={{ fontSize: 18, fontWeight: 700, color: '#CA8A04', margin: 0 }}>
+                {messages.filter(m => { const t = m.sent_at || m.created_at; return t >= thisMonthStart && m.message_type === 'kakao' }).length}건
+              </p>
+            </div>
+          </div>
+          <ResponsiveContainer width="100%" height={160}>
+            <BarChart data={last6MonthsMessages} margin={{ top: 4, right: 8, left: -24, bottom: 0 }}>
+              <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#8892A0' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: '#8892A0' }} axisLine={false} tickLine={false} allowDecimals={false} />
+              <Tooltip formatter={(v: any, n: string) => [`${v}건`, n === 'sms' ? '문자' : '카톡']} cursor={{ fill: 'rgba(94,106,210,0.06)' }} />
+              <Bar dataKey="sms" stackId="a" fill="#5E6AD2" radius={[0, 0, 0, 0]} />
+              <Bar dataKey="kakao" stackId="a" fill="#FACC15" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* 신규 고객 꺾은선 */}
+        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #E5E7EB', padding: 20 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <p style={{ fontSize: 15, fontWeight: 700, color: '#1A1A2E', margin: 0 }}>신규 고객 추이</p>
+            <span style={{ fontSize: 12, color: '#8892A0' }}>최근 6개월</span>
+          </div>
+          <div style={{ display: 'flex', gap: 16, marginBottom: 12 }}>
+            <div>
+              <p style={{ fontSize: 11, color: '#8892A0', margin: '0 0 2px' }}>이번달 신규</p>
+              <p style={{ fontSize: 18, fontWeight: 700, color: '#1A1A2E', margin: 0 }}>{thisMonthCustomers}명</p>
+            </div>
+            <div>
+              <p style={{ fontSize: 11, color: '#8892A0', margin: '0 0 2px' }}>6개월 합계</p>
+              <p style={{ fontSize: 18, fontWeight: 700, color: '#1A1A2E', margin: 0 }}>{customers.length}명</p>
+            </div>
+          </div>
+          <ResponsiveContainer width="100%" height={160}>
+            <LineChart data={last6MonthsCustomers} margin={{ top: 8, right: 12, left: -24, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
+              <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#8892A0' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: '#8892A0' }} axisLine={false} tickLine={false} allowDecimals={false} />
+              <Tooltip formatter={(v: any) => [`${v}명`, '신규 고객']} cursor={{ stroke: '#E5E7EB' }} />
+              <Line type="monotone" dataKey="count" stroke="#5E6AD2" strokeWidth={2} dot={{ fill: '#5E6AD2', r: 4 }} activeDot={{ r: 5 }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* 보험 종류별 현황 */}
+      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #E5E7EB', padding: 20, minHeight: 160 }}>
+        <p style={{ fontSize: 15, fontWeight: 700, color: '#1A1A2E', margin: '0 0 16px' }}>보험 종류별 계약 현황</p>
+        {typeData.length === 0 ? (
+          <p style={{ fontSize: 13, color: '#8892A0', textAlign: 'center', padding: '24px 0' }}>계약 데이터가 없어요</p>
+        ) : (
+          <ResponsiveContainer width="100%" height={Math.min(typeData.length * 36 + 20, 280)}>
+            <BarChart layout="vertical" data={typeData} margin={{ left: 80, right: 80, top: 0, bottom: 0 }}>
+              <XAxis type="number" hide />
+              <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: '#636B78' }} axisLine={false} tickLine={false} width={80} />
+              <Tooltip formatter={(v: any, n: string) => [n === 'count' ? `${v}건` : `${Math.round((v as number) / 10000)}만원`, n === 'count' ? '계약 수' : '월보험료']} />
+              <Bar dataKey="count" fill="#5E6AD2" radius={[0, 4, 4, 0]}
+                label={{ position: 'right', fontSize: 11, fill: '#636B78', formatter: (v: any) => `${v}건` }} />
+            </BarChart>
+          </ResponsiveContainer>
+        )}
+      </div>
 
     </div>
-    </>
   )
 }
