@@ -275,7 +275,7 @@ export default function SettingsPage() {
 
         {/* ═══ 내 정보 ═══ */}
         {tab === 'profile' && (
-          <div className={styles.section}>
+          <div className={styles.section} style={{ marginBottom: 0 }}>
             {/* 웹: 테이블 레이아웃 */}
             <div className={styles.profileTable}>
               <div className={styles.profileRow}>
@@ -432,7 +432,7 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 4 }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16, marginBottom: 0 }}>
               <button className={styles.btnPrimary} onClick={saveProfile} disabled={savingProfile}>
                 {savingProfile ? '저장 중...' : '저장하기'}
               </button>
