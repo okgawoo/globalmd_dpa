@@ -1044,21 +1044,14 @@ function ReportModal({ data, blocks, editContent, localCoverageSummary, localCom
               <div>
                 <div className={styles.reportBrand}>iPlanner · Meeting Report</div>
                 <div className={styles.reportTitle}>{data.customer.name} 고객 보험 분석</div>
-                <div className={styles.reportSubtitle}>담당 설계사: {data.agent.name} &nbsp;|&nbsp; {genDate}</div>
-              </div>
-              <AgentCard agent={data.agent} />
-            </div>
-
-            <div className={styles.profileRow}>
-              <div className={styles.profileAvatar}>{data.customer.name?.[0]}</div>
-              <div>
-                <div className={styles.profileName}>{data.customer.name}</div>
-                <div className={styles.profileMeta}>
-                  {data.customer.age ? `${data.customer.age}세` : ''}
+                <div className={styles.reportSubtitle}>
+                  담당 설계사: {data.agent.name} &nbsp;|&nbsp; {genDate}
+                  {data.customer.age ? ` | 만 ${data.customer.age}세` : ''}
                   {data.customer.gender && data.customer.gender !== '미상' ? ` · ${data.customer.gender}` : ''}
                   {data.customer.job && data.customer.job !== '미상' ? ` · ${data.customer.job}` : ''}
                 </div>
               </div>
+              <AgentCard agent={data.agent} />
             </div>
 
             <div className={styles.statsRow}>
@@ -1333,7 +1326,7 @@ function AgentCard({ agent }: { agent: any }) {
       <div className={styles.agentTitle}>{agent.title || '보험 컨설턴트'}</div>
       {agent.company && <div style={{ fontSize: 11, color: '#8892A0', marginBottom: 4 }}>{agent.company}</div>}
       <div className={styles.agentInfo}>
-        {agent.phone && <div>📞 {agent.phone}</div>}
+        {agent.phone && <div>📱 {agent.phone}</div>}
         {agent.fax   && <div>📠 {agent.fax}</div>}
         {agent.email && <div>✉ {agent.email}</div>}
         {agent.sns?.kakao && <div>💬 {agent.sns.kakao}</div>}
