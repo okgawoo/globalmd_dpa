@@ -1416,7 +1416,7 @@ export default function Customers() {
                 </button>
               </div>
               {/* 오른쪽 — 현재 계약 목록 + 분석 결과 */}
-              <div style={{padding:'20px 24px',display:'flex',flexDirection:'column',gap:10,overflowY:'auto'}}>
+              <div style={{padding:'20px 24px',display:'flex',flexDirection:'column',overflowY:'auto'}}>
                 <style>{`
                   @keyframes reentryWaveUp {
                     0% { opacity:1; transform:translateY(0); max-height:60px; }
@@ -1433,14 +1433,14 @@ export default function Customers() {
                     to { opacity:1; transform:translateY(0); }
                   }
                 `}</style>
-                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
+                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0,marginBottom:10}}>
                   <div style={{fontSize:11,fontWeight:600,color:'#636B78',textTransform:'uppercase',letterSpacing:'0.04em'}}>현재 계약 목록</div>
                   {reentryReplaceId && !(reentryParsing || reentryParsed) && (
                     <button onClick={() => setReentryReplaceId(null)} style={{fontSize:11,padding:'3px 9px',borderRadius:4,border:'1px solid #E5E7EB',background:'white',color:'#636B78',cursor:'pointer'}}>+ 새 계약 추가</button>
                   )}
                 </div>
                 {!(reentryParsing || reentryParsed) && (
-                  <div style={{flexShrink:0,padding:'8px 12px',borderRadius:8,background:reentryReplaceId?'#EEF0FB':'#F0F1FC',border:`1px solid ${reentryReplaceId?'#5E6AD2':'#D0D3F0'}`,fontSize:12,color:'#5E6AD2',fontWeight:500}}>
+                  <div style={{flexShrink:0,padding:'8px 12px',borderRadius:8,background:reentryReplaceId?'#EEF0FB':'#F0F1FC',border:`1px solid ${reentryReplaceId?'#5E6AD2':'#D0D3F0'}`,fontSize:12,color:'#5E6AD2',fontWeight:500,marginBottom:10}}>
                     {reentryReplaceId ? '교체 모드 — 왼쪽에 붙여넣고 AI 분석하기를 눌러주세요' : '새 계약 추가 모드 — 교체할 계약이 있으면 아래에서 선택하세요'}
                   </div>
                 )}
@@ -1460,6 +1460,7 @@ export default function Customers() {
                         ? `reentryWaveDown 0.4s ease ${idx * 0.1}s both`
                         : undefined,
                       flexShrink: 0,
+                      marginBottom: 8,
                     }}>
                       <div style={{display:'flex',alignItems:'center',gap:6,padding:'10px 12px',borderRadius:8,border:`1px solid ${isSelected?'#5E6AD2':'#E5E7EB'}`,background:isSelected?'#5E6AD2':'#F7F8FA',transition:'all 0.2s'}}>
                         <span style={{fontSize:13,color:isSelected?'white':'#1A1A2E',fontWeight:isSelected?600:400,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{idx+1}. {ct.company}{ct.product_name?` · ${ct.product_name}`:''}</span>
