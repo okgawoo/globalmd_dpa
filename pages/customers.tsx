@@ -471,7 +471,6 @@ export default function Customers() {
     setEditMode(false)
     setAddMode(false)
     setEditContractId(null)
-    setExpandedContractId(null)  // 고객 전환 시 아코디언 초기화
     const conts = allContracts || contracts
     const covs = allCoverages || coverages
     const cContracts = conts.filter((ct: any) => ct.customer_id === c.id)
