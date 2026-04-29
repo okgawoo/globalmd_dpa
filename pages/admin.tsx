@@ -53,7 +53,7 @@ export default function AdminPage() {
   const CRAWL_CATEGORIES = [
     { srtSq: 6,  name: '암보험' },
     { srtSq: 4,  name: '질병보험 (뇌/심혈관)' },
-    { srtSq: 11, name: '생활보험 (간병/치매)' },
+    { srtSq: 11, name: '생활보험 (간병/치매+반려동물)' },
     { srtSq: 5,  name: '어린이보험' },
     { srtSq: 2,  name: '운전자보험' },
     { srtSq: 7,  name: '상해보험' },
@@ -61,11 +61,10 @@ export default function AdminPage() {
     { srtSq: 1,  name: '자동차보험' },
     { srtSq: 8,  name: '연금저축보험' },
     { srtSq: 14, name: '배상책임보험' },
-    { srtSq: null, name: '펫보험' },
+    { srtSq: 10, name: '화재보험' },
     { srtSq: null, name: '치아보험' },
     { srtSq: null, name: '사망보험' },
     { srtSq: null, name: '태아보험' },
-    { srtSq: null, name: '화재보험' },
   ]
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -1405,6 +1404,78 @@ export default function AdminPage() {
           {/* 보험사 공시 */}
           {activeTab === 'crawl' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+              {/* 보험사 × 카테고리 연동 현황 표 */}
+              {(() => {
+                const ACTIVE_CATS = [
+                  { name: '암보험', confirmed: true },
+                  { name: '질병보험', confirmed: true },
+                  { name: '생활보험+반려동물', confirmed: true },
+                  { name: '어린이보험', confirmed: true },
+                  { name: '운전자보험', confirmed: true },
+                  { name: '상해보험', confirmed: true },
+                  { name: '통합(실손)', confirmed: true },
+                  { name: '자동차', confirmed: true },
+                  { name: '연금저축', confirmed: true },
+                  { name: '배상책임', confirmed: true },
+                  { name: '화재보험', confirmed: true },
+                  { name: '치아보험', confirmed: false },
+                  { name: '사망보험', confirmed: false },
+                  { name: '태아보험', confirmed: false },
+                ]
+                const thS: React.CSSProperties = { padding: '8px 10px', fontSize: 11, fontWeight: 600, color: '#8892A0', background: '#F7F8FA', borderBottom: '1px solid #E5E7EB', textAlign: 'center', whiteSpace: 'nowrap' }
+                const tdS: React.CSSProperties = { padding: '7px 8px', fontSize: 12, borderBottom: '1px solid #F3F4F6', textAlign: 'center' }
+                return (
+                  <div className={styles.card} style={{ overflowX: 'auto' }}>
+                    <div className={styles.cardHeader}>
+                      <p className={styles.cardTitle}>보험사 × 카테고리 연동 현황</p>
+                      <span style={{ fontSize: 12, color: '#8892A0' }}>✓ API 연동 · — 준비중 · ? srtSq 미확인</span>
+                    </div>
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+                        <thead>
+                          <tr>
+                            <th style={{ ...thS, textAlign: 'left', width: 110 }}>보험사</th>
+                            <th style={{ ...thS, width: 44 }}>구분</th>
+                            {ACTIVE_CATS.map(c => (
+                              <th key={c.name} style={{ ...thS, color: c.confirmed ? '#8892A0' : '#C0C8D0' }}>{c.name}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {INSURERS.map((ins, idx) => (
+                            <tr key={ins.id} style={{ background: idx % 2 === 0 ? '#fff' : '#FAFAFA' }}>
+                              <td style={{ ...tdS, textAlign: 'left', fontWeight: ins.active ? 600 : 400, color: ins.active ? '#1A1A2E' : '#8892A0', paddingLeft: 16 }}>
+                                {ins.name}
+                              </td>
+                              <td style={tdS}>
+                                <span style={{ fontSize: 10, padding: '1px 5px', borderRadius: 4, background: ins.type === '손해보험' ? '#EFF6FF' : '#F0FDF4', color: ins.type === '손해보험' ? '#1D4ED8' : '#16a34a' }}>
+                                  {ins.type === '손해보험' ? '손해' : '생명'}
+                                </span>
+                              </td>
+                              {ACTIVE_CATS.map(c => (
+                                <td key={c.name} style={tdS}>
+                                  {ins.active && c.confirmed
+                                    ? <span style={{ color: '#16a34a', fontWeight: 700, fontSize: 14 }}>✓</span>
+                                    : ins.active && !c.confirmed
+                                    ? <span style={{ color: '#F59E0B', fontSize: 13 }}>?</span>
+                                    : <span style={{ color: '#E5E7EB' }}>—</span>
+                                  }
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <div style={{ padding: '8px 16px', borderTop: '1px solid #F3F4F6', display: 'flex', gap: 16, fontSize: 11, color: '#8892A0' }}>
+                      <span><span style={{ color: '#16a34a', fontWeight: 700 }}>✓</span> API 연동 완료</span>
+                      <span><span style={{ color: '#F59E0B' }}>?</span> srtSq 미확인 (DevTools로 탐색 필요)</span>
+                      <span><span style={{ color: '#D1D5DB' }}>—</span> 미연동</span>
+                    </div>
+                  </div>
+                )
+              })()}
 
               {/* 보험사 카드 목록 */}
               <div className={styles.card} style={{ padding: 20 }}>

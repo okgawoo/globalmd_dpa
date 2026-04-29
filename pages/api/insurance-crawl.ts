@@ -12,7 +12,7 @@ const CRON_SECRET = process.env.CRON_SECRET
 const CATEGORIES: { srtSq: number; name: string }[] = [
   { srtSq: 6, name: '암보험' },
   { srtSq: 4, name: '질병보험' },
-  { srtSq: 11, name: '생활보험' },
+  { srtSq: 11, name: '생활보험' },  // 간병/치매 + 반려동물보험 포함
   { srtSq: 5, name: '어린이보험' },
   { srtSq: 2, name: '운전자보험' },
   { srtSq: 7, name: '상해보험' },
@@ -20,6 +20,7 @@ const CATEGORIES: { srtSq: number; name: string }[] = [
   { srtSq: 1, name: '자동차보험' },
   { srtSq: 8, name: '연금저축보험' },
   { srtSq: 14, name: '배상책임보험' },
+  { srtSq: 10, name: '화재보험' },
 ]
 
 const HEADERS = {

@@ -1,5 +1,22 @@
 # iPlanner 시스템 구조
 
+<!--
+  📁 이 파일의 성격: SYSTEM.md
+  ✅ 여기에 넣을 것:
+     - DB 테이블 구조 / 컬럼 정의
+     - API 엔드포인트 목록 및 흐름 (어떤 API가 뭘 하는지)
+     - 외부 서비스 연동 방식 (Meritz, Solapi, Supabase 등)
+     - 환경변수 목록
+     - 크롤링 URL / srtSq 매핑 등 기술 구조
+     - GitHub Actions / 크론 스케줄
+
+  ❌ 여기에 넣지 말 것:
+     - AI 프롬프트 구조나 분석 결과 필드 의미
+     - 파싱 시 주의사항 / 실전 노하우
+     - 비즈니스 판단 기준 (어떤 보험사가 좋은지 등)
+     → 위 항목은 knowledge.md에
+-->
+
 > 내부 코드명: DPA | 정식명: 아이플래너(iPlanner)  
 > 스택: Next.js + Supabase (tmticcyqbaotrvmoqftv) + Claude API  
 > 라이브: https://globalmd-dpa.vercel.app
@@ -209,11 +226,35 @@ YoutubeTranscript.fetchTranscript(videoId, { lang: 'ko' })  // 한국어 우선
 /api/insurance-crawl (POST)
   → meritzfire.com 공시실 접속 → 세션 쿠키 자동 발급
   → 카테고리별 상품 목록 조회 (json.smart API, 2단계)
-      1단계: retrievePdList → cmCommCd 추출
-      2단계: retrieveSalPdList → file3#[E] 암호화 경로 추출
+      1단계: retrievePdList (srtSq 전달) → cmCommCd 추출
+      2단계: retrieveSalPdList (cmPdDivCd 전달) → file3#[E] 암호화 경로 추출
   → PDF 다운로드 → Supabase Storage (meritz/{category}/{날짜}/)
   → meritz_pdf_files 저장 (중복 스킵)
 ```
+**메리츠 카테고리 srtSq 매핑 (공시실 상품목록 순서 = srtSq 순서):**
+```
+srtSq 1  → 자동차보험
+srtSq 2  → 운전자보험
+srtSq 3  → 통합보험 (실손)
+srtSq 4  → 질병보험 (뇌/심혈관)
+srtSq 5  → 어린이보험
+srtSq 6  → 암보험
+srtSq 7  → 상해보험
+srtSq 8  → 연금저축보험
+srtSq 9  → 자축보험 (축산 계열, 미사용)
+srtSq 10 → 화재/재물/비용보험
+srtSq 11 → 생활보험 (간병/치매 + 반려동물보험 포함)
+srtSq 12 → 장기 방카슈랑스 (미사용)
+srtSq 13 → 일반 방카슈랑스 (미사용)
+srtSq 14 → 배상책임보험
+```
+연동 완료: 1~8, 10, 11, 14 (11개) | 미지원: 치아·사망·태아보험 (메리츠 미취급)
+
+**srtSq 탐색 방법:**
+DevTools로 카테고리마다 클릭하지 않아도 됨.
+공시실 상품목록 페이지의 카테고리 순서 = srtSq 번호 순서.
+카테고리 1개에서 json.smart 요청의 srtSq 값 확인 후 → 1~14 순서대로 대입하면 전체 매핑 완성.
+pdDtlList가 비어있으면 빈 카테고리 또는 미존재.
 
 ---
 
