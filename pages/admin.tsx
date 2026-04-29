@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import styles from '../styles/Admin.module.css'
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -55,7 +56,7 @@ export default function AdminPage() {
   ]
   const fileRef = useRef<HTMLInputElement>(null)
 
-  const [topMenu, setTopMenu] = useState<'공지사항' | '설계사' | '유튜브' | '보험공시'>('공지사항')
+  const [topMenu, setTopMenu] = useState<'대시보드' | '공지사항' | '설계사' | '유튜브' | '보험공시'>('대시보드')
 
   const [ytChannels, setYtChannels] = useState<any[]>([])
   const [ytFormOpen, setYtFormOpen] = useState(false)
@@ -81,6 +82,11 @@ export default function AdminPage() {
   const [pushHistory, setPushHistory] = useState<any[]>([])
   const [subCount, setSubCount] = useState(0)
 
+  // 대시보드
+  const [dashData, setDashData] = useState<any>(null)
+  const [dashLoading, setDashLoading] = useState(false)
+  const [quickPushOpen, setQuickPushOpen] = useState(false)
+
   const [smsAuthList, setSmsAuthList] = useState<any[]>([])
   const [resending, setResending] = useState<string | null>(null)
   const [resendResult, setResendResult] = useState<Record<string, string>>({})
@@ -93,10 +99,58 @@ export default function AdminPage() {
   }, [])
 
   useEffect(() => {
+    if (topMenu === '대시보드') fetchDashboardData()
     if (topMenu === '설계사') fetchAgentList()
     if (topMenu === '유튜브') fetchYtChannels()
     if (topMenu === '보험공시') fetchMeritzPdfs()
   }, [topMenu])
+
+  async function fetchDashboardData() {
+    setDashLoading(true)
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+    const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+
+    const [
+      { data: agents },
+      { data: channels },
+      { data: videos },
+      { data: pdfs },
+    ] = await Promise.all([
+      supabase.from('dpa_agents').select('plan_type, created_at, status'),
+      supabase.from('youtube_channels').select('id, name, is_active'),
+      supabase.from('youtube_videos').select('status, created_at'),
+      supabase.from('meritz_pdf_files').select('category_name, status, crawled_at').order('crawled_at', { ascending: false }),
+    ])
+
+    // 설계사
+    const totalAgents = agents?.length || 0
+    const newAgentsThisMonth = agents?.filter(a => a.created_at >= monthAgo).length || 0
+    const planBreakdown: Record<string, number> = {}
+    agents?.forEach(a => { const p = a.plan_type || 'basic'; planBreakdown[p] = (planBreakdown[p] || 0) + 1 })
+
+    // YouTube
+    const totalChannels = channels?.length || 0
+    const totalVideos = videos?.length || 0
+    const doneVideos = videos?.filter(v => v.status === 'done').length || 0
+    const pendingVideos = videos?.filter(v => v.status === 'pending' || v.status === 'analyzing').length || 0
+    const errorVideos = videos?.filter(v => v.status === 'error').length || 0
+    const thisWeekVideos = videos?.filter(v => v.created_at >= weekAgo).length || 0
+
+    // 보험 PDF
+    const totalPdfs = pdfs?.length || 0
+    const lastCrawled = pdfs?.[0]?.crawled_at || null
+    const thisWeekPdfs = pdfs?.filter(p => p.crawled_at >= weekAgo).length || 0
+    const pdfErrors = pdfs?.filter(p => p.status !== 'stored').length || 0
+    const categoryPdfs: Record<string, number> = {}
+    pdfs?.forEach(p => { categoryPdfs[p.category_name] = (categoryPdfs[p.category_name] || 0) + 1 })
+
+    setDashData({
+      totalAgents, newAgentsThisMonth, planBreakdown,
+      totalChannels, totalVideos, doneVideos, pendingVideos, errorVideos, thisWeekVideos,
+      totalPdfs, lastCrawled, thisWeekPdfs, pdfErrors, categoryPdfs,
+    })
+    setDashLoading(false)
+  }
 
   async function checkUser() {
     const { data: { user } } = await supabase.auth.getUser()
@@ -351,7 +405,8 @@ export default function AdminPage() {
   const uploadRate = totalCategories > 0 ? Math.round((totalUploaded / totalCategories) * 100) : 0
   const recentValidationErrors = validations.filter(v => v.severity === 'error').length
 
-  const TAB_ITEMS: { key: '공지사항' | '설계사' | '유튜브' | '보험공시'; label: string }[] = [
+  const TAB_ITEMS: { key: '대시보드' | '공지사항' | '설계사' | '유튜브' | '보험공시'; label: string }[] = [
+    { key: '대시보드', label: '대시보드' },
     { key: '공지사항', label: '공지사항 관리' },
     { key: '설계사', label: '설계사 관리' },
     { key: '유튜브', label: 'YouTube 채널' },
@@ -411,6 +466,234 @@ export default function AdminPage() {
           </div>
         )}
       </div>
+
+      {/* ===== 대시보드 ===== */}
+      {topMenu === '대시보드' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {dashLoading || !dashData ? (
+            <div style={{ padding: 80, textAlign: 'center', color: '#8892A0', fontSize: 14 }}>대시보드 로딩 중...</div>
+          ) : (
+            <>
+              {/* KPI 카드 6개 */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+                {[
+                  { label: '전체 설계사', value: dashData.totalAgents, sub: `이번달 신규 +${dashData.newAgentsThisMonth}명`, color: '#5E6AD2' },
+                  { label: 'YouTube 영상', value: dashData.totalVideos, sub: `채널 ${dashData.totalChannels}개`, color: '#EF4444' },
+                  { label: '분석 완료', value: dashData.doneVideos, sub: `대기 ${dashData.pendingVideos}건 · 오류 ${dashData.errorVideos}건`, color: '#10B981' },
+                  { label: '보험 PDF', value: dashData.totalPdfs, sub: `이번주 +${dashData.thisWeekPdfs}건`, color: '#F59E0B' },
+                  { label: '크롤링 오류', value: dashData.pdfErrors, sub: dashData.lastCrawled ? `최근: ${new Date(dashData.lastCrawled).toLocaleDateString('ko-KR')}` : '크롤링 없음', color: dashData.pdfErrors > 0 ? '#EF4444' : '#10B981' },
+                  { label: '공지 구독자', value: subCount, sub: `발송 이력 ${pushHistory.length}건`, color: '#8B5CF6' },
+                ].map((card, i) => (
+                  <div key={i} className={styles.card} style={{ padding: 20 }}>
+                    <p style={{ fontSize: 11, fontWeight: 600, color: '#8892A0', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 8px' }}>{card.label}</p>
+                    <p style={{ fontSize: 36, fontWeight: 700, color: card.color, margin: '0 0 4px', lineHeight: 1 }}>{card.value}</p>
+                    <p style={{ fontSize: 12, color: '#636B78', margin: 0 }}>{card.sub}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* 2열 — 공지사항 + 설계사 */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+
+                {/* 공지사항 */}
+                <div className={styles.card}>
+                  <div className={styles.cardHeader}>
+                    <p className={styles.cardTitle}>공지사항</p>
+                    <button className={styles.primaryBtn} onClick={() => setQuickPushOpen(v => !v)}>+ 공지 보내기</button>
+                  </div>
+
+                  {quickPushOpen && (
+                    <div style={{ padding: '0 20px 16px', borderBottom: '1px solid #E5E7EB' }}>
+                      <input className={styles.fieldInput} value={pushTitle} onChange={e => setPushTitle(e.target.value)} placeholder="공지 제목" style={{ marginBottom: 8 }} />
+                      <textarea className={styles.fieldTextarea} value={pushBody} onChange={e => setPushBody(e.target.value)} placeholder="공지 내용" rows={3} style={{ marginBottom: 8 }} />
+                      <input className={styles.fieldInput} value={pushUrl} onChange={e => setPushUrl(e.target.value)} placeholder="클릭 시 이동 URL (선택)" style={{ marginBottom: 8 }} />
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button
+                          className={[styles.sendBtn, !isPushDisabled ? styles.sendBtnActive : styles.sendBtnDisabled].join(' ')}
+                          disabled={isPushDisabled}
+                          onClick={async () => { await sendPush(); setQuickPushOpen(false) }}
+                        >
+                          {pushSending ? '발송 중...' : `${subCount}명에게 발송`}
+                        </button>
+                        <button onClick={() => setQuickPushOpen(false)} style={{ fontSize: 13, color: '#636B78', background: 'none', border: 'none', cursor: 'pointer' }}>취소</button>
+                      </div>
+                    </div>
+                  )}
+
+                  {pushHistory.length === 0 ? (
+                    <p style={{ padding: 32, textAlign: 'center', fontSize: 13, color: '#8892A0' }}>발송된 공지가 없습니다</p>
+                  ) : (
+                    <div>
+                      {pushHistory.slice(0, 5).map(n => (
+                        <div key={n.id} style={{ padding: '10px 20px', borderBottom: '1px solid #F3F4F6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div>
+                            <p style={{ fontSize: 13, fontWeight: 500, color: '#1A1A2E', margin: 0 }}>{n.title}</p>
+                            <p style={{ fontSize: 11, color: '#8892A0', margin: '2px 0 0' }}>
+                              {new Date(n.created_at).toLocaleString('ko-KR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                            </p>
+                          </div>
+                          <span style={{ fontSize: 11, color: '#636B78', whiteSpace: 'nowrap' }}>{n.sent_count}명</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* 설계사 현황 */}
+                <div className={styles.card}>
+                  <div className={styles.cardHeader}>
+                    <p className={styles.cardTitle}>설계사 현황</p>
+                  </div>
+                  <div style={{ padding: 20 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-around', marginBottom: 20 }}>
+                      {[
+                        { label: '전체', value: dashData.totalAgents, color: '#1A1A2E' },
+                        { label: '이번달 신규', value: `+${dashData.newAgentsThisMonth}`, color: '#5E6AD2' },
+                      ].map(s => (
+                        <div key={s.label} style={{ textAlign: 'center' }}>
+                          <p style={{ fontSize: 32, fontWeight: 700, color: s.color, margin: 0, lineHeight: 1 }}>{s.value}</p>
+                          <p style={{ fontSize: 11, color: '#8892A0', margin: '4px 0 0' }}>{s.label}</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <p style={{ fontSize: 11, fontWeight: 600, color: '#8892A0', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 10px' }}>플랜별 분포</p>
+                    <ResponsiveContainer width="100%" height={140}>
+                      <PieChart>
+                        <Pie
+                          data={Object.entries(dashData.planBreakdown).map(([name, value]) => ({ name: name.toUpperCase(), value }))}
+                          cx="50%" cy="50%"
+                          innerRadius={38} outerRadius={58}
+                          dataKey="value"
+                          label={({ name, value }) => `${name} ${value}명`}
+                          labelLine={false}
+                        >
+                          {Object.keys(dashData.planBreakdown).map((_: string, idx: number) => (
+                            <Cell key={idx} fill={['#5E6AD2', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'][idx % 5]} />
+                          ))}
+                        </Pie>
+                        <Tooltip formatter={(v: any, n: any) => [`${v}명`, n]} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                    <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center', marginTop: 4 }}>
+                      {Object.entries(dashData.planBreakdown).map(([plan, cnt]: [string, any], idx: number) => (
+                        <div key={plan} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11 }}>
+                          <span style={{ width: 8, height: 8, borderRadius: '50%', background: ['#5E6AD2', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'][idx % 5], display: 'inline-block' }} />
+                          <span style={{ color: '#636B78' }}>{plan.toUpperCase()} {cnt}명</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 2열 — YouTube + 보험공시 */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+
+                {/* YouTube */}
+                <div className={styles.card}>
+                  <div className={styles.cardHeader}>
+                    <p className={styles.cardTitle}>YouTube 현황</p>
+                    <span style={{ fontSize: 12, color: '#8892A0' }}>이번주 신규 {dashData.thisWeekVideos}건</span>
+                  </div>
+                  <div style={{ padding: 20 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
+                      {[
+                        { label: '채널', value: dashData.totalChannels },
+                        { label: '전체 영상', value: dashData.totalVideos },
+                        { label: '분석 완료', value: dashData.doneVideos },
+                        { label: '분석 대기', value: dashData.pendingVideos },
+                      ].map(s => (
+                        <div key={s.label} style={{ background: '#F7F8FA', borderRadius: 8, padding: '10px 14px' }}>
+                          <p style={{ fontSize: 11, color: '#8892A0', margin: '0 0 2px' }}>{s.label}</p>
+                          <p style={{ fontSize: 22, fontWeight: 700, color: '#1A1A2E', margin: 0 }}>{s.value}</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <p style={{ fontSize: 11, fontWeight: 600, color: '#8892A0', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 10px' }}>분석 현황</p>
+                    <ResponsiveContainer width="100%" height={90}>
+                      <BarChart
+                        layout="vertical"
+                        data={[
+                          { name: '완료', value: dashData.doneVideos },
+                          { name: '대기', value: dashData.pendingVideos },
+                          { name: '오류', value: dashData.errorVideos },
+                        ]}
+                        margin={{ left: 32, right: 24, top: 0, bottom: 0 }}
+                      >
+                        <XAxis type="number" hide />
+                        <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: '#636B78' }} axisLine={false} tickLine={false} />
+                        <Tooltip formatter={(v: any) => [`${v}건`]} />
+                        <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+                          {[{ fill: '#10B981' }, { fill: '#F59E0B' }, { fill: '#EF4444' }].map((e, i) => (
+                            <Cell key={i} fill={e.fill} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* 보험 공시 */}
+                <div className={styles.card}>
+                  <div className={styles.cardHeader}>
+                    <p className={styles.cardTitle}>보험 공시 현황</p>
+                    {dashData.lastCrawled && (
+                      <span style={{ fontSize: 11, color: '#8892A0' }}>
+                        최근: {new Date(dashData.lastCrawled).toLocaleString('ko-KR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ padding: 20 }}>
+                    <div style={{ display: 'flex', gap: 20, marginBottom: 16 }}>
+                      {[
+                        { label: '전체 PDF', value: `${dashData.totalPdfs}건`, color: '#1A1A2E' },
+                        { label: '이번주 업데이트', value: `+${dashData.thisWeekPdfs}`, color: '#5E6AD2' },
+                        { label: '오류', value: `${dashData.pdfErrors}`, color: dashData.pdfErrors > 0 ? '#EF4444' : '#10B981' },
+                      ].map(s => (
+                        <div key={s.label}>
+                          <p style={{ fontSize: 11, color: '#8892A0', margin: '0 0 2px' }}>{s.label}</p>
+                          <p style={{ fontSize: 24, fontWeight: 700, color: s.color, margin: 0 }}>{s.value}</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <p style={{ fontSize: 11, fontWeight: 600, color: '#8892A0', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 10px' }}>카테고리별 PDF 수</p>
+                    {Object.keys(dashData.categoryPdfs).length === 0 ? (
+                      <p style={{ fontSize: 13, color: '#8892A0', padding: '20px 0', textAlign: 'center' }}>저장된 PDF 없음</p>
+                    ) : (
+                      <ResponsiveContainer width="100%" height={Math.min(Object.keys(dashData.categoryPdfs).length * 30 + 10, 200)}>
+                        <BarChart
+                          layout="vertical"
+                          data={Object.entries(dashData.categoryPdfs).map(([name, value]) => ({ name, value }))}
+                          margin={{ left: 60, right: 24, top: 0, bottom: 0 }}
+                        >
+                          <XAxis type="number" hide />
+                          <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: '#636B78' }} axisLine={false} tickLine={false} width={60} />
+                          <Tooltip formatter={(v: any) => [`${v}건`]} />
+                          <Bar dataKey="value" fill="#5E6AD2" radius={[0, 4, 4, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* 빠른 액션 */}
+              <div className={styles.card} style={{ padding: 20 }}>
+                <p className={styles.cardTitle} style={{ marginBottom: 12 }}>빠른 액션</p>
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button className={styles.primaryBtn} onClick={() => { setTopMenu('공지사항'); setQuickPushOpen(true) }}>공지 보내기</button>
+                  <button className={styles.primaryBtn} onClick={() => { setTopMenu('보험공시'); setActiveTab('crawl') }}>크롤링 실행</button>
+                  <button className={styles.primaryBtn} onClick={() => setTopMenu('유튜브')}>YouTube 관리</button>
+                  <button className={styles.refreshBtn} onClick={fetchDashboardData}>새로고침</button>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      )}
 
       {/* ===== 공지사항 관리 ===== */}
       {topMenu === '공지사항' && (
