@@ -275,7 +275,7 @@ function ReportModal({ data, onClose }: { data: any; onClose: () => void }) {
   const contracts2 = data.contracts.slice(PAGE1_CONTRACTS)
 
   // 카테고리 차트 데이터
-  const chartData = data.coverageSummary
+  const chartData = (data.coverageSummary || [])
     .filter((c: any) => c.unit !== '유무' && c.total > 0)
     .sort((a: any, b: any) => b.total - a.total)
     .map((c: any) => ({
@@ -286,20 +286,34 @@ function ReportModal({ data, onClose }: { data: any; onClose: () => void }) {
     }))
 
   // 도넛 차트 데이터
-  const pieData = data.companyDistribution.map((d: any, i: number) => ({
+  const pieData = (data.companyDistribution || []).map((d: any, i: number) => ({
     name: d.company,
     value: d.amount,
     percent: d.percent,
     fill: PIE_COLORS[i % PIE_COLORS.length],
   }))
 
+  // 마지막 페이지 표시 여부
+  const hasLastPage = chartData.length > 0 || pieData.length > 0
+    || data.gapAnalysis?.length > 0
+    || data.consultationScripts?.length > 0
+    || data.ageComparison?.note
+
+  const totalPages = (contracts2.length > 0 ? 2 : 1) + (hasLastPage ? 1 : 0)
+
   return (
     <div className={styles.modalOverlay}>
       <div className={styles.modalTopbar}>
-        <div className={styles.modalTopbarTitle}>{data.customer.name} 고객 보험 분석 리포트</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ width: 28, height: 28, borderRadius: 6, background: '#5E6AD2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, color: 'white' }}>iP</div>
+          <div>
+            <div className={styles.modalTopbarTitle}>{data.customer.name} 고객 보험 분석 리포트</div>
+            <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 1 }}>{genDate} &nbsp;·&nbsp; {totalPages}페이지</div>
+          </div>
+        </div>
         <div className={styles.modalTopbarBtns}>
-          <button className={`${styles.topbarBtn} ${styles.topbarBtnPrint}`} onClick={() => window.print()}>인쇄 / PDF</button>
-          <button className={`${styles.topbarBtn} ${styles.topbarBtnClose}`} onClick={onClose}>닫기</button>
+          <button className={`${styles.topbarBtn} ${styles.topbarBtnPrint}`} onClick={() => window.print()}>🖨 인쇄 / PDF 저장</button>
+          <button className={`${styles.topbarBtn} ${styles.topbarBtnClose}`} onClick={onClose}>✕ 닫기</button>
         </div>
       </div>
 
@@ -360,7 +374,7 @@ function ReportModal({ data, onClose }: { data: any; onClose: () => void }) {
           {contracts2.length === 0 && (
             <div className={styles.reportFooter}>
               <span>iPlanner v1.0 &nbsp;|&nbsp; AI 포함 설계사 전용</span>
-              <span>1 / {data.contracts.length > PAGE1_CONTRACTS ? 3 : 2}</span>
+              <span>1 / {totalPages}</span>
             </div>
           )}
         </div>
@@ -374,120 +388,130 @@ function ReportModal({ data, onClose }: { data: any; onClose: () => void }) {
               <ContractTable contracts={contracts2} />
               <div className={styles.reportFooter}>
                 <span>iPlanner v1.0 &nbsp;|&nbsp; AI 포함 설계사 전용</span>
-                <span>2 / 3</span>
+                <span>2 / {totalPages}</span>
               </div>
             </div>
           </>
         )}
 
-        {/* ── PAGE 2/3: 차트 + 보장공백 + 스크립트 ── */}
-        <div className={styles.pageBreakHint}>{contracts2.length > 0 ? '3페이지' : '2페이지'}</div>
-        <div className={styles.a4Page}>
+        {/* ── 마지막 페이지: 차트 + 보장공백 + 스크립트 (데이터 있을 때만) ── */}
+        {hasLastPage && (
+          <>
+            <div className={styles.pageBreakHint}>{contracts2.length > 0 ? '3페이지' : '2페이지'}</div>
+            <div className={styles.a4Page}>
 
-          {/* 카테고리별 보장 금액 */}
-          <div className={styles.sectionTitle}>카테고리별 보장 금액</div>
-          <div style={{ marginBottom: 8, display: 'flex', gap: 16, fontSize: 11, color: '#636B78' }}>
-            {['good','ok','low'].map(s => (
-              <span key={s} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                <span style={{ width: 10, height: 10, borderRadius: 2, background: STATUS_COLOR[s], display: 'inline-block' }} />
-                {STATUS_LABEL[s]}
-              </span>
-            ))}
-          </div>
-          <div className={styles.chartWrap} style={{ height: 220 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} layout="vertical" margin={{ left: 50, right: 60, top: 0, bottom: 0 }}>
-                <XAxis type="number" tickFormatter={fmtMoney} tick={{ fontSize: 10 }} />
-                <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={50} />
-                <Tooltip formatter={(v: any) => fmtMoney(v)} />
-                <Bar dataKey="total" radius={[0, 3, 3, 0]}>
-                  {chartData.map((entry: any, i: number) => (
-                    <Cell key={i} fill={entry.fill} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+              {/* 카테고리별 보장 금액 — 데이터 있을 때만 */}
+              {chartData.length > 0 && (
+                <>
+                  <div className={styles.sectionTitle}>카테고리별 보장 금액</div>
+                  <div style={{ marginBottom: 8, display: 'flex', gap: 16, fontSize: 11, color: '#636B78' }}>
+                    {['good','ok','low'].map(s => (
+                      <span key={s} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ width: 10, height: 10, borderRadius: 2, background: STATUS_COLOR[s], display: 'inline-block' }} />
+                        {STATUS_LABEL[s]}
+                      </span>
+                    ))}
+                  </div>
+                  <div className={styles.chartWrap} style={{ height: 220 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={chartData} layout="vertical" margin={{ left: 50, right: 60, top: 0, bottom: 0 }}>
+                        <XAxis type="number" tickFormatter={fmtMoney} tick={{ fontSize: 10 }} />
+                        <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={50} />
+                        <Tooltip formatter={(v: any) => fmtMoney(v)} />
+                        <Bar dataKey="total" radius={[0, 3, 3, 0]}>
+                          {chartData.map((entry: any, i: number) => (
+                            <Cell key={i} fill={entry.fill} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </>
+              )}
 
-          {/* 도넛 + 나이 비교 */}
-          <div className={styles.chartsRow}>
-            <div>
-              <div className={styles.sectionTitle}>월 보험료 분배</div>
-              <div style={{ height: 180 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={75} dataKey="value">
-                      {pieData.map((entry: any, i: number) => (
-                        <Cell key={i} fill={entry.fill} />
-                      ))}
-                    </Pie>
-                    <Legend
-                      formatter={(value: any, entry: any) => `${value} ${entry.payload.percent}%`}
-                      iconSize={8}
-                      wrapperStyle={{ fontSize: 10 }}
-                    />
-                    <Tooltip formatter={(v: any) => `${v.toLocaleString()}원`} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* 나이별 코멘트 */}
-            {data.ageComparison?.note && (
-              <div>
-                <div className={styles.sectionTitle}>나이별 시사점</div>
-                <div style={{ background: '#F0F1FB', borderRadius: 10, padding: '14px 16px' }}>
-                  <div style={{ fontSize: 12, color: '#1A1A2E', lineHeight: 1.8, marginBottom: 10 }}>{data.ageComparison.note}</div>
-                  {data.ageComparison.at_60_monthly_increase > 0 && (
-                    <div style={{ fontSize: 11, color: '#5E6AD2', fontWeight: 600 }}>
-                      60세 시 예상 추가 보험료: +{data.ageComparison.at_60_monthly_increase.toLocaleString()}원/월
+              {/* 도넛 + 나이 비교 */}
+              {(pieData.length > 0 || data.ageComparison?.note) && (
+                <div className={styles.chartsRow}>
+                  {pieData.length > 0 && (
+                    <div>
+                      <div className={styles.sectionTitle}>월 보험료 분배</div>
+                      <div style={{ height: 180 }}>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={75} dataKey="value">
+                              {pieData.map((entry: any, i: number) => (
+                                <Cell key={i} fill={entry.fill} />
+                              ))}
+                            </Pie>
+                            <Legend
+                              formatter={(value: any, entry: any) => `${value} ${entry.payload.percent}%`}
+                              iconSize={8}
+                              wrapperStyle={{ fontSize: 10 }}
+                            />
+                            <Tooltip formatter={(v: any) => `${v.toLocaleString()}원`} />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </div>
                     </div>
                   )}
-                  {data.ageComparison.at_65_note && (
-                    <div style={{ fontSize: 11, color: '#EF4444', marginTop: 6 }}>{data.ageComparison.at_65_note}</div>
+                  {data.ageComparison?.note && (
+                    <div>
+                      <div className={styles.sectionTitle}>나이별 시사점</div>
+                      <div style={{ background: '#F0F1FB', borderRadius: 10, padding: '14px 16px' }}>
+                        <div style={{ fontSize: 12, color: '#1A1A2E', lineHeight: 1.8, marginBottom: 10 }}>{data.ageComparison.note}</div>
+                        {data.ageComparison.at_60_monthly_increase > 0 && (
+                          <div style={{ fontSize: 11, color: '#5E6AD2', fontWeight: 600 }}>
+                            60세 시 예상 추가 보험료: +{data.ageComparison.at_60_monthly_increase.toLocaleString()}원/월
+                          </div>
+                        )}
+                        {data.ageComparison.at_65_note && (
+                          <div style={{ fontSize: 11, color: '#EF4444', marginTop: 6 }}>{data.ageComparison.at_65_note}</div>
+                        )}
+                      </div>
+                    </div>
                   )}
                 </div>
-              </div>
-            )}
-          </div>
+              )}
 
-          {/* 보장 공백 분석 */}
-          {data.gapAnalysis?.length > 0 && (
-            <>
-              <div className={styles.sectionTitle}>보장 공백 분석</div>
-              <div className={styles.gapBox}>
-                {data.gapAnalysis.map((g: any, i: number) => (
-                  <div key={i} className={styles.gapItem}>
-                    <div className={styles.gapDot} />
-                    <div className={styles.gapCategory}>{g.category}</div>
-                    <div className={styles.gapMessage}>{g.message}</div>
-                    <div className={styles.gapAmounts}>{fmtMoney(g.current)} → {fmtMoney(g.benchmark)}</div>
+              {/* 보장 공백 분석 */}
+              {data.gapAnalysis?.length > 0 && (
+                <>
+                  <div className={styles.sectionTitle}>보장 공백 분석</div>
+                  <div className={styles.gapBox}>
+                    {data.gapAnalysis.map((g: any, i: number) => (
+                      <div key={i} className={styles.gapItem}>
+                        <div className={styles.gapDot} />
+                        <div className={styles.gapCategory}>{g.category}</div>
+                        <div className={styles.gapMessage}>{g.message}</div>
+                        <div className={styles.gapAmounts}>{fmtMoney(g.current)} → {fmtMoney(g.benchmark)}</div>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </>
+              )}
+
+              {/* 추천 상담 스크립트 */}
+              {data.consultationScripts?.length > 0 && (
+                <>
+                  <div className={styles.sectionTitle}>추천 상담 스크립트</div>
+                  {data.consultationScripts.map((script: string, i: number) => (
+                    <div key={i} className={styles.scriptBox}>
+                      <div className={styles.scriptNum}>Script {i + 1}</div>
+                      <div className={styles.scriptText}>
+                        <span className={styles.scriptQuote}>"</span>{script}
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )}
+
+              <div className={styles.reportFooter}>
+                <span>iPlanner v1.0 &nbsp;|&nbsp; AI 포함 설계사 전용</span>
+                <span>{totalPages} / {totalPages}</span>
               </div>
-            </>
-          )}
-
-          {/* 추천 상담 스크립트 */}
-          {data.consultationScripts?.length > 0 && (
-            <>
-              <div className={styles.sectionTitle}>추천 상담 스크립트</div>
-              {data.consultationScripts.map((script: string, i: number) => (
-                <div key={i} className={styles.scriptBox}>
-                  <div className={styles.scriptNum}>Script {i + 1}</div>
-                  <div className={styles.scriptText}>
-                    <span className={styles.scriptQuote}>"</span>{script}
-                  </div>
-                </div>
-              ))}
-            </>
-          )}
-
-          <div className={styles.reportFooter}>
-            <span>iPlanner v1.0 &nbsp;|&nbsp; AI 포함 설계사 전용</span>
-            <span>{contracts2.length > 0 ? '3' : '2'} / {contracts2.length > 0 ? 3 : 2}</span>
-          </div>
-        </div>
+            </div>
+          </>
+        )}
 
       </div>
     </div>
