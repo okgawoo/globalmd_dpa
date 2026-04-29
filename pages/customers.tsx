@@ -1382,7 +1382,7 @@ export default function Customers() {
               <button onClick={() => setReentryOpen(false)} style={{background:'none',border:'none',fontSize:20,color:'#8892A0',cursor:'pointer',lineHeight:1,padding:0}}>✕</button>
             </div>
             {/* 2열 본문 */}
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',flex:1,overflow:'hidden'}}>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',flex:1,overflow:'hidden',minHeight:320}}>
               {/* 왼쪽 — 붙여넣기 입력 */}
               <div style={{padding:'20px 24px',display:'flex',flexDirection:'column',gap:12,borderRight:'1px solid #E5E7EB',overflow:'hidden'}}>
                 <div style={{fontSize:11,fontWeight:600,color:'#636B78',textTransform:'uppercase',letterSpacing:'0.04em',flexShrink:0}}>보장내역 붙여넣기</div>
@@ -1416,7 +1416,7 @@ export default function Customers() {
                 </button>
               </div>
               {/* 오른쪽 — 현재 계약 목록 + 분석 결과 */}
-              <div style={{padding:'20px 24px',display:'flex',flexDirection:'column',overflowY:'auto'}}>
+              <div style={{padding:'20px 24px',display:'flex',flexDirection:'column',overflowY:'auto',justifyContent:(reentryParsing||!!reentryParsed)?'center':'flex-start'}}>
                 <style>{`
                   @keyframes reentryWaveUp {
                     0% { opacity:1; transform:translateY(0); max-height:60px; }
