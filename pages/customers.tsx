@@ -1515,7 +1515,7 @@ export default function Customers() {
                         )
                       })()}
                       {isSelected && reentryParsed && !reentryParsed.contracts?.[0] && (
-                        <div style={{padding:'10px 14px',background:'#F7F8FA',borderRadius:8,border:'1px solid #E5E7EB',fontSize:13,color:'#636B78',marginTop:8,animation:'reentryFadeIn 0.3s ease'}}>
+                        <div style={{padding:'10px 14px',background:'#FEF3E2',borderRadius:8,border:'1px solid #FCD34D',fontSize:13,color:'#B45309',fontWeight:500,marginTop:8,animation:'reentryFadeIn 0.3s ease'}}>
                           계약 정보를 인식하지 못했어요. 텍스트를 확인 후 다시 시도해 주세요.
                         </div>
                       )}
