@@ -7,10 +7,10 @@ import {
 } from 'recharts'
 
 // ── 상수 ──────────────────────────────────────────────
-const PIE_COLORS = ['#5E6AD2','#7C86E0','#10B981','#F59E0B','#EF4444','#06B6D4','#8B5CF6','#F97316']
-const STATUS_COLOR: Record<string, string> = { good: '#3B82F6', ok: '#F59E0B', low: '#EF4444' }
+const PIE_COLORS = ['#5E6AD2','#2A7D8D','#C5622D','#7C1E5E','#1E54B8','#3A2E8A','#D4945A','#94A3B8']
+const STATUS_COLOR: Record<string, string> = { good: '#2E5F8A', ok: '#C5621C', low: '#9B2335' }
 const STATUS_LABEL: Record<string, string> = { good: '충분', ok: '보통', low: '부족' }
-const STATUS_BG: Record<string, string>    = { good: '#EFF6FF', ok: '#FFFBEB', low: '#FEF3F2' }
+const STATUS_BG: Record<string, string>    = { good: '#E8F0F7', ok: '#FBF0E8', low: '#F7E8EA' }
 
 function fmtMoney(v: number) {
   if (v >= 100000000) return `${(v / 100000000).toFixed(1)}억`
@@ -409,7 +409,7 @@ export default function ReportPage() {
 }
 
 // ── 에디터 블록 컴포넌트 ──────────────────────────────
-function EditorBlock({ block, agent, customer, localStats, customerContracts, localCoverageSummary, reportData, editContent, loading, onEdit, onAIGenerate }: {
+function EditorBlock({ block, agent, customer, localStats, customerContracts, localCoverageSummary, localCompanyDistribution, reportData, editContent, loading, onEdit, onAIGenerate }: {
   block: BlockDef
   agent: any
   customer: any
