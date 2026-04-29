@@ -194,6 +194,45 @@ export default function ReportPage() {
     }
   }
 
+  const [blockLoading, setBlockLoading] = useState<string | null>(null)
+
+  async function regenerateBlock(blockId: string) {
+    if (!selected) return
+    setBlockLoading(blockId)
+    try {
+      const res = await fetch('/api/generate-block', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customerId: selected.id, blockId }),
+      })
+      const data = await res.json()
+      if (data.error) { alert(data.error); return }
+      const r = data.result
+      const contentMap: Record<string, string> = {
+        gap_analysis: (r.gap_analysis || []).map((g: any) => `• ${g.category}: ${g.message}`).join('\n'),
+        key_insight: r.key_insight || '',
+        claim_cases: (r.claim_cases || []).map((c: any) => `■ ${c.name} (${c.masked_id})\n${c.situation}\n→ 수령 보험금: ${c.payout}`).join('\n\n'),
+        age_comparison: r.age_comparison?.note || '',
+        consultation_script: (r.consultation_scripts || []).join('\n\n'),
+        rejection_risk: (r.rejection_risk || []).join('\n'),
+        peer_comparison: r.peer_comparison || '',
+        remodel_suggestion: r.remodel_suggestion || '',
+        pitch_points: (r.pitch_points || []).map((p: string) => `• ${p}`).join('\n'),
+      }
+      if (contentMap[blockId] !== undefined) {
+        setEditContent(prev => ({ ...prev, [blockId]: contentMap[blockId] }))
+      }
+      // gap_analysis는 reportData도 업데이트
+      if (blockId === 'gap_analysis' && r.gap_analysis) {
+        setReportData((prev: any) => prev ? { ...prev, gapAnalysis: r.gap_analysis } : prev)
+      }
+    } catch (e: any) {
+      alert('재생성 실패: ' + e.message)
+    } finally {
+      setBlockLoading(null)
+    }
+  }
+
   // ── 드래그 핸들러 ──
   function onDragStart(idx: number) { setDragIdx(idx) }
   function onDragOver(e: React.DragEvent, idx: number) {
@@ -259,11 +298,12 @@ export default function ReportPage() {
                 localCompanyDistribution={localCompanyDistribution}
                 reportData={reportData}
                 editContent={editContent}
-                loading={loading}
+                loading={blockLoading === block.id}
+                hasReportData={!!reportData}
                 onEdit={(val: string) =>
                   setEditContent(prev => ({ ...prev, [block.id]: val }))
                 }
-                onAIGenerate={generateReport}
+                onAIGenerate={() => regenerateBlock(block.id)}
               />
             ))}
             {enabledBlocks.length === 0 && (
@@ -409,7 +449,7 @@ export default function ReportPage() {
 }
 
 // ── 에디터 블록 컴포넌트 ──────────────────────────────
-function EditorBlock({ block, agent, customer, localStats, customerContracts, localCoverageSummary, localCompanyDistribution, reportData, editContent, loading, onEdit, onAIGenerate }: {
+function EditorBlock({ block, agent, customer, localStats, customerContracts, localCoverageSummary, localCompanyDistribution, reportData, editContent, loading, hasReportData, onEdit, onAIGenerate }: {
   block: BlockDef
   agent: any
   customer: any
@@ -420,6 +460,7 @@ function EditorBlock({ block, agent, customer, localStats, customerContracts, lo
   reportData: any
   editContent: Record<string, string>
   loading: boolean
+  hasReportData: boolean
   onEdit: (val: string) => void
   onAIGenerate: () => void
 }) {
@@ -436,8 +477,12 @@ function EditorBlock({ block, agent, customer, localStats, customerContracts, lo
             <span style={{ fontSize: 13, color: '#B0B8C4' }}>명함 정보는 설정에서 수정할 수 있습니다</span>
           )}
           {block.hasAI && !confirmed && (
-            <button className={styles.aiBtn} onClick={onAIGenerate} disabled={loading}>
-              {loading ? '⏳' : '✨ AI 추천 생성'}
+            <button
+              className={`${styles.aiBtn} ${hasReportData ? styles.aiBtnVisible : ''}`}
+              onClick={onAIGenerate}
+              disabled={loading}
+            >
+              {loading ? '⏳ 생성 중...' : '✨ AI 추천 재생성'}
             </button>
           )}
           <button
