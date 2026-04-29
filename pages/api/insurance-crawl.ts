@@ -85,7 +85,7 @@ async function getProductList(cookie: string, srtSq: number) {
   const pdDtlList: any[] = data1.body?.pdDtlList || []
 
   // cmCommCd 중복 제거
-  const cmCommCds = [...new Set(pdDtlList.map((p: any) => p.cmCommCd).filter(Boolean))] as string[]
+  const cmCommCds = Array.from(new Set(pdDtlList.map((p: any) => p.cmCommCd).filter(Boolean))) as string[]
   console.log(`[insurance-crawl] srtSq=${srtSq} → cmCommCds:`, cmCommCds)
 
   if (cmCommCds.length === 0) return []
