@@ -513,18 +513,49 @@
 
 /* ── 인쇄 ── */
 @media print {
-  .modalOverlay { position: static; background: white; }
+  .modalOverlay {
+    position: static;
+    background: white !important;
+    padding: 0;
+  }
+  .modalPanel {
+    background: white !important;
+    border-radius: 0;
+    box-shadow: none;
+    max-width: none;
+    width: 100%;
+    max-height: none;
+  }
   .modalTopbar { display: none; }
-  .modalBody { padding: 0; overflow: visible; }
+  .modalBody {
+    padding: 0;
+    overflow: visible;
+    background: white !important;
+  }
   .a4Page {
     box-shadow: none;
     margin-bottom: 0;
     page-break-after: always;
     break-after: page;
     width: 100%;
+    max-width: none;
+    border-radius: 0;
+    min-height: auto;
   }
   .a4Page:last-of-type { page-break-after: avoid; break-after: avoid; }
   .pageBreakHint { display: none; }
+
+  /* 테이블 헤더 배경 인쇄용 */
+  .contractTable thead tr {
+    background: #1A1A2E !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  /* 전체 색상 출력 허용 */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
 }
 
 @page { size: A4; margin: 0; }
