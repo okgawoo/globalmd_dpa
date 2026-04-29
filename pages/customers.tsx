@@ -1493,19 +1493,19 @@ export default function Customers() {
                       </div>
                       {/* 분석 결과 or 에러 — 선택 계약 바로 아래 */}
                       {isSelected && reentryParsed && reentryParsed.contracts?.[0] && (
-                        <div style={{padding:'14px',background:'#F0FBF7',borderRadius:8,border:'1px solid #B5E5D5',marginTop:8,animation:'reentryFadeIn 0.3s ease'}}>
-                          <div style={{fontSize:12,fontWeight:600,color:'#0F6E56',marginBottom:4}}>분석 완료</div>
+                        <div style={{padding:'14px',background:'#F7F8FA',borderRadius:8,border:'1px solid #E5E7EB',marginTop:8,animation:'reentryFadeIn 0.3s ease'}}>
+                          <div style={{fontSize:12,fontWeight:600,color:'#5E6AD2',marginBottom:4}}>분석 완료</div>
                           <div style={{fontSize:13,color:'#1A1A2E',marginBottom:2}}>{reentryParsed.contracts[0].company} · {reentryParsed.contracts[0].product_name}</div>
                           <div style={{fontSize:12,color:'#636B78',marginBottom:10}}>{reentryParsed.contracts[0].monthly_fee>0?`${reentryParsed.contracts[0].monthly_fee.toLocaleString()}원/월 · `:''}{reentryParsed.contracts[0].coverages?.length||0}개 보장항목</div>
                           <div style={{display:'flex',justifyContent:'flex-end'}}>
-                            <button onClick={handleRentrySave} disabled={reSaving} style={{padding:'10px 24px',borderRadius:8,border:'none',background:reSaving?'#E5E7EB':'#1D9E75',color:reSaving?'#8892A0':'white',fontSize:14,fontWeight:600,cursor:reSaving?'not-allowed':'pointer'}}>
+                            <button onClick={handleRentrySave} disabled={reSaving} style={{padding:'10px 24px',borderRadius:8,border:'none',background:reSaving?'#E5E7EB':'#5E6AD2',color:reSaving?'#8892A0':'white',fontSize:14,fontWeight:600,cursor:reSaving?'not-allowed':'pointer'}}>
                               {reSaving ? '저장 중...' : '교체 저장'}
                             </button>
                           </div>
                         </div>
                       )}
                       {isSelected && reentryParsed && !reentryParsed.contracts?.[0] && (
-                        <div style={{padding:'10px 14px',background:'#FEF3E2',borderRadius:8,border:'1px solid #FCD34D',fontSize:13,color:'#92400E',marginTop:8,animation:'reentryFadeIn 0.3s ease'}}>
+                        <div style={{padding:'10px 14px',background:'#F7F8FA',borderRadius:8,border:'1px solid #E5E7EB',fontSize:13,color:'#636B78',marginTop:8,animation:'reentryFadeIn 0.3s ease'}}>
                           계약 정보를 인식하지 못했어요. 텍스트를 확인 후 다시 시도해 주세요.
                         </div>
                       )}
@@ -1514,19 +1514,19 @@ export default function Customers() {
                 })}
                 {/* 새 계약 추가 모드 — 분석 결과 */}
                 {!reentryReplaceId && reentryParsed && reentryParsed.contracts?.[0] && (
-                  <div style={{padding:'14px',background:'#F0FBF7',borderRadius:8,border:'1px solid #B5E5D5',animation:'reentryFadeIn 0.3s ease'}}>
-                    <div style={{fontSize:12,fontWeight:600,color:'#0F6E56',marginBottom:4}}>분석 완료</div>
+                  <div style={{padding:'14px',background:'#F7F8FA',borderRadius:8,border:'1px solid #E5E7EB',animation:'reentryFadeIn 0.3s ease'}}>
+                    <div style={{fontSize:12,fontWeight:600,color:'#5E6AD2',marginBottom:4}}>분석 완료</div>
                     <div style={{fontSize:13,color:'#1A1A2E',marginBottom:2}}>{reentryParsed.contracts[0].company} · {reentryParsed.contracts[0].product_name}</div>
                     <div style={{fontSize:12,color:'#636B78',marginBottom:10}}>{reentryParsed.contracts[0].monthly_fee>0?`${reentryParsed.contracts[0].monthly_fee.toLocaleString()}원/월 · `:''}{reentryParsed.contracts[0].coverages?.length||0}개 보장항목</div>
                     <div style={{display:'flex',justifyContent:'flex-end'}}>
-                      <button onClick={handleRentrySave} disabled={reSaving} style={{padding:'10px 24px',borderRadius:8,border:'none',background:reSaving?'#E5E7EB':'#1D9E75',color:reSaving?'#8892A0':'white',fontSize:14,fontWeight:600,cursor:reSaving?'not-allowed':'pointer'}}>
+                      <button onClick={handleRentrySave} disabled={reSaving} style={{padding:'10px 24px',borderRadius:8,border:'none',background:reSaving?'#E5E7EB':'#5E6AD2',color:reSaving?'#8892A0':'white',fontSize:14,fontWeight:600,cursor:reSaving?'not-allowed':'pointer'}}>
                         {reSaving ? '저장 중...' : '추가 저장'}
                       </button>
                     </div>
                   </div>
                 )}
                 {!reentryReplaceId && reentryParsed && !reentryParsed.contracts?.[0] && (
-                  <div style={{padding:'10px 14px',background:'#FEF3E2',borderRadius:8,border:'1px solid #FCD34D',fontSize:13,color:'#92400E',animation:'reentryFadeIn 0.3s ease'}}>
+                  <div style={{padding:'10px 14px',background:'#F7F8FA',borderRadius:8,border:'1px solid #E5E7EB',fontSize:13,color:'#636B78',animation:'reentryFadeIn 0.3s ease'}}>
                     계약 정보를 인식하지 못했어요. 텍스트를 확인 후 다시 시도해 주세요.
                   </div>
                 )}
