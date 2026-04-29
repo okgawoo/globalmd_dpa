@@ -407,7 +407,8 @@ function BlockContent({ id, agent, customer, localStats, reportData, editContent
                   {agent.name?.[0] || 'A'}
                 </div>
                 <div style={{ fontSize: 15, fontWeight: 700, color: '#1A1A2E' }}>{agent.name || '설계사'}</div>
-                <div style={{ fontSize: 11, color: '#8892A0' }}>보험 컨설턴트</div>
+                <div style={{ fontSize: 11, color: '#8892A0' }}>{agent.settings?.title || '보험 컨설턴트'}</div>
+                {agent.settings?.company && <div style={{ fontSize: 10, color: '#B0B8C4' }}>{agent.settings.company}</div>}
               </div>
               <div style={{ width: 1, height: '60%', background: '#E5E7EB', flexShrink: 0 }} />
               <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 5 }}>
@@ -873,7 +874,8 @@ function AgentCard({ agent }: { agent: any }) {
       <div className={styles.agentCardAccent} />
       <div className={styles.agentAvatar}>{agent.name?.[0] || 'A'}</div>
       <div className={styles.agentName}>{agent.name || '설계사'}</div>
-      <div className={styles.agentTitle}>보험 컨설턴트</div>
+      <div className={styles.agentTitle}>{agent.title || '보험 컨설턴트'}</div>
+      {agent.company && <div style={{ fontSize: 11, color: '#8892A0', marginBottom: 4 }}>{agent.company}</div>}
       <div className={styles.agentInfo}>
         {agent.phone && <div>📞 {agent.phone}</div>}
         {agent.fax   && <div>📠 {agent.fax}</div>}

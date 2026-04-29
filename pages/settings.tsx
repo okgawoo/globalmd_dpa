@@ -107,6 +107,8 @@ export default function SettingsPage() {
   // SNS
   const [sns, setSns] = useState({ kakao: '', instagram: '', x: '', facebook: '' })
   const [fax, setFax] = useState('')
+  const [title, setTitle] = useState('')       // 직함
+  const [company, setCompany] = useState('')   // 소속
 
   const { confirm, ConfirmDialog } = useConfirm()
 
@@ -129,6 +131,8 @@ export default function SettingsPage() {
       setDefaultTone(s.default_tone || '친근')
       if (s.sns) setSns(prev => ({ ...prev, ...s.sns }))
       setFax(s.fax || '')
+      setTitle(s.title || '')
+      setCompany(s.company || '')
       setSenderStatus(s.sender_verified ? 'verified' : 'none')
 
       if (s.notifications) {
@@ -171,7 +175,7 @@ export default function SettingsPage() {
     await supabase.from('dpa_agents').update({
       email: editEmail,
       phone: editPhone,
-      settings: { ...agent.settings, sns, fax },
+      settings: { ...agent.settings, sns, fax, title, company },
     }).eq('id', agent.id)
     await fetchAgent()
     setSavingProfile(false)
@@ -317,6 +321,26 @@ export default function SettingsPage() {
                     onChange={e => setFax(e.target.value)} placeholder="02-0000-0000" />
                 </div>
               </div>
+              <div className={styles.profileRow}>
+                <div className={styles.profileLabel}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+                  직함
+                </div>
+                <div className={styles.profileValue}>
+                  <input className={styles.profileInput} value={title}
+                    onChange={e => setTitle(e.target.value)} placeholder="예: 수석 컨설턴트" />
+                </div>
+              </div>
+              <div className={styles.profileRow}>
+                <div className={styles.profileLabel}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                  소속
+                </div>
+                <div className={styles.profileValue}>
+                  <input className={styles.profileInput} value={company}
+                    onChange={e => setCompany(e.target.value)} placeholder="예: 글로벌 파이낸셜" />
+                </div>
+              </div>
               <div className={styles.profileGroupLabel}>SNS 계정</div>
               <div className={styles.profileRow}>
                 <div className={styles.profileLabel}>
@@ -381,6 +405,14 @@ export default function SettingsPage() {
               <div className={styles.field}>
                 <label className={styles.fieldLabel}>팩스</label>
                 <input className={styles.fieldInput} value={fax} onChange={e => setFax(e.target.value)} placeholder="02-0000-0000" />
+              </div>
+              <div className={styles.field}>
+                <label className={styles.fieldLabel}>직함</label>
+                <input className={styles.fieldInput} value={title} onChange={e => setTitle(e.target.value)} placeholder="예: 수석 컨설턴트" />
+              </div>
+              <div className={styles.field}>
+                <label className={styles.fieldLabel}>소속</label>
+                <input className={styles.fieldInput} value={company} onChange={e => setCompany(e.target.value)} placeholder="예: 글로벌 파이낸셜" />
               </div>
               <div className={styles.field}>
                 <label className={styles.fieldLabel}>카카오톡</label>
