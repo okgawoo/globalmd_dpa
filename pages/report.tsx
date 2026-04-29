@@ -357,6 +357,7 @@ export default function ReportPage() {
                 reportData={reportData}
                 editContent={editContent}
                 loading={blockLoading === block.id}
+                isGenerating={loading}
                 hasReportData={!!reportData}
                 onEdit={(val: string) =>
                   setEditContent(prev => ({ ...prev, [block.id]: val }))
@@ -436,7 +437,7 @@ export default function ReportPage() {
                   </div>
                 </div>
                 {reportData && (
-                  <div style={{ fontSize: 10, color: '#10B981', fontWeight: 600, background: '#ECFDF5', padding: '3px 8px', borderRadius: 20, flexShrink: 0 }}>
+                  <div style={{ fontSize: 10, color: '#5E6AD2', fontWeight: 600, background: '#F0F1FB', padding: '3px 8px', borderRadius: 20, flexShrink: 0 }}>
                     분석완료
                   </div>
                 )}
@@ -519,7 +520,7 @@ export default function ReportPage() {
 }
 
 // ── 에디터 블록 컴포넌트 ──────────────────────────────
-function EditorBlock({ block, agent, customer, localStats, customerContracts, localCoverageSummary, localCompanyDistribution, reportData, editContent, loading, hasReportData, onEdit, onAIGenerate }: {
+function EditorBlock({ block, agent, customer, localStats, customerContracts, localCoverageSummary, localCompanyDistribution, reportData, editContent, loading, isGenerating, hasReportData, onEdit, onAIGenerate }: {
   block: BlockDef
   agent: any
   customer: any
@@ -530,6 +531,7 @@ function EditorBlock({ block, agent, customer, localStats, customerContracts, lo
   reportData: any
   editContent: Record<string, string>
   loading: boolean
+  isGenerating: boolean
   hasReportData: boolean
   onEdit: (val: string) => void
   onAIGenerate: () => void
@@ -586,6 +588,7 @@ function EditorBlock({ block, agent, customer, localStats, customerContracts, lo
             reportData={reportData}
             editContent={editContent}
             onEdit={onEdit}
+            isGenerating={loading || isGenerating}
           />
         </div>
       )}
@@ -608,7 +611,7 @@ const BLOCK_PLACEHOLDERS: Record<string, string> = {
   consultation_script: '화법 스크립트가 여기에 표시됩니다',
 }
 
-function BlockContent({ id, agent, customer, localStats, customerContracts, localCoverageSummary, localCompanyDistribution, reportData, editContent, onEdit }: any) {
+function BlockContent({ id, agent, customer, localStats, customerContracts, localCoverageSummary, localCompanyDistribution, reportData, editContent, onEdit, isGenerating }: any) {
   const noData = !reportData
 
   if (!customer && id !== 'header') return <BlockSkeleton text={BLOCK_PLACEHOLDERS[id] || '고객 선택 후 표시됩니다'} />
@@ -796,7 +799,7 @@ function BlockContent({ id, agent, customer, localStats, customerContracts, loca
 
     // 보장공백 진단
     case 'gap_analysis':
-      if (noData) return <Placeholder ai>AI 분석 생성 버튼을 눌러주세요</Placeholder>
+      if (noData) return <Placeholder ai loading={isGenerating}>AI 분석 생성 버튼을 눌러주세요</Placeholder>
       if (!reportData.gapAnalysis?.length) return <Placeholder>공백 항목이 없어요 🎉</Placeholder>
       return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -817,7 +820,7 @@ function BlockContent({ id, agent, customer, localStats, customerContracts, loca
 
     // 또래 유사 사례
     case 'claim_cases':
-      if (noData) return <Placeholder ai>AI 분석 생성 버튼을 눌러주세요</Placeholder>
+      if (noData) return <Placeholder ai loading={isGenerating}>AI 분석 생성 버튼을 눌러주세요</Placeholder>
       return (
         <textarea
           className={styles.editableArea}
@@ -830,7 +833,7 @@ function BlockContent({ id, agent, customer, localStats, customerContracts, loca
 
     // 후킹멘트
     case 'key_insight':
-      if (noData) return <Placeholder ai>AI 분석 생성 버튼을 눌러주세요</Placeholder>
+      if (noData) return <Placeholder ai loading={isGenerating}>AI 분석 생성 버튼을 눌러주세요</Placeholder>
       return (
         <textarea
           className={styles.editableArea}
@@ -843,7 +846,7 @@ function BlockContent({ id, agent, customer, localStats, customerContracts, loca
 
     // 나이별 시사점
     case 'age_comparison':
-      if (noData) return <Placeholder ai>AI 분석 생성 버튼을 눌러주세요</Placeholder>
+      if (noData) return <Placeholder ai loading={isGenerating}>AI 분석 생성 버튼을 눌러주세요</Placeholder>
       if (!reportData.ageComparison?.note) return <Placeholder>나이 정보가 없어요</Placeholder>
       return (
         <div>
@@ -869,7 +872,7 @@ function BlockContent({ id, agent, customer, localStats, customerContracts, loca
 
     // 피칭 포인트
     case 'pitch_points':
-      if (noData) return <Placeholder ai>AI 분석 생성 버튼을 눌러주세요</Placeholder>
+      if (noData) return <Placeholder ai loading={isGenerating}>AI 분석 생성 버튼을 눌러주세요</Placeholder>
       return (
         <textarea
           className={styles.editableArea}
@@ -882,7 +885,7 @@ function BlockContent({ id, agent, customer, localStats, customerContracts, loca
 
     // 화법 스크립트
     case 'consultation_script':
-      if (noData) return <Placeholder ai>AI 분석 생성 버튼을 눌러주세요</Placeholder>
+      if (noData) return <Placeholder ai loading={isGenerating}>AI 분석 생성 버튼을 눌러주세요</Placeholder>
       return (
         <textarea
           className={styles.editableArea}
@@ -895,7 +898,7 @@ function BlockContent({ id, agent, customer, localStats, customerContracts, loca
 
     // 기타 AI 블록
     default:
-      if (noData) return <Placeholder ai>AI 분석 생성 버튼을 눌러주세요</Placeholder>
+      if (noData) return <Placeholder ai loading={isGenerating}>AI 분석 생성 버튼을 눌러주세요</Placeholder>
       return (
         <textarea
           className={styles.editableArea}
@@ -916,7 +919,35 @@ function BlockSkeleton({ text }: { text: string }) {
   )
 }
 
-function Placeholder({ children, ai }: { children: React.ReactNode; ai?: boolean }) {
+/* AI 분석 중 shimmer 스켈레톤 */
+function AILoadingSkeleton({ lines = 3 }: { lines?: number }) {
+  const widths = ['88%', '72%', '95%', '65%', '80%', '55%']
+  return (
+    <div style={{ padding: '4px 0' }}>
+      <div className={styles.skeletonLabel}>
+        <div className={styles.skeletonDot} />
+        <div className={styles.skeletonDot} />
+        <div className={styles.skeletonDot} />
+        <span>AI 분석 중</span>
+      </div>
+      <div className={styles.skeletonWrap}>
+        {Array.from({ length: lines }).map((_, i) => (
+          <div
+            key={i}
+            className={styles.skeletonLine}
+            style={{ width: widths[i % widths.length], animationDelay: `${i * 0.08}s` }}
+          />
+        ))}
+        {lines >= 3 && (
+          <div className={styles.skeletonBlock} style={{ width: '60%' }} />
+        )}
+      </div>
+    </div>
+  )
+}
+
+function Placeholder({ children, ai, loading }: { children: React.ReactNode; ai?: boolean; loading?: boolean }) {
+  if (ai && loading) return <AILoadingSkeleton lines={4} />
   return (
     <div style={{
       padding: '16px',
