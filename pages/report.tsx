@@ -21,8 +21,7 @@ function fmtMoney(v: number) {
 
 // ── 블록 정의 ──────────────────────────────────────────
 const BLOCK_DEFS = [
-  { id: 'agent_card',          label: '전자명함',          hasAI: false, icon: '👤' },
-  { id: 'customer_profile',    label: '고객 프로필',        hasAI: false, icon: '📋' },
+  { id: 'header',              label: '헤더',               hasAI: false, icon: '🪪' },
   { id: 'contracts',           label: '보유계약',           hasAI: false, icon: '📄' },
   { id: 'coverage_analysis',   label: '보장분석',           hasAI: false, icon: '📊' },
   { id: 'gap_analysis',        label: '보장공백 진단',       hasAI: true,  icon: '⚠️' },
@@ -39,7 +38,7 @@ type BlockId  = typeof BLOCK_DEFS[number]['id']
 type BlockDef = { id: BlockId; label: string; hasAI: boolean; icon: string; enabled: boolean }
 
 const DEFAULT_ENABLED: BlockId[] = [
-  'agent_card','customer_profile','contracts','coverage_analysis',
+  'header','contracts','coverage_analysis',
   'gap_analysis','key_insight','age_comparison','consultation_script',
 ]
 const initBlocks = (): BlockDef[] =>
@@ -373,8 +372,7 @@ function EditorBlock({ block, agent, customer, localStats, reportData, editConte
 
 // ── 블록 내용 렌더러 ──────────────────────────────────
 const BLOCK_PLACEHOLDERS: Record<string, string> = {
-  agent_card:          '설계사 명함이 여기에 표시됩니다',
-  customer_profile:    '고객 프로필이 여기에 표시됩니다',
+  header:              '',
   contracts:           '보유 계약 목록이 여기에 표시됩니다',
   coverage_analysis:   '보장 현황 분석이 여기에 표시됩니다',
   gap_analysis:        '보장 공백 진단이 여기에 표시됩니다',
@@ -390,82 +388,85 @@ const BLOCK_PLACEHOLDERS: Record<string, string> = {
 function BlockContent({ id, agent, customer, localStats, reportData, editContent, onEdit }: any) {
   const noData = !reportData
 
-  if (!customer && id !== 'agent_card') return <BlockSkeleton text={BLOCK_PLACEHOLDERS[id] || '고객 선택 후 표시됩니다'} />
+  if (!customer && id !== 'header') return <BlockSkeleton text={BLOCK_PLACEHOLDERS[id] || '고객 선택 후 표시됩니다'} />
 
   switch (id) {
 
-    // 전자명함
-    case 'agent_card':
-      if (!agent) return <Placeholder>설계사 정보를 불러오는 중...</Placeholder>
+    // 헤더 (전자명함 + 고객 프로필 통합)
+    case 'header': {
+      const ghost = { color: '#D1D5DB' }
+      const ghostBold = { color: '#D1D5DB', fontWeight: 700 }
       return (
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <div className={styles.agentCardBiz}>
-            <div className={styles.agentCardAccent} />
-            <div style={{ display: 'flex', height: '100%' }}>
+        <div style={{ display: 'flex', gap: 24, alignItems: 'stretch' }}>
 
-              {/* 왼쪽: 아바타 — 카드 세로 중앙 */}
-              <div style={{ width: 88, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <div style={{ width: 76, height: 76, borderRadius: '50%', background: '#5E6AD2', color: 'white', fontSize: 30, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {agent.name?.[0] || 'A'}
+          {/* 좌: 고객 프로필 */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+              <div style={{ fontSize: 20, fontWeight: 700, ...(customer ? { color: '#1A1A2E' } : ghostBold) }}>
+                {customer ? customer.name : '홍길동'}
+              </div>
+              <div style={{ fontSize: 13, ...(customer ? { color: '#636B78' } : ghost) }}>
+                {customer
+                  ? [customer.age && `${customer.age}세`, customer.gender, customer.job].filter(Boolean).join(' · ')
+                  : '00세 · 남 · 직장인'}
+              </div>
+            </div>
+            {localStats || !customer ? (
+              <div style={{ display: 'flex', gap: 24 }}>
+                <div>
+                  <div style={{ fontSize: 18, fontWeight: 700, ...(customer ? { color: '#5E6AD2' } : ghost) }}>
+                    {customer ? `${localStats?.contractCount ?? 0}건` : '0건'}
+                  </div>
+                  <div style={{ fontSize: 11, color: '#8892A0' }}>유지계약</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 16, fontWeight: 700, ...(customer ? { color: '#5E6AD2' } : ghost) }}>
+                    {customer ? `${(localStats?.monthlyTotal ?? 0).toLocaleString()}원` : '000,000원'}
+                  </div>
+                  <div style={{ fontSize: 11, color: '#8892A0' }}>월보험료</div>
                 </div>
               </div>
+            ) : null}
+          </div>
 
-              {/* 구분선 */}
-              <div style={{ width: 1, background: '#E5E7EB', margin: '20px 0', flexShrink: 0 }} />
+          {/* 구분선 */}
+          <div style={{ width: 1, background: '#E5E7EB', alignSelf: 'stretch' }} />
 
-              {/* 오른쪽: 이름·직함·소속 + 연락처 */}
-              <div style={{ flex: 1, padding: '18px 16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                <div>
-                  <div style={{ fontSize: 18, fontWeight: 700, color: '#1A1A2E', marginBottom: 3 }}>{agent.name || '설계사'}</div>
-                  <div style={{ fontSize: 13, color: '#636B78' }}>
-                    {agent.settings?.title || '보험 컨설턴트'}
-                    {agent.settings?.company && <span style={{ color: '#B0B8C4' }}> · {agent.settings.company}</span>}
+          {/* 우: 전자명함 */}
+          {agent ? (
+            <div className={styles.agentCardBiz}>
+              <div className={styles.agentCardAccent} />
+              <div style={{ display: 'flex', height: '100%' }}>
+                <div style={{ width: 96, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', flexShrink: 0 }}>
+                  <div style={{ width: 76, height: 76, borderRadius: '50%', background: '#5E6AD2', color: 'white', fontSize: 30, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {agent.name?.[0] || 'A'}
                   </div>
                 </div>
-                <div style={{ fontSize: 13, color: '#636B78', lineHeight: 1.75 }}>
-                  {agent.phone         && <div>📞 {agent.phone}</div>}
-                  {agent.settings?.fax && <div>📠 {agent.settings.fax}</div>}
-                  {agent.email         && <div>✉ {agent.email}</div>}
-                  {agent.settings?.sns?.kakao     && <div>💬 {agent.settings.sns.kakao}</div>}
-                  {agent.settings?.sns?.instagram && <div>📸 {agent.settings.sns.instagram}</div>}
+                <div style={{ width: 1, background: '#E5E7EB', margin: '20px 0', flexShrink: 0 }} />
+                <div style={{ flex: 1, padding: '18px 16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                  <div>
+                    <div style={{ fontSize: 18, fontWeight: 700, color: '#1A1A2E', marginBottom: 3 }}>{agent.name || '설계사'}</div>
+                    <div style={{ fontSize: 13, color: '#636B78' }}>
+                      {agent.settings?.title || '보험 컨설턴트'}
+                      {agent.settings?.company && <span style={{ color: '#B0B8C4' }}> · {agent.settings.company}</span>}
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 13, color: '#636B78', lineHeight: 1.75 }}>
+                    {agent.phone         && <div>📞 {agent.phone}</div>}
+                    {agent.settings?.fax && <div>📠 {agent.settings.fax}</div>}
+                    {agent.email         && <div>✉ {agent.email}</div>}
+                    {agent.settings?.sns?.kakao     && <div>💬 {agent.settings.sns.kakao}</div>}
+                    {agent.settings?.sns?.instagram && <div>📸 {agent.settings.sns.instagram}</div>}
+                  </div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#5E6AD2', letterSpacing: '0.05em' }}>iPlanner</div>
                 </div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#5E6AD2', letterSpacing: '0.05em' }}>iPlanner</div>
               </div>
-
             </div>
-          </div>
+          ) : null}
+
         </div>
       )
-
-    // 고객 프로필
-    case 'customer_profile':
-      return (
-        <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
-          <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#1A1A2E', color: 'white', fontSize: 17, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            {customer.name?.[0]}
-          </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 16, fontWeight: 700, color: '#1A1A2E' }}>{customer.name}</div>
-            <div style={{ fontSize: 12, color: '#636B78', marginTop: 2 }}>
-              {customer.age    ? `${customer.age}세` : ''}
-              {customer.gender ? ` · ${customer.gender}` : ''}
-              {customer.job    ? ` · ${customer.job}` : ''}
-            </div>
-          </div>
-          {localStats && (
-            <div style={{ display: 'flex', gap: 20 }}>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 18, fontWeight: 700, color: '#5E6AD2' }}>{localStats.contractCount}건</div>
-                <div style={{ fontSize: 10, color: '#8892A0' }}>유지계약</div>
-              </div>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#5E6AD2' }}>{localStats.monthlyTotal.toLocaleString()}원</div>
-                <div style={{ fontSize: 10, color: '#8892A0' }}>월보험료</div>
-              </div>
-            </div>
-          )}
-        </div>
-      )
+    }
 
     // 보유계약
     case 'contracts':
