@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import styles from '../styles/Report.module.css'
 import {
@@ -105,6 +105,35 @@ export default function ReportPage() {
   const [localCoverageSummary, setLocalCoverageSummary] = useState<any[]>([])
   const [dragIdx, setDragIdx]             = useState<number | null>(null)
   const [dragOverIdx, setDragOverIdx]     = useState<number | null>(null)
+
+  const layoutRef  = useRef<HTMLDivElement>(null)
+  const sidebarRef = useRef<HTMLDivElement>(null)
+
+  // ── JS 기반 사이드바 스크롤 추적 (CSS sticky 레이아웃 구조 한계 우회) ──
+  useEffect(() => {
+    const sidebar = sidebarRef.current
+    const layout  = layoutRef.current
+    if (!sidebar || !layout) return
+
+    const GAP = 20 // 뷰포트 상단으로부터 고정될 거리
+
+    const update = () => {
+      const scrollY    = window.scrollY
+      const layoutTop  = layout.getBoundingClientRect().top + scrollY
+      const sidebarH   = sidebar.offsetHeight
+      const layoutH    = layout.offsetHeight
+
+      const idealY   = scrollY + GAP - layoutTop
+      const maxY     = layoutH - sidebarH - GAP
+      const translateY = Math.max(0, Math.min(idealY, maxY))
+
+      sidebar.style.transform = `translateY(${translateY}px)`
+    }
+
+    window.addEventListener('scroll', update, { passive: true })
+    update()
+    return () => window.removeEventListener('scroll', update)
+  }, [])
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -283,7 +312,7 @@ export default function ReportPage() {
         </div>
       </div>
 
-      <div className={styles.reportLayout}>
+      <div className={styles.reportLayout} ref={layoutRef}>
 
         {/* ── 좌: 블록 에디터 ── */}
         <div className={styles.editorPanel}>
@@ -317,7 +346,7 @@ export default function ReportPage() {
         </div>
 
         {/* ── 우: 사이드바 ── */}
-        <div className={styles.sidebar}>
+        <div className={styles.sidebar} ref={sidebarRef}>
 
           {/* 고객 검색 */}
           <div className={styles.sideSection}>
