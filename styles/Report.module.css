@@ -582,7 +582,7 @@
 /* 설계사 명함 — 에디터 명함형 (가로 비율) */
 .agentCardBiz {
   width: 320px;
-  height: 184px;
+  height: 192px;
   border: 1.5px solid #E5E7EB;
   border-radius: 10px;
   padding: 16px 20px;
