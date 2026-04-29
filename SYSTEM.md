@@ -225,12 +225,30 @@ YoutubeTranscript.fetchTranscript(videoId, { lang: 'ko' })  // 한국어 우선
 ```
 /api/insurance-crawl (POST)
   → meritzfire.com 공시실 접속 → 세션 쿠키 자동 발급
-  → 카테고리별 상품 목록 조회 (json.smart API, 2단계)
+  → [srtSq 방식] 카테고리별 상품 목록 조회 (json.smart API, 2단계)
       1단계: retrievePdList (srtSq 전달) → cmCommCd 추출
       2단계: retrieveSalPdList (cmPdDivCd 전달) → file3#[E] 암호화 경로 추출
+  → [키워드 방식] 상품명 키워드 검색 (json.smart API, 1단계)
+      retrieveSalPdSchList (keyWord 전달) → salPdList 바로 반환
   → PDF 다운로드 → Supabase Storage (meritz/{category}/{날짜}/)
   → meritz_pdf_files 저장 (중복 스킵)
 ```
+
+**메리츠 키워드 검색 API (치아/사망/태아보험용):**
+```
+POST https://www.meritzfire.com/json.smart?v={timestamp}
+(세션 쿠키·헤더 동일)
+
+body: {
+  header: { ...BASE_HEADER, rcvmsgSrvId: 'f.cg.he.cu.ua.o.bc.PbanBc.retrieveSalPdSchList' },
+  body: { notfYn: 'Y', keyWord: '치아보험' }   // keyWord에 상품명 검색어
+}
+→ response.body.salPdList[]           // srtSq 방식의 2단계와 동일한 구조
+→ salPdList[]['file3#[E]']            // 암호화된 요약서 경로
+→ salPdList[].ttlNm                   // 상품명
+```
+※ srtSq 방식 2단계와 응답 구조 완전 동일 → processProducts() 함수 공용 사용 가능
+
 **메리츠 카테고리 srtSq 매핑 (공시실 상품목록 순서 = srtSq 순서):**
 ```
 srtSq 1  → 자동차보험
@@ -255,6 +273,35 @@ DevTools로 카테고리마다 클릭하지 않아도 됨.
 공시실 상품목록 페이지의 카테고리 순서 = srtSq 번호 순서.
 카테고리 1개에서 json.smart 요청의 srtSq 값 확인 후 → 1~14 순서대로 대입하면 전체 매핑 완성.
 pdDtlList가 비어있으면 빈 카테고리 또는 미존재.
+
+**admin.tsx 보험공시 크롤링 UI 구조:**
+```typescript
+// pages/admin.tsx > CRAWL_CATEGORIES 컨벤션
+// srtSq > 0  : srtSq 방식 (retrievePdList → retrieveSalPdList 2단계)
+// srtSq = -1 : 키워드 방식 (retrieveSalPdSchList 1단계), 체크박스 활성화됨
+// srtSq = null : 미연동, 체크박스 비활성화 (현재 없음)
+const CRAWL_CATEGORIES = [
+  { srtSq: 6,  name: '암보험' },
+  { srtSq: -1, name: '치아보험' },   // 키워드 검색 방식
+  // ...
+]
+
+// startCrawl 분기 로직
+const srtSqs = CRAWL_CATEGORIES
+  .filter(c => crawlSelected.includes(c.name) && c.srtSq !== null && c.srtSq > 0)
+  .map(c => c.srtSq as number)
+const keywords = CRAWL_CATEGORIES
+  .filter(c => crawlSelected.includes(c.name) && c.srtSq === -1)
+  .map(c => c.name)
+// API body: { srtSqs, keywords }
+// insurance-crawl.ts 핸들러에서 keywords → KEYWORD_CATEGORIES.keyword로 매핑
+```
+
+**보험사 × 카테고리 현황표 (ACTIVE_CATS):**
+- `confirmed: true` → ✓ 초록 (API 연동 확인 완료)
+- `confirmed: false` → ? 노랑 (미확인, 향후 검증 필요)
+- 보험사 `is_active: false` → — 회색 (전체)
+- 현재 치아/사망/태아보험 모두 `confirmed: true` (키워드 방식으로 연동 확인)
 
 ---
 
