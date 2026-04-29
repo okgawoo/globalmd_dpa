@@ -1429,14 +1429,14 @@ export default function Customers() {
               <div style={{padding:'20px 24px',display:'flex',flexDirection:'column',overflowY:'auto',justifyContent:'flex-start'}}>
                 <style>{`
                   @keyframes reentryWaveUp {
-                    0% { opacity:1; transform:translateY(0); max-height:60px; }
-                    60% { opacity:0; transform:translateY(-28px); max-height:60px; }
-                    100% { opacity:0; transform:translateY(-28px); max-height:0; padding:0; }
+                    0% { opacity:1; transform:translateY(0); max-height:60px; margin-bottom:8px; }
+                    60% { opacity:0; transform:translateY(-28px); max-height:60px; margin-bottom:8px; }
+                    100% { opacity:0; transform:translateY(-28px); max-height:0; margin-bottom:0; padding:0; }
                   }
                   @keyframes reentryWaveDown {
-                    0% { opacity:0; transform:translateY(-28px); max-height:0; }
-                    40% { opacity:0; transform:translateY(-28px); max-height:60px; }
-                    100% { opacity:1; transform:translateY(0); max-height:60px; }
+                    0% { opacity:0; transform:translateY(-28px); max-height:0; margin-bottom:0; }
+                    40% { opacity:0; transform:translateY(-28px); max-height:60px; margin-bottom:8px; }
+                    100% { opacity:1; transform:translateY(0); max-height:60px; margin-bottom:8px; }
                   }
                   @keyframes reentryFadeIn {
                     from { opacity:0; transform:translateY(8px); }
