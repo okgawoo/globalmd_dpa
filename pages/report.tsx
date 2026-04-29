@@ -1319,20 +1319,33 @@ function ReportModal({ data, blocks, editContent, localCoverageSummary, localCom
 /* 설계사 명함 (PDF용) */
 function AgentCard({ agent }: { agent: any }) {
   return (
-    <div className={styles.agentCard}>
+    <div className={styles.agentCardBiz} style={{ flexShrink: 0 }}>
       <div className={styles.agentCardAccent} />
-      <div className={styles.agentAvatar}>{agent.name?.[0] || 'A'}</div>
-      <div className={styles.agentName}>{agent.name || '설계사'}</div>
-      <div className={styles.agentTitle}>{agent.title || '보험 컨설턴트'}</div>
-      {agent.company && <div style={{ fontSize: 11, color: '#8892A0', marginBottom: 4 }}>{agent.company}</div>}
-      <div className={styles.agentInfo}>
-        {agent.phone && <div>📱 {agent.phone}</div>}
-        {agent.fax   && <div>📠 {agent.fax}</div>}
-        {agent.email && <div>✉ {agent.email}</div>}
-        {agent.sns?.kakao && <div>💬 {agent.sns.kakao}</div>}
-        {agent.sns?.instagram && <div>📸 {agent.sns.instagram}</div>}
+      <div style={{ display: 'flex', height: '100%' }}>
+        <div style={{ width: 96, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#5E6AD2', color: 'white', fontSize: 26, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {agent.name?.[0] || 'A'}
+          </div>
+        </div>
+        <div style={{ width: 1, background: '#E5E7EB', margin: '20px 0', flexShrink: 0 }} />
+        <div style={{ flex: 1, padding: '14px 16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#1A1A2E', marginBottom: 2 }}>{agent.name || '설계사'}</div>
+            <div style={{ fontSize: 12, color: '#636B78' }}>
+              {agent.title || '보험 컨설턴트'}
+              {agent.company && <span style={{ color: '#B0B8C4' }}> · {agent.company}</span>}
+            </div>
+          </div>
+          <div style={{ fontSize: 11, color: '#636B78', lineHeight: 1.8 }}>
+            {agent.phone && <div>📞 {agent.phone}</div>}
+            {agent.fax   && <div>📠 {agent.fax}</div>}
+            {agent.email && <div>✉ {agent.email}</div>}
+            {agent.sns?.kakao     && <div>💬 {agent.sns.kakao}</div>}
+            {agent.sns?.instagram && <div>📸 {agent.sns.instagram}</div>}
+          </div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#5E6AD2', letterSpacing: '0.05em' }}>iPlanner</div>
+        </div>
       </div>
-      <div className={styles.agentBrand}>iPlanner</div>
     </div>
   )
 }
