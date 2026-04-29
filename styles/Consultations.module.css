@@ -238,11 +238,11 @@
 /* Section title */
 .dashSectionTitle {
   font-size: 13px; font-weight: 700;
-  color: #1D9E75;
+  color: #5E6AD2;
   display: flex; align-items: center; gap: 6px;
   padding: 10px 16px;
-  background: #E1F5EE;
-  border-bottom: 1px solid #C6EBE0;
+  background: rgba(94, 106, 210, 0.10);
+  border-bottom: 1px solid rgba(94, 106, 210, 0.15);
 }
 .dashSectionTitleToday {
   border-top: none;
