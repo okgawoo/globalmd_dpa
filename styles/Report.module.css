@@ -240,6 +240,25 @@
 .blockItem:hover    { background: #F7F8FA; }
 .blockItemDragging  { background: #F0F1FB; opacity: 0.5; }
 .blockItemDropTarget { position: relative; }
+.blockItemAgentOnly { opacity: 0.75; }
+.agentOnlyDivider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 8px 6px;
+}
+.agentOnlyLine {
+  flex: 1;
+  height: 1px;
+  background: #E2E4E8;
+}
+.agentOnlyLabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: #8892A0;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
 .blockItemDropTarget::before {
   content: '';
   position: absolute;

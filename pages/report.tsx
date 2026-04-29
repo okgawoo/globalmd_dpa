@@ -58,24 +58,26 @@ function buildCoverageSummary(coverages: any[]) {
 
 // ── 블록 정의 ──────────────────────────────────────────
 const BLOCK_DEFS = [
-  { id: 'header',              label: '헤더',               hasAI: false, icon: '🪪' },
-  { id: 'contracts',           label: '보유계약',           hasAI: false, icon: '📄' },
-  { id: 'coverage_analysis',   label: '보장분석',           hasAI: false, icon: '📊' },
-  { id: 'coverage_chart',      label: '보장금액 그래프(막대)',  hasAI: false, icon: '📈' },
-  { id: 'company_chart',       label: '보험료 분배 그래프(도넛)', hasAI: false, icon: '🥧' },
-  { id: 'gap_analysis',        label: '보장공백 진단',       hasAI: true,  icon: '⚠️' },
-  { id: 'claim_cases',         label: '보상 사례',           hasAI: true,  icon: '📋' },
-  { id: 'key_insight',         label: '후킹멘트',           hasAI: true,  icon: '💡' },
-  { id: 'age_comparison',      label: '나이별 시사점',       hasAI: true,  icon: '📅' },
-  { id: 'rejection_risk',      label: '지급거절 위험 체크',  hasAI: true,  icon: '🚨' },
-  { id: 'peer_comparison',     label: '동년배 비교',         hasAI: true,  icon: '👥' },
-  { id: 'remodel_suggestion',  label: '리모델링 제안',       hasAI: true,  icon: '🔧' },
-  { id: 'pitch_points',        label: '피칭 포인트',        hasAI: true,  icon: '🎯' },
-  { id: 'consultation_script', label: '화법 스크립트',      hasAI: true,  icon: '💬' },
+  // ── 고객 리포트용 ──
+  { id: 'header',              label: '헤더',                    hasAI: false, icon: '🪪',  agentOnly: false },
+  { id: 'contracts',           label: '보유계약',                hasAI: false, icon: '📄',  agentOnly: false },
+  { id: 'coverage_analysis',   label: '보장분석',                hasAI: false, icon: '📊',  agentOnly: false },
+  { id: 'coverage_chart',      label: '보장금액 그래프(막대)',    hasAI: false, icon: '📈',  agentOnly: false },
+  { id: 'company_chart',       label: '보험료 분배 그래프(도넛)', hasAI: false, icon: '🥧',  agentOnly: false },
+  { id: 'gap_analysis',        label: '보장공백 진단',           hasAI: true,  icon: '⚠️', agentOnly: false },
+  { id: 'claim_cases',         label: '보상 사례',               hasAI: true,  icon: '📋',  agentOnly: false },
+  { id: 'age_comparison',      label: '나이별 시사점',           hasAI: true,  icon: '📅',  agentOnly: false },
+  { id: 'rejection_risk',      label: '지급거절 위험 체크',      hasAI: true,  icon: '🚨',  agentOnly: false },
+  { id: 'peer_comparison',     label: '동년배 비교',             hasAI: true,  icon: '👥',  agentOnly: false },
+  { id: 'remodel_suggestion',  label: '리모델링 제안',           hasAI: true,  icon: '🔧',  agentOnly: false },
+  // ── 설계사 전용 ──
+  { id: 'key_insight',         label: '후킹멘트',                hasAI: true,  icon: '💡',  agentOnly: true },
+  { id: 'pitch_points',        label: '피칭 포인트',             hasAI: true,  icon: '🎯',  agentOnly: true },
+  { id: 'consultation_script', label: '화법 스크립트',           hasAI: true,  icon: '💬',  agentOnly: true },
 ] as const
 
 type BlockId  = typeof BLOCK_DEFS[number]['id']
-type BlockDef = { id: BlockId; label: string; hasAI: boolean; icon: string; enabled: boolean }
+type BlockDef = { id: BlockId; label: string; hasAI: boolean; icon: string; agentOnly: boolean; enabled: boolean }
 
 const DEFAULT_ENABLED: BlockId[] = [
   'header','contracts','coverage_analysis',
@@ -396,28 +398,40 @@ export default function ReportPage() {
               <button className={styles.resetBtn} onClick={() => setBlocks(initBlocks())} title="초기화">↺</button>
             </div>
             <div className={styles.blockList}>
-              {blocks.map((block, idx) => (
-                <div
-                  key={block.id}
-                  className={`${styles.blockItem} ${dragIdx === idx ? styles.blockItemDragging : ''} ${dragOverIdx === idx && dragIdx !== idx ? styles.blockItemDropTarget : ''}`}
-                  draggable
-                  onDragStart={() => onDragStart(idx)}
-                  onDragOver={e => onDragOver(e, idx)}
-                  onDrop={e => onDrop(e, idx)}
-                  onDragEnd={onDragEnd}
-                >
-                  <span className={styles.dragHandle} />
-                  <input
-                    type="checkbox"
-                    checked={block.enabled}
-                    onChange={() => toggleBlock(block.id)}
-                    className={styles.blockCheckbox}
-                  />
-                  <span className={styles.blockItemIcon}>{block.icon}</span>
-                  <span className={styles.blockItemLabel}>{block.label}</span>
-                  {block.hasAI && <span className={styles.aiTag}>AI</span>}
-                </div>
-              ))}
+              {blocks.map((block, idx) => {
+                const prevBlock = blocks[idx - 1]
+                const showDivider = block.agentOnly && (!prevBlock || !prevBlock.agentOnly)
+                return (
+                  <div key={block.id}>
+                    {showDivider && (
+                      <div className={styles.agentOnlyDivider}>
+                        <div className={styles.agentOnlyLine} />
+                        <span className={styles.agentOnlyLabel}>설계사 전용</span>
+                        <div className={styles.agentOnlyLine} />
+                      </div>
+                    )}
+                    <div
+                      className={`${styles.blockItem} ${block.agentOnly ? styles.blockItemAgentOnly : ''} ${dragIdx === idx ? styles.blockItemDragging : ''} ${dragOverIdx === idx && dragIdx !== idx ? styles.blockItemDropTarget : ''}`}
+                      draggable
+                      onDragStart={() => onDragStart(idx)}
+                      onDragOver={e => onDragOver(e, idx)}
+                      onDrop={e => onDrop(e, idx)}
+                      onDragEnd={onDragEnd}
+                    >
+                      <span className={styles.dragHandle} />
+                      <input
+                        type="checkbox"
+                        checked={block.enabled}
+                        onChange={() => toggleBlock(block.id)}
+                        className={styles.blockCheckbox}
+                      />
+                      <span className={styles.blockItemIcon}>{block.icon}</span>
+                      <span className={styles.blockItemLabel}>{block.label}</span>
+                      {block.hasAI && <span className={styles.aiTag}>AI</span>}
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           </div>
 
