@@ -184,24 +184,103 @@ YoutubeTranscript.fetchTranscript(videoId, { lang: 'ko' })  // 한국어 우선
 
 | API | 역할 |
 |-----|------|
-| `POST /api/generate-report` | 고객+계약+보장+YouTube 인사이트 수집 → Claude 분석 → 리포트 데이터 반환 |
+| `POST /api/generate-report` | 고객+계약+보장+YouTube 인사이트 수집 → Claude 분석 → 리포트 전체 데이터 반환 |
+| `POST /api/generate-block` | 특정 블록 하나만 재생성 → `{ blockId, result }` 반환 |
 
-**리포트 생성 흐름:**
+**리포트 생성 흐름 (2단계):**
 ```
-고객 선택 → /api/generate-report
-  → dpa_contracts + dpa_coverages 조회 (유지 계약만)
+[1단계 — DB-immediate: 고객 선택 즉시]
+  클라이언트에서 supabase 직접 쿼리:
+  dpa_contracts + dpa_coverages (유지 계약만)
+  → localCoverageSummary (카테고리별 합산 + good/ok/low 상태)
+  → localCompanyDistribution (보험사별 월보험료 비율)
+  → 보유계약 / 보장분석 / 차트 블록 즉시 표시
+
+[2단계 — AI 분석: "전체 AI 분석 생성" 버튼 클릭]
+  POST /api/generate-report
+  → dpa_contracts + dpa_coverages 서버에서 재조회
   → youtube_analyses에서 pitch_points/scripts/comparison_criteria/key_points 수집
   → CATEGORY_BENCHMARKS로 보장 공백(gaps) 분석
-  → Claude에 고객 데이터 + YouTube 인사이트 주입 → AI 코멘트 생성
+  → Claude에 고객 데이터 + YouTube 인사이트 주입
+  → key_insight / gap_analysis / age_comparison / consultation_scripts / claim_cases 생성
   → A4 리포트 모달 렌더링 (Recharts 차트 포함)
 ```
 
-**보장 카테고리 벤치마크 기준:**
-- 암진단: 권장 5,000만 / 최소 3,000만
-- 뇌혈관/심장: 권장 3,000만 / 최소 2,000만
-- 수술비: 권장 300만 / 최소 150만
-- 실손/비급여: 유무로만 판단
-- 상해: 권장 1억 / 최소 5,000만
+**블록별 재생성 흐름:**
+```
+블록 헤더의 "재생성" 버튼 클릭
+  → POST /api/generate-block { customerId, blockId }
+  → 해당 blockId에 맞는 단일 프롬프트 실행 (max_tokens: 1500)
+  → { blockId, result } 반환
+  → editContent[blockId]만 업데이트 (다른 블록 유지)
+```
+
+**generate-block 지원 blockId 목록:**
+- `gap_analysis` — 보장 공백 진단
+- `key_insight` — 핵심 후킹멘트
+- `claim_cases` — 또래 유사 보상 사례 3건
+- `age_comparison` — 나이대별 비교
+- `consultation_script` — 화법 스크립트 4개
+- `rejection_risk` — 지급거절 위험요소
+- `peer_comparison` — 또래 평균 비교
+- `remodel_suggestion` — 리모델링 제안
+- `pitch_points` — 핵심 피칭 포인트 5개
+
+**generate-report 응답 구조:**
+```typescript
+{
+  customer: { name, age, gender, job, phone }
+  agent: { name, phone, email, fax, title, company, sns }
+  generatedAt: string
+  stats: { contractCount, monthlyTotal, coverageCount }
+  contracts: Contract[]
+  coverageSummary: CoverageSummary[]      // CATEGORY_BENCHMARKS 기반
+  companyDistribution: CompanyDist[]      // 보험사별 월보험료 비율
+  keyInsight: string
+  gapAnalysis: GapItem[]
+  ageComparison: AgeComparison
+  consultationScripts: string[]
+  claimCases: ClaimCase[]                 // 가명 + masked_id + 상황 + 수령금액
+}
+```
+
+**보장 카테고리 벤치마크 기준 (CATEGORY_BENCHMARKS):**
+
+| 카테고리 | 권장(good) | 최소(ok) | 단위 |
+|---|---|---|---|
+| 암진단 | 5,000만 | 3,000만 | 원 |
+| 뇌혈관 | 3,000만 | 2,000만 | 원 |
+| 심장 | 3,000만 | 2,000만 | 원 |
+| 수술비 | 300만 | 150만 | 원 |
+| 실손 | 유무 | 유무 | 유무 |
+| 상해 | 1억 | 5,000만 | 원 |
+| 사고처리 | 3,000만 | 1,000만 | 원 |
+| 벌금 | 500만 | 200만 | 원 |
+| 간병 | 5,000만 | 2,000만 | 원 |
+| 비급여 | 유무 | 유무 | 유무 |
+
+※ 동일 기준이 서버(`generate-report.ts`, `generate-block.ts`)와 클라이언트(`report.tsx`)에 모두 선언되어 있음. 변경 시 3곳 동기화 필수.
+
+**리포트 페이지 React 주요 상태:**
+```typescript
+customerContracts: Contract[]           // 고객 선택 시 DB 즉시 로드
+localCoverageSummary: CoverageSummary[] // 클라이언트 계산 보장 요약
+localCompanyDistribution: CompanyDist[] // 클라이언트 계산 보험사 분포
+blockLoading: string | null             // 개별 블록 재생성 중인 blockId
+editContent: Record<string, any>        // 각 블록의 현재 표시 내용
+confirmedBlocks: Set<string>            // 확인 처리된 블록 집합
+hasReportData: boolean                  // 전체 AI 분석 완료 여부 (재생성 버튼 fade-in 제어)
+```
+
+**차트 컬러 상수:**
+```typescript
+// 막대 그래프 상태 색상
+STATUS_COLOR = { good: '#2E5F8A', ok: '#C5621C', low: '#9B2335' }
+STATUS_BG    = { good: '#E8F0F7', ok: '#FBF0E8', low: '#F7E8EA' }
+
+// 도넛 차트 (보험사 분포)
+PIE_COLORS = ['#5E6AD2','#2A7D8D','#C5622D','#7C1E5E','#1E54B8','#3A2E8A','#D4945A','#94A3B8']
+```
 
 ---
 
@@ -340,8 +419,9 @@ NEXT_PUBLIC_APP_URL      ← youtube-batch-analyze 내부 fetch용
 
 ## Claude API 사용 현황
 
-| API | 모델 | 용도 |
-|-----|------|------|
-| `youtube-analyze` | claude-opus-4-5 | 영상 자막 분석 (pitch_points, scripts 등 추출) |
-| `generate-report` | claude-sonnet-4-6 | 고객 리포트 AI 코멘트 생성 |
-| `customers` (재입력) | claude-opus-4-5 | 보험 이미지/텍스트 파싱 |
+| API | 모델 | 용도 | max_tokens |
+|-----|------|------|---|
+| `youtube-analyze` | claude-opus-4-5 | 영상 자막 분석 (pitch_points, scripts 등 추출) | — |
+| `generate-report` | claude-sonnet-4-6 | 고객 리포트 전체 AI 코멘트 생성 (5개 블록) | 3000 |
+| `generate-block` | claude-sonnet-4-6 | 개별 블록 재생성 (1개 블록) | 1500 |
+| `customers` (재입력) | claude-opus-4-5 | 보험 이미지/텍스트 파싱 | — |
