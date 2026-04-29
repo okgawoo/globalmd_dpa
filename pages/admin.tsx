@@ -62,9 +62,9 @@ export default function AdminPage() {
     { srtSq: 8,  name: '연금저축보험' },
     { srtSq: 14, name: '배상책임보험' },
     { srtSq: 10, name: '화재보험' },
-    { srtSq: null, name: '치아보험' },
-    { srtSq: null, name: '사망보험' },
-    { srtSq: null, name: '태아보험' },
+    { srtSq: -1, name: '치아보험' },   // 키워드 검색 방식
+    { srtSq: -1, name: '사망보험' },   // 키워드 검색 방식
+    { srtSq: -1, name: '태아보험' },   // 키워드 검색 방식
   ]
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -206,16 +206,19 @@ export default function AdminPage() {
 
   async function startCrawl() {
     const srtSqs = CRAWL_CATEGORIES
-      .filter(c => crawlSelected.includes(c.name) && c.srtSq !== null)
+      .filter(c => crawlSelected.includes(c.name) && c.srtSq !== null && c.srtSq > 0)
       .map(c => c.srtSq as number)
-    if (srtSqs.length === 0) return alert('메리츠 API 연동된 카테고리를 선택해주세요')
+    const keywords = CRAWL_CATEGORIES
+      .filter(c => crawlSelected.includes(c.name) && c.srtSq === -1)
+      .map(c => c.name)
+    if (srtSqs.length === 0 && keywords.length === 0) return alert('카테고리를 선택해주세요')
     setCrawling(true)
     setCrawlResults(null)
     try {
       const res = await fetch('/api/insurance-crawl', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ srtSqs }),
+        body: JSON.stringify({ srtSqs, keywords }),
       })
       const data = await res.json()
       setCrawlResults(data)
@@ -1419,9 +1422,9 @@ export default function AdminPage() {
                   { name: '연금저축', confirmed: true },
                   { name: '배상책임', confirmed: true },
                   { name: '화재보험', confirmed: true },
-                  { name: '치아보험', confirmed: false },
-                  { name: '사망보험', confirmed: false },
-                  { name: '태아보험', confirmed: false },
+                  { name: '치아보험', confirmed: true },
+                  { name: '사망보험', confirmed: true },
+                  { name: '태아보험', confirmed: true },
                 ]
                 const thS: React.CSSProperties = { padding: '8px 10px', fontSize: 11, fontWeight: 600, color: '#8892A0', background: '#F7F8FA', borderBottom: '1px solid #E5E7EB', textAlign: 'center', whiteSpace: 'nowrap' }
                 const tdS: React.CSSProperties = { padding: '7px 8px', fontSize: 12, borderBottom: '1px solid #F3F4F6', textAlign: 'center' }
