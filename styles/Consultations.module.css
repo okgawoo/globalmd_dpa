@@ -54,9 +54,8 @@
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 6px;
-  margin-bottom: 14px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid #E5E7EB;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
 }
 .calNavBtn {
   display: flex; align-items: center; justify-content: center;
