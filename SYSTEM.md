@@ -1,20 +1,26 @@
 # iPlanner 시스템 구조
 
 <!--
-  📁 이 파일의 성격: SYSTEM.md
+  ═══════════════════════════════════════════════════════════
+  📁 SYSTEM.md — "어디에, 무엇이 있나" (지도)
+  ═══════════════════════════════════════════════════════════
+
+  역할: 기술 구조표. 변하지 않거나 코드로 확인할 수 있는 사실들.
+
   ✅ 여기에 넣을 것:
-     - DB 테이블 구조 / 컬럼 정의
-     - API 엔드포인트 목록 및 흐름 (어떤 API가 뭘 하는지)
-     - 외부 서비스 연동 방식 (Meritz, Solapi, Supabase 등)
-     - 환경변수 목록
-     - 크롤링 URL / srtSq 매핑 등 기술 구조
-     - GitHub Actions / 크론 스케줄
+     - DB 테이블 구조 + 컬럼 (meritz_pdf_files 컬럼 목록 등)
+     - API 엔드포인트 목록 + 파라미터 (/api/insurance-crawl POST body 등)
+     - 환경변수 이름 (SUPABASE_SERVICE_ROLE_KEY 등)
+     - cron 스케줄 (매주 월요일 09:00 등)
+     - 외부 서비스 연결 현황 (YouTube API key 유무, Meritz Base URL)
+     - srtSq 매핑 테이블 (srtSq: 6 = 암보험)
 
   ❌ 여기에 넣지 말 것:
-     - AI 프롬프트 구조나 분석 결과 필드 의미
-     - 파싱 시 주의사항 / 실전 노하우
+     - 파싱 함정 / 역공학 과정 / "왜 이렇게 됐나" 스토리
      - 비즈니스 판단 기준 (어떤 보험사가 좋은지 등)
-     → 위 항목은 knowledge.md에
+     - AI 프롬프트 구조, Claude 전달 방식
+     → 위 항목은 knowledge.md에 (knowledge = 여행기)
+  ═══════════════════════════════════════════════════════════
 -->
 
 > 내부 코드명: DPA | 정식명: 아이플래너(iPlanner)  
@@ -230,7 +236,7 @@ YoutubeTranscript.fetchTranscript(videoId, { lang: 'ko' })  // 한국어 우선
       2단계: retrieveSalPdList (cmPdDivCd 전달) → file3#[E] 암호화 경로 추출
   → [키워드 방식] 상품명 키워드 검색 (json.smart API, 1단계)
       retrieveSalPdSchList (keyWord 전달) → salPdList 바로 반환
-  → PDF 다운로드 → Supabase Storage (meritz/{category}/{날짜}/)
+  → PDF 다운로드 → Supabase Storage (meritz/{카테고리_영문}/{날짜}/{md5_8자리}_{날짜}.pdf)
   → meritz_pdf_files 저장 (중복 스킵)
 ```
 
@@ -273,6 +279,19 @@ DevTools로 카테고리마다 클릭하지 않아도 됨.
 공시실 상품목록 페이지의 카테고리 순서 = srtSq 번호 순서.
 카테고리 1개에서 json.smart 요청의 srtSq 값 확인 후 → 1~14 순서대로 대입하면 전체 매핑 완성.
 pdDtlList가 비어있으면 빈 카테고리 또는 미존재.
+
+**Storage 경로 규칙 (ASCII 변환 적용):**
+`meritz/{카테고리_영문}/{YYYY-MM-DD}/{md5_8자리}_{YYYY-MM-DD}.pdf`
+
+카테고리 영문 매핑 (CATEGORY_EN_MAP):
+```
+암보험→cancer      질병보험→disease    생활보험→living     어린이보험→children
+운전자보험→driver  상해보험→accident   통합보험→comprehensive  자동차보험→auto
+연금저축보험→pension  배상책임보험→liability  화재보험→fire
+치아보험→dental    사망보험→death      태아보험→prenatal
+```
+파일명: `md5(상품명).slice(0,8) + '_' + today + '.pdf'` (safeStorageName 함수)
+※ 한글 상품명 그대로 사용 시 Supabase Storage 경로 오류 → ASCII 변환 필수
 
 **admin.tsx 보험공시 크롤링 UI 구조:**
 ```typescript
