@@ -279,6 +279,7 @@ export default function InputPage() {
   const [dragOver, setDragOver] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const parsedResultRef = useRef<HTMLDivElement>(null)
+  const pasteTextareaRef = useRef<HTMLTextAreaElement>(null)
   const [saveMode, setSaveMode] = useState<'new' | 'existing'>('new')
   const saveModeRef = useRef<'new' | 'existing'>('new')
   const [existingCustomers, setExistingCustomers] = useState<any[]>([])
@@ -459,11 +460,15 @@ export default function InputPage() {
 
   function handleConfirmContract() {
     const ct = parsed?.contracts?.[0]
-    if (!ct) return
+    if (!ct) { alert('계약 정보가 없어요. 다시 분석해 주세요.'); return }
     setConfirmedContracts(prev => [...prev, { ...ct, _originalText: currentText, _originalTextLoss: currentTextLoss }])
     setParsed(null)
     setCurrentText('')
     setCurrentTextLoss('')
+    setTimeout(() => {
+      pasteTextareaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      pasteTextareaRef.current?.focus()
+    }, 100)
   }
 
   async function handleParseSave() {
@@ -765,7 +770,7 @@ export default function InputPage() {
             <div style={{display:'flex',gap:8,marginBottom:12,...(!isMobile?{flex:1}:{})}}>
               <div style={{flex:1,...(!isMobile?{display:'flex',flexDirection:'column'}:{})}}>
                 <div style={{fontSize:13,fontWeight:600,color:'#5E6AD2',marginBottom:4,textTransform:'uppercase',letterSpacing:'0.04em'}}>정액형</div>
-                <textarea className={styles.pasteArea} value={currentText} onChange={e => setCurrentText(e.target.value)}
+                <textarea ref={pasteTextareaRef} className={styles.pasteArea} value={currentText} onChange={e => setCurrentText(e.target.value)}
                   placeholder="정액형 보장내역 붙여넣기 (Ctrl+V)" rows={8} />
               </div>
               <div style={{flex:1,...(!isMobile?{display:'flex',flexDirection:'column'}:{})}}>
@@ -958,7 +963,14 @@ export default function InputPage() {
                   다음 계약을 입력하거나, 저장하세요
                 </div>
                 <button
-                  onClick={() => { setCurrentText(''); setCurrentTextLoss('') }}
+                  onClick={() => {
+                    setCurrentText('')
+                    setCurrentTextLoss('')
+                    setTimeout(() => {
+                      pasteTextareaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                      pasteTextareaRef.current?.focus()
+                    }, 100)
+                  }}
                   style={{
                     width:'100%',padding:'11px 0',marginBottom:8,
                     borderRadius:8,border:'1.5px solid #5E6AD2',
