@@ -933,7 +933,7 @@ function BlockSkeleton({ text }: { text: string }) {
 
 /* AI 분석 중 shimmer 스켈레톤 */
 function AILoadingSkeleton({ lines = 3 }: { lines?: number }) {
-  const widths = ['88%', '72%', '95%', '65%', '80%', '55%']
+  const widths = ['88%', '72%', '95%', '65%', '40%', '80%']
   return (
     <div style={{ padding: '4px 0' }}>
       <div className={styles.skeletonLabel}>
@@ -950,16 +950,13 @@ function AILoadingSkeleton({ lines = 3 }: { lines?: number }) {
             style={{ width: widths[i % widths.length], animationDelay: `${i * 0.08}s` }}
           />
         ))}
-        {lines >= 3 && (
-          <div className={styles.skeletonBlock} style={{ width: '60%' }} />
-        )}
       </div>
     </div>
   )
 }
 
 function Placeholder({ children, ai, loading }: { children: React.ReactNode; ai?: boolean; loading?: boolean }) {
-  if (ai && loading) return <AILoadingSkeleton lines={4} />
+  if (ai && loading) return <AILoadingSkeleton lines={5} />
   return (
     <div style={{
       padding: '16px',

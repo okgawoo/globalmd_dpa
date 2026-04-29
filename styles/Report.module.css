@@ -302,12 +302,12 @@
 .agentOnlyLine {
   flex: 1;
   height: 1px;
-  background: #E2E4E8;
+  background: #C4C9D4;
 }
 .agentOnlyLabel {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
-  color: #8892A0;
+  color: #636B78;
   letter-spacing: 0.5px;
   white-space: nowrap;
 }
