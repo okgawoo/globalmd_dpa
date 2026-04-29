@@ -242,6 +242,8 @@ export default function Customers() {
   const [reentryAddMode, setReentryAddMode] = useState(false)
   const [reSaving, setReSaving] = useState(false)
   const [reentryReturning, setReentryReturning] = useState(false)
+  const [reentryLockedHeight, setReentryLockedHeight] = useState<number|null>(null)
+  const reentryModalRef = useRef<HTMLDivElement>(null)
   const reentryTextareaRef = useRef<HTMLTextAreaElement>(null)
   const [addInsMode, setAddInsMode] = useState(false)
   const [insForm, setInsForm] = useState({ company: '', product_name: '', insurance_type: '건강', monthly_fee: '', payment_status: '유지', payment_years: '', expiry_age: '', contract_start: '' })
@@ -616,6 +618,7 @@ export default function Customers() {
       reentryTextLoss.trim() ? `[실손형]\n${reentryTextLoss.trim()}` : '',
     ].filter(Boolean).join('\n\n')
     if (!combined) return
+    if (reentryModalRef.current) setReentryLockedHeight(reentryModalRef.current.offsetHeight)
     setReentryParsing(true)
     setReentryParsed(null)
     try {
@@ -630,6 +633,7 @@ export default function Customers() {
       alert('분석 중 오류: ' + e.message)
     }
     setReentryParsing(false)
+    setReentryLockedHeight(null)
   }
 
   async function handleRentrySave() {
@@ -1378,7 +1382,7 @@ export default function Customers() {
       {/* 재입력 모달 */}
       {reentryOpen && (
         <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.5)',zIndex:500,display:'flex',alignItems:'center',justifyContent:'center',padding:'20px'}} onClick={() => { setReentryOpen(false); setReentryAddMode(false); setReentryReplaceId(null) }}>
-          <div style={{background:'white',borderRadius:16,width:'100%',maxWidth:1040,maxHeight:'88vh',minHeight:'60vh',display:'flex',flexDirection:'column',boxSizing:'border-box',boxShadow:'0 20px 60px rgba(0,0,0,0.2)'}} onClick={e => e.stopPropagation()}>
+          <div ref={reentryModalRef} style={{background:'white',borderRadius:16,width:'100%',maxWidth:1040,maxHeight:'88vh',minHeight:'60vh',height:reentryLockedHeight?reentryLockedHeight:undefined,display:'flex',flexDirection:'column',boxSizing:'border-box',boxShadow:'0 20px 60px rgba(0,0,0,0.2)'}} onClick={e => e.stopPropagation()}>
             {/* 헤더 */}
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'18px 24px',borderBottom:'1px solid #E5E7EB',flexShrink:0}}>
               <div style={{fontSize:16,fontWeight:700,color:'#1A1A2E'}}>보험 재입력 - {selected?.name}고객</div>
@@ -1480,10 +1484,11 @@ export default function Customers() {
                         <span style={{fontSize:13,color:isSelected?'white':'#1A1A2E',fontWeight:isSelected?600:400,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{idx+1}. {ct.company}{ct.product_name?` · ${ct.product_name}`:''}</span>
                         {isSelected ? (
                           <button onClick={() => {
+                            if (reentryModalRef.current) setReentryLockedHeight(reentryModalRef.current.offsetHeight)
                             setReentryParsed(null)
                             setReentryReturning(true)
                             const delay = (selectedContracts.length * 100) + 500
-                            setTimeout(() => { setReentryReplaceId(null); setReentryReturning(false) }, delay)
+                            setTimeout(() => { setReentryReplaceId(null); setReentryReturning(false); setReentryLockedHeight(null) }, delay)
                           }} style={{fontSize:11,padding:'3px 9px',borderRadius:4,border:'1px solid rgba(255,255,255,0.4)',background:'rgba(255,255,255,0.15)',color:'white',cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>취소</button>
                         ) : (
                           <button onClick={() => { setReentryReplaceId(ct.id); setReentryAddMode(false); setReentryParsed(null); setTimeout(() => reentryTextareaRef.current?.focus(), 50) }} style={{fontSize:11,padding:'3px 9px',borderRadius:4,border:'1px solid #D0D3F0',background:'white',color:'#5E6AD2',cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>교체</button>
