@@ -240,6 +240,7 @@ export default function Customers() {
   const [reentryParsed, setReentryParsed] = useState<any>(null)
   const [reentryReplaceId, setReentryReplaceId] = useState<string | null>(null)
   const [reSaving, setReSaving] = useState(false)
+  const [reentryReturning, setReentryReturning] = useState(false)
   const reentryTextareaRef = useRef<HTMLTextAreaElement>(null)
   const [addInsMode, setAddInsMode] = useState(false)
   const [insForm, setInsForm] = useState({ company: '', product_name: '', insurance_type: '건강', monthly_fee: '', payment_status: '유지', payment_years: '', expiry_age: '', contract_start: '' })
@@ -1422,6 +1423,11 @@ export default function Customers() {
                     60% { opacity:0; transform:translateY(-28px); max-height:60px; }
                     100% { opacity:0; transform:translateY(-28px); max-height:0; margin-bottom:-8px; padding:0; }
                   }
+                  @keyframes reentryWaveDown {
+                    0% { opacity:0; transform:translateY(-28px); max-height:0; }
+                    40% { opacity:0; transform:translateY(-28px); max-height:60px; }
+                    100% { opacity:1; transform:translateY(0); max-height:60px; }
+                  }
                   @keyframes reentryFadeIn {
                     from { opacity:0; transform:translateY(8px); }
                     to { opacity:1; transform:translateY(0); }
@@ -1443,17 +1449,27 @@ export default function Customers() {
                 )}
                 {selectedContracts.map((ct, idx) => {
                   const isSelected = reentryReplaceId === ct.id
-                  const isAnimating = (reentryParsing || !!reentryParsed) && !isSelected
+                  const isAnimating = (reentryParsing || !!reentryParsed) && !isSelected && !reentryReturning
+                  const isReturning = reentryReturning && !isSelected
                   return (
                     <div key={ct.id} style={{
                       overflow: 'hidden',
-                      animation: isAnimating ? `reentryWaveUp 0.4s ease ${idx * 0.13}s forwards` : undefined,
+                      animation: isAnimating
+                        ? `reentryWaveUp 0.4s ease ${idx * 0.13}s forwards`
+                        : isReturning
+                        ? `reentryWaveDown 0.4s ease ${idx * 0.1}s both`
+                        : undefined,
                       flexShrink: 0,
                     }}>
                       <div style={{display:'flex',alignItems:'center',gap:6,padding:'10px 12px',borderRadius:8,border:`1px solid ${isSelected?'#5E6AD2':'#E5E7EB'}`,background:isSelected?'#5E6AD2':'#F7F8FA',transition:'all 0.2s'}}>
                         <span style={{fontSize:13,color:isSelected?'white':'#1A1A2E',fontWeight:isSelected?600:400,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{idx+1}. {ct.company}{ct.product_name?` · ${ct.product_name}`:''}</span>
                         {isSelected ? (
-                          <button onClick={() => setReentryReplaceId(null)} style={{fontSize:11,padding:'3px 9px',borderRadius:4,border:'1px solid rgba(255,255,255,0.4)',background:'rgba(255,255,255,0.15)',color:'white',cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>취소</button>
+                          <button onClick={() => {
+                            setReentryParsed(null)
+                            setReentryReturning(true)
+                            const delay = (selectedContracts.length * 100) + 500
+                            setTimeout(() => { setReentryReplaceId(null); setReentryReturning(false) }, delay)
+                          }} style={{fontSize:11,padding:'3px 9px',borderRadius:4,border:'1px solid rgba(255,255,255,0.4)',background:'rgba(255,255,255,0.15)',color:'white',cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>취소</button>
                         ) : (
                           <button onClick={() => { setReentryReplaceId(ct.id); setTimeout(() => reentryTextareaRef.current?.focus(), 50) }} style={{fontSize:11,padding:'3px 9px',borderRadius:4,border:'1px solid #D0D3F0',background:'white',color:'#5E6AD2',cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>교체</button>
                         )}
