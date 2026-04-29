@@ -232,7 +232,7 @@ export default function Customers() {
   const zoomWrapperRef = useRef<HTMLDivElement>(null)
   const zoomStateRef = useRef({ scale: 1, tx: 0, ty: 0 })
   const { confirm, ConfirmDialog } = useConfirm()
-  const [expandedContractId, setExpandedContractId] = useState<string | null>(null)
+  const [expandedContractIds, setExpandedContractIds] = useState<Set<string>>(new Set())
   const [addInsMode, setAddInsMode] = useState(false)
   const [insForm, setInsForm] = useState({ company: '', product_name: '', insurance_type: '건강', monthly_fee: '', payment_status: '유지', payment_years: '', expiry_age: '', contract_start: '' })
   const [insCoverages, setInsCoverages] = useState<any[]>([])
@@ -1086,11 +1086,11 @@ export default function Customers() {
               {selectedContracts.map((ct, idx) => {
                 const cvs = selectedCoverages.filter(cv => cv.contract_id === ct.id)
                 const groups = COVERAGE_GROUPS.map(g => ({ ...g, items: cvs.filter((cv:any) => cv.category === g.key).sort((a:any, b:any) => a.coverage_name.localeCompare(b.coverage_name, 'ko', { numeric: true })) })).filter(g => g.items.length > 0)
-                const isExpanded = expandedContractId === ct.id
+                const isExpanded = expandedContractIds.has(ct.id)
                 return (
                   <div key={ct.id} className={calcPaymentRate(ct) >= 90 && ct.payment_status !== '완납' ? styles.insCardWarn : styles.insCard}
                     style={{cursor:'pointer'}}
-                    onClick={() => setExpandedContractId(isExpanded ? null : ct.id)}
+                    onClick={() => setExpandedContractIds(prev => { const s = new Set(prev); isExpanded ? s.delete(ct.id) : s.add(ct.id); return s })}
                   >
                     <div className={styles.insCardHeader}>
                       <div style={{display:'flex',alignItems:'center',gap:6}}>
