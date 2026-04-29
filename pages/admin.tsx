@@ -20,7 +20,7 @@ export default function AdminPage() {
 
   // 보험사 공시
   const [selectedInsurer, setSelectedInsurer] = useState<string | null>(null)
-  const [crawlSrtSqs, setCrawlSrtSqs] = useState<number[]>([6, 4]) // 기본: 암+질병
+  const [crawlSelected, setCrawlSelected] = useState<string[]>(['암보험', '질병보험 (뇌/심혈관)']) // 기본: 암+질병
   const [crawling, setCrawling] = useState(false)
   const [crawlResults, setCrawlResults] = useState<any>(null)
   const [meritzPdfs, setMeritzPdfs] = useState<any[]>([])
@@ -51,16 +51,21 @@ export default function AdminPage() {
   ]
 
   const CRAWL_CATEGORIES = [
-    { srtSq: 6, name: '암보험' },
-    { srtSq: 4, name: '질병보험 (뇌/심혈관)' },
+    { srtSq: 6,  name: '암보험' },
+    { srtSq: 4,  name: '질병보험 (뇌/심혈관)' },
     { srtSq: 11, name: '생활보험 (간병/치매)' },
-    { srtSq: 5, name: '어린이보험' },
-    { srtSq: 2, name: '운전자보험' },
-    { srtSq: 7, name: '상해보험' },
-    { srtSq: 3, name: '통합보험 (실손)' },
-    { srtSq: 1, name: '자동차보험' },
-    { srtSq: 8, name: '연금저축보험' },
+    { srtSq: 5,  name: '어린이보험' },
+    { srtSq: 2,  name: '운전자보험' },
+    { srtSq: 7,  name: '상해보험' },
+    { srtSq: 3,  name: '통합보험 (실손)' },
+    { srtSq: 1,  name: '자동차보험' },
+    { srtSq: 8,  name: '연금저축보험' },
     { srtSq: 14, name: '배상책임보험' },
+    { srtSq: null, name: '펫보험' },
+    { srtSq: null, name: '치아보험' },
+    { srtSq: null, name: '사망보험' },
+    { srtSq: null, name: '태아보험' },
+    { srtSq: null, name: '화재보험' },
   ]
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -201,14 +206,17 @@ export default function AdminPage() {
   }
 
   async function startCrawl() {
-    if (crawlSrtSqs.length === 0) return alert('카테고리를 선택해주세요')
+    const srtSqs = CRAWL_CATEGORIES
+      .filter(c => crawlSelected.includes(c.name) && c.srtSq !== null)
+      .map(c => c.srtSq as number)
+    if (srtSqs.length === 0) return alert('메리츠 API 연동된 카테고리를 선택해주세요')
     setCrawling(true)
     setCrawlResults(null)
     try {
       const res = await fetch('/api/insurance-crawl', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ srtSqs: crawlSrtSqs }),
+        body: JSON.stringify({ srtSqs }),
       })
       const data = await res.json()
       setCrawlResults(data)
@@ -1431,17 +1439,19 @@ export default function AdminPage() {
                   <p className={styles.cardTitle} style={{ marginBottom: 12 }}>카테고리별 요약서 다운로드</p>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 16 }}>
                     {CRAWL_CATEGORIES.map(cat => (
-                      <label key={cat.srtSq} style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: 13, color: '#1A1A2E' }}>
+                      <label key={cat.name} style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: cat.srtSq ? 'pointer' : 'not-allowed', fontSize: 13, color: cat.srtSq ? '#1A1A2E' : '#C0C8D0' }}>
                         <input
                           type="checkbox"
-                          checked={crawlSrtSqs.includes(cat.srtSq)}
+                          disabled={!cat.srtSq}
+                          checked={crawlSelected.includes(cat.name)}
                           onChange={e => {
-                            if (e.target.checked) setCrawlSrtSqs(prev => [...prev, cat.srtSq])
-                            else setCrawlSrtSqs(prev => prev.filter(s => s !== cat.srtSq))
+                            if (e.target.checked) setCrawlSelected(prev => [...prev, cat.name])
+                            else setCrawlSelected(prev => prev.filter(s => s !== cat.name))
                           }}
                           style={{ width: 14, height: 14, accentColor: '#5E6AD2' }}
                         />
                         {cat.name}
+                        {!cat.srtSq && <span style={{ fontSize: 10, color: '#C0C8D0' }}>준비중</span>}
                       </label>
                     ))}
                   </div>
