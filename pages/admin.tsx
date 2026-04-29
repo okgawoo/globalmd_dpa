@@ -74,6 +74,9 @@ export default function AdminPage() {
   const [ytAnalyzing, setYtAnalyzing] = useState<string | null>(null)
   const [ytFetchingAll, setYtFetchingAll] = useState(false)
   const [ytFetchResult, setYtFetchResult] = useState<any>(null)
+  const [ytBatchRunning, setYtBatchRunning] = useState(false)
+  const [ytBatchRemaining, setYtBatchRemaining] = useState<number | null>(null)
+  const [ytBatchProcessed, setYtBatchProcessed] = useState(0)
   const [pushTitle, setPushTitle] = useState('')
   const [pushBody, setPushBody] = useState('')
   const [pushUrl, setPushUrl] = useState('')
@@ -300,6 +303,34 @@ export default function AdminPage() {
       setYtFetchResult({ error: err.message })
     }
     setYtFetchingAll(false)
+  }
+
+  async function batchAnalyzeYt(channelId?: string) {
+    setYtBatchRunning(true)
+    setYtBatchProcessed(0)
+    setYtBatchRemaining(null)
+
+    const run = async (): Promise<void> => {
+      try {
+        const res = await fetch('/api/youtube-batch-analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ channelId }),
+        })
+        const data = await res.json()
+        setYtBatchRemaining(data.remaining ?? 0)
+        setYtBatchProcessed(prev => prev + (data.processed ?? 0))
+        if (!data.done) {
+          await run()
+        } else {
+          setYtBatchRunning(false)
+          if (ytSelectedChannel) selectYtChannel(ytSelectedChannel)
+        }
+      } catch (e: any) {
+        setYtBatchRunning(false)
+      }
+    }
+    await run()
   }
 
   async function selectYtVideo(v: any) {
@@ -1009,6 +1040,20 @@ export default function AdminPage() {
                         style={{ opacity: ytFetchingAll ? 0.6 : 1, whiteSpace: 'nowrap' }}
                         onClick={() => fetchAllYtVideos(ytSelectedChannel.id)}>
                         {ytFetchingAll ? '수집 중...' : '전체 영상 가져오기'}
+                      </button>
+                      <button
+                        disabled={ytBatchRunning}
+                        onClick={() => batchAnalyzeYt(ytSelectedChannel.id)}
+                        style={{
+                          fontSize: 12, padding: '6px 14px', borderRadius: 6, border: 'none',
+                          background: ytBatchRunning ? '#E5E7EB' : '#1A1A2E',
+                          color: ytBatchRunning ? '#8892A0' : 'white',
+                          cursor: ytBatchRunning ? 'not-allowed' : 'pointer',
+                          fontWeight: 600, whiteSpace: 'nowrap',
+                        }}>
+                        {ytBatchRunning
+                          ? `분석 중... (남은 ${ytBatchRemaining ?? '?'}개 / 완료 ${ytBatchProcessed}개)`
+                          : '미분석 일괄 분석'}
                       </button>
                       <button className={styles.primaryBtn} onClick={() => setYtVideoFormOpen(v => !v)}>
                         + 영상 추가
