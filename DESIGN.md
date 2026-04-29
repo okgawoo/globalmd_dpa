@@ -219,4 +219,41 @@ font-weight: 600;
 
 ---
 
-*Source: `styles/admin.css`, `Layout.module.css`, `Dashboard.module.css`, `Customers.module.css` / 마지막 업데이트: 2026-04-27*
+---
+
+## 컬러 레퍼런스 — Google Sheets 템플릿
+
+> 차트/그래프 색상 선정 시 참고한 레퍼런스. 세련되고 묵직한 톤 기준.
+
+### 레퍼런스 1 — 멀티 섹션 컬러 테이블
+
+각 섹션 헤더에 사용된 색. 도넛 그래프 `PIE_COLORS` 팔레트 기준으로 채택.
+
+| 색상명 | Hex | 용도 |
+|---|---|---|
+| 네이비 | `#2D4258` | — |
+| 틸 | `#2A7D8D` | PIE_COLORS[1] |
+| 번트 오렌지 | `#C5622D` | PIE_COLORS[2] |
+| 딥 퍼플 | `#3A2E8A` | PIE_COLORS[5] |
+| 딥 플럼 | `#7C1E5E` | PIE_COLORS[3] |
+| 로얄 블루 | `#1E54B8` | PIE_COLORS[4] |
+| 다크 브라운 | `#3C2B20` | — |
+| 다크 틸 | `#1B5F70` | — |
+
+### 레퍼런스 2 — 4단계 간트차트 (프로젝트 타임라인)
+
+단계별 헤더 색. 막대 그래프 `STATUS_COLOR` 기준으로 채택.
+
+| 단계 | Hex | 용도 |
+|---|---|---|
+| 1단계 — 스틸 블루 | `#2E5F8A` | STATUS good(충분) |
+| 2단계 — 틸 | `#2A7D8D` | — |
+| 3단계 — 번트 오렌지 | `#C5621C` | STATUS ok(보통) |
+| 4단계 — 다크 골드 | `#8B6A1A` | — |
+| 셀 연한 파랑 | `#BDD7EE` | — |
+| 셀 연한 피치 | `#FCE4D6` | — |
+| 셀 연한 옐로 | `#FFF2CC` | — |
+
+---
+
+*Source: `styles/admin.css`, `Layout.module.css`, `Dashboard.module.css`, `Customers.module.css` / 마지막 업데이트: 2026-04-30*
