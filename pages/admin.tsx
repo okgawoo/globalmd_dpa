@@ -26,20 +26,28 @@ export default function AdminPage() {
   const [meritzPdfs, setMeritzPdfs] = useState<any[]>([])
 
   const INSURERS = [
+    // 손해보험 (9개)
     { id: 'meritz', name: '메리츠화재', type: '손해보험', active: true },
-    { id: 'db', name: 'DB손해보험', type: '손해보험', active: false },
-    { id: 'hyundai', name: '현대해상', type: '손해보험', active: false },
-    { id: 'kb', name: 'KB손해보험', type: '손해보험', active: false },
-    { id: 'hanwha', name: '한화손해보험', type: '손해보험', active: false },
+    { id: 'kb', name: 'KB손해', type: '손해보험', active: false },
     { id: 'samsung', name: '삼성화재', type: '손해보험', active: false },
-    { id: 'lotte', name: '롯데손해보험', type: '손해보험', active: false },
-    { id: 'mgs', name: 'MG손해보험', type: '손해보험', active: false },
+    { id: 'lotte', name: '롯데손해', type: '손해보험', active: false },
     { id: 'heungkuk', name: '흥국화재', type: '손해보험', active: false },
-    { id: 'samsung_life', name: '삼성생명', type: '생명보험', active: false },
-    { id: 'hanwha_life', name: '한화생명', type: '생명보험', active: false },
+    { id: 'aig', name: 'AIG손보', type: '손해보험', active: false },
+    { id: 'lina', name: '라이나손해', type: '손해보험', active: false },
+    { id: 'mgs', name: 'MG손해', type: '손해보험', active: false },
+    { id: 'hana', name: '하나손해', type: '손해보험', active: false },
+    // 생명보험 (11개)
     { id: 'kyobo', name: '교보생명', type: '생명보험', active: false },
-    { id: 'nhlife', name: 'NH농협생명', type: '생명보험', active: false },
-    { id: 'meritz_life', name: '메리츠생명', type: '생명보험', active: false },
+    { id: 'dongyang', name: '동양생명', type: '생명보험', active: false },
+    { id: 'miraeasset', name: '미래에셋생명', type: '생명보험', active: false },
+    { id: 'samsung_life', name: '삼성생명', type: '생명보험', active: false },
+    { id: 'shinhan', name: '신한라이프', type: '생명보험', active: false },
+    { id: 'hanwha_life', name: '한화생명', type: '생명보험', active: false },
+    { id: 'heungkuk_life', name: '흥국생명', type: '생명보험', active: false },
+    { id: 'kb_life', name: 'KB라이프', type: '생명보험', active: false },
+    { id: 'kdb', name: 'KDB생명', type: '생명보험', active: false },
+    { id: 'hana_life', name: '하나생명', type: '생명보험', active: false },
+    { id: 'hyundai', name: '현대해상', type: '생명보험', active: false },
   ]
 
   const CRAWL_CATEGORIES = [
