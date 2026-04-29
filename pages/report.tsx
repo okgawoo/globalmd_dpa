@@ -190,7 +190,7 @@ export default function ReportPage() {
           <div style={{ background: '#F0F1FB', border: '1px solid #D1D5F0', borderRadius: 10, padding: '16px 20px' }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: '#5E6AD2', marginBottom: 6 }}>AI 분석 엔진</div>
             <div style={{ fontSize: 12, color: '#636B78', lineHeight: 1.7 }}>
-              최신 유튜브 영상 10개 분석 내용을 반영한 실전 상담 화법이 자동 생성됩니다.
+              고객 보장 데이터를 분석해 맞춤형 상담 스크립트를 자동으로 생성합니다.
             </div>
           </div>
         </div>
