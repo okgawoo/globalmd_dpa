@@ -42,7 +42,7 @@ export default function ReportPage() {
         setAgent(ag)
         const userId = data.user.id  // customers.agent_id = auth user id
         Promise.all([
-          supabase.from('dpa_customers').select('id,name,age,gender,job,phone').eq('agent_id', userId).order('name'),
+          supabase.from('dpa_customers').select('*').eq('agent_id', userId).order('name'),
           supabase.from('dpa_contracts').select('customer_id,monthly_fee').eq('agent_id', userId).eq('payment_status', '유지'),
         ]).then(([{ data: c }, { data: ct }]) => {
           setCustomers(c || [])
