@@ -1383,33 +1383,33 @@ export default function Customers() {
             {/* 2열 본문 */}
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',flex:1,overflow:'hidden'}}>
               {/* 왼쪽 — 붙여넣기 입력 */}
-              <div style={{padding:'20px 24px',display:'flex',flexDirection:'column',gap:12,borderRight:'1px solid #E5E7EB',overflowY:'auto'}}>
-                <div style={{fontSize:11,fontWeight:600,color:'#636B78',textTransform:'uppercase',letterSpacing:'0.04em'}}>보장내역 붙여넣기</div>
-                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-                  <div>
-                    <div style={{fontSize:11,color:'#636B78',fontWeight:600,marginBottom:4}}>정액형</div>
+              <div style={{padding:'20px 24px',display:'flex',flexDirection:'column',gap:12,borderRight:'1px solid #E5E7EB',overflow:'hidden'}}>
+                <div style={{fontSize:11,fontWeight:600,color:'#636B78',textTransform:'uppercase',letterSpacing:'0.04em',flexShrink:0}}>보장내역 붙여넣기</div>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,flex:1,minHeight:0}}>
+                  <div style={{display:'flex',flexDirection:'column'}}>
+                    <div style={{fontSize:11,color:'#636B78',fontWeight:600,marginBottom:4,flexShrink:0}}>정액형</div>
                     <textarea
                       ref={reentryTextareaRef}
                       value={reentryTextFixed}
                       onChange={e => { setReentryTextFixed(e.target.value); setReentryParsed(null) }}
                       placeholder="정액형 보장내역 붙여넣기"
-                      style={{width:'100%',height:220,padding:'10px 12px',borderRadius:8,border:'1px solid #E5E7EB',fontSize:12,fontFamily:'inherit',resize:'none',boxSizing:'border-box',lineHeight:1.5,color:'#1A1A2E',outline:'none'}}
+                      style={{flex:1,width:'100%',padding:'10px 12px',borderRadius:8,border:'1px solid #E5E7EB',fontSize:12,fontFamily:'inherit',resize:'none',boxSizing:'border-box',lineHeight:1.5,color:'#1A1A2E',outline:'none'}}
                     />
                   </div>
-                  <div>
-                    <div style={{fontSize:11,color:'#636B78',fontWeight:600,marginBottom:4}}>실손형</div>
+                  <div style={{display:'flex',flexDirection:'column'}}>
+                    <div style={{fontSize:11,color:'#636B78',fontWeight:600,marginBottom:4,flexShrink:0}}>실손형</div>
                     <textarea
                       value={reentryTextLoss}
                       onChange={e => { setReentryTextLoss(e.target.value); setReentryParsed(null) }}
                       placeholder="실손형 보장내역 붙여넣기"
-                      style={{width:'100%',height:220,padding:'10px 12px',borderRadius:8,border:'1px solid #E5E7EB',fontSize:12,fontFamily:'inherit',resize:'none',boxSizing:'border-box',lineHeight:1.5,color:'#1A1A2E',outline:'none'}}
+                      style={{flex:1,width:'100%',padding:'10px 12px',borderRadius:8,border:'1px solid #E5E7EB',fontSize:12,fontFamily:'inherit',resize:'none',boxSizing:'border-box',lineHeight:1.5,color:'#1A1A2E',outline:'none'}}
                     />
                   </div>
                 </div>
                 <button
                   onClick={handleReentryParse}
                   disabled={reentryParsing || (!reentryTextFixed.trim() && !reentryTextLoss.trim())}
-                  style={{width:'100%',padding:'11px',borderRadius:8,border:'none',background:reentryParsing||(!reentryTextFixed.trim()&&!reentryTextLoss.trim())?'#E5E7EB':'#5E6AD2',color:reentryParsing||(!reentryTextFixed.trim()&&!reentryTextLoss.trim())?'#8892A0':'white',fontSize:14,fontWeight:600,cursor:reentryParsing||(!reentryTextFixed.trim()&&!reentryTextLoss.trim())?'not-allowed':'pointer',transition:'background 0.15s'}}
+                  style={{flexShrink:0,width:'100%',padding:'11px',borderRadius:8,border:'none',background:reentryParsing||(!reentryTextFixed.trim()&&!reentryTextLoss.trim())?'#E5E7EB':'#5E6AD2',color:reentryParsing||(!reentryTextFixed.trim()&&!reentryTextLoss.trim())?'#8892A0':'white',fontSize:14,fontWeight:600,cursor:reentryParsing||(!reentryTextFixed.trim()&&!reentryTextLoss.trim())?'not-allowed':'pointer',transition:'background 0.15s'}}
                 >
                   {reentryParsing ? 'AI 분석 중...' : 'AI 분석하기'}
                 </button>
