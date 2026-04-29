@@ -1018,15 +1018,12 @@ function ReportModal({ data, blocks, editContent, localCoverageSummary, localCom
       <div className={styles.modalPanel}>
         <div className={styles.modalTopbar}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <svg width="32" height="32" viewBox="0 0 40 40" fill="none" style={{ flexShrink: 0 }}>
-                <rect width="40" height="40" rx="12" fill="#1D9E75"/>
-                <path d="M10 20C10 14.477 14.477 10 20 10C25.523 10 30 14.477 30 20C30 25.523 25.523 30 20 30" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
-                <path d="M20 30C17.5 30 15 28 15 25C15 22 17 20 20 20C23 20 25 22 25 25" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
-                <circle cx="20" cy="20" r="2" fill="white"/>
-              </svg>
+            <div style={{ width: 32, height: 32, borderRadius: 9, background: 'linear-gradient(135deg, #6B78E5, #5E6AD2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <span style={{ color: 'white', fontSize: 18, fontWeight: 400, fontStyle: 'italic', fontFamily: 'Georgia, serif', lineHeight: 1 }}>i</span>
+              </div>
             <div>
-              <div className={styles.modalTopbarTitle}>{data.customer.name} 고객 보험 분석 리포트</div>
-              <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 1 }}>{genDate}</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#1A1A2E' }}>아이플래너</div>
+              <div style={{ fontSize: 11, color: '#8892A0', marginTop: 1 }}>{data.customer.name} 고객 보험 분석 · {genDate}</div>
             </div>
           </div>
           <div className={styles.modalTopbarBtns}>
