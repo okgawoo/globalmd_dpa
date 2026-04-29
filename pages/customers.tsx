@@ -1384,6 +1384,21 @@ export default function Customers() {
               <div style={{fontSize:16,fontWeight:700,color:'#1A1A2E'}}>보험 재입력 - {selected?.name}고객</div>
               <button onClick={() => { setReentryOpen(false); setReentryAddMode(false); setReentryReplaceId(null) }} style={{background:'none',border:'none',fontSize:20,color:'#8892A0',cursor:'pointer',lineHeight:1,padding:0}}>✕</button>
             </div>
+            <style>{`
+              @keyframes reentryWaveUp {
+                0% { opacity:1; transform:translateY(0); max-height:60px; margin-bottom:8px; }
+                60% { opacity:0; transform:translateY(-28px); max-height:60px; margin-bottom:8px; }
+                100% { opacity:0; transform:translateY(-28px); max-height:0; margin-bottom:0; padding:0; }
+              }
+              @keyframes reentryWaveDown {
+                from { opacity:0; transform:translateY(-16px); max-height:0; margin-bottom:0; padding:0; }
+                to { opacity:1; transform:translateY(0); max-height:60px; margin-bottom:8px; }
+              }
+              @keyframes reentryFadeIn {
+                from { opacity:0; transform:translateY(8px); }
+                to { opacity:1; transform:translateY(0); }
+              }
+            `}</style>
             {/* 2열 본문 */}
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gridTemplateRows:'1fr',flex:1,overflow:'hidden',minHeight:320}}>
               {/* 왼쪽 — 붙여넣기 입력 */}
@@ -1426,22 +1441,7 @@ export default function Customers() {
                 })()}
               </div>
               {/* 오른쪽 — 현재 계약 목록 + 분석 결과 */}
-              <div style={{padding:'0',display:'flex',flexDirection:'column',height:'100%',boxSizing:'border-box'}}>
-                <style>{`
-                  @keyframes reentryWaveUp {
-                    0% { opacity:1; transform:translateY(0); max-height:60px; margin-bottom:8px; }
-                    60% { opacity:0; transform:translateY(-28px); max-height:60px; margin-bottom:8px; }
-                    100% { opacity:0; transform:translateY(-28px); max-height:0; margin-bottom:0; padding:0; }
-                  }
-                  @keyframes reentryWaveDown {
-                    from { opacity:0; transform:translateY(-16px); max-height:0; margin-bottom:0; padding:0; }
-                    to { opacity:1; transform:translateY(0); max-height:60px; margin-bottom:8px; }
-                  }
-                  @keyframes reentryFadeIn {
-                    from { opacity:0; transform:translateY(8px); }
-                    to { opacity:1; transform:translateY(0); }
-                  }
-                `}</style>
+              <div style={{display:'flex',flexDirection:'column',overflow:'hidden',height:'100%',boxSizing:'border-box'}}>
                 {/* 스크롤 가능 영역 */}
                 <div style={{flex:1,overflowY:'auto',padding:'20px 24px 12px',boxSizing:'border-box'}}>
                 <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0,marginBottom:10}}>
