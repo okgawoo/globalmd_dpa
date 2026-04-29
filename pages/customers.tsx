@@ -242,8 +242,6 @@ export default function Customers() {
   const [reentryAddMode, setReentryAddMode] = useState(false)
   const [reSaving, setReSaving] = useState(false)
   const [reentryReturning, setReentryReturning] = useState(false)
-  const [reentryLockedHeight, setReentryLockedHeight] = useState<number|null>(null)
-  const reentryModalRef = useRef<HTMLDivElement>(null)
   const reentryTextareaRef = useRef<HTMLTextAreaElement>(null)
   const [addInsMode, setAddInsMode] = useState(false)
   const [insForm, setInsForm] = useState({ company: '', product_name: '', insurance_type: '건강', monthly_fee: '', payment_status: '유지', payment_years: '', expiry_age: '', contract_start: '' })
@@ -618,7 +616,6 @@ export default function Customers() {
       reentryTextLoss.trim() ? `[실손형]\n${reentryTextLoss.trim()}` : '',
     ].filter(Boolean).join('\n\n')
     if (!combined) return
-    if (reentryModalRef.current) setReentryLockedHeight(reentryModalRef.current.offsetHeight)
     setReentryParsing(true)
     setReentryParsed(null)
     try {
@@ -633,7 +630,6 @@ export default function Customers() {
       alert('분석 중 오류: ' + e.message)
     }
     setReentryParsing(false)
-    setReentryLockedHeight(null)
   }
 
   async function handleRentrySave() {
@@ -1382,16 +1378,16 @@ export default function Customers() {
       {/* 재입력 모달 */}
       {reentryOpen && (
         <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.5)',zIndex:500,display:'flex',alignItems:'center',justifyContent:'center',padding:'20px'}} onClick={() => { setReentryOpen(false); setReentryAddMode(false); setReentryReplaceId(null) }}>
-          <div ref={reentryModalRef} style={{background:'white',borderRadius:16,width:'100%',maxWidth:1040,maxHeight:'88vh',minHeight:'60vh',height:reentryLockedHeight?reentryLockedHeight:undefined,display:'flex',flexDirection:'column',boxSizing:'border-box',boxShadow:'0 20px 60px rgba(0,0,0,0.2)'}} onClick={e => e.stopPropagation()}>
+          <div style={{background:'white',borderRadius:16,width:'100%',maxWidth:1040,maxHeight:'88vh',minHeight:'60vh',display:'flex',flexDirection:'column',boxSizing:'border-box',boxShadow:'0 20px 60px rgba(0,0,0,0.2)'}} onClick={e => e.stopPropagation()}>
             {/* 헤더 */}
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'18px 24px',borderBottom:'1px solid #E5E7EB',flexShrink:0}}>
               <div style={{fontSize:16,fontWeight:700,color:'#1A1A2E'}}>보험 재입력 - {selected?.name}고객</div>
               <button onClick={() => { setReentryOpen(false); setReentryAddMode(false); setReentryReplaceId(null) }} style={{background:'none',border:'none',fontSize:20,color:'#8892A0',cursor:'pointer',lineHeight:1,padding:0}}>✕</button>
             </div>
             {/* 2열 본문 */}
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',flex:1,overflow:'hidden',minHeight:320}}>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gridTemplateRows:'1fr',flex:1,overflow:'hidden',minHeight:320}}>
               {/* 왼쪽 — 붙여넣기 입력 */}
-              <div style={{padding:'20px 24px',display:'flex',flexDirection:'column',gap:12,borderRight:'1px solid #E5E7EB',overflow:'hidden'}}>
+              <div style={{padding:'20px 24px',display:'flex',flexDirection:'column',gap:12,borderRight:'1px solid #E5E7EB',overflow:'hidden',height:'100%',boxSizing:'border-box'}}>
                 <div style={{fontSize:13,fontWeight:600,color:'#636B78',textTransform:'uppercase',letterSpacing:'0.04em',flexShrink:0}}>보장내역 붙여넣기</div>
                 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,flex:1,minHeight:0}}>
                   <div style={{display:'flex',flexDirection:'column'}}>
@@ -1430,7 +1426,7 @@ export default function Customers() {
                 })()}
               </div>
               {/* 오른쪽 — 현재 계약 목록 + 분석 결과 */}
-              <div style={{padding:'20px 24px',display:'flex',flexDirection:'column',overflowY:'auto',justifyContent:'flex-start'}}>
+              <div style={{padding:'20px 24px',display:'flex',flexDirection:'column',overflowY:'auto',justifyContent:'flex-start',height:'100%',boxSizing:'border-box'}}>
                 <style>{`
                   @keyframes reentryWaveUp {
                     0% { opacity:1; transform:translateY(0); max-height:60px; margin-bottom:8px; }
@@ -1484,11 +1480,10 @@ export default function Customers() {
                         <span style={{fontSize:13,color:isSelected?'white':'#1A1A2E',fontWeight:isSelected?600:400,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{idx+1}. {ct.company}{ct.product_name?` · ${ct.product_name}`:''}</span>
                         {isSelected ? (
                           <button onClick={() => {
-                            if (reentryModalRef.current) setReentryLockedHeight(reentryModalRef.current.offsetHeight)
                             setReentryParsed(null)
                             setReentryReturning(true)
                             const delay = (selectedContracts.length * 100) + 500
-                            setTimeout(() => { setReentryReplaceId(null); setReentryReturning(false); setReentryLockedHeight(null) }, delay)
+                            setTimeout(() => { setReentryReplaceId(null); setReentryReturning(false) }, delay)
                           }} style={{fontSize:11,padding:'3px 9px',borderRadius:4,border:'1px solid rgba(255,255,255,0.4)',background:'rgba(255,255,255,0.15)',color:'white',cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>취소</button>
                         ) : (
                           <button onClick={() => { setReentryReplaceId(ct.id); setReentryAddMode(false); setReentryParsed(null); setTimeout(() => reentryTextareaRef.current?.focus(), 50) }} style={{fontSize:11,padding:'3px 9px',borderRadius:4,border:'1px solid #D0D3F0',background:'white',color:'#5E6AD2',cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>교체</button>
