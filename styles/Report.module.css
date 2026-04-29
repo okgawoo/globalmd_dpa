@@ -482,13 +482,13 @@
   align-items: center;
   justify-content: space-between;
   padding: 14px 20px;
-  background: white;
-  border-bottom: 1px solid #E5E7EB;
+  background: #5E6AD2;
+  border-bottom: none;
   flex-shrink: 0;
   gap: 12px;
   border-radius: 16px 16px 0 0;
 }
-.modalTopbarTitle { font-size: 13px; font-weight: 600; color: #1A1A2E; }
+.modalTopbarTitle { font-size: 13px; font-weight: 600; color: white; }
 .modalTopbarBtns  { display: flex; gap: 8px; }
 
 .topbarBtn {
@@ -500,10 +500,10 @@
   cursor: pointer;
   transition: all 0.15s;
 }
-.topbarBtnPrint { background: #5E6AD2; color: white; }
-.topbarBtnPrint:hover { background: #4A56C0; }
-.topbarBtnClose { background: #F3F4F6; color: #636B78; border: 1px solid #E5E7EB; }
-.topbarBtnClose:hover { background: #E5E7EB; color: #1A1A2E; }
+.topbarBtnPrint { background: white; color: #5E6AD2; font-weight: 700; }
+.topbarBtnPrint:hover { background: #EEF0FB; }
+.topbarBtnClose { background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.25); }
+.topbarBtnClose:hover { background: rgba(255,255,255,0.25); }
 
 .modalBody {
   flex: 1;
@@ -840,38 +840,11 @@
 
 /* ── 인쇄 ── */
 @media print {
-  .modalOverlay {
-    position: static;
-    background: white !important;
-    padding: 0;
-  }
-  .modalPanel {
-    background: white !important;
-    border-radius: 0;
-    box-shadow: none;
-    max-width: none;
-    width: 100%;
-    max-height: none;
-  }
-  .modalTopbar { display: none; }
   .modalBody {
     padding: 0;
     overflow: visible;
     background: white !important;
   }
-  .a4Page {
-    box-shadow: none;
-    margin-bottom: 0;
-    page-break-after: always;
-    break-after: page;
-    width: 100%;
-    max-width: none;
-    border-radius: 0;
-    min-height: auto;
-    background: white !important;
-  }
-  .a4Page:last-of-type { page-break-after: avoid; break-after: avoid; }
-  .pageBreakHint { display: none; }
   .contractTable thead tr { background: #1A1A2E !important; }
 
   /* 연속 흐름 문서 인쇄 */

@@ -671,28 +671,28 @@ function BlockContent({ id, agent, customer, localStats, customerContracts, loca
             <div className={styles.agentCardBiz} style={{ flexShrink: 0 }}>
               <div className={styles.agentCardAccent} />
               <div style={{ display: 'flex', height: '100%' }}>
-                <div style={{ width: 96, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', flexShrink: 0 }}>
-                  <div style={{ width: 76, height: 76, borderRadius: '50%', background: '#5E6AD2', color: 'white', fontSize: 30, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: 72, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <div style={{ width: 52, height: 52, borderRadius: '50%', background: '#5E6AD2', color: 'white', fontSize: 22, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     {agent.name?.[0] || 'A'}
                   </div>
                 </div>
-                <div style={{ width: 1, background: '#E5E7EB', margin: '20px 0', flexShrink: 0 }} />
-                <div style={{ flex: 1, padding: '16px 16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div style={{ width: 1, background: '#E5E7EB', margin: '14px 0', flexShrink: 0 }} />
+                <div style={{ flex: 1, padding: '12px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', overflow: 'hidden' }}>
                   <div>
-                    <div style={{ fontSize: 17, fontWeight: 700, color: '#1A1A2E', marginBottom: 2 }}>{agent.name || '설계사'}</div>
-                    <div style={{ fontSize: 13, color: '#636B78' }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: '#1A1A2E', marginBottom: 1 }}>{agent.name || '설계사'}</div>
+                    <div style={{ fontSize: 11, color: '#636B78' }}>
                       {agent.settings?.title || '보험 컨설턴트'}
                       {agent.settings?.company && <span style={{ color: '#B0B8C4' }}> · {agent.settings.company}</span>}
                     </div>
                   </div>
-                  <div style={{ fontSize: 13, color: '#636B78', lineHeight: 1.8 }}>
-                    {agent.phone         && <div>📞 {agent.phone}</div>}
-                    {agent.settings?.fax && <div>📠 {agent.settings.fax}</div>}
-                    {agent.email         && <div>✉ {agent.email}</div>}
-                    {agent.settings?.sns?.kakao     && <div>💬 {agent.settings.sns.kakao}</div>}
-                    {agent.settings?.sns?.instagram && <div>📸 {agent.settings.sns.instagram}</div>}
+                  <div style={{ fontSize: 11, color: '#636B78', lineHeight: 1.7 }}>
+                    {agent.phone         && <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>📞 {agent.phone}</div>}
+                    {agent.settings?.fax && <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>📠 {agent.settings.fax}</div>}
+                    {agent.email         && <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>✉ {agent.email}</div>}
+                    {agent.settings?.sns?.kakao     && <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>💬 {agent.settings.sns.kakao}</div>}
+                    {agent.settings?.sns?.instagram && <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>📸 {agent.settings.sns.instagram}</div>}
                   </div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#5E6AD2', letterSpacing: '0.05em' }}>iPlanner</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#5E6AD2', letterSpacing: '0.05em' }}>iPlanner</div>
                 </div>
               </div>
             </div>
@@ -1015,19 +1015,27 @@ function ReportModal({ data, blocks, editContent, localCoverageSummary, localCom
 
   return (
     <div className={styles.modalOverlay} onClick={e => { if (e.target === e.currentTarget) onClose() }}>
-      <div className={styles.modalPanel}>
-        <div className={styles.modalTopbar}>
+      <div className={`${styles.modalPanel} report-print-area`}>
+        <div className={`${styles.modalTopbar} report-print-topbar`}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 9, background: 'linear-gradient(135deg, #6B78E5, #5E6AD2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 9, background: 'linear-gradient(135deg, #7C88E8, #4A56C0)', boxShadow: '0 3px 10px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <span style={{ color: 'white', fontSize: 18, fontWeight: 400, fontStyle: 'italic', fontFamily: 'Georgia, serif', lineHeight: 1 }}>i</span>
               </div>
             <div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#1A1A2E' }}>아이플래너</div>
-              <div style={{ fontSize: 11, color: '#8892A0', marginTop: 1 }}>{data.customer.name} 고객 보험 분석 · {genDate}</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: 'white' }}>아이플래너</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 1 }}>{data.customer.name} 고객 보험 분석 · {genDate}</div>
             </div>
           </div>
           <div className={styles.modalTopbarBtns}>
-            <button className={`${styles.topbarBtn} ${styles.topbarBtnPrint}`} onClick={() => window.print()}>🖨 인쇄 / PDF 저장</button>
+            <button className={`${styles.topbarBtn} ${styles.topbarBtnPrint}`} onClick={() => {
+              document.body.classList.add('report-printing')
+              const cleanup = () => {
+                document.body.classList.remove('report-printing')
+                window.removeEventListener('afterprint', cleanup)
+              }
+              window.addEventListener('afterprint', cleanup)
+              window.print()
+            }}>🖨 인쇄 / PDF 저장</button>
             <button className={`${styles.topbarBtn} ${styles.topbarBtnClose}`} onClick={onClose}>✕ 닫기</button>
           </div>
         </div>
