@@ -1418,8 +1418,9 @@ export default function Customers() {
               <div style={{padding:'20px 24px',display:'flex',flexDirection:'column',gap:10,overflowY:'auto'}}>
                 <style>{`
                   @keyframes reentryWaveUp {
-                    0% { opacity:1; transform:translateY(0); max-height:60px; margin-bottom:0; }
-                    100% { opacity:0; transform:translateY(-18px); max-height:0; margin-bottom:-6px; }
+                    0% { opacity:1; transform:translateY(0); max-height:60px; }
+                    60% { opacity:0; transform:translateY(-28px); max-height:60px; }
+                    100% { opacity:0; transform:translateY(-28px); max-height:0; margin-bottom:-8px; padding:0; }
                   }
                   @keyframes reentryFadeIn {
                     from { opacity:0; transform:translateY(8px); }
@@ -1446,7 +1447,7 @@ export default function Customers() {
                   return (
                     <div key={ct.id} style={{
                       overflow: 'hidden',
-                      animation: isAnimating ? `reentryWaveUp 0.35s ease ${idx * 0.07}s forwards` : undefined,
+                      animation: isAnimating ? `reentryWaveUp 0.4s ease ${idx * 0.13}s forwards` : undefined,
                       flexShrink: 0,
                     }}>
                       <div style={{display:'flex',alignItems:'center',gap:6,padding:'10px 12px',borderRadius:8,border:`1px solid ${isSelected?'#5E6AD2':'#E5E7EB'}`,background:isSelected?'#5E6AD2':'#F7F8FA',transition:'all 0.2s'}}>
