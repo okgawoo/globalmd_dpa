@@ -1386,13 +1386,13 @@ export default function Customers() {
             </div>
             <style>{`
               @keyframes reentryWaveUp {
-                0% { opacity:1; transform:translateY(0); max-height:60px; margin-bottom:8px; }
-                60% { opacity:0; transform:translateY(-28px); max-height:60px; margin-bottom:8px; }
+                0% { opacity:1; transform:translateY(0); max-height:120px; margin-bottom:8px; }
+                60% { opacity:0; transform:translateY(-28px); max-height:120px; margin-bottom:8px; }
                 100% { opacity:0; transform:translateY(-28px); max-height:0; margin-bottom:0; padding:0; }
               }
               @keyframes reentryWaveDown {
-                from { opacity:0; transform:translateY(-12px); }
-                to { opacity:1; transform:translateY(0); }
+                from { opacity:0; transform:translateY(-12px); max-height:0; margin-bottom:0; }
+                to { opacity:1; transform:translateY(0); max-height:120px; margin-bottom:8px; }
               }
               @keyframes reentryFadeIn {
                 from { opacity:0; transform:translateY(8px); }
@@ -1470,6 +1470,7 @@ export default function Customers() {
                   return (
                     <div key={ct.id} style={{
                       overflow: 'hidden',
+                      maxHeight: 120,
                       animation: isAnimating
                         ? `reentryWaveUp 0.4s ease ${idx * 0.13}s forwards`
                         : isReturning
