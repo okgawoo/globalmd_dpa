@@ -1162,7 +1162,7 @@ export default function Customers() {
               </div>
               <div className={styles.section}>
                 보험 계약 현황
-                <button onClick={() => { setReentryOpen(true); setReentryParsed(null); setReentryTextFixed(''); setReentryTextLoss(''); setReentryReplaceId(null); setReentryAddMode(false) }} style={{marginLeft:'auto',fontSize:11,padding:'3px 10px',borderRadius:5,border:'1px solid #E5E7EB',background:'white',color:'#636B78',cursor:'pointer',fontWeight:500,letterSpacing:0,textTransform:'none'}}>재입력</button>
+                <button onClick={() => { setReentryOpen(true); setReentryParsed(null); setReentryTextFixed(''); setReentryTextLoss(''); setReentryReplaceId(null); setReentryAddMode(false) }} style={{marginLeft:'auto',fontSize:12,padding:'4px 12px',borderRadius:6,border:'1.5px solid #5E6AD2',background:'white',color:'#5E6AD2',cursor:'pointer',fontWeight:600,letterSpacing:0,textTransform:'none'}}>재입력</button>
               </div>
               {selectedContracts.map((ct, idx) => {
                 const cvs = selectedCoverages.filter(cv => cv.contract_id === ct.id)
@@ -1391,8 +1391,8 @@ export default function Customers() {
                 100% { opacity:0; transform:translateY(-28px); max-height:0; margin-bottom:0; padding:0; }
               }
               @keyframes reentryWaveDown {
-                from { opacity:0; transform:translateY(-16px); max-height:0; margin-bottom:0; padding:0; }
-                to { opacity:1; transform:translateY(0); max-height:60px; margin-bottom:8px; }
+                from { opacity:0; transform:translateY(-12px); }
+                to { opacity:1; transform:translateY(0); }
               }
               @keyframes reentryFadeIn {
                 from { opacity:0; transform:translateY(8px); }
