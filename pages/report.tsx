@@ -19,13 +19,50 @@ function fmtMoney(v: number) {
   return `${v.toLocaleString()}원`
 }
 
+// ── 보장 벤치마크 (generate-report.ts와 동일 기준) ──────
+const CATEGORY_BENCHMARKS: Record<string, { good: number; ok: number; unit: string; label: string }> = {
+  암진단:  { good: 50000000, ok: 30000000, unit: '원',  label: '암진단' },
+  뇌혈관:  { good: 30000000, ok: 20000000, unit: '원',  label: '뇌혈관' },
+  심장:    { good: 30000000, ok: 20000000, unit: '원',  label: '심장' },
+  수술비:  { good: 3000000,  ok: 1500000,  unit: '원',  label: '수술비' },
+  실손:    { good: 1,        ok: 1,        unit: '유무', label: '실손' },
+  상해:    { good: 100000000,ok: 50000000, unit: '원',  label: '상해' },
+  사고처리: { good: 30000000, ok: 10000000, unit: '원', label: '사고처리' },
+  벌금:    { good: 5000000,  ok: 2000000,  unit: '원',  label: '벌금' },
+  간병:    { good: 50000000, ok: 20000000, unit: '원',  label: '간병' },
+  비급여:  { good: 1,        ok: 1,        unit: '유무', label: '비급여' },
+}
+function getCoverageStatus(category: string, total: number): 'good' | 'ok' | 'low' {
+  const b = CATEGORY_BENCHMARKS[category]
+  if (!b) return 'ok'
+  if (b.unit === '유무') return total > 0 ? 'good' : 'low'
+  if (total >= b.good) return 'good'
+  if (total >= b.ok) return 'ok'
+  return 'low'
+}
+function buildCoverageSummary(coverages: any[]) {
+  const categoryMap: Record<string, number> = {}
+  for (const cov of coverages) {
+    if (!cov.category) continue
+    categoryMap[cov.category] = (categoryMap[cov.category] || 0) + (cov.amount || 0)
+  }
+  return Object.entries(CATEGORY_BENCHMARKS).map(([cat, bench]) => ({
+    category: bench.label,
+    total: categoryMap[cat] || 0,
+    benchmark_ok: bench.ok,
+    benchmark_good: bench.good,
+    unit: bench.unit,
+    status: getCoverageStatus(cat, categoryMap[cat] || 0),
+  }))
+}
+
 // ── 블록 정의 ──────────────────────────────────────────
 const BLOCK_DEFS = [
   { id: 'header',              label: '헤더',               hasAI: false, icon: '🪪' },
   { id: 'contracts',           label: '보유계약',           hasAI: false, icon: '📄' },
   { id: 'coverage_analysis',   label: '보장분석',           hasAI: false, icon: '📊' },
-  { id: 'coverage_chart',      label: '보장금액 그래프(막대그래프)',  hasAI: false, icon: '📈' },
-  { id: 'company_chart',       label: '보험료 분배 그래프(도넛그래프)', hasAI: false, icon: '🥧' },
+  { id: 'coverage_chart',      label: '보장금액 그래프(막대)',  hasAI: false, icon: '📈' },
+  { id: 'company_chart',       label: '보험료 분배 그래프(도넛)', hasAI: false, icon: '🥧' },
   { id: 'gap_analysis',        label: '보장공백 진단',       hasAI: true,  icon: '⚠️' },
   { id: 'claim_cases',         label: '보상 사례',           hasAI: true,  icon: '📋' },
   { id: 'key_insight',         label: '후킹멘트',           hasAI: true,  icon: '💡' },
@@ -63,6 +100,7 @@ export default function ReportPage() {
   const [blocks, setBlocks]               = useState<BlockDef[]>(initBlocks)
   const [editContent, setEditContent]     = useState<Record<string, string>>({})
   const [customerContracts, setCustomerContracts] = useState<any[]>([])
+  const [localCoverageSummary, setLocalCoverageSummary] = useState<any[]>([])
   const [dragIdx, setDragIdx]             = useState<number | null>(null)
   const [dragOverIdx, setDragOverIdx]     = useState<number | null>(null)
 
@@ -122,13 +160,19 @@ export default function ReportPage() {
     setReportData(null)
     setEditContent({})
     setCustomerContracts([])
+    setLocalCoverageSummary([])
     supabase
       .from('dpa_contracts')
-      .select('id, company, product_name, insurance_type, monthly_fee')
+      .select('id, company, product_name, insurance_type, monthly_fee, dpa_coverages(category, amount)')
       .eq('customer_id', c.id)
       .eq('payment_status', '유지')
       .order('company')
-      .then(({ data }) => setCustomerContracts(data || []))
+      .then(({ data }) => {
+        const contracts = data || []
+        setCustomerContracts(contracts)
+        const allCoverages = contracts.flatMap((ct: any) => ct.dpa_coverages || [])
+        setLocalCoverageSummary(buildCoverageSummary(allCoverages))
+      })
   }
 
   async function generateReport() {
@@ -196,6 +240,7 @@ export default function ReportPage() {
                 customer={selected}
                 localStats={localStats}
                 customerContracts={customerContracts}
+                localCoverageSummary={localCoverageSummary}
                 reportData={reportData}
                 editContent={editContent}
                 loading={loading}
@@ -348,12 +393,13 @@ export default function ReportPage() {
 }
 
 // ── 에디터 블록 컴포넌트 ──────────────────────────────
-function EditorBlock({ block, agent, customer, localStats, customerContracts, reportData, editContent, loading, onEdit, onAIGenerate }: {
+function EditorBlock({ block, agent, customer, localStats, customerContracts, localCoverageSummary, reportData, editContent, loading, onEdit, onAIGenerate }: {
   block: BlockDef
   agent: any
   customer: any
   localStats: any
   customerContracts: any[]
+  localCoverageSummary: any[]
   reportData: any
   editContent: Record<string, string>
   loading: boolean
@@ -403,6 +449,7 @@ function EditorBlock({ block, agent, customer, localStats, customerContracts, re
             customer={customer}
             localStats={localStats}
             customerContracts={customerContracts}
+            localCoverageSummary={localCoverageSummary}
             reportData={reportData}
             editContent={editContent}
             onEdit={onEdit}
@@ -428,7 +475,7 @@ const BLOCK_PLACEHOLDERS: Record<string, string> = {
   consultation_script: '화법 스크립트가 여기에 표시됩니다',
 }
 
-function BlockContent({ id, agent, customer, localStats, customerContracts, reportData, editContent, onEdit }: any) {
+function BlockContent({ id, agent, customer, localStats, customerContracts, localCoverageSummary, reportData, editContent, onEdit }: any) {
   const noData = !reportData
 
   if (!customer && id !== 'header') return <BlockSkeleton text={BLOCK_PLACEHOLDERS[id] || '고객 선택 후 표시됩니다'} />
@@ -446,7 +493,7 @@ function BlockContent({ id, agent, customer, localStats, customerContracts, repo
           <div style={{ flex: 1, textAlign: 'left', paddingLeft: 12 }}>
             {/* 이름 */}
             <div style={{ fontSize: 26, fontWeight: 700, color: customer ? '#1A1A2E' : gc, marginBottom: 6 }}>
-              {customer ? customer.name : '홍길동 고객님'}
+              {customer ? `${customer.name} 고객님` : '홍길동 고객님'}
             </div>
             {/* 나이·성별·직업 */}
             <div style={{ fontSize: 15, color: customer ? '#636B78' : gc, marginBottom: 20 }}>
@@ -540,11 +587,13 @@ function BlockContent({ id, agent, customer, localStats, customerContracts, repo
     }
 
     // 보장분석 — 뱃지 목록
-    case 'coverage_analysis':
-      if (noData) return <Placeholder>✨ AI 분석 생성 후 보장 현황이 표시됩니다</Placeholder>
+    case 'coverage_analysis': {
+      const summary = localCoverageSummary?.length ? localCoverageSummary : (reportData?.coverageSummary || [])
+      if (!customer) return <BlockSkeleton text="고객 선택 후 표시됩니다" />
+      if (!summary.length) return <Placeholder>보장 데이터가 없어요</Placeholder>
       return (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-          {(reportData.coverageSummary || []).map((c: any) => (
+          {summary.map((c: any) => (
             <div key={c.category} style={{
               padding: '6px 12px',
               borderRadius: 20,
@@ -562,6 +611,7 @@ function BlockContent({ id, agent, customer, localStats, customerContracts, repo
           ))}
         </div>
       )
+    }
 
     // 보장공백 진단
     case 'gap_analysis':
