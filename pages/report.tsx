@@ -60,6 +60,7 @@ export default function ReportPage() {
   const [blocks, setBlocks]               = useState<BlockDef[]>(initBlocks)
   const [editContent, setEditContent]     = useState<Record<string, string>>({})
   const [dragIdx, setDragIdx]             = useState<number | null>(null)
+  const [dragOverIdx, setDragOverIdx]     = useState<number | null>(null)
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -138,14 +139,19 @@ export default function ReportPage() {
   function onDragStart(idx: number) { setDragIdx(idx) }
   function onDragOver(e: React.DragEvent, idx: number) {
     e.preventDefault()
+    setDragOverIdx(idx)
+  }
+  function onDrop(e: React.DragEvent, idx: number) {
+    e.preventDefault()
     if (dragIdx === null || dragIdx === idx) return
     const next = [...blocks]
     const [moved] = next.splice(dragIdx, 1)
     next.splice(idx, 0, moved)
     setBlocks(next)
-    setDragIdx(idx)
+    setDragIdx(null)
+    setDragOverIdx(null)
   }
-  function onDragEnd() { setDragIdx(null) }
+  function onDragEnd() { setDragIdx(null); setDragOverIdx(null) }
   function toggleBlock(id: string) {
     setBlocks(prev => prev.map(b => b.id === id ? { ...b, enabled: !b.enabled } : b))
   }
@@ -166,39 +172,29 @@ export default function ReportPage() {
 
         {/* ── 좌: 블록 에디터 ── */}
         <div className={styles.editorPanel}>
-          {!selected ? (
-            <div className={styles.editorEmpty}>
-              <div style={{ fontSize: 44, marginBottom: 12 }}>📋</div>
-              <div className={styles.editorEmptyTitle}>고객을 선택해 주세요</div>
-              <div className={styles.editorEmptyDesc}>
-                오른쪽 검색창에서 고객을 선택하면<br />리포트 블록이 여기에 나타납니다
+          <div className={styles.editorBlocks}>
+            {enabledBlocks.map(block => (
+              <EditorBlock
+                key={block.id}
+                block={block}
+                agent={agent}
+                customer={selected}
+                localStats={localStats}
+                reportData={reportData}
+                editContent={editContent}
+                loading={loading}
+                onEdit={(val: string) =>
+                  setEditContent(prev => ({ ...prev, [block.id]: val }))
+                }
+                onAIGenerate={generateReport}
+              />
+            ))}
+            {enabledBlocks.length === 0 && (
+              <div className={styles.editorEmpty}>
+                <div style={{ fontSize: 13, color: '#8892A0' }}>오른쪽에서 블록을 선택해 주세요</div>
               </div>
-            </div>
-          ) : (
-            <div className={styles.editorBlocks}>
-              {enabledBlocks.map(block => (
-                <EditorBlock
-                  key={block.id}
-                  block={block}
-                  agent={agent}
-                  customer={selected}
-                  localStats={localStats}
-                  reportData={reportData}
-                  editContent={editContent}
-                  loading={loading}
-                  onEdit={(val: string) =>
-                    setEditContent(prev => ({ ...prev, [block.id]: val }))
-                  }
-                  onAIGenerate={generateReport}
-                />
-              ))}
-              {enabledBlocks.length === 0 && (
-                <div className={styles.editorEmpty} style={{ minHeight: 160 }}>
-                  <div style={{ fontSize: 13, color: '#8892A0' }}>오른쪽에서 블록을 선택해 주세요</div>
-                </div>
-              )}
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* ── 우: 사이드바 ── */}
@@ -280,18 +276,20 @@ export default function ReportPage() {
               <span style={{ fontSize: 10, color: '#8892A0', fontWeight: 400, marginLeft: 6 }}>
                 드래그로 순서 변경
               </span>
+              <button className={styles.resetBtn} onClick={() => setBlocks(initBlocks())} title="초기화">↺</button>
             </div>
             <div className={styles.blockList}>
               {blocks.map((block, idx) => (
                 <div
                   key={block.id}
-                  className={`${styles.blockItem} ${dragIdx === idx ? styles.blockItemDragging : ''}`}
+                  className={`${styles.blockItem} ${dragIdx === idx ? styles.blockItemDragging : ''} ${dragOverIdx === idx && dragIdx !== idx ? styles.blockItemDropTarget : ''}`}
                   draggable
                   onDragStart={() => onDragStart(idx)}
                   onDragOver={e => onDragOver(e, idx)}
+                  onDrop={e => onDrop(e, idx)}
                   onDragEnd={onDragEnd}
                 >
-                  <span className={styles.dragHandle}>⋮⋮</span>
+                  <span className={styles.dragHandle} />
                   <input
                     type="checkbox"
                     checked={block.enabled}
@@ -374,8 +372,25 @@ function EditorBlock({ block, agent, customer, localStats, reportData, editConte
 }
 
 // ── 블록 내용 렌더러 ──────────────────────────────────
+const BLOCK_PLACEHOLDERS: Record<string, string> = {
+  agent_card:          '설계사 명함이 여기에 표시됩니다',
+  customer_profile:    '고객 프로필이 여기에 표시됩니다',
+  contracts:           '보유 계약 목록이 여기에 표시됩니다',
+  coverage_analysis:   '보장 현황 분석이 여기에 표시됩니다',
+  gap_analysis:        '보장 공백 진단이 여기에 표시됩니다',
+  key_insight:         '고객 맞춤 후킹멘트가 여기에 표시됩니다',
+  age_comparison:      '나이별 시사점이 여기에 표시됩니다',
+  rejection_risk:      '지급거절 위험 분석이 여기에 표시됩니다',
+  peer_comparison:     '동년배 비교 분석이 여기에 표시됩니다',
+  remodel_suggestion:  '리모델링 제안이 여기에 표시됩니다',
+  pitch_points:        '피칭 포인트가 여기에 표시됩니다',
+  consultation_script: '화법 스크립트가 여기에 표시됩니다',
+}
+
 function BlockContent({ id, agent, customer, localStats, reportData, editContent, onEdit }: any) {
   const noData = !reportData
+
+  if (!customer) return <BlockSkeleton text={BLOCK_PLACEHOLDERS[id] || '고객 선택 후 표시됩니다'} />
 
   switch (id) {
 
@@ -585,6 +600,14 @@ function BlockContent({ id, agent, customer, localStats, reportData, editContent
         />
       )
   }
+}
+
+function BlockSkeleton({ text }: { text: string }) {
+  return (
+    <div className={styles.blockSkeleton}>
+      <span>{text}</span>
+    </div>
+  )
 }
 
 function Placeholder({ children, ai }: { children: React.ReactNode; ai?: boolean }) {

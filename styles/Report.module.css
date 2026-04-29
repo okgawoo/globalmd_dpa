@@ -43,11 +43,18 @@
   justify-content: center;
   flex: 1;
   background: white;
-  border: 1.5px dashed #E5E7EB;
   border-radius: 12px;
   text-align: center;
   padding: 40px 24px;
-  min-height: calc(100vh - 234px);
+  min-height: 120px;
+  background-image:
+    repeating-linear-gradient(90deg, #C8CDD6 0, #C8CDD6 10px, transparent 10px, transparent 22px),
+    repeating-linear-gradient(180deg, #C8CDD6 0, #C8CDD6 10px, transparent 10px, transparent 22px),
+    repeating-linear-gradient(90deg, #C8CDD6 0, #C8CDD6 10px, transparent 10px, transparent 22px),
+    repeating-linear-gradient(180deg, #C8CDD6 0, #C8CDD6 10px, transparent 10px, transparent 22px);
+  background-size: 100% 1.5px, 1.5px 100%, 100% 1.5px, 1.5px 100%;
+  background-position: top, right, bottom, left;
+  background-repeat: no-repeat;
 }
 .editorEmptyTitle { font-size: 16px; font-weight: 700; color: #1A1A2E; margin-bottom: 8px; }
 .editorEmptyDesc  { font-size: 13px; color: #8892A0; line-height: 1.7; }
@@ -121,6 +128,20 @@
 }
 
 /* 편집 가능 텍스트 영역 */
+.blockSkeleton {
+  padding: 20px;
+  background: #F7F8FA;
+  border-radius: 8px;
+  border: 1.5px dashed #E5E7EB;
+  font-size: 12px;
+  color: #C4C9D4;
+  text-align: center;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .editableArea {
   width: 100%;
   padding: 12px 14px;
@@ -146,7 +167,7 @@
   top: 20px;
   max-height: calc(100vh - 100px);
   background: white;
-  border: 1px solid #E5E7EB;
+  border: 1.5px solid #D8DCE3;
   border-radius: 12px;
   overflow: hidden;
 }
@@ -210,14 +231,28 @@
   user-select: none;
 }
 .blockItem:hover    { background: #F7F8FA; }
-.blockItemDragging  { background: #F0F1FB; opacity: 0.7; box-shadow: 0 2px 8px rgba(94,106,210,0.2); }
+.blockItemDragging  { background: #F0F1FB; opacity: 0.5; }
+.blockItemDropTarget { position: relative; }
+.blockItemDropTarget::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #5E6AD2;
+  border-radius: 0;
+}
 
 .dragHandle {
-  font-size: 11px;
-  color: #D1D5DB;
-  letter-spacing: -2px;
+  width: 10px;
+  height: 16px;
+  background-image: radial-gradient(circle, #8892A0 1.5px, transparent 1.5px);
+  background-size: 5px 5px;
+  background-repeat: repeat;
   cursor: grab;
   flex-shrink: 0;
+  display: inline-block;
 }
 
 .blockCheckbox {
@@ -230,6 +265,20 @@
 
 .blockItemIcon  { font-size: 13px; flex-shrink: 0; }
 .blockItemLabel { font-size: 12px; color: #1A1A2E; flex: 1; }
+
+.resetBtn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: #8892A0;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.15s;
+  line-height: 1;
+}
+.resetBtn:hover { color: #5E6AD2; background: #F0F1FB; }
 
 .aiTag {
   font-size: 9px;
