@@ -460,7 +460,7 @@ export default function InputPage() {
 
   function handleConfirmContract() {
     const ct = parsed?.contracts?.[0]
-    if (!ct) { alert('계약 정보가 없어요. 다시 분석해 주세요.'); return }
+    if (!ct) return
     setConfirmedContracts(prev => [...prev, { ...ct, _originalText: currentText, _originalTextLoss: currentTextLoss }])
     setParsed(null)
     setCurrentText('')
@@ -930,17 +930,26 @@ export default function InputPage() {
                   </div>
                 ))}
 
+                {/* 계약 정보 없을 때 안내 */}
+                {!parsed.contracts?.[0] && (
+                  <div style={{background:'#FEF3E2',border:'1px solid #FCD34D',borderRadius:8,padding:'10px 14px',marginTop:12,fontSize:13,color:'#92400E'}}>
+                    계약 정보가 인식되지 않았어요. 보장 내역 텍스트를 확인 후 재분석해 주세요.
+                  </div>
+                )}
+
                 {/* 액션 버튼 */}
                 <div style={{display:'flex',gap:8,marginTop:14}}>
                   <button onClick={() => setParsed(null)} className={styles.btnSecondary} style={{flex:'0 0 auto',padding:'9px 14px',fontSize:13}}>
                     ← 재분석
                   </button>
-                  <button onClick={handleConfirmContract} className={styles.btnSecondary}
-                    style={{flex:1,padding:'9px 14px',fontSize:13,borderColor:'rgba(94,106,210,0.3)',color:'#5E6AD2'}}>
-                    + 다음 계약 추가
-                  </button>
-                  <button onClick={handleParseSave} disabled={saving}
-                    style={{flex:1,padding:'9px 14px',fontSize:13,fontWeight:600,background:'#5E6AD2',color:'#ffffff',border:'none',borderRadius:8,cursor:'pointer',fontFamily:'inherit',opacity:saving?0.6:1}}>
+                  {parsed.contracts?.[0] && (
+                    <button onClick={handleConfirmContract} className={styles.btnSecondary}
+                      style={{flex:1,padding:'9px 14px',fontSize:13,borderColor:'rgba(94,106,210,0.3)',color:'#5E6AD2'}}>
+                      + 다음 계약 추가
+                    </button>
+                  )}
+                  <button onClick={handleParseSave} disabled={saving || !parsed.contracts?.[0]}
+                    style={{flex:1,padding:'9px 14px',fontSize:13,fontWeight:600,background:'#5E6AD2',color:'#ffffff',border:'none',borderRadius:8,cursor:'pointer',fontFamily:'inherit',opacity:(saving||!parsed.contracts?.[0])?0.6:1}}>
                     {saving ? '저장 중...' : '💾 저장하기'}
                   </button>
                 </div>
