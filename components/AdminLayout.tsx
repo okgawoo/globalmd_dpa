@@ -1,4 +1,4 @@
-import { ReactNode, useState, useEffect, useRef } from 'react'
+import { ReactNode, useState, useEffect, useLayoutEffect, useRef } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { supabase } from '../lib/supabase'
@@ -30,12 +30,15 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const [dark, setDark] = useState(false)
   const [supportOpen, setSupportOpen] = useState(false)
   const [userInfo, setUserInfo] = useState<{ email: string; initial: string } | null>(null)
-  const [announcement, setAnnouncement] = useState<{ id: string; title: string; body: string; url?: string } | null>({
-    id: 'test-preview-001',
-    title: '신규 기능 업데이트',
-    body: 'AI 보장 분석이 더욱 정확해졌어요. 지금 확인해보세요!',
-    url: '/input',
-  })
+  const [isNarrow, setIsNarrow] = useState<boolean | null>(null)
+  useLayoutEffect(() => {
+    const check = () => setIsNarrow(window.innerWidth < 1100)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+
+  const [announcement, setAnnouncement] = useState<{ id: string; title: string; body: string; url?: string } | null>(null)
   const mainColRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLElement>(null)
 
@@ -410,13 +413,15 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         </header>
 
         {/* Announcement — 헤더 중앙 플로팅 pill (대시보드·관리자 페이지만 표시) */}
-        {announcement && (router.pathname === '/' || router.pathname === '/admin') && (
+        {announcement && isNarrow !== null && (router.pathname === '/' || router.pathname === '/admin') && (
           <div
             style={{
               position: 'fixed',
               top: 62,
               left: '50%',
-              transform: `translateX(calc(-50% + 120px))`,
+              transform: isNarrow
+                ? `translateX(calc(-50% + 130px))`
+                : `translateX(calc(-50% + 120px))`,
               zIndex: 50,
               background: '#5E6AD2',
               color: '#fff',
@@ -426,7 +431,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               alignItems: 'center',
               gap: 10,
               boxShadow: '0 4px 20px rgba(94,106,210,0.45)',
-              maxWidth: 'calc(100vw - 320px)',
+              maxWidth: isNarrow ? 600 : 'min(700px, calc(100vw - 340px))',
               whiteSpace: 'nowrap',
             }}
           >
@@ -448,24 +453,24 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             </div>
 
             {/* 텍스트 */}
-            <span style={{ fontSize: 13, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <span style={{ fontSize: 13, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0, flex: 1 }}>
               <span style={{ fontWeight: 700 }}>{announcement.title}</span>
-              {announcement.body && (
-                <span style={{ opacity: 0.75, marginLeft: 6 }}>— {announcement.body}</span>
+              {announcement.body && !isNarrow && (
+                <span style={{ opacity: 0.75, marginLeft: 6 }}>— {announcement.body.slice(0, 40)}{announcement.body.length > 40 ? '…' : ''}</span>
               )}
             </span>
 
             {/* CTA 버튼 */}
-            {announcement.url && (
+            {(
               <button
-                onClick={() => router.push(announcement.url!)}
+                onClick={() => router.push(announcement.url || '/notifications')}
                 style={{
                   background: 'rgba(255,255,255,0.2)',
                   border: '1.5px solid rgba(255,255,255,0.7)',
                   borderRadius: 999,
                   color: '#fff',
-                  padding: '5px 14px',
-                  fontSize: 12,
+                  padding: '4px 10px',
+                  fontSize: 11,
                   fontWeight: 700,
                   cursor: 'pointer',
                   flexShrink: 0,
@@ -475,7 +480,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.32)' }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.2)' }}
               >
-                확인하기 →
+                확인 →
               </button>
             )}
 

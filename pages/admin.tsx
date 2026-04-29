@@ -436,6 +436,9 @@ export default function AdminPage() {
           <h1 className={styles.pageTitle}>관리자 페이지</h1>
           <p className={styles.pageSub}>시스템 관리 전용 페이지입니다</p>
         </div>
+        <span style={{ fontSize: 14, color: '#1A1A2E' }}>
+          {new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' })}
+        </span>
       </div>
 
       {/* 상위 탭 */}
