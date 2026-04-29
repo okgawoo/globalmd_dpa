@@ -234,7 +234,8 @@ export default function Customers() {
   const { confirm, ConfirmDialog } = useConfirm()
   const [expandedContractIds, setExpandedContractIds] = useState<Set<string>>(new Set())
   const [reentryOpen, setReentryOpen] = useState(false)
-  const [reentryText, setReentryText] = useState('')
+  const [reentryTextFixed, setReentryTextFixed] = useState('')
+  const [reentryTextLoss, setReentryTextLoss] = useState('')
   const [reentryParsing, setReentryParsing] = useState(false)
   const [reentryParsed, setReentryParsed] = useState<any>(null)
   const [reentryReplaceId, setReentryReplaceId] = useState<string | null>(null)
@@ -608,14 +609,18 @@ export default function Customers() {
   }
 
   async function handleReentryParse() {
-    if (!reentryText.trim()) return
+    const combined = [
+      reentryTextFixed.trim() ? `[정액형]\n${reentryTextFixed.trim()}` : '',
+      reentryTextLoss.trim() ? `[실손형]\n${reentryTextLoss.trim()}` : '',
+    ].filter(Boolean).join('\n\n')
+    if (!combined) return
     setReentryParsing(true)
     setReentryParsed(null)
     try {
       const res = await fetch('/api/parse', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: reentryText }),
+        body: JSON.stringify({ text: combined }),
       })
       const data = await res.json()
       setReentryParsed(data)
@@ -1153,7 +1158,7 @@ export default function Customers() {
               </div>
               <div className={styles.section} style={{justifyContent:'space-between'}}>
                 <span>보험 계약 현황</span>
-                <button onClick={() => { setReentryOpen(true); setReentryParsed(null); setReentryText(''); setReentryReplaceId(null) }} style={{fontSize:11,padding:'3px 10px',borderRadius:5,border:'1px solid #E5E7EB',background:'white',color:'#636B78',cursor:'pointer',fontWeight:500,letterSpacing:0,textTransform:'none'}}>재입력</button>
+                <button onClick={() => { setReentryOpen(true); setReentryParsed(null); setReentryTextFixed(''); setReentryTextLoss(''); setReentryReplaceId(null) }} style={{fontSize:11,padding:'3px 10px',borderRadius:5,border:'1px solid #E5E7EB',background:'white',color:'#636B78',cursor:'pointer',fontWeight:500,letterSpacing:0,textTransform:'none'}}>재입력</button>
               </div>
               {selectedContracts.map((ct, idx) => {
                 const cvs = selectedCoverages.filter(cv => cv.contract_id === ct.id)
@@ -1390,20 +1395,45 @@ export default function Customers() {
                 </div>
               )}
               <div style={{borderTop:'1px solid #E5E7EB',margin:'0 0 16px'}} />
-              <div style={{fontSize:11,fontWeight:600,color:'#636B78',marginBottom:8,textTransform:'uppercase',letterSpacing:'0.04em'}}>
-                {reentryReplaceId ? `교체 대상: ${selectedContracts.find(ct=>ct.id===reentryReplaceId)?.company||'선택된 계약'} ${selectedContracts.find(ct=>ct.id===reentryReplaceId)?.product_name||''}` : '새 계약 추가'}
+              {/* 모드 표시 + 새 계약 추가 버튼 */}
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
+                <div style={{fontSize:12,fontWeight:600,color: reentryReplaceId ? '#5E6AD2' : '#1A1A2E'}}>
+                  {reentryReplaceId
+                    ? `교체: ${selectedContracts.find(ct=>ct.id===reentryReplaceId)?.company||''} ${selectedContracts.find(ct=>ct.id===reentryReplaceId)?.product_name||''}`
+                    : '새 계약 추가'}
+                </div>
+                {reentryReplaceId && (
+                  <button onClick={() => setReentryReplaceId(null)} style={{fontSize:11,padding:'3px 9px',borderRadius:4,border:'1px solid #E5E7EB',background:'white',color:'#636B78',cursor:'pointer'}}>
+                    + 새 계약 추가로 전환
+                  </button>
+                )}
               </div>
-              <textarea
-                ref={reentryTextareaRef}
-                value={reentryText}
-                onChange={e => { setReentryText(e.target.value); setReentryParsed(null) }}
-                placeholder="보장내역 텍스트를 여기에 붙여넣으세요"
-                style={{width:'100%',minHeight:140,padding:'10px 12px',borderRadius:8,border:'1px solid #E5E7EB',fontSize:13,fontFamily:'inherit',resize:'vertical',boxSizing:'border-box',lineHeight:1.5,color:'#1A1A2E',outline:'none'}}
-              />
+              {/* 정액형 / 실손형 2칸 */}
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:8}}>
+                <div>
+                  <div style={{fontSize:11,color:'#636B78',fontWeight:600,marginBottom:4}}>정액형</div>
+                  <textarea
+                    ref={reentryTextareaRef}
+                    value={reentryTextFixed}
+                    onChange={e => { setReentryTextFixed(e.target.value); setReentryParsed(null) }}
+                    placeholder="정액형 보장내역 붙여넣기"
+                    style={{width:'100%',minHeight:130,padding:'10px 12px',borderRadius:8,border:'1px solid #E5E7EB',fontSize:12,fontFamily:'inherit',resize:'vertical',boxSizing:'border-box',lineHeight:1.5,color:'#1A1A2E',outline:'none'}}
+                  />
+                </div>
+                <div>
+                  <div style={{fontSize:11,color:'#636B78',fontWeight:600,marginBottom:4}}>실손형</div>
+                  <textarea
+                    value={reentryTextLoss}
+                    onChange={e => { setReentryTextLoss(e.target.value); setReentryParsed(null) }}
+                    placeholder="실손형 보장내역 붙여넣기"
+                    style={{width:'100%',minHeight:130,padding:'10px 12px',borderRadius:8,border:'1px solid #E5E7EB',fontSize:12,fontFamily:'inherit',resize:'vertical',boxSizing:'border-box',lineHeight:1.5,color:'#1A1A2E',outline:'none'}}
+                  />
+                </div>
+              </div>
               <button
                 onClick={handleReentryParse}
-                disabled={reentryParsing || !reentryText.trim()}
-                style={{marginTop:8,width:'100%',padding:'11px',borderRadius:8,border:'none',background:reentryParsing||!reentryText.trim()?'#E5E7EB':'#5E6AD2',color:reentryParsing||!reentryText.trim()?'#8892A0':'white',fontSize:14,fontWeight:600,cursor:reentryParsing||!reentryText.trim()?'not-allowed':'pointer',transition:'background 0.15s'}}
+                disabled={reentryParsing || (!reentryTextFixed.trim() && !reentryTextLoss.trim())}
+                style={{width:'100%',padding:'11px',borderRadius:8,border:'none',background:reentryParsing||(!reentryTextFixed.trim()&&!reentryTextLoss.trim())?'#E5E7EB':'#5E6AD2',color:reentryParsing||(!reentryTextFixed.trim()&&!reentryTextLoss.trim())?'#8892A0':'white',fontSize:14,fontWeight:600,cursor:reentryParsing||(!reentryTextFixed.trim()&&!reentryTextLoss.trim())?'not-allowed':'pointer',transition:'background 0.15s'}}
               >
                 {reentryParsing ? 'AI 분석 중...' : 'AI 분석하기'}
               </button>
@@ -1613,7 +1643,7 @@ export default function Customers() {
 
                 <div className={styles.section} style={{justifyContent:'space-between'}}>
                   <span>보험 계약 현황</span>
-                  <button onClick={() => { setReentryOpen(true); setReentryParsed(null); setReentryText(''); setReentryReplaceId(null) }} style={{fontSize:11,padding:'3px 10px',borderRadius:5,border:'1px solid #E5E7EB',background:'white',color:'#636B78',cursor:'pointer',fontWeight:500,letterSpacing:0,textTransform:'none'}}>재입력</button>
+                  <button onClick={() => { setReentryOpen(true); setReentryParsed(null); setReentryTextFixed(''); setReentryTextLoss(''); setReentryReplaceId(null) }} style={{fontSize:11,padding:'3px 10px',borderRadius:5,border:'1px solid #E5E7EB',background:'white',color:'#636B78',cursor:'pointer',fontWeight:500,letterSpacing:0,textTransform:'none'}}>재입력</button>
                 </div>
                 {selectedContracts.map((ct, idx) => {
                   const groups = getCoveragesByContract(ct.id)
