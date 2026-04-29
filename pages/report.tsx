@@ -84,8 +84,32 @@ const DEFAULT_ENABLED: BlockId[] = [
   'coverage_chart','company_chart',
   'gap_analysis','claim_cases','key_insight','age_comparison','consultation_script',
 ]
-const initBlocks = (): BlockDef[] =>
-  BLOCK_DEFS.map(b => ({ ...b, enabled: DEFAULT_ENABLED.includes(b.id) }))
+const STORAGE_KEY = 'report_blocks_v1'
+
+const initBlocks = (): BlockDef[] => {
+  try {
+    const saved = typeof window !== 'undefined' && localStorage.getItem(STORAGE_KEY)
+    if (saved) {
+      const { enabledIds, order }: { enabledIds: string[]; order: string[] } = JSON.parse(saved)
+      // 저장된 순서로 정렬, 새로 추가된 블록은 끝에 추가
+      const ordered = [
+        ...order.map(id => BLOCK_DEFS.find(b => b.id === id)).filter(Boolean),
+        ...BLOCK_DEFS.filter(b => !order.includes(b.id)),
+      ] as typeof BLOCK_DEFS[number][]
+      return ordered.map(b => ({ ...b, enabled: enabledIds.includes(b.id) }))
+    }
+  } catch {}
+  return BLOCK_DEFS.map(b => ({ ...b, enabled: DEFAULT_ENABLED.includes(b.id) }))
+}
+
+const saveBlocks = (blocks: BlockDef[]) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      enabledIds: blocks.filter(b => b.enabled).map(b => b.id),
+      order: blocks.map(b => b.id),
+    }))
+  } catch {}
+}
 
 // ── 메인 컴포넌트 ──────────────────────────────────────
 export default function ReportPage() {
@@ -108,6 +132,9 @@ export default function ReportPage() {
 
   const layoutRef  = useRef<HTMLDivElement>(null)
   const sidebarRef = useRef<HTMLDivElement>(null)
+
+  // 블록 상태 변경 시 localStorage 자동 저장
+  useEffect(() => { saveBlocks(blocks) }, [blocks])
 
   // ── JS 기반 사이드바 스크롤 추적 (CSS sticky 레이아웃 구조 한계 우회) ──
   useEffect(() => {
@@ -424,7 +451,7 @@ export default function ReportPage() {
               <span style={{ fontSize: 10, color: '#8892A0', fontWeight: 400, marginLeft: 6 }}>
                 드래그로 순서 변경
               </span>
-              <button className={styles.resetBtn} onClick={() => setBlocks(initBlocks())} title="초기화">↺</button>
+              <button className={styles.resetBtn} onClick={() => { localStorage.removeItem(STORAGE_KEY); setBlocks(initBlocks()) }} title="초기화">↺</button>
             </div>
             <div className={styles.blockList}>
               {blocks.map((block, idx) => {
