@@ -39,9 +39,10 @@ export default function ReportPage() {
       supabase.from('dpa_agents').select('*').eq('user_id', data.user.id).single().then(({ data: ag }) => {
         if (!ag) return
         setAgent(ag)
+        const userId = data.user.id  // customers.agent_id = auth user id
         Promise.all([
-          supabase.from('dpa_customers').select('id,name,age,gender,job,phone').eq('agent_id', ag.id).order('name'),
-          supabase.from('dpa_contracts').select('customer_id,monthly_fee').eq('agent_id', ag.id).eq('payment_status', '유지'),
+          supabase.from('dpa_customers').select('id,name,age,gender,job,phone').eq('agent_id', userId).order('name'),
+          supabase.from('dpa_contracts').select('customer_id,monthly_fee').eq('agent_id', userId).eq('payment_status', '유지'),
         ]).then(([{ data: c }, { data: ct }]) => {
           setCustomers(c || [])
           setContracts(ct || [])
