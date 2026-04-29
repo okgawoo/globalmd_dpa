@@ -5,7 +5,7 @@
 
 /* ── Page ── */
 .page {
-  padding: 24px 32px 48px;
+  padding: 24px 32px 96px;
   background: #F7F8FA;
   min-height: 100%;
   box-sizing: border-box;
@@ -62,7 +62,7 @@
 .tabActive { color: #5E6AD2; border-bottom-color: #5E6AD2; font-weight: 600; }
 
 /* ── Content ── */
-.content { padding: 24px 28px 32px; }
+.content { padding: 24px 28px 24px; }
 .section { margin-bottom: 28px; }
 
 /* ── Section Title ── */
