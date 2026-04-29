@@ -24,6 +24,8 @@ const BLOCK_DEFS = [
   { id: 'header',              label: '헤더',               hasAI: false, icon: '🪪' },
   { id: 'contracts',           label: '보유계약',           hasAI: false, icon: '📄' },
   { id: 'coverage_analysis',   label: '보장분석',           hasAI: false, icon: '📊' },
+  { id: 'coverage_chart',      label: '보장금액 차트',       hasAI: false, icon: '📈' },
+  { id: 'company_chart',       label: '보험료 분배 차트',    hasAI: false, icon: '🥧' },
   { id: 'gap_analysis',        label: '보장공백 진단',       hasAI: true,  icon: '⚠️' },
   { id: 'claim_cases',         label: '보상 사례',           hasAI: true,  icon: '📋' },
   { id: 'key_insight',         label: '후킹멘트',           hasAI: true,  icon: '💡' },
@@ -40,6 +42,7 @@ type BlockDef = { id: BlockId; label: string; hasAI: boolean; icon: string; enab
 
 const DEFAULT_ENABLED: BlockId[] = [
   'header','contracts','coverage_analysis',
+  'coverage_chart','company_chart',
   'gap_analysis','claim_cases','key_insight','age_comparison','consultation_script',
 ]
 const initBlocks = (): BlockDef[] =>
@@ -338,7 +341,7 @@ export default function ReportPage() {
       </div>
 
       {modalOpen && reportData && (
-        <ReportModal data={reportData} onClose={() => setModalOpen(false)} />
+        <ReportModal data={reportData} blocks={blocks} onClose={() => setModalOpen(false)} />
       )}
     </div>
   )
@@ -702,7 +705,8 @@ function Placeholder({ children, ai }: { children: React.ReactNode; ai?: boolean
 /* ─────────────────────────────────────────────────────────
    PDF 미리보기 모달 (A4 인쇄용)
 ───────────────────────────────────────────────────────── */
-function ReportModal({ data, onClose }: { data: any; onClose: () => void }) {
+function ReportModal({ data, blocks, onClose }: { data: any; blocks: BlockDef[]; onClose: () => void }) {
+  const isEnabled = (id: string) => blocks.find(b => b.id === id)?.enabled ?? true
   const genDate = new Date(data.generatedAt).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })
 
   const PAGE1_CONTRACTS = 8
@@ -821,7 +825,7 @@ function ReportModal({ data, onClose }: { data: any; onClose: () => void }) {
               <div className={styles.pageBreakHint}>{contracts2.length > 0 ? '3페이지' : '2페이지'}</div>
               <div className={styles.a4Page}>
 
-                {chartData.length > 0 && (
+                {isEnabled('coverage_chart') && chartData.length > 0 && (
                   <>
                     <div className={styles.sectionTitle}>카테고리별 보장 금액</div>
                     <div style={{ marginBottom: 8, display: 'flex', gap: 16, fontSize: 11, color: '#636B78' }}>
@@ -849,9 +853,9 @@ function ReportModal({ data, onClose }: { data: any; onClose: () => void }) {
                   </>
                 )}
 
-                {(pieData.length > 0 || data.ageComparison?.note) && (
+                {(isEnabled('company_chart') && pieData.length > 0 || data.ageComparison?.note) && (
                   <div className={styles.chartsRow}>
-                    {pieData.length > 0 && (
+                    {isEnabled('company_chart') && pieData.length > 0 && (
                       <div>
                         <div className={styles.sectionTitle}>월 보험료 분배</div>
                         <div style={{ height: 180 }}>
