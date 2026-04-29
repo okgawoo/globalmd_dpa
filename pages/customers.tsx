@@ -233,6 +233,13 @@ export default function Customers() {
   const zoomStateRef = useRef({ scale: 1, tx: 0, ty: 0 })
   const { confirm, ConfirmDialog } = useConfirm()
   const [expandedContractIds, setExpandedContractIds] = useState<Set<string>>(new Set())
+  const [reentryOpen, setReentryOpen] = useState(false)
+  const [reentryText, setReentryText] = useState('')
+  const [reentryParsing, setReentryParsing] = useState(false)
+  const [reentryParsed, setReentryParsed] = useState<any>(null)
+  const [reentryReplaceId, setReentryReplaceId] = useState<string | null>(null)
+  const [reSaving, setReSaving] = useState(false)
+  const reentryTextareaRef = useRef<HTMLTextAreaElement>(null)
   const [addInsMode, setAddInsMode] = useState(false)
   const [insForm, setInsForm] = useState({ company: '', product_name: '', insurance_type: '건강', monthly_fee: '', payment_status: '유지', payment_years: '', expiry_age: '', contract_start: '' })
   const [insCoverages, setInsCoverages] = useState<any[]>([])
@@ -598,6 +605,68 @@ export default function Customers() {
     setInsCoverages([])
     setNewCov({ category: '암진단', coverage_name: '', amount: '' })
     await fetchAll()  // await → selectedRef 자동 갱신으로 selectedContracts 즉시 반영
+  }
+
+  async function handleReentryParse() {
+    if (!reentryText.trim()) return
+    setReentryParsing(true)
+    setReentryParsed(null)
+    try {
+      const res = await fetch('/api/parse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: reentryText }),
+      })
+      const data = await res.json()
+      setReentryParsed(data)
+    } catch (e: any) {
+      alert('분석 중 오류: ' + e.message)
+    }
+    setReentryParsing(false)
+  }
+
+  async function handleRentrySave() {
+    if (!reentryParsed?.contracts?.[0]) return
+    setReSaving(true)
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      const ct = reentryParsed.contracts[0]
+      if (reentryReplaceId) {
+        await supabase.from('dpa_coverages').delete().eq('contract_id', reentryReplaceId)
+        await supabase.from('dpa_contracts').delete().eq('id', reentryReplaceId)
+      }
+      const { data: newCt } = await supabase.from('dpa_contracts').insert({
+        customer_id: selected.id,
+        agent_id: user?.id,
+        company: ct.company,
+        product_name: ct.product_name,
+        insurance_type: ct.insurance_type || '건강',
+        monthly_fee: ct.monthly_fee || 0,
+        payment_status: ct.payment_status || '유지',
+        payment_rate: ct.payment_rate || 0,
+        payment_years: ct.payment_years || null,
+        expiry_age: ct.expiry_age || null,
+        contract_start: ct.contract_start || null,
+      }).select().single()
+      if (newCt && ct.coverages?.length > 0) {
+        await supabase.from('dpa_coverages').insert(
+          ct.coverages.map((cv: any) => ({
+            contract_id: newCt.id,
+            category: cv.category,
+            coverage_name: cv.name,
+            amount: cv.amount || 0,
+          }))
+        )
+      }
+      setReentryOpen(false)
+      setReentryText('')
+      setReentryParsed(null)
+      setReentryReplaceId(null)
+      await fetchAll()
+    } catch (e: any) {
+      alert('저장 중 오류: ' + e.message)
+    }
+    setReSaving(false)
   }
 
   const getBadges = (c: any) => {
@@ -1082,7 +1151,10 @@ export default function Customers() {
                 <div className={[styles.infoCell, styles.infoCellL].join(' ')}><span className={styles.infoLabel}>계약 수</span><span className={styles.infoValue}>{selectedContracts.length}건</span></div>
                 <div className={[styles.infoCell, styles.infoCellR].join(' ')}><span className={styles.infoLabel}>총 월납입</span><span className={[styles.infoValue, styles.infoGreen].join(' ')}>{selectedContracts.reduce((s,ct)=>s+(ct.monthly_fee||0),0).toLocaleString()}원</span></div>
               </div>
-              <div className={styles.section}>보험 계약 현황</div>
+              <div className={styles.section} style={{justifyContent:'space-between'}}>
+                <span>보험 계약 현황</span>
+                <button onClick={() => { setReentryOpen(true); setReentryParsed(null); setReentryText(''); setReentryReplaceId(null) }} style={{fontSize:11,padding:'3px 10px',borderRadius:5,border:'1px solid #E5E7EB',background:'white',color:'#636B78',cursor:'pointer',fontWeight:500,letterSpacing:0,textTransform:'none'}}>재입력</button>
+              </div>
               {selectedContracts.map((ct, idx) => {
                 const cvs = selectedCoverages.filter(cv => cv.contract_id === ct.id)
                 const groups = COVERAGE_GROUPS.map(g => ({ ...g, items: cvs.filter((cv:any) => cv.category === g.key).sort((a:any, b:any) => a.coverage_name.localeCompare(b.coverage_name, 'ko', { numeric: true })) })).filter(g => g.items.length > 0)
@@ -1293,6 +1365,72 @@ export default function Customers() {
       </div>
 
       {ConfirmDialog}
+
+      {/* 재입력 모달 */}
+      {reentryOpen && (
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.5)',zIndex:500,display:'flex',alignItems:'center',justifyContent:'center',padding:'16px'}} onClick={() => setReentryOpen(false)}>
+          <div style={{background:'white',borderRadius:16,width:'100%',maxWidth:560,maxHeight:'85vh',overflowY:'auto',boxSizing:'border-box',boxShadow:'0 20px 60px rgba(0,0,0,0.2)'}} onClick={e => e.stopPropagation()}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'20px 20px 0'}}>
+              <div style={{fontSize:16,fontWeight:700,color:'#1A1A2E'}}>보험 재입력 — {selected?.name}</div>
+              <button onClick={() => setReentryOpen(false)} style={{background:'none',border:'none',fontSize:20,color:'#8892A0',cursor:'pointer',lineHeight:1,padding:0}}>✕</button>
+            </div>
+            <div style={{padding:'16px 20px 24px'}}>
+              <div style={{fontSize:11,fontWeight:600,color:'#636B78',marginBottom:8,textTransform:'uppercase',letterSpacing:'0.04em'}}>현재 계약 목록</div>
+              {selectedContracts.length === 0 ? (
+                <div style={{fontSize:12,color:'#8892A0',padding:'6px 0',marginBottom:12}}>등록된 계약이 없어요</div>
+              ) : (
+                <div style={{marginBottom:16,display:'flex',flexDirection:'column',gap:6}}>
+                  {selectedContracts.map((ct, idx) => (
+                    <div key={ct.id} style={{display:'flex',alignItems:'center',gap:8,padding:'8px 12px',borderRadius:8,border:`1px solid ${reentryReplaceId===ct.id?'#5E6AD2':'#E5E7EB'}`,background:reentryReplaceId===ct.id?'#F0F1FC':'#F7F8FA'}}>
+                      <span style={{fontSize:13,color:'#1A1A2E',flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{idx+1}. {ct.company}{ct.product_name?` · ${ct.product_name}`:''}</span>
+                      <button onClick={() => { setReentryReplaceId(ct.id); setTimeout(() => reentryTextareaRef.current?.focus(), 50) }} style={{fontSize:11,padding:'3px 9px',borderRadius:4,border:`1px solid ${reentryReplaceId===ct.id?'#5E6AD2':'#D0D3F0'}`,background:reentryReplaceId===ct.id?'#5E6AD2':'white',color:reentryReplaceId===ct.id?'white':'#5E6AD2',cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>재입력</button>
+                      <button onClick={async (e) => { e.stopPropagation(); await deleteContract(ct.id, e as any); if (reentryReplaceId===ct.id) setReentryReplaceId(null) }} style={{fontSize:11,padding:'3px 8px',borderRadius:4,border:'1px solid #E5E7EB',background:'white',color:'#8892A0',cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>✕</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div style={{borderTop:'1px solid #E5E7EB',margin:'0 0 16px'}} />
+              <div style={{fontSize:11,fontWeight:600,color:'#636B78',marginBottom:8,textTransform:'uppercase',letterSpacing:'0.04em'}}>
+                {reentryReplaceId ? `교체 대상: ${selectedContracts.find(ct=>ct.id===reentryReplaceId)?.company||'선택된 계약'} ${selectedContracts.find(ct=>ct.id===reentryReplaceId)?.product_name||''}` : '새 계약 추가'}
+              </div>
+              <textarea
+                ref={reentryTextareaRef}
+                value={reentryText}
+                onChange={e => { setReentryText(e.target.value); setReentryParsed(null) }}
+                placeholder="보장내역 텍스트를 여기에 붙여넣으세요"
+                style={{width:'100%',minHeight:140,padding:'10px 12px',borderRadius:8,border:'1px solid #E5E7EB',fontSize:13,fontFamily:'inherit',resize:'vertical',boxSizing:'border-box',lineHeight:1.5,color:'#1A1A2E',outline:'none'}}
+              />
+              <button
+                onClick={handleReentryParse}
+                disabled={reentryParsing || !reentryText.trim()}
+                style={{marginTop:8,width:'100%',padding:'11px',borderRadius:8,border:'none',background:reentryParsing||!reentryText.trim()?'#E5E7EB':'#5E6AD2',color:reentryParsing||!reentryText.trim()?'#8892A0':'white',fontSize:14,fontWeight:600,cursor:reentryParsing||!reentryText.trim()?'not-allowed':'pointer',transition:'background 0.15s'}}
+              >
+                {reentryParsing ? 'AI 분석 중...' : 'AI 분석하기'}
+              </button>
+              {reentryParsed && reentryParsed.contracts?.[0] && (
+                <div style={{marginTop:12,padding:'14px',background:'#F0FBF7',borderRadius:8,border:'1px solid #B5E5D5'}}>
+                  <div style={{fontSize:12,fontWeight:600,color:'#0F6E56',marginBottom:6}}>분석 완료</div>
+                  <div style={{fontSize:13,color:'#1A1A2E',marginBottom:2}}>{reentryParsed.contracts[0].company} · {reentryParsed.contracts[0].product_name}</div>
+                  <div style={{fontSize:12,color:'#636B78'}}>{reentryParsed.contracts[0].monthly_fee>0?`${reentryParsed.contracts[0].monthly_fee.toLocaleString()}원/월 · `:''}{reentryParsed.contracts[0].coverages?.length||0}개 보장항목</div>
+                  <button
+                    onClick={handleRentrySave}
+                    disabled={reSaving}
+                    style={{marginTop:10,width:'100%',padding:'11px',borderRadius:8,border:'none',background:reSaving?'#E5E7EB':'#1D9E75',color:reSaving?'#8892A0':'white',fontSize:14,fontWeight:600,cursor:reSaving?'not-allowed':'pointer'}}
+                  >
+                    {reSaving ? '저장 중...' : reentryReplaceId ? '교체 저장' : '추가 저장'}
+                  </button>
+                </div>
+              )}
+              {reentryParsed && !reentryParsed.contracts?.[0] && (
+                <div style={{marginTop:12,padding:'10px 14px',background:'#FEF3E2',borderRadius:8,border:'1px solid #FCD34D',fontSize:13,color:'#92400E'}}>
+                  계약 정보를 인식하지 못했어요. 텍스트를 확인 후 다시 시도해 주세요.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 슬라이드업 팝업 (모바일 전용) */}
       <div className={[styles.slideOverlay, slideOpen ? styles.overlayVisible : ''].join(' ')} onClick={closeSlide}>
         <div
@@ -1473,7 +1611,10 @@ export default function Customers() {
                   </div>
                 </div>
 
-                <div className={styles.section}>보험 계약 현황</div>
+                <div className={styles.section} style={{justifyContent:'space-between'}}>
+                  <span>보험 계약 현황</span>
+                  <button onClick={() => { setReentryOpen(true); setReentryParsed(null); setReentryText(''); setReentryReplaceId(null) }} style={{fontSize:11,padding:'3px 10px',borderRadius:5,border:'1px solid #E5E7EB',background:'white',color:'#636B78',cursor:'pointer',fontWeight:500,letterSpacing:0,textTransform:'none'}}>재입력</button>
+                </div>
                 {selectedContracts.map((ct, idx) => {
                   const groups = getCoveragesByContract(ct.id)
                   const isEditing = editContractId === ct.id
