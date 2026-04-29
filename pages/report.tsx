@@ -25,7 +25,7 @@ const BLOCK_DEFS = [
   { id: 'contracts',           label: '보유계약',           hasAI: false, icon: '📄' },
   { id: 'coverage_analysis',   label: '보장분석',           hasAI: false, icon: '📊' },
   { id: 'gap_analysis',        label: '보장공백 진단',       hasAI: true,  icon: '⚠️' },
-  { id: 'claim_cases',         label: '또래 유사 사례',      hasAI: true,  icon: '📋' },
+  { id: 'claim_cases',         label: '보상 사례',           hasAI: true,  icon: '📋' },
   { id: 'key_insight',         label: '후킹멘트',           hasAI: true,  icon: '💡' },
   { id: 'age_comparison',      label: '나이별 시사점',       hasAI: true,  icon: '📅' },
   { id: 'rejection_risk',      label: '지급거절 위험 체크',  hasAI: true,  icon: '🚨' },
@@ -59,6 +59,7 @@ export default function ReportPage() {
   const [modalOpen, setModalOpen]         = useState(false)
   const [blocks, setBlocks]               = useState<BlockDef[]>(initBlocks)
   const [editContent, setEditContent]     = useState<Record<string, string>>({})
+  const [customerContracts, setCustomerContracts] = useState<any[]>([])
   const [dragIdx, setDragIdx]             = useState<number | null>(null)
   const [dragOverIdx, setDragOverIdx]     = useState<number | null>(null)
 
@@ -117,6 +118,14 @@ export default function ReportPage() {
     setHighlightedIndex(-1)
     setReportData(null)
     setEditContent({})
+    setCustomerContracts([])
+    supabase
+      .from('dpa_contracts')
+      .select('id, company, product_name, insurance_type, monthly_fee')
+      .eq('customer_id', c.id)
+      .eq('payment_status', '유지')
+      .order('company')
+      .then(({ data }) => setCustomerContracts(data || []))
   }
 
   async function generateReport() {
@@ -183,6 +192,7 @@ export default function ReportPage() {
                 agent={agent}
                 customer={selected}
                 localStats={localStats}
+                customerContracts={customerContracts}
                 reportData={reportData}
                 editContent={editContent}
                 loading={loading}
@@ -335,11 +345,12 @@ export default function ReportPage() {
 }
 
 // ── 에디터 블록 컴포넌트 ──────────────────────────────
-function EditorBlock({ block, agent, customer, localStats, reportData, editContent, loading, onEdit, onAIGenerate }: {
+function EditorBlock({ block, agent, customer, localStats, customerContracts, reportData, editContent, loading, onEdit, onAIGenerate }: {
   block: BlockDef
   agent: any
   customer: any
   localStats: any
+  customerContracts: any[]
   reportData: any
   editContent: Record<string, string>
   loading: boolean
@@ -388,6 +399,7 @@ function EditorBlock({ block, agent, customer, localStats, reportData, editConte
             agent={agent}
             customer={customer}
             localStats={localStats}
+            customerContracts={customerContracts}
             reportData={reportData}
             editContent={editContent}
             onEdit={onEdit}
@@ -413,7 +425,7 @@ const BLOCK_PLACEHOLDERS: Record<string, string> = {
   consultation_script: '화법 스크립트가 여기에 표시됩니다',
 }
 
-function BlockContent({ id, agent, customer, localStats, reportData, editContent, onEdit }: any) {
+function BlockContent({ id, agent, customer, localStats, customerContracts, reportData, editContent, onEdit }: any) {
   const noData = !reportData
 
   if (!customer && id !== 'header') return <BlockSkeleton text={BLOCK_PLACEHOLDERS[id] || '고객 선택 후 표시됩니다'} />
@@ -494,9 +506,10 @@ function BlockContent({ id, agent, customer, localStats, reportData, editContent
     }
 
     // 보유계약
-    case 'contracts':
-      if (noData) return <Placeholder>✨ AI 분석 생성 후 계약 목록이 표시됩니다</Placeholder>
-      if (!reportData.contracts?.length) return <Placeholder>유지 중인 계약이 없어요</Placeholder>
+    case 'contracts': {
+      const contracts = customerContracts?.length ? customerContracts : (reportData?.contracts || [])
+      if (!customer) return <BlockSkeleton text="고객 선택 후 표시됩니다" />
+      if (!contracts.length) return <Placeholder>유지 중인 계약이 없어요</Placeholder>
       return (
         <div style={{ overflowX: 'auto' }}>
           <table className={styles.contractTable}>
@@ -509,18 +522,19 @@ function BlockContent({ id, agent, customer, localStats, reportData, editContent
               </tr>
             </thead>
             <tbody>
-              {reportData.contracts.map((c: any) => (
+              {contracts.map((c: any) => (
                 <tr key={c.id}>
                   <td>{c.company || '-'}</td>
-                  <td style={{ maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.productName || '-'}</td>
-                  <td>{c.insuranceType || '-'}</td>
-                  <td>{c.monthlyFee ? `${c.monthlyFee.toLocaleString()}원` : '-'}</td>
+                  <td style={{ maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.product_name || c.productName || '-'}</td>
+                  <td>{c.insurance_type || c.insuranceType || '-'}</td>
+                  <td>{(c.monthly_fee ?? c.monthlyFee) ? `${(c.monthly_fee ?? c.monthlyFee).toLocaleString()}원` : '-'}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       )
+    }
 
     // 보장분석 — 뱃지 목록
     case 'coverage_analysis':
