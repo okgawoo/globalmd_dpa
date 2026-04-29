@@ -339,14 +339,14 @@
   border-radius: 14px;
   box-shadow: 0 24px 64px rgba(0,0,0,0.18);
   display: grid;
-  grid-template-columns: 340px 480px 0px;
+  grid-template-columns: 340px 340px 0px;
   max-height: 90vh;
   overflow: hidden;
   transition: grid-template-columns 0.35s ease;
   position: relative;
 }
-/* stage 2: 리포트 패널 추가 (340 + 480 + 400 = 1220px) */
-.popupStage2 { grid-template-columns: 340px 480px 400px; }
+/* stage 2: 리포트 패널 추가 (340 + 340 + 400 = 1080px) */
+.popupStage2 { grid-template-columns: 340px 340px 400px; }
 
 /* Left form */
 .popupLeft {
