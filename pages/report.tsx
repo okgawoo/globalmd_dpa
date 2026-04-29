@@ -344,27 +344,39 @@ export default function ReportPage() {
         {/* ── 좌: 블록 에디터 ── */}
         <div className={styles.editorPanel}>
           <div className={styles.editorBlocks}>
-            {enabledBlocks.map(block => (
-              <EditorBlock
-                key={block.id}
-                block={block}
-                agent={agent}
-                customer={selected}
-                localStats={localStats}
-                customerContracts={customerContracts}
-                localCoverageSummary={localCoverageSummary}
-                localCompanyDistribution={localCompanyDistribution}
-                reportData={reportData}
-                editContent={editContent}
-                loading={blockLoading === block.id}
-                isGenerating={loading}
-                hasReportData={!!reportData}
-                onEdit={(val: string) =>
-                  setEditContent(prev => ({ ...prev, [block.id]: val }))
-                }
-                onAIGenerate={() => regenerateBlock(block.id)}
-              />
-            ))}
+            {enabledBlocks.map((block, idx) => {
+              const prevBlock = enabledBlocks[idx - 1]
+              const showDivider = block.agentOnly && (!prevBlock || !prevBlock.agentOnly)
+              return (
+                <div key={block.id}>
+                  {showDivider && (
+                    <div className={styles.agentOnlyDivider}>
+                      <div className={styles.agentOnlyLine} />
+                      <span className={styles.agentOnlyLabel}>설계사 전용</span>
+                      <div className={styles.agentOnlyLine} />
+                    </div>
+                  )}
+                  <EditorBlock
+                    block={block}
+                    agent={agent}
+                    customer={selected}
+                    localStats={localStats}
+                    customerContracts={customerContracts}
+                    localCoverageSummary={localCoverageSummary}
+                    localCompanyDistribution={localCompanyDistribution}
+                    reportData={reportData}
+                    editContent={editContent}
+                    loading={blockLoading === block.id}
+                    isGenerating={loading}
+                    hasReportData={!!reportData}
+                    onEdit={(val: string) =>
+                      setEditContent(prev => ({ ...prev, [block.id]: val }))
+                    }
+                    onAIGenerate={() => regenerateBlock(block.id)}
+                  />
+                </div>
+              )
+            })}
             {enabledBlocks.length === 0 && (
               <div className={styles.editorEmpty}>
                 <div style={{ fontSize: 13, color: '#8892A0' }}>오른쪽에서 블록을 선택해 주세요</div>
