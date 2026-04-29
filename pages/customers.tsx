@@ -1434,9 +1434,8 @@ export default function Customers() {
                     100% { opacity:0; transform:translateY(-28px); max-height:0; margin-bottom:0; padding:0; }
                   }
                   @keyframes reentryWaveDown {
-                    0% { opacity:0; transform:translateY(-28px); max-height:0; margin-bottom:0; }
-                    40% { opacity:0; transform:translateY(-28px); max-height:60px; margin-bottom:8px; }
-                    100% { opacity:1; transform:translateY(0); max-height:60px; margin-bottom:8px; }
+                    from { opacity:0; transform:translateY(-16px); max-height:0; margin-bottom:0; padding:0; }
+                    to { opacity:1; transform:translateY(0); max-height:60px; margin-bottom:8px; }
                   }
                   @keyframes reentryFadeIn {
                     from { opacity:0; transform:translateY(8px); }
@@ -1472,7 +1471,7 @@ export default function Customers() {
                       animation: isAnimating
                         ? `reentryWaveUp 0.4s ease ${idx * 0.13}s forwards`
                         : isReturning
-                        ? `reentryWaveDown 0.4s ease ${idx * 0.1}s both`
+                        ? `reentryWaveDown 0.35s ease-out ${idx * 0.08}s both`
                         : undefined,
                       flexShrink: 0,
                       marginBottom: 8,
