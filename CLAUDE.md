@@ -1,5 +1,16 @@
 # iPlanner (DPA) Claude Code 작업 지침
 
+## 🚀 새 채팅방 시작 시 필수 선행 작업
+
+> 작업 시작 전 반드시 아래 두 파일을 읽고 내용을 숙지할 것. 읽지 않고 작업하면 구조 파악 실패 및 중복 실수 발생.
+
+1. **knowledge.md** 읽기 → `C:\Users\OKGA-HOME\.claude\projects\C--Users-OKGA-HOME-Documents-GitHub-globalmd-dpa\memory\knowledge.md`
+2. **SYSTEM.md** 읽기 → `C:\Users\OKGA-HOME\Documents\GitHub\globalmd_dpa\SYSTEM.md`
+
+읽은 후 오빠에게 "knowledge.md, SYSTEM.md 확인했습니다. 작업 준비 완료!" 라고 보고 후 진행.
+
+---
+
 ## 프로젝트 기본 정보
 - 정식명: 아이플래너(iPlanner) / 내부 코드명: DPA
 - GitHub: okgawoo/globalmd_dpa
