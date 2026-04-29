@@ -1012,8 +1012,9 @@ function ReportModal({ data, blocks, editContent, localCoverageSummary, localCom
 
   // 일반 페이지 (설계사 전용 블록 제외)
   const hasLastPage = chartData.length > 0 || pieData.length > 0
-    || data.gapAnalysis?.length > 0
-    || data.ageComparison?.note
+    || editContent?.gap_analysis || data.gapAnalysis?.length > 0
+    || editContent?.age_comparison || data.ageComparison?.note
+    || editContent?.claim_cases
 
   const totalPages = (contracts2.length > 0 ? 2 : 1) + (hasLastPage ? 1 : 0) + (hasAgentPage ? 1 : 0)
 
@@ -1154,17 +1155,19 @@ function ReportModal({ data, blocks, editContent, localCoverageSummary, localCom
                         </div>
                       </div>
                     )}
-                    {data.ageComparison?.note && (
+                    {isEnabled('age_comparison') && (editContent?.age_comparison || data.ageComparison?.note) && (
                       <div>
                         <div className={styles.sectionTitle}>나이별 시사점</div>
                         <div style={{ background: '#F0F1FB', borderRadius: 10, padding: '14px 16px' }}>
-                          <div style={{ fontSize: 12, color: '#1A1A2E', lineHeight: 1.8, marginBottom: 10 }}>{data.ageComparison.note}</div>
-                          {data.ageComparison.at_60_monthly_increase > 0 && (
+                          <div style={{ fontSize: 12, color: '#1A1A2E', lineHeight: 1.8, marginBottom: 10 }}>
+                            {editContent?.age_comparison || data.ageComparison?.note}
+                          </div>
+                          {!editContent?.age_comparison && data.ageComparison?.at_60_monthly_increase > 0 && (
                             <div style={{ fontSize: 11, color: '#5E6AD2', fontWeight: 600 }}>
                               60세 시 예상 추가 보험료: +{data.ageComparison.at_60_monthly_increase.toLocaleString()}원/월
                             </div>
                           )}
-                          {data.ageComparison.at_65_note && (
+                          {!editContent?.age_comparison && data.ageComparison?.at_65_note && (
                             <div style={{ fontSize: 11, color: '#EF4444', marginTop: 6 }}>{data.ageComparison.at_65_note}</div>
                           )}
                         </div>
@@ -1173,16 +1176,44 @@ function ReportModal({ data, blocks, editContent, localCoverageSummary, localCom
                   </div>
                 )}
 
-                {data.gapAnalysis?.length > 0 && (
+                {isEnabled('gap_analysis') && (editContent?.gap_analysis || data.gapAnalysis?.length > 0) && (
                   <>
                     <div className={styles.sectionTitle}>보장 공백 분석</div>
-                    <div className={styles.gapBox}>
-                      {data.gapAnalysis.map((g: any, i: number) => (
-                        <div key={i} className={styles.gapItem}>
-                          <div className={styles.gapDot} />
-                          <div className={styles.gapCategory}>{g.category}</div>
-                          <div className={styles.gapMessage}>{g.message}</div>
-                          <div className={styles.gapAmounts}>{fmtMoney(g.current)} → {fmtMoney(g.benchmark)}</div>
+                    {editContent?.gap_analysis ? (
+                      <div className={styles.gapBox}>
+                        {editContent.gap_analysis.split('\n').filter(Boolean).map((line: string, i: number) => (
+                          <div key={i} className={styles.gapItem}>
+                            <div className={styles.gapDot} />
+                            <div className={styles.gapMessage} style={{ flex: 1 }}>{line.replace(/^[•\-■]\s*/, '')}</div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className={styles.gapBox}>
+                        {data.gapAnalysis.map((g: any, i: number) => (
+                          <div key={i} className={styles.gapItem}>
+                            <div className={styles.gapDot} />
+                            <div className={styles.gapCategory}>{g.category}</div>
+                            <div className={styles.gapMessage}>{g.message}</div>
+                            <div className={styles.gapAmounts}>{fmtMoney(g.current)} → {fmtMoney(g.benchmark)}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {isEnabled('claim_cases') && editContent?.claim_cases && (
+                  <>
+                    <div className={styles.sectionTitle}>보상 사례</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+                      {editContent.claim_cases.split('\n\n').filter(Boolean).map((block: string, i: number) => (
+                        <div key={i} style={{ background: '#F7F8FA', border: '1px solid #E5E7EB', borderRadius: 8, padding: '12px 14px' }}>
+                          {block.split('\n').map((line: string, j: number) => (
+                            <div key={j} style={{ fontSize: 12, color: j === 0 ? '#1A1A2E' : '#636B78', fontWeight: j === 0 ? 600 : 400, lineHeight: 1.7 }}>
+                              {line}
+                            </div>
+                          ))}
                         </div>
                       ))}
                     </div>
