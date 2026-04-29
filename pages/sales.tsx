@@ -139,7 +139,7 @@ export default function Sales() {
       {/* 헤더 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1A1A2E', margin: 0 }}>영업 현황</h1>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1A1A2E', margin: 0 }}>영업 관리</h1>
           <p style={{ fontSize: 13, color: '#8892A0', margin: '4px 0 0' }}>
             {now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long' })} 기준
           </p>
