@@ -8,9 +8,9 @@ import {
 
 // ── 상수 ──────────────────────────────────────────────
 const PIE_COLORS = ['#5E6AD2','#7C86E0','#10B981','#F59E0B','#EF4444','#06B6D4','#8B5CF6','#F97316']
-const STATUS_COLOR: Record<string, string> = { good: '#10B981', ok: '#F59E0B', low: '#EF4444' }
+const STATUS_COLOR: Record<string, string> = { good: '#3B82F6', ok: '#F59E0B', low: '#EF4444' }
 const STATUS_LABEL: Record<string, string> = { good: '충분', ok: '보통', low: '부족' }
-const STATUS_BG: Record<string, string>    = { good: '#ECFDF5', ok: '#FFFBEB', low: '#FEF3F2' }
+const STATUS_BG: Record<string, string>    = { good: '#EFF6FF', ok: '#FFFBEB', low: '#FEF3F2' }
 
 function fmtMoney(v: number) {
   if (v >= 100000000) return `${(v / 100000000).toFixed(1)}억`
