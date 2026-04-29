@@ -666,7 +666,8 @@ export default function Customers() {
         )
       }
       setReentryOpen(false)
-      setReentryText('')
+      setReentryTextFixed('')
+      setReentryTextLoss('')
       setReentryParsed(null)
       setReentryReplaceId(null)
       setReentryAddMode(false)
