@@ -218,6 +218,21 @@ export default function ReportPage() {
   const enabledBlocks = blocks.filter(b => b.enabled)
   const localStats    = selected ? getLocalStats(selected.id) : null
 
+  const localMonthlyTotal = customerContracts.reduce((s: number, c: any) => s + (c.monthly_fee || 0), 0)
+  const localCompanyDistribution = (() => {
+    const map: Record<string, number> = {}
+    for (const c of customerContracts) {
+      if (!c.company) continue
+      map[c.company] = (map[c.company] || 0) + (c.monthly_fee || 0)
+    }
+    return Object.entries(map)
+      .sort((a, b) => b[1] - a[1])
+      .map(([company, amount]) => ({
+        company, amount,
+        percent: localMonthlyTotal > 0 ? Math.round((amount / localMonthlyTotal) * 100) : 0,
+      }))
+  })()
+
   return (
     <div className={styles.page}>
       <div className={styles.pageHeader}>
@@ -241,6 +256,7 @@ export default function ReportPage() {
                 localStats={localStats}
                 customerContracts={customerContracts}
                 localCoverageSummary={localCoverageSummary}
+                localCompanyDistribution={localCompanyDistribution}
                 reportData={reportData}
                 editContent={editContent}
                 loading={loading}
@@ -386,7 +402,7 @@ export default function ReportPage() {
       </div>
 
       {modalOpen && reportData && (
-        <ReportModal data={reportData} blocks={blocks} onClose={() => setModalOpen(false)} />
+        <ReportModal data={reportData} blocks={blocks} localCoverageSummary={localCoverageSummary} localCompanyDistribution={localCompanyDistribution} onClose={() => setModalOpen(false)} />
       )}
     </div>
   )
@@ -400,6 +416,7 @@ function EditorBlock({ block, agent, customer, localStats, customerContracts, lo
   localStats: any
   customerContracts: any[]
   localCoverageSummary: any[]
+  localCompanyDistribution: any[]
   reportData: any
   editContent: Record<string, string>
   loading: boolean
@@ -450,6 +467,7 @@ function EditorBlock({ block, agent, customer, localStats, customerContracts, lo
             localStats={localStats}
             customerContracts={customerContracts}
             localCoverageSummary={localCoverageSummary}
+            localCompanyDistribution={localCompanyDistribution}
             reportData={reportData}
             editContent={editContent}
             onEdit={onEdit}
@@ -475,7 +493,7 @@ const BLOCK_PLACEHOLDERS: Record<string, string> = {
   consultation_script: '화법 스크립트가 여기에 표시됩니다',
 }
 
-function BlockContent({ id, agent, customer, localStats, customerContracts, localCoverageSummary, reportData, editContent, onEdit }: any) {
+function BlockContent({ id, agent, customer, localStats, customerContracts, localCoverageSummary, localCompanyDistribution, reportData, editContent, onEdit }: any) {
   const noData = !reportData
 
   if (!customer && id !== 'header') return <BlockSkeleton text={BLOCK_PLACEHOLDERS[id] || '고객 선택 후 표시됩니다'} />
@@ -605,10 +623,58 @@ function BlockContent({ id, agent, customer, localStats, customerContracts, loca
               <span style={{ color: '#1A1A2E', fontWeight: 600 }}>{c.category}</span>
               <span style={{ color: STATUS_COLOR[c.status], fontWeight: 700 }}>{STATUS_LABEL[c.status]}</span>
               {c.unit !== '유무' && c.total > 0 && (
-                <span style={{ color: '#8892A0', fontSize: 10 }}>{fmtMoney(c.total)}</span>
+                <span style={{ color: '#8892A0', fontSize: 10, fontWeight: 700 }}>{fmtMoney(c.total)}</span>
               )}
             </div>
           ))}
+        </div>
+      )
+    }
+
+    // 보장금액 차트
+    case 'coverage_chart': {
+      const summary = localCoverageSummary?.length ? localCoverageSummary : (reportData?.coverageSummary || [])
+      if (!customer) return <BlockSkeleton text="고객 선택 후 표시됩니다" />
+      const chartData = summary
+        .filter((c: any) => c.unit !== '유무' && c.total > 0)
+        .sort((a: any, b: any) => b.total - a.total)
+        .map((c: any) => ({ name: c.category, total: c.total, fill: STATUS_COLOR[c.status] }))
+      if (!chartData.length) return <Placeholder>보장 데이터가 없어요</Placeholder>
+      return (
+        <div style={{ height: 200 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData} layout="vertical" margin={{ left: 40, right: 50, top: 0, bottom: 0 }}>
+              <XAxis type="number" tickFormatter={fmtMoney} tick={{ fontSize: 10 }} />
+              <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={40} />
+              <Tooltip formatter={(v: any) => fmtMoney(v)} />
+              <Bar dataKey="total" radius={[0, 3, 3, 0]}>
+                {chartData.map((entry: any, i: number) => <Cell key={i} fill={entry.fill} />)}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      )
+    }
+
+    // 보험료 분배 차트
+    case 'company_chart': {
+      const dist = localCompanyDistribution?.length ? localCompanyDistribution : (reportData?.companyDistribution || [])
+      if (!customer) return <BlockSkeleton text="고객 선택 후 표시됩니다" />
+      const pieData = dist.map((d: any, i: number) => ({
+        name: d.company, value: d.amount, percent: d.percent, fill: PIE_COLORS[i % PIE_COLORS.length],
+      }))
+      if (!pieData.length) return <Placeholder>계약 데이터가 없어요</Placeholder>
+      return (
+        <div style={{ height: 200 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={75} dataKey="value">
+                {pieData.map((entry: any, i: number) => <Cell key={i} fill={entry.fill} />)}
+              </Pie>
+              <Legend formatter={(value: any, entry: any) => `${value} ${entry.payload.percent}%`} iconSize={8} wrapperStyle={{ fontSize: 11 }} />
+              <Tooltip formatter={(v: any) => `${v.toLocaleString()}원`} />
+            </PieChart>
+          </ResponsiveContainer>
         </div>
       )
     }
@@ -755,7 +821,7 @@ function Placeholder({ children, ai }: { children: React.ReactNode; ai?: boolean
 /* ─────────────────────────────────────────────────────────
    PDF 미리보기 모달 (A4 인쇄용)
 ───────────────────────────────────────────────────────── */
-function ReportModal({ data, blocks, onClose }: { data: any; blocks: BlockDef[]; onClose: () => void }) {
+function ReportModal({ data, blocks, localCoverageSummary, localCompanyDistribution, onClose }: { data: any; blocks: BlockDef[]; localCoverageSummary: any[]; localCompanyDistribution: any[]; onClose: () => void }) {
   const isEnabled = (id: string) => blocks.find(b => b.id === id)?.enabled ?? true
   const genDate = new Date(data.generatedAt).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })
 
@@ -763,12 +829,14 @@ function ReportModal({ data, blocks, onClose }: { data: any; blocks: BlockDef[];
   const contracts1 = data.contracts.slice(0, PAGE1_CONTRACTS)
   const contracts2 = data.contracts.slice(PAGE1_CONTRACTS)
 
-  const chartData = (data.coverageSummary || [])
+  const coverageSrc = data.coverageSummary?.length ? data.coverageSummary : localCoverageSummary
+  const chartData = (coverageSrc || [])
     .filter((c: any) => c.unit !== '유무' && c.total > 0)
     .sort((a: any, b: any) => b.total - a.total)
     .map((c: any) => ({ name: c.category, total: c.total, benchmark: c.benchmark_ok, fill: STATUS_COLOR[c.status] }))
 
-  const pieData = (data.companyDistribution || []).map((d: any, i: number) => ({
+  const compDist = data.companyDistribution?.length ? data.companyDistribution : localCompanyDistribution
+  const pieData = (compDist || []).map((d: any, i: number) => ({
     name: d.company, value: d.amount, percent: d.percent, fill: PIE_COLORS[i % PIE_COLORS.length],
   }))
 
