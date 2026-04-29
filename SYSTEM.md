@@ -65,6 +65,41 @@ meritz_pdf_files              메리츠 공시실 PDF 수집 이력
               └─ youtube_analyses 저장
 ```
 
+**채널 ID 추출 (두 가지 경우):**
+```
+1) URL이 /channel/UC... 형태 → 정규식으로 바로 추출
+2) @핸들 형태 → YouTube API 조회:
+   GET https://www.googleapis.com/youtube/v3/channels?part=id&forHandle={handle}&key={키}
+```
+
+**youtube-fetch-all — YouTube Data API:**
+```
+UC채널ID → UU재생목록ID (UC→UU 치환)
+GET https://www.googleapis.com/youtube/v3/playlistItems
+  ?part=snippet&playlistId={UU...}&maxResults=50&key={키}&pageToken={토큰}
+→ nextPageToken 있으면 반복 (전체 영상 수집)
+→ 완료 후 구독자 수 업데이트: /youtube/v3/channels?part=statistics
+```
+
+**youtube-sync — RSS (API 키 불필요, 최신 15개):**
+```
+GET https://www.youtube.com/feeds/videos.xml?channel_id={UC채널ID}
+→ 정규식으로 <yt:videoId>, <title>, <published> 추출
+→ 신규 감지 시 youtube-analyze 자동 트리거 (fire & forget)
+```
+
+**자막 추출 — npm: youtube-transcript:**
+```typescript
+YoutubeTranscript.fetchTranscript(videoId, { lang: 'ko' })  // 한국어 우선
+// 실패 시 fallback → fetchTranscript(videoId)              // 기본 언어
+// 8,000자까지만 Claude에 전달
+```
+
+**GitHub Actions 크론:**
+- `youtube-sync.yml`: 매주 월요일 09:00 KST (UTC 00:00), `workflow_dispatch`로 수동 실행 가능
+- `insurance-sync.yml`: 동일 스케줄, 메리츠화재 전체 카테고리, `--max-time 300`
+- 인증: `x-cron-secret` 헤더 / GitHub Secrets: `CRON_SECRET`, `APP_URL`
+
 **youtube_analyses 필드:**
 - `summary` — 영상 핵심 2~3문장
 - `key_points[]` — 핵심 포인트 3개
