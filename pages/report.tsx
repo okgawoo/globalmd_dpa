@@ -1011,7 +1011,8 @@ function ReportModal({ data, blocks, editContent, localCoverageSummary, localCom
   const hasAgentPage = !!(agentKeyInsight || agentPitchPoints.length > 0 || agentScripts)
 
   // 일반 페이지 (설계사 전용 블록 제외)
-  const hasLastPage = chartData.length > 0 || pieData.length > 0
+  const hasLastPage = coverageSrc.length > 0
+    || chartData.length > 0 || pieData.length > 0
     || editContent?.gap_analysis || data.gapAnalysis?.length > 0
     || editContent?.age_comparison || data.ageComparison?.note
     || editContent?.claim_cases
@@ -1053,9 +1054,9 @@ function ReportModal({ data, blocks, editContent, localCoverageSummary, localCom
               <div>
                 <div className={styles.profileName}>{data.customer.name}</div>
                 <div className={styles.profileMeta}>
-                  {data.customer.age    ? `${data.customer.age}세` : ''}
-                  {data.customer.gender ? ` · ${data.customer.gender}` : ''}
-                  {data.customer.job    ? ` · ${data.customer.job}` : ''}
+                  {data.customer.age ? `${data.customer.age}세` : ''}
+                  {data.customer.gender && data.customer.gender !== '미상' ? ` · ${data.customer.gender}` : ''}
+                  {data.customer.job && data.customer.job !== '미상' ? ` · ${data.customer.job}` : ''}
                 </div>
               </div>
             </div>
@@ -1107,6 +1108,34 @@ function ReportModal({ data, blocks, editContent, localCoverageSummary, localCom
               <div className={styles.pageBreakHint}>{contracts2.length > 0 ? '3페이지' : '2페이지'}</div>
               <div className={styles.a4Page}>
 
+                {isEnabled('coverage_analysis') && coverageSrc.length > 0 && (
+                  <>
+                    <div className={styles.sectionTitle}>보장 분석</div>
+                    <table className={styles.contractTable} style={{ marginBottom: 20 }}>
+                      <thead>
+                        <tr>
+                          <th>보장 카테고리</th>
+                          <th>현재 보장액</th>
+                          <th>권장 기준</th>
+                          <th style={{ textAlign: 'right' }}>상태</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {coverageSrc.map((c: any, i: number) => (
+                          <tr key={i}>
+                            <td>{c.category}</td>
+                            <td>{c.unit === '유무' ? (c.total > 0 ? '✓ 있음' : '없음') : fmtMoney(c.total)}</td>
+                            <td style={{ color: '#8892A0', fontSize: 11 }}>{c.unit === '유무' ? '가입 권장' : fmtMoney(c.benchmark_ok) + ' 이상'}</td>
+                            <td style={{ textAlign: 'right', color: STATUS_COLOR[c.status] ?? '#636B78', fontWeight: 600 }}>
+                              {STATUS_LABEL[c.status] ?? c.status}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </>
+                )}
+
                 {isEnabled('coverage_chart') && chartData.length > 0 && (
                   <>
                     <div className={styles.sectionTitle}>카테고리별 보장 금액</div>
@@ -1135,45 +1164,42 @@ function ReportModal({ data, blocks, editContent, localCoverageSummary, localCom
                   </>
                 )}
 
-                {(isEnabled('company_chart') && pieData.length > 0 || data.ageComparison?.note) && (
-                  <div className={styles.chartsRow}>
-                    {isEnabled('company_chart') && pieData.length > 0 && (
-                      <div>
-                        <div className={styles.sectionTitle}>월 보험료 분배</div>
-                        <div style={{ height: 180 }}>
-                          <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                              <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={75} dataKey="value">
-                                {pieData.map((entry: any, i: number) => (
-                                  <Cell key={i} fill={entry.fill} />
-                                ))}
-                              </Pie>
-                              <Legend formatter={(value: any, entry: any) => `${value} ${entry.payload.percent}%`} iconSize={8} wrapperStyle={{ fontSize: 10 }} />
-                              <Tooltip formatter={(v: any) => `${v.toLocaleString()}원`} />
-                            </PieChart>
-                          </ResponsiveContainer>
-                        </div>
+                {isEnabled('company_chart') && pieData.length > 0 && (
+                  <>
+                    <div className={styles.sectionTitle}>월 보험료 분배</div>
+                    <div style={{ height: 180, marginBottom: 20 }}>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={75} dataKey="value">
+                            {pieData.map((entry: any, i: number) => (
+                              <Cell key={i} fill={entry.fill} />
+                            ))}
+                          </Pie>
+                          <Legend formatter={(value: any, entry: any) => `${value} ${entry.payload.percent}%`} iconSize={8} wrapperStyle={{ fontSize: 10 }} />
+                          <Tooltip formatter={(v: any) => `${v.toLocaleString()}원`} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </>
+                )}
+
+                {isEnabled('age_comparison') && (editContent?.age_comparison || data.ageComparison?.note) && (
+                  <>
+                    <div className={styles.sectionTitle}>나이별 시사점</div>
+                    <div style={{ background: '#F0F1FB', borderRadius: 10, padding: '14px 16px', marginBottom: 20 }}>
+                      <div style={{ fontSize: 12, color: '#1A1A2E', lineHeight: 1.8 }}>
+                        {editContent?.age_comparison || data.ageComparison?.note}
                       </div>
-                    )}
-                    {isEnabled('age_comparison') && (editContent?.age_comparison || data.ageComparison?.note) && (
-                      <div>
-                        <div className={styles.sectionTitle}>나이별 시사점</div>
-                        <div style={{ background: '#F0F1FB', borderRadius: 10, padding: '14px 16px' }}>
-                          <div style={{ fontSize: 12, color: '#1A1A2E', lineHeight: 1.8, marginBottom: 10 }}>
-                            {editContent?.age_comparison || data.ageComparison?.note}
-                          </div>
-                          {!editContent?.age_comparison && data.ageComparison?.at_60_monthly_increase > 0 && (
-                            <div style={{ fontSize: 11, color: '#5E6AD2', fontWeight: 600 }}>
-                              60세 시 예상 추가 보험료: +{data.ageComparison.at_60_monthly_increase.toLocaleString()}원/월
-                            </div>
-                          )}
-                          {!editContent?.age_comparison && data.ageComparison?.at_65_note && (
-                            <div style={{ fontSize: 11, color: '#EF4444', marginTop: 6 }}>{data.ageComparison.at_65_note}</div>
-                          )}
+                      {!editContent?.age_comparison && data.ageComparison?.at_60_monthly_increase > 0 && (
+                        <div style={{ fontSize: 11, color: '#5E6AD2', fontWeight: 600, marginTop: 8 }}>
+                          60세 시 예상 추가 보험료: +{data.ageComparison.at_60_monthly_increase.toLocaleString()}원/월
                         </div>
-                      </div>
-                    )}
-                  </div>
+                      )}
+                      {!editContent?.age_comparison && data.ageComparison?.at_65_note && (
+                        <div style={{ fontSize: 11, color: '#EF4444', marginTop: 6 }}>{data.ageComparison.at_65_note}</div>
+                      )}
+                    </div>
+                  </>
                 )}
 
                 {isEnabled('gap_analysis') && (editContent?.gap_analysis || data.gapAnalysis?.length > 0) && (
@@ -1232,7 +1258,7 @@ function ReportModal({ data, blocks, editContent, localCoverageSummary, localCom
           {hasAgentPage && (
             <>
               <div className={styles.pageBreakHint}>설계사 전용 페이지</div>
-              <div className={styles.a4Page}>
+              <div className={styles.a4Page} style={{ minHeight: 'auto' }}>
 
                 {/* 설계사 전용 헤더 */}
                 <div className={styles.agentPageHeader}>
