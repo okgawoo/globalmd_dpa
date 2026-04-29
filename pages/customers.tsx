@@ -1431,7 +1431,7 @@ export default function Customers() {
                   @keyframes reentryWaveUp {
                     0% { opacity:1; transform:translateY(0); max-height:60px; }
                     60% { opacity:0; transform:translateY(-28px); max-height:60px; }
-                    100% { opacity:0; transform:translateY(-28px); max-height:0; margin-bottom:-8px; padding:0; }
+                    100% { opacity:0; transform:translateY(-28px); max-height:0; padding:0; }
                   }
                   @keyframes reentryWaveDown {
                     0% { opacity:0; transform:translateY(-28px); max-height:0; }
@@ -1445,7 +1445,7 @@ export default function Customers() {
                 `}</style>
                 <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0,marginBottom:10}}>
                   <div style={{fontSize:13,fontWeight:600,color:'#636B78',textTransform:'uppercase',letterSpacing:'0.04em'}}>현재 계약 목록</div>
-                  {!(reentryParsing || reentryParsed) && (
+                  {!(reentryParsing || reentryParsed || reentryReturning) && (
                     <button
                       onClick={() => { setReentryAddMode(v => !v); setReentryReplaceId(null); setReentryParsed(null) }}
                       style={{fontSize:12,padding:'4px 12px',borderRadius:20,border:`1.5px solid ${reentryAddMode?'#5E6AD2':'#D0D3F0'}`,background:reentryAddMode?'#5E6AD2':'white',color:reentryAddMode?'white':'#5E6AD2',fontWeight:600,cursor:'pointer',transition:'all 0.15s',whiteSpace:'nowrap'}}
@@ -1454,7 +1454,7 @@ export default function Customers() {
                     </button>
                   )}
                 </div>
-                {!(reentryParsing || reentryParsed) && (
+                {!(reentryParsing || reentryParsed || reentryReturning) && (
                   <div style={{flexShrink:0,padding:'8px 12px',borderRadius:8,background:reentryReplaceId?'#EEF0FB':reentryAddMode?'#EEF0FB':'#F7F8FA',border:`1px solid ${(reentryReplaceId||reentryAddMode)?'#5E6AD2':'#E5E7EB'}`,fontSize:13,color:(reentryReplaceId||reentryAddMode)?'#5E6AD2':'#8892A0',fontWeight:500,marginBottom:10}}>
                     {reentryReplaceId ? '교체 모드 — 왼쪽에 붙여넣고 AI 분석하기를 눌러주세요' : reentryAddMode ? '추가 모드 — 왼쪽에 붙여넣고 AI 분석하기를 눌러주세요' : '교체할 계약을 선택하거나 추가계약을 눌러주세요'}
                   </div>
