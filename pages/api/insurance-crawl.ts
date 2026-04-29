@@ -48,10 +48,10 @@ const CATEGORY_EN_MAP: Record<string, string> = {
   '태아보험': 'prenatal',
 }
 
-// 한글 포함 상품명 → ASCII 안전 파일명 (md5 앞 8자리 + 날짜)
-function safeStorageName(productName: string, today: string): string {
+// 한글 포함 상품명 → ASCII 고정 파일명 (md5 앞 8자리, 날짜 없음 → 경로 고정으로 중복 방지)
+function safeStorageName(productName: string): string {
   const hash = createHash('md5').update(productName).digest('hex').slice(0, 8)
-  return `${hash}_${today}.pdf`
+  return `${hash}.pdf`
 }
 
 const HEADERS = {
@@ -184,10 +184,9 @@ async function processProducts(
     if (!encPath) continue
 
     const productName = product.ttlNm || '상품명 없음'
-    const today = new Date().toISOString().slice(0, 10)
     const catEn = CATEGORY_EN_MAP[categoryName] || categoryName.replace(/[^a-zA-Z0-9]/g, '-')
-    const fileName = safeStorageName(productName, today)
-    const storagePath = `meritz/${catEn}/${today}/${fileName}`
+    const fileName = safeStorageName(productName)
+    const storagePath = `meritz/${catEn}/${fileName}`  // 날짜 없는 고정 경로 → 항상 최신본 덮어쓰기
 
     if (existingPaths.has(storagePath)) {
       results.push({ category: categoryName, product: productName, success: true, isNew: false })
@@ -227,8 +226,14 @@ async function runCrawl(srtSqs: number[], keywords: string[] = []) {
   if (!cookie) throw new Error('세션 쿠키 발급 실패')
 
   const results: { category: string; product: string; success: boolean; isNew?: boolean; error?: string }[] = []
-  const { data: existing } = await supabase.from('meritz_pdf_files').select('storage_path')
-  const existingPaths = new Set((existing || []).map((r: any) => r.storage_path))
+  const today = new Date().toISOString().slice(0, 10)
+  // 오늘 이미 다운받은 파일만 스킵 → 매 크롤링마다 최신본 갱신, 같은 날 중복 실행만 방지
+  const { data: existing } = await supabase.from('meritz_pdf_files').select('storage_path, crawled_at')
+  const existingPaths = new Set(
+    (existing || [])
+      .filter((r: any) => r.crawled_at?.startsWith(today))
+      .map((r: any) => r.storage_path)
+  )
 
   // srtSq 방식
   for (const srtSq of srtSqs) {
