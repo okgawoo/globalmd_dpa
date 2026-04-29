@@ -270,7 +270,7 @@ export default function Sales() {
             <BarChart data={last6MonthsMessages} margin={{ top: 4, right: 8, left: -24, bottom: 0 }}>
               <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#8892A0' }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 11, fill: '#8892A0' }} axisLine={false} tickLine={false} allowDecimals={false} />
-              <Tooltip formatter={(v: any, n: string) => [`${v}건`, n === 'sms' ? '문자' : '카톡']} cursor={{ fill: 'rgba(94,106,210,0.06)' }} />
+              <Tooltip formatter={(v: any, n: any) => [`${v}건`, n === 'sms' ? '문자' : '카톡']} cursor={{ fill: 'rgba(94,106,210,0.06)' }} />
               <Bar dataKey="sms" stackId="a" fill="#5E6AD2" radius={[0, 0, 0, 0]} />
               <Bar dataKey="kakao" stackId="a" fill="#FACC15" radius={[4, 4, 0, 0]} />
             </BarChart>
