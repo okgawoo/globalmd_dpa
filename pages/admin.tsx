@@ -128,12 +128,19 @@ export default function AdminPage() {
     const [
       { data: agents },
       { data: channels },
-      { data: videos },
+      { count: totalVideos },
+      { count: doneVideos },
+      { count: pendingVideos },
+      { count: errorVideos },
       { data: pdfs },
     ] = await Promise.all([
       supabase.from('dpa_agents').select('plan_type, created_at, status'),
       supabase.from('youtube_channels').select('id, name, is_active'),
-      supabase.from('youtube_videos').select('status, created_at'),
+      // 영상 수는 5000+ 이라 데이터 안 가져오고 count만 조회
+      supabase.from('youtube_videos').select('*', { count: 'exact', head: true }),
+      supabase.from('youtube_videos').select('*', { count: 'exact', head: true }).eq('status', 'done'),
+      supabase.from('youtube_videos').select('*', { count: 'exact', head: true }).in('status', ['pending', 'analyzing']),
+      supabase.from('youtube_videos').select('*', { count: 'exact', head: true }).eq('status', 'error'),
       supabase.from('meritz_pdf_files').select('category_name, status, crawled_at').order('crawled_at', { ascending: false }),
     ])
 
@@ -143,25 +150,21 @@ export default function AdminPage() {
     const planBreakdown: Record<string, number> = {}
     agents?.forEach(a => { const p = a.plan_type || 'basic'; planBreakdown[p] = (planBreakdown[p] || 0) + 1 })
 
-    // YouTube
+    // YouTube (count 쿼리로 정확한 값 사용)
     const totalChannels = channels?.length || 0
-    const totalVideos = videos?.length || 0
-    const doneVideos = videos?.filter(v => v.status === 'done').length || 0
-    const pendingVideos = videos?.filter(v => v.status === 'pending' || v.status === 'analyzing').length || 0
-    const errorVideos = videos?.filter(v => v.status === 'error').length || 0
-    const thisWeekVideos = videos?.filter(v => v.created_at >= weekAgo).length || 0
+    const thisWeekVideos = 0  // count 방식에선 미사용
 
     // 보험 PDF
     const totalPdfs = pdfs?.length || 0
     const lastCrawled = pdfs?.[0]?.crawled_at || null
     const thisWeekPdfs = pdfs?.filter(p => p.crawled_at >= weekAgo).length || 0
-    const pdfErrors = pdfs?.filter(p => p.status !== 'stored').length || 0
+    const pdfErrors = pdfs?.filter(p => !['stored', 'parsed'].includes(p.status)).length || 0
     const categoryPdfs: Record<string, number> = {}
     pdfs?.forEach(p => { categoryPdfs[p.category_name] = (categoryPdfs[p.category_name] || 0) + 1 })
 
     setDashData({
       totalAgents, newAgentsThisMonth, planBreakdown,
-      totalChannels, totalVideos, doneVideos, pendingVideos, errorVideos, thisWeekVideos,
+      totalChannels, totalVideos: totalVideos || 0, doneVideos: doneVideos || 0, pendingVideos: pendingVideos || 0, errorVideos: errorVideos || 0, thisWeekVideos,
       totalPdfs, lastCrawled, thisWeekPdfs, pdfErrors, categoryPdfs,
     })
     setDashLoading(false)
