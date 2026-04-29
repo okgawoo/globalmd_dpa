@@ -401,37 +401,26 @@ function BlockContent({ id, agent, customer, localStats, reportData, editContent
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <div className={styles.agentCardBiz}>
             <div className={styles.agentCardAccent} />
-            <div style={{ display: 'flex', height: '100%' }}>
-
-              {/* 왼쪽: 아바타 — 카드 세로 중앙 */}
-              <div style={{ width: 110, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <div style={{ width: 76, height: 76, borderRadius: '50%', background: '#5E6AD2', color: 'white', fontSize: 30, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', gap: 20, height: '100%', alignItems: 'center' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                <div style={{ width: 58, height: 58, borderRadius: '50%', background: '#5E6AD2', color: 'white', fontSize: 24, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {agent.name?.[0] || 'A'}
                 </div>
+                <div style={{ fontSize: 17, fontWeight: 700, color: '#1A1A2E' }}>{agent.name || '설계사'}</div>
+                <div style={{ fontSize: 13, color: '#8892A0' }}>{agent.settings?.title || '보험 컨설턴트'}</div>
+                {agent.settings?.company && <div style={{ fontSize: 12, color: '#B0B8C4' }}>{agent.settings.company}</div>}
               </div>
-
-              {/* 구분선 */}
-              <div style={{ width: 1, background: '#E5E7EB', margin: '20px 0', flexShrink: 0 }} />
-
-              {/* 오른쪽: 이름·직함·소속 + 연락처 */}
-              <div style={{ flex: 1, padding: '18px 16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                <div>
-                  <div style={{ fontSize: 18, fontWeight: 700, color: '#1A1A2E', marginBottom: 3 }}>{agent.name || '설계사'}</div>
-                  <div style={{ fontSize: 13, color: '#636B78' }}>
-                    {agent.settings?.title || '보험 컨설턴트'}
-                    {agent.settings?.company && <span style={{ color: '#B0B8C4' }}> · {agent.settings.company}</span>}
-                  </div>
-                </div>
-                <div style={{ fontSize: 13, color: '#636B78', lineHeight: 1.75 }}>
+              <div style={{ width: 1, height: '60%', background: '#E5E7EB', flexShrink: 0 }} />
+              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 5 }}>
+                <div style={{ fontSize: 14, color: '#636B78', lineHeight: 1.8 }}>
                   {agent.phone         && <div>📞 {agent.phone}</div>}
                   {agent.settings?.fax && <div>📠 {agent.settings.fax}</div>}
                   {agent.email         && <div>✉ {agent.email}</div>}
-                  {agent.settings?.sns?.kakao     && <div>💬 {agent.settings.sns.kakao}</div>}
-                  {agent.settings?.sns?.instagram && <div>📸 {agent.settings.sns.instagram}</div>}
+                  {agent.sns?.kakao     && <div>💬 {agent.sns.kakao}</div>}
+                  {agent.sns?.instagram && <div>📸 {agent.sns.instagram}</div>}
                 </div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#5E6AD2', letterSpacing: '0.05em' }}>iPlanner</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#5E6AD2', marginTop: 4, letterSpacing: '0.04em' }}>iPlanner</div>
               </div>
-
             </div>
           </div>
         </div>
