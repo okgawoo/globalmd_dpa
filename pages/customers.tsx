@@ -1374,7 +1374,7 @@ export default function Customers() {
       {/* 재입력 모달 */}
       {reentryOpen && (
         <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.5)',zIndex:500,display:'flex',alignItems:'center',justifyContent:'center',padding:'20px'}} onClick={() => setReentryOpen(false)}>
-          <div style={{background:'white',borderRadius:16,width:'100%',maxWidth:1040,height:'88vh',display:'flex',flexDirection:'column',boxSizing:'border-box',boxShadow:'0 20px 60px rgba(0,0,0,0.2)'}} onClick={e => e.stopPropagation()}>
+          <div style={{background:'white',borderRadius:16,width:'100%',maxWidth:1040,maxHeight:'88vh',minHeight:'60vh',display:'flex',flexDirection:'column',boxSizing:'border-box',boxShadow:'0 20px 60px rgba(0,0,0,0.2)'}} onClick={e => e.stopPropagation()}>
             {/* 헤더 */}
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'18px 24px',borderBottom:'1px solid #E5E7EB',flexShrink:0}}>
               <div style={{fontSize:16,fontWeight:700,color:'#1A1A2E'}}>보험 재입력 — {selected?.name}</div>
@@ -1439,11 +1439,11 @@ export default function Customers() {
                     </button>
                   )}
                 </div>
-                {!reentryReplaceId && (
-                  <div style={{padding:'8px 12px',borderRadius:8,background:'#F0F1FC',border:'1px solid #D0D3F0',fontSize:12,color:'#5E6AD2',fontWeight:500}}>
-                    새 계약 추가 모드 — 아래에서 교체할 계약을 선택할 수 있어요
-                  </div>
-                )}
+                <div style={{padding:'8px 12px',borderRadius:8,background:reentryReplaceId?'#FEF3E2':'#F0F1FC',border:`1px solid ${reentryReplaceId?'#FCD34D':'#D0D3F0'}`,fontSize:12,color:reentryReplaceId?'#92400E':'#5E6AD2',fontWeight:500}}>
+                  {reentryReplaceId
+                    ? `교체 모드 — 분석 후 저장하면 이 계약이 교체돼요`
+                    : `새 계약 추가 모드 — 교체할 계약이 있으면 아래에서 선택하세요`}
+                </div>
                 {selectedContracts.length === 0 ? (
                   <div style={{fontSize:12,color:'#8892A0',padding:'6px 0'}}>등록된 계약이 없어요</div>
                 ) : (
