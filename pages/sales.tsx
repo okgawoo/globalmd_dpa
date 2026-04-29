@@ -315,7 +315,7 @@ export default function Sales() {
             <BarChart layout="vertical" data={typeData} margin={{ left: 80, right: 80, top: 0, bottom: 0 }}>
               <XAxis type="number" hide />
               <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: '#636B78' }} axisLine={false} tickLine={false} width={80} />
-              <Tooltip formatter={(v: any, n: string) => [n === 'count' ? `${v}건` : `${Math.round((v as number) / 10000)}만원`, n === 'count' ? '계약 수' : '월보험료']} />
+              <Tooltip formatter={(v: any, n: any) => [n === 'count' ? `${v}건` : `${Math.round((v as number) / 10000)}만원`, n === 'count' ? '계약 수' : '월보험료']} />
               <Bar dataKey="count" fill="#5E6AD2" radius={[0, 4, 4, 0]}
                 label={{ position: 'right', fontSize: 11, fill: '#636B78', formatter: (v: any) => `${v}건` }} />
             </BarChart>
