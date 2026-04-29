@@ -1381,7 +1381,7 @@ export default function Customers() {
           <div style={{background:'white',borderRadius:16,width:'100%',maxWidth:1040,maxHeight:'88vh',minHeight:'60vh',display:'flex',flexDirection:'column',boxSizing:'border-box',boxShadow:'0 20px 60px rgba(0,0,0,0.2)'}} onClick={e => e.stopPropagation()}>
             {/* 헤더 */}
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'18px 24px',borderBottom:'1px solid #E5E7EB',flexShrink:0}}>
-              <div style={{fontSize:16,fontWeight:700,color:'#1A1A2E'}}>보험 재입력 — {selected?.name}</div>
+              <div style={{fontSize:16,fontWeight:700,color:'#1A1A2E'}}>보험 재입력 - {selected?.name} 고객</div>
               <button onClick={() => { setReentryOpen(false); setReentryAddMode(false); setReentryReplaceId(null) }} style={{background:'none',border:'none',fontSize:20,color:'#8892A0',cursor:'pointer',lineHeight:1,padding:0}}>✕</button>
             </div>
             {/* 2열 본문 */}
