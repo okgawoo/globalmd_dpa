@@ -1492,18 +1492,28 @@ export default function Customers() {
                         {!isSelected && <button onClick={async (e) => { e.stopPropagation(); await deleteContract(ct.id, e as any); if (isSelected) setReentryReplaceId(null) }} style={{fontSize:11,padding:'3px 8px',borderRadius:4,border:'1px solid #FECACA',background:'#FEF2F2',color:'#DC2626',cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>삭제</button>}
                       </div>
                       {/* 분석 결과 or 에러 — 선택 계약 바로 아래 */}
-                      {isSelected && reentryParsed && reentryParsed.contracts?.[0] && (
-                        <div style={{padding:'14px',background:'#F7F8FA',borderRadius:8,border:'1px solid #E5E7EB',marginTop:8,animation:'reentryFadeIn 0.3s ease'}}>
-                          <div style={{fontSize:12,fontWeight:600,color:'#5E6AD2',marginBottom:4}}>분석 완료</div>
-                          <div style={{fontSize:13,color:'#1A1A2E',marginBottom:2}}>{reentryParsed.contracts[0].company} · {reentryParsed.contracts[0].product_name}</div>
-                          <div style={{fontSize:12,color:'#636B78',marginBottom:10}}>{reentryParsed.contracts[0].monthly_fee>0?`${reentryParsed.contracts[0].monthly_fee.toLocaleString()}원/월 · `:''}{reentryParsed.contracts[0].coverages?.length||0}개 보장항목</div>
-                          <div style={{display:'flex',justifyContent:'flex-end'}}>
-                            <button onClick={handleRentrySave} disabled={reSaving} style={{padding:'10px 24px',borderRadius:8,border:'none',background:reSaving?'#E5E7EB':'#5E6AD2',color:reSaving?'#8892A0':'white',fontSize:14,fontWeight:600,cursor:reSaving?'not-allowed':'pointer'}}>
-                              {reSaving ? '저장 중...' : '교체 저장'}
-                            </button>
+                      {isSelected && reentryParsed && reentryParsed.contracts?.[0] && (() => {
+                        const isDiff = reentryParsed.contracts[0].company && ct.company && reentryParsed.contracts[0].company !== ct.company
+                        return (
+                          <div style={{padding:'14px',background:'#F7F8FA',borderRadius:8,border:`1px solid ${isDiff?'#F59E0B':'#E5E7EB'}`,marginTop:8,animation:'reentryFadeIn 0.3s ease'}}>
+                            <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:4}}>
+                              <div style={{fontSize:12,fontWeight:600,color:'#5E6AD2'}}>분석 완료</div>
+                              {isDiff && (
+                                <div style={{fontSize:11,fontWeight:600,color:'#B45309',background:'#FEF3E2',border:'1px solid #FCD34D',borderRadius:4,padding:'1px 7px'}}>
+                                  선택 계약과 다른 상품이에요
+                                </div>
+                              )}
+                            </div>
+                            <div style={{fontSize:13,color:'#1A1A2E',marginBottom:2}}>{reentryParsed.contracts[0].company} · {reentryParsed.contracts[0].product_name}</div>
+                            <div style={{fontSize:12,color:'#636B78',marginBottom:10}}>{reentryParsed.contracts[0].monthly_fee>0?`${reentryParsed.contracts[0].monthly_fee.toLocaleString()}원/월 · `:''}{reentryParsed.contracts[0].coverages?.length||0}개 보장항목</div>
+                            <div style={{display:'flex',justifyContent:'flex-end'}}>
+                              <button onClick={handleRentrySave} disabled={reSaving} style={{padding:'10px 24px',borderRadius:8,border:'none',background:reSaving?'#E5E7EB':'#5E6AD2',color:reSaving?'#8892A0':'white',fontSize:14,fontWeight:600,cursor:reSaving?'not-allowed':'pointer'}}>
+                                {reSaving ? '저장 중...' : '교체 저장'}
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )
+                      })()}
                       {isSelected && reentryParsed && !reentryParsed.contracts?.[0] && (
                         <div style={{padding:'10px 14px',background:'#F7F8FA',borderRadius:8,border:'1px solid #E5E7EB',fontSize:13,color:'#636B78',marginTop:8,animation:'reentryFadeIn 0.3s ease'}}>
                           계약 정보를 인식하지 못했어요. 텍스트를 확인 후 다시 시도해 주세요.
