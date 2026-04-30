@@ -157,6 +157,7 @@ export default function Consultations() {
 
   /* Popup — 0:closed 1:820px(기본) 2:+리포트패널 */
   const [popupStage, setPopupStage]       = useState<0 | 1 | 2>(0)
+  const [popupTall, setPopupTall]         = useState(false)
   const [popupRightTab, setPopupRightTab] = useState<'coverage' | 'history' | 'report'>('coverage')
   const [expandedContractIds, setExpandedContractIds] = useState<string[]>([])
 
@@ -326,7 +327,7 @@ export default function Consultations() {
   }
 
   function closePopup() {
-    setPopupStage(0); setEditId(null)
+    setPopupStage(0); setPopupTall(false); setEditId(null)
     setForm({ ...EMPTY_FORM }); setCustSearch('')
     setEditNoteId(null); setPopupMeetings([])
     setSelectedReportId(null)
@@ -714,7 +715,7 @@ export default function Consultations() {
         <div className={styles.popupOverlay} onClick={closePopup}>
           <div
             ref={popupRef}
-            className={[styles.popup, popupStage === 2 ? styles.popupStage2 : ''].join(' ')}
+            className={[styles.popup, popupStage === 2 ? styles.popupStage2 : (popupTall ? styles.popupTall : '')].join(' ')}
             style={{ position: 'relative' }}
             onClick={e => e.stopPropagation()}
           >
@@ -913,17 +914,20 @@ export default function Consultations() {
 
             {/* ═══ 2열: 보장내역 / 상담이력 ═══ */}
             <div className={styles.popupRight}>
+              <div className={styles.popupHeader}>
+                <span className={styles.popupTitle}>상담 현황</span>
+              </div>
               <div className={styles.popupRightTabs}>
                 <button
-                  className={[styles.popupRightTab, popupRightTab === 'coverage' ? styles.popupRightTabActive : ''].join(' ')}
-                  onClick={() => { setPopupRightTab('coverage') }}>보장 내역</button>
+                  className={[styles.popupRightTab, popupRightTab === 'coverage' && popupStage === 1 ? styles.popupRightTabActive : ''].join(' ')}
+                  onClick={() => { setPopupRightTab('coverage'); setPopupStage(1) }}>보장 내역</button>
                 <button
-                  className={[styles.popupRightTab, popupRightTab === 'history' ? styles.popupRightTabActive : ''].join(' ')}
-                  onClick={() => { setPopupRightTab('history') }}>상담 이력</button>
+                  className={[styles.popupRightTab, popupRightTab === 'history' && popupStage === 1 ? styles.popupRightTabActive : ''].join(' ')}
+                  onClick={() => { setPopupRightTab('history'); setPopupStage(1) }}>상담 이력</button>
                 <button
                   className={[styles.popupRightTab, popupStage === 2 ? styles.popupRightTabActive : ''].join(' ')}
                   onClick={async () => {
-                    setPopupRightTab('history'); setPopupStage(2)
+                    setPopupRightTab('history'); setPopupStage(2); setPopupTall(true)
                     const custId = form.customer_id
                     if (!custId) return
                     setReportFetching(true)
