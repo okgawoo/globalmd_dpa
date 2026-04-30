@@ -549,6 +549,15 @@ export default function ReportPage() {
               {loading ? '⏳ AI 분석 중...' : '✨ AI 분석 생성'}
             </button>
             <button
+              type="button"
+              className={styles.previewBtn}
+              onClick={() => setModalOpen(true)}
+              disabled={!reportData}
+            >
+              🖨 PDF 미리보기
+            </button>
+            <button
+              type="button"
               className={styles.saveBtn}
               onClick={saveReport}
               disabled={!reportData || saving}
@@ -556,13 +565,6 @@ export default function ReportPage() {
               {saving ? '저장 중...' : '💾 리포트 저장'}
             </button>
             {savedAt && <span className={styles.savedAt}>✓ {savedAt} 저장됨</span>}
-            <button
-              className={styles.previewBtn}
-              onClick={() => setModalOpen(true)}
-              disabled={!reportData}
-            >
-              🖨 PDF 미리보기
-            </button>
           </div>
         </div>
       </div>
