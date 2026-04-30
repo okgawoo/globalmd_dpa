@@ -348,8 +348,8 @@
   box-shadow: 0 24px 64px rgba(0,0,0,0.18);
   display: grid;
   grid-template-columns: 360px 360px 0px;
-  height: 85vh;
-  max-height: 85vh;
+  height: auto;
+  max-height: min(640px, calc(100vh - 48px));
   overflow: hidden;
   transition: grid-template-columns 0.35s ease;
   position: relative;
