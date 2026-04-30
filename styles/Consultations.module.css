@@ -98,10 +98,12 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   grid-template-rows: auto;
-  grid-auto-rows: 136px;
+  grid-auto-rows: 1fr;
   gap: 0;
   border-top: 1px solid #E5E7EB;
   border-left: 1px solid #E5E7EB;
+  flex: 1;
+  min-height: 0;
 }
 .calDayHeader {
   font-size: 11px; font-weight: 600;
@@ -116,7 +118,7 @@
 .calCell {
   border-right: 1px solid #E5E7EB;
   border-bottom: 1px solid #E5E7EB;
-  min-height: 136px;
+  min-height: 0;
   padding: 6px 6px 4px;
   box-sizing: border-box;
   background: #ffffff;
@@ -580,7 +582,13 @@
 .popupRightBody { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; scrollbar-gutter: stable; }
 .popupRightBody::-webkit-scrollbar { width: 6px; }
 .popupRightBody::-webkit-scrollbar-track { background: transparent; margin-top: 8px; }
-.popupRightBody::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 3px; }
+.popupRightBody::-webkit-scrollbar-thumb { background: #E5E7EB; border-radius: 3px; }
+
+/* 우측 패널 스크롤바 */
+.rightPanelCard::-webkit-scrollbar { width: 5px; }
+.rightPanelCard::-webkit-scrollbar-track { background: transparent; }
+.rightPanelCard::-webkit-scrollbar-thumb { background: #E5E7EB; border-radius: 3px; }
+.rightPanelCard::-webkit-scrollbar-thumb:hover { background: #D1D5DB; }
 
 /* Empty state */
 .emptyState {
