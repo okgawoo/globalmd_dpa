@@ -8,7 +8,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// 솔라피 API 설정
+// SMS API 설정
 const SOLAPI_API_KEY = process.env.SOLAPI_API_KEY!;
 const SOLAPI_API_SECRET = process.env.SOLAPI_API_SECRET!;
 const SOLAPI_API_URL = 'https://api.solapi.com/messages/v4/send';
@@ -137,7 +137,7 @@ export default async function handler(
     const fromNumber = agent.phone.replace(/-/g, '');
     const toNumber = to.replace(/-/g, '');
 
-    // 4. 솔라피 API로 SMS 발송
+    // 4. SMS API로 발송
     const { authorization } = generateSignature();
 
     const solapiResponse = await fetch(SOLAPI_API_URL, {

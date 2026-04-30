@@ -40,7 +40,7 @@ export default async function handler(
     const cleanPhone = phone.replace(/-/g, '');
     const { authorization } = generateSignature();
 
-    // 솔라피 발신번호 등록 API 호출
+    // 발신번호 등록 API 호출
     const solapiRes = await fetch('https://api.solapi.com/senderid/v1/numbers', {
       method: 'POST',
       headers: {

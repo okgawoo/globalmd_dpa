@@ -88,8 +88,8 @@ function generateDelegationHTML(data: any): string {
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>${pdfStyle}</style></head><body>
   <h1>발신번호 위임장</h1>
   <p>□ 용 도 : 발신번호 사전등록</p>
-  <p>□ 제 출 처 : ㈜솔라피</p>
-  <p>□ 위임내용 : 고객(위임하는 사람)은 ㈜솔라피에서의 발신번호 사전등록 업무 권한 및 발신번호 이용 권한을 대리인에게 위임합니다.</p>
+  <p>□ 제 출 처 : SMS 서비스사</p>
+  <p>□ 위임내용 : 고객(위임하는 사람)은 SMS 서비스사에서의 발신번호 사전등록 업무 권한 및 발신번호 이용 권한을 대리인에게 위임합니다.</p>
   <div class="section">
     <h2 style="margin-top:0">□ 위탁자 정보 (위임하는 사람)</h2>
     <table>
@@ -205,7 +205,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       to: ADMIN_EMAIL,
       subject: `[주식회사 글로벌엠디] 발신번호 등록 신청 - ${auth.agent_name} (${getTodayShort()})`,
       html: `
-        <p>안녕하세요, 솔라피 담당자님.</p>
+        <p>안녕하세요, 담당자님.</p>
         <p>주식회사 글로벌엠디에서 운영 중인 DPA 서비스의 발신번호 등록을 요청드립니다.</p>
         <br/>
         <h3>📋 등록 요청 정보</h3>

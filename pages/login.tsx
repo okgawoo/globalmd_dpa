@@ -38,6 +38,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [planOpen, setPlanOpen] = useState(false)
 
   async function handleLogin() {
     if (!loginId || !loginPw) return setError('아이디와 비밀번호를 입력해주세요.')
@@ -177,75 +178,62 @@ export default function Login() {
               <label>아이디 *</label>
               <input placeholder="사용할 아이디 입력 (영문/숫자)" value={form.username} onChange={e => setForm({ ...form, username: e.target.value.replace(/[^a-zA-Z0-9]/g, "") })} autoCapitalize="none" />
             </div>
-            <div className={styles.field}>
-              <label>비밀번호 *</label>
-              <input type="password" placeholder="6자리 이상" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
-            </div>
-            <div className={styles.field}>
-              <label>비밀번호 확인 *</label>
-              <input type="password" placeholder="다시 입력" value={form.password2} onChange={e => setForm({ ...form, password2: e.target.value })} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div className={styles.field}>
+                <label>비밀번호 *</label>
+                <input type="password" placeholder="6자리 이상" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
+              </div>
+              <div className={styles.field}>
+                <label>비밀번호 확인 *</label>
+                <input type="password" placeholder="다시 입력" value={form.password2} onChange={e => setForm({ ...form, password2: e.target.value })} />
+              </div>
             </div>
 
             <div className={styles.sectionLabel}>기본 정보</div>
-            <div className={styles.field}>
-              <label>이름 *</label>
-              <input placeholder="홍길동" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div className={styles.field}>
+                <label>이름 *</label>
+                <input placeholder="홍길동" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
+              </div>
+              <div className={styles.field}>
+                <label>이메일 *</label>
+                <input type="email" placeholder="example@email.com" value={form.personal_email} onChange={e => setForm({ ...form, personal_email: e.target.value })} autoCapitalize="none" inputMode="email" />
+              </div>
             </div>
-            <div className={styles.field}>
-              <label>이메일 *</label>
-              <input
-                type="email"
-                placeholder="example@email.com"
-                value={form.personal_email}
-                onChange={e => setForm({ ...form, personal_email: e.target.value })}
-                autoCapitalize="none"
-                inputMode="email"
-              />
-            </div>
-            <div className={styles.field}>
-              <label>휴대폰 *</label>
-              <input placeholder="010-0000-0000" value={form.phone} onChange={e => setForm({ ...form, phone: formatPhone(e.target.value) })} inputMode="numeric" />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div className={styles.field}>
+                <label>휴대폰 *</label>
+                <input placeholder="010-0000-0000" value={form.phone} onChange={e => setForm({ ...form, phone: formatPhone(e.target.value) })} inputMode="numeric" />
+              </div>
+              <div className={styles.field}>
+                <label>카카오톡 아이디 (선택)</label>
+                <input placeholder="kakao_id" value={form.kakao_id} onChange={e => setForm({ ...form, kakao_id: e.target.value })} />
+              </div>
             </div>
             <div className={styles.field}>
               <label>주소</label>
               <input placeholder="서울시 강남구..." value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} />
             </div>
-            <div className={styles.field}>
-              <label>카카오톡 아이디 (선택)</label>
-              <input placeholder="kakao_id" value={form.kakao_id} onChange={e => setForm({ ...form, kakao_id: e.target.value })} />
-            </div>
 
             <div className={styles.sectionLabel}>설계사 인증</div>
-            <div className={styles.field}>
-              <label>주민번호 앞 7자리 *</label>
-              <div style={{display:'flex', alignItems:'center', gap:6}}>
-                <input
-                  placeholder="850101"
-                  value={form.resident_front}
-                  onChange={e => setForm({ ...form, resident_front: e.target.value.replace(/\D/g, '').slice(0, 6) })}
-                  inputMode="numeric"
-                  maxLength={6}
-                  style={{flex:1}}
-                />
-                <span style={{fontSize:16, color:'#6B7280', fontWeight:600}}>-</span>
-                <input
-                  placeholder="1"
-                  value={form.resident_back1}
-                  onChange={e => setForm({ ...form, resident_back1: e.target.value.replace(/\D/g, '').slice(0, 1) })}
-                  inputMode="numeric"
-                  maxLength={1}
-                  style={{width:52}}
-                />
-                <span style={{fontSize:13, color:'#9CA3AF'}}>●●●●●●</span>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div className={styles.field}>
+                <label>주민번호 앞 7자리 *</label>
+                <div style={{display:'flex', alignItems:'center', gap:6}}>
+                  <input placeholder="850101" value={form.resident_front} onChange={e => setForm({ ...form, resident_front: e.target.value.replace(/\D/g, '').slice(0, 6) })} inputMode="numeric" maxLength={6} style={{flex:1}} />
+                  <span style={{fontSize:16, color:'#6B7280', fontWeight:600}}>-</span>
+                  <input placeholder="1" value={form.resident_back1} onChange={e => setForm({ ...form, resident_back1: e.target.value.replace(/\D/g, '').slice(0, 1) })} inputMode="numeric" maxLength={1} style={{width:52}} />
+                  <span style={{fontSize:13, color:'#9CA3AF'}}>●●●●●●</span>
+                </div>
+                <span className={styles.fieldHint}>문자발송 본인인증에 사용됩니다</span>
               </div>
-              <span className={styles.fieldHint}>솔라피 본인인증에 사용됩니다</span>
+              <div className={styles.field}>
+                <label>설계사 등록번호 (선택)</label>
+                <input placeholder="보험설계사 등록번호" value={form.agent_number} onChange={e => setForm({ ...form, agent_number: e.target.value })} />
+                <span className={styles.fieldHint}>e-클린보험서비스에서 확인 가능해요</span>
+              </div>
             </div>
-            <div className={styles.field}>
-              <label>설계사 등록번호 (선택)</label>
-              <input placeholder="보험설계사 등록번호" value={form.agent_number} onChange={e => setForm({ ...form, agent_number: e.target.value })} />
-              <span className={styles.fieldHint}>e-클린보험서비스에서 확인 가능해요</span>
-            </div>
-            <div className={styles.field}>
+            <div className={styles.field} style={{ marginTop: 8 }}>
               <label>자격증 사진 (선택)</label>
               <label className={styles.photoLabel} htmlFor="license_photo">
                 {preview ? (
@@ -265,17 +253,44 @@ export default function Login() {
               * 회원가입 신청 후 관리자 승인이 완료되면 로그인 가능해요.
             </div>
 
-            <div className={styles.sectionLabel}>요금제 선택</div>
-            <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:16}}>
-              {PLANS.map(p => (
-                <label key={p.value} onClick={() => setForm({...form, plan_type: p.value})} style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:8,border:`2px solid ${form.plan_type===p.value?'#5E6AD2':'#E5E7EB'}`,background:form.plan_type===p.value?'#EEF2FF':'#fff',cursor:'pointer'}}>
-                  <input type="radio" name="plan" value={p.value} checked={form.plan_type===p.value} onChange={() => setForm({...form, plan_type: p.value})} style={{accentColor:'#5E6AD2'}} />
-                  <div>
-                    <div style={{fontSize:13,fontWeight:600,color:form.plan_type===p.value?'#5E6AD2':'#111'}}>{p.label}</div>
-                    <div style={{fontSize:11,color:'#6B7280'}}>{p.desc}</div>
-                  </div>
-                </label>
-              ))}
+            {/* 요금제 선택 — 아코디언 */}
+            <div>
+              <button type="button" onClick={() => setPlanOpen(v => !v)} style={{
+                display:'flex', alignItems:'center', justifyContent:'space-between',
+                width:'100%', background:'none', border:'none', padding:'6px 0',
+                cursor:'pointer', borderTop:'1px solid #F3F4F6',
+              }}>
+                <span style={{fontSize:13,fontWeight:700,color:'#5E6AD2',textTransform:'uppercase',letterSpacing:'0.8px'}}>
+                  요금제 선택
+                </span>
+                <span style={{fontSize:12,color:'#8892A0',display:'flex',alignItems:'center',gap:6}}>
+                  <span style={{fontSize:11,background:'#FEF3C7',color:'#92400E',padding:'2px 7px',borderRadius:999,fontWeight:600}}>데모기간 중 자동 적용</span>
+                  <span style={{transition:'transform 0.2s',display:'inline-block',transform:planOpen?'rotate(180deg)':'rotate(0deg)'}}>▼</span>
+                </span>
+              </button>
+              {planOpen && (
+                <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginTop:10, marginBottom:4}}>
+                  {PLANS.map(p => {
+                    const isDemo = p.value === 'demo'
+                    const disabled = !isDemo
+                    return (
+                      <label key={p.value} onClick={() => !disabled && setForm({...form, plan_type: p.value})}
+                        style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:8,
+                          border:`2px solid ${form.plan_type===p.value?'#5E6AD2':'#E5E7EB'}`,
+                          background:disabled?'#F3F4F6':form.plan_type===p.value?'#EEF2FF':'#fff',
+                          cursor:disabled?'not-allowed':'pointer',opacity:disabled?0.5:1}}>
+                        <input type="radio" name="plan" value={p.value} checked={form.plan_type===p.value}
+                          onChange={() => !disabled && setForm({...form, plan_type: p.value})}
+                          disabled={disabled} style={{accentColor:'#5E6AD2'}} />
+                        <div>
+                          <div style={{fontSize:13,fontWeight:600,color:form.plan_type===p.value?'#5E6AD2':'#111'}}>{p.label}</div>
+                          <div style={{fontSize:11,color:'#6B7280'}}>{p.desc}</div>
+                        </div>
+                      </label>
+                    )
+                  })}
+                </div>
+              )}
             </div>
             <button className={styles.submitBtn} onClick={handleRegister} disabled={loading}>
               {loading ? '신청 중...' : '회원가입 신청'}

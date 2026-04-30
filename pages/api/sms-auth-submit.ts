@@ -97,8 +97,8 @@ function generateDelegationHTML(data: any): string {
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>${pdfStyle}</style></head><body>
   <h1>발신번호 위임장</h1>
   <p>□ 용 도 : 발신번호 사전등록</p>
-  <p>□ 제 출 처 : ㈜솔라피</p>
-  <p>□ 위임내용 : 고객(위임하는 사람)은 ㈜솔라피에서의 발신번호 사전등록 업무 권한 및 발신번호 이용 권한을 대리인에게 위임합니다.</p>
+  <p>□ 제 출 처 : SMS 서비스사</p>
+  <p>□ 위임내용 : 고객(위임하는 사람)은 SMS 서비스사에서의 발신번호 사전등록 업무 권한 및 발신번호 이용 권한을 대리인에게 위임합니다.</p>
   <div class="section">
     <h2 style="margin-top:0">□ 위탁자 정보 (위임하는 사람)</h2>
     <table>
@@ -163,7 +163,7 @@ function generateContractHTML(data: any): string {
 }
 
 
-// 솔라피 제출용 위임장 (공식 양식)
+// SMS 서비스사 제출용 위임장 (공식 양식)
 function generateSolapiDelegationHTML(data: any): string {
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>${pdfStyle}
     .solapi-logo { font-size: 28px; font-weight: 900; color: #4A60FF; margin-bottom: 20px; }
@@ -173,9 +173,9 @@ function generateSolapiDelegationHTML(data: any): string {
   <div class="solapi-logo">S solapi</div>
   <h1>발신번호 위임장</h1>
   <p>□ 용 도 : 발신번호 사전등록</p>
-  <p>□ 제 출 처 : ㈜솔라피</p>
+  <p>□ 제 출 처 : SMS 서비스사</p>
   <p>□ 위임내용 :</p>
-  <p style="margin-left:12px">고객(위임하는 사람)은(는) ㈜솔라피에서의 발신번호 사전등록 업무 권한 및 발신번호 이용 권한을 대리인에게 위임합니다.</p>
+  <p style="margin-left:12px">고객(위임하는 사람)은(는) SMS 서비스사에서의 발신번호 사전등록 업무 권한 및 발신번호 이용 권한을 대리인에게 위임합니다.</p>
   <div class="section" style="margin-top:16px">
     <h2 style="margin-top:0">□ 위탁자 정보(위임하는 사람)</h2>
     <table>
@@ -205,7 +205,7 @@ function generateSolapiDelegationHTML(data: any): string {
 </body></html>`
 }
 
-// 솔라피 제출용 위임관계증명서 (공식 예시 기반 상세 버전)
+// SMS 서비스사 제출용 위임관계증명서 (공식 예시 기반 상세 버전)
 function generateSolapiContractHTML(data: any): string {
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>${pdfStyle}</style></head><body>
   <h1>개인정보처리 위탁 계약서</h1>
@@ -305,7 +305,7 @@ async function sendSlackNotification(data: any) {
         {
           type: 'context',
           elements: [
-            { type: 'mrkdwn', text: `✅ Gmail로 서류 3개 발송 완료 → 솔라피(cs@solapi.com) 제출 필요` }
+            { type: 'mrkdwn', text: `✅ Gmail로 서류 3개 발송 완료 → SMS 서비스사 제출 필요` }
           ]
         }
       ]
@@ -327,7 +327,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const delegationPdf = await generatePDF(generateDelegationHTML(pdfData))
     const contractPdf = await generatePDF(generateContractHTML(pdfData))
 
-    // 솔라피 제출용 2개 (이메일 첨부)
+    // 서비스사 제출용 2개 (이메일 첨부)
     const solapiDelegationPdf = await generatePDF(generateSolapiDelegationHTML(pdfData))
     const solapiContractPdf = await generatePDF(generateSolapiContractHTML(pdfData))
 
@@ -353,7 +353,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD }
     })
 
-    // 솔라피 제출용 이메일 발송 (위임장 + 위임관계증명서 + 사업자등록증 + 통신서비스 이용증명원)
+    // 이메일 발송 (위임장 + 위임관계증명서 + 사업자등록증 + 통신서비스 이용증명원)
     const bizLicenseUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/company-docs/bizlicense.jpg`
     const bizLicenseRes = await fetch(bizLicenseUrl)
     const bizLicenseBuffer = Buffer.from(await bizLicenseRes.arrayBuffer())

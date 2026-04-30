@@ -190,7 +190,7 @@ export default function SettingsPage() {
     alert('저장되었습니다 😊')
   }
 
-  // 발신번호 등록 (솔라피 API)
+  // 발신번호 등록 (SMS API)
   async function registerSender() {
     if (!senderPhone.trim()) { setRegisterError('발신번호를 입력해주세요.'); return }
     setRegisteringPhone(true)

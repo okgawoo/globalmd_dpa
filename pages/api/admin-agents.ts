@@ -27,7 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // 전체 설계사 목록 조회
   const { data: agents } = await supabaseAdmin
     .from('dpa_agents')
-    .select('id, name, email, phone, status, plan_type, slug, created_at')
+    .select('id, name, email, phone, status, plan_type, slug, created_at, demo_started_at, demo_expires_at')
     .order('created_at', { ascending: false })
 
   // 전체 발신번호 신청 목록 조회

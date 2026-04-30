@@ -115,6 +115,8 @@ export default function AdminPage() {
   const [resending, setResending] = useState<string | null>(null)
   const [resendResult, setResendResult] = useState<Record<string, string>>({})
   const [agentList, setAgentList] = useState<any[]>([])
+  const [agentSubTab, setAgentSubTab] = useState<'전체' | '데모' | '일반'>('전체')
+  const [planChanging, setPlanChanging] = useState<string | null>(null)
 
   useEffect(() => {
     checkUser()
@@ -400,6 +402,15 @@ export default function AdminPage() {
     if (!session) return
     const res = await fetch('/api/admin-agents', { headers: { 'Authorization': `Bearer ${session.access_token}` } })
     if (res.ok) { const data = await res.json(); setAgentList(data.agents || []); setSmsAuthList(data.smsAuthList || []) }
+  }
+
+  async function changeAgentPlan(agentId: string, newPlan: string) {
+    setPlanChanging(agentId)
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { setPlanChanging(null); return }
+    await supabase.from('dpa_agents').update({ plan_type: newPlan }).eq('id', agentId)
+    await fetchAgentList()
+    setPlanChanging(null)
   }
 
   async function resendSmsAuthDocs(auth: any) {
@@ -835,49 +846,96 @@ export default function AdminPage() {
           {/* 설계사 목록 */}
           <div className={styles.card}>
             <div className={styles.cardHeader}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <p className={styles.cardTitle}>설계사 목록</p>
-                <span style={{ fontSize: 13, color: '#8892A0' }}>총 {agentList.length}명</span>
+                {/* 서브탭 */}
+                {(['전체', '데모', '일반'] as const).map(tab => {
+                  const count = tab === '전체' ? agentList.length : tab === '데모' ? agentList.filter(a => a.plan_type === 'demo').length : agentList.filter(a => a.plan_type !== 'demo').length
+                  return (
+                    <button key={tab} onClick={() => setAgentSubTab(tab)} style={{
+                      padding: '4px 12px', borderRadius: 6, border: '1px solid',
+                      borderColor: agentSubTab === tab ? '#5E6AD2' : (isDark ? 'rgba(255,255,255,0.12)' : '#E5E7EB'),
+                      background: agentSubTab === tab ? '#EEF2FF' : 'transparent',
+                      color: agentSubTab === tab ? '#5E6AD2' : (isDark ? '#9CA3AF' : '#636B78'),
+                      fontSize: 12, fontWeight: agentSubTab === tab ? 700 : 500, cursor: 'pointer',
+                    }}>
+                      {tab} <span style={{ opacity: 0.7 }}>{count}</span>
+                    </button>
+                  )
+                })}
               </div>
               <button className={styles.refreshBtn} onClick={fetchAgentList}>새로고침</button>
             </div>
-            {agentList.length === 0 ? (
-              <p style={{ padding: 40, textAlign: 'center', fontSize: 14, color: '#8892A0' }}>설계사가 없습니다</p>
-            ) : (
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead><tr>
-                  {['이름', '이메일', '연락처', '요금제', '상태', '가입일'].map(h => <th key={h} className={styles.th}>{h}</th>)}
-                </tr></thead>
-                <tbody>
-                  {agentList.map(agent => (
-                    <tr key={agent.id}>
-                      <td style={tdStyle({ fontWeight: 600 })}>{agent.name}</td>
-                      <td style={tdStyle({ color: '#636B78' })}>{agent.email}</td>
-                      <td style={tdStyle()}>{agent.phone}</td>
-                      <td style={tdStyle()}>
-                        {badge(
-                          agent.plan_type === 'pro' ? '#5E6AD2' : agent.plan_type === 'standard' ? '#3B82F6' : agent.plan_type === 'demo' ? '#F59E0B' : '#9CA3AF',
-                          '#fff',
-                          agent.plan_type?.toUpperCase() || 'BASIC'
-                        )}
-                      </td>
-                      <td style={tdStyle()}>
-                        {badge(
-                          agent.status === 'approved' ? '#EEF2FF' : agent.status === 'pending' ? '#FEF3C7' : '#FEE2E2',
-                          agent.status === 'approved' ? '#5E6AD2' : agent.status === 'pending' ? '#92400E' : '#991B1B',
-                          agent.status === 'approved' ? '승인' : agent.status === 'pending' ? '대기' : '반려',
-                          agent.status === 'approved' ? 'rgba(94,106,210,0.2)' : agent.status === 'pending' ? 'rgba(180,83,9,0.18)' : 'rgba(220,38,38,0.15)',
-                          agent.status === 'approved' ? '#A5B0FF' : agent.status === 'pending' ? '#FCD34D' : '#F87171'
-                        )}
-                      </td>
-                      <td style={tdStyle({ color: '#636B78', whiteSpace: 'nowrap' })}>
-                        {new Date(agent.created_at).toLocaleDateString('ko-KR', { year: '2-digit', month: 'short', day: 'numeric' })}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+            {(() => {
+              const filtered = agentSubTab === '전체' ? agentList : agentSubTab === '데모' ? agentList.filter(a => a.plan_type === 'demo') : agentList.filter(a => a.plan_type !== 'demo')
+              const showDemoCol = agentSubTab !== '일반'
+              const showPlanChangeCol = agentSubTab === '데모'
+              if (filtered.length === 0) return <p style={{ padding: 40, textAlign: 'center', fontSize: 14, color: '#8892A0' }}>해당하는 설계사가 없습니다</p>
+              return (
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead><tr>
+                    {['이름', '연락처', '요금제', '상태', '가입일', ...(showDemoCol ? ['데모 만료'] : []), ...(showPlanChangeCol ? ['전환'] : [])].map(h => <th key={h} className={styles.th}>{h}</th>)}
+                  </tr></thead>
+                  <tbody>
+                    {filtered.map(agent => {
+                      const demoExpires = agent.demo_expires_at ? new Date(agent.demo_expires_at) : null
+                      const dDay = demoExpires ? Math.ceil((demoExpires.getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : null
+                      return (
+                        <tr key={agent.id}>
+                          <td style={tdStyle({ fontWeight: 600 })}>
+                            <div>{agent.name}</div>
+                            <div style={{ fontSize: 11, color: isDark ? '#9CA3AF' : '#8892A0' }}>{agent.email}</div>
+                          </td>
+                          <td style={tdStyle()}>{agent.phone}</td>
+                          <td style={tdStyle()}>
+                            {badge(
+                              agent.plan_type === 'pro' ? '#5E6AD2' : agent.plan_type === 'standard' ? '#3B82F6' : agent.plan_type === 'demo' ? '#F59E0B' : '#9CA3AF',
+                              '#fff',
+                              agent.plan_type?.toUpperCase() || 'BASIC'
+                            )}
+                          </td>
+                          <td style={tdStyle()}>
+                            {badge(
+                              agent.status === 'approved' ? '#EEF2FF' : agent.status === 'pending' ? '#FEF3C7' : '#FEE2E2',
+                              agent.status === 'approved' ? '#5E6AD2' : agent.status === 'pending' ? '#92400E' : '#991B1B',
+                              agent.status === 'approved' ? '승인' : agent.status === 'pending' ? '대기' : '반려',
+                              agent.status === 'approved' ? 'rgba(94,106,210,0.2)' : agent.status === 'pending' ? 'rgba(180,83,9,0.18)' : 'rgba(220,38,38,0.15)',
+                              agent.status === 'approved' ? '#A5B0FF' : agent.status === 'pending' ? '#FCD34D' : '#F87171'
+                            )}
+                          </td>
+                          <td style={tdStyle({ color: '#636B78', whiteSpace: 'nowrap' })}>
+                            {new Date(agent.created_at).toLocaleDateString('ko-KR', { year: '2-digit', month: 'short', day: 'numeric' })}
+                          </td>
+                          {showDemoCol && (
+                            <td style={tdStyle({ whiteSpace: 'nowrap' })}>
+                              {dDay !== null ? (
+                                <span style={{ fontSize: 12, fontWeight: 600, color: dDay <= 0 ? '#EF4444' : dDay <= 2 ? '#F59E0B' : (isDark ? '#A5B0FF' : '#5E6AD2') }}>
+                                  {dDay <= 0 ? '만료됨' : `D-${dDay}`}
+                                </span>
+                              ) : <span style={{ color: '#8892A0', fontSize: 12 }}>-</span>}
+                            </td>
+                          )}
+                          {showPlanChangeCol && (
+                            <td style={tdStyle()}>
+                              <select
+                                disabled={planChanging === agent.id}
+                                defaultValue=""
+                                onChange={e => { if (e.target.value) changeAgentPlan(agent.id, e.target.value) }}
+                                style={{ fontSize: 12, padding: '4px 8px', borderRadius: 6, border: `1px solid ${isDark ? 'rgba(255,255,255,0.12)' : '#E5E7EB'}`, background: isDark ? '#2A2A2A' : '#F9FAFB', color: isDark ? '#E8E8E8' : '#1A1A2E', cursor: 'pointer' }}>
+                                <option value="" disabled>{planChanging === agent.id ? '처리 중...' : '요금제 전환'}</option>
+                                <option value="basic">베이직</option>
+                                <option value="standard">스탠다드</option>
+                                <option value="pro">프로</option>
+                              </select>
+                            </td>
+                          )}
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              )
+            })()}
           </div>
 
           {/* 발신번호 신청 목록 */}
