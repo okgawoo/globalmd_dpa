@@ -1199,11 +1199,11 @@ export default function Consultations() {
               </div>
             </div>
 
-            {/* ═══ 3열: 고객 리포트 패널 ═══ */}
+            {/* ═══ 3열: 상담 기록 패널 ═══ */}
             <div className={styles.reportPanel}>
-              <div className={styles.reportPanelHeader}>
-                <span className={styles.reportPanelTitle}>고객 리포트</span>
-                {selectedCust && <span className={styles.reportPanelMeta}>{selectedCust.name}</span>}
+              <div className={styles.popupHeader}>
+                <span className={styles.popupTitle}>상담 기록</span>
+                {selectedCust && <span style={{ fontSize: 13, color: '#8892A0' }}>{selectedCust.name}</span>}
               </div>
               <div className={styles.reportPanelBody}>
                 {!selectedCust ? (
