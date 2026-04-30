@@ -937,7 +937,7 @@ export default function Consultations() {
                       .single()
                     setSavedReport(data || null)
                     setReportFetching(false)
-                  }}>고객 리포트</button>
+                  }}>리포트보기 →</button>
               </div>
 
               <div className={styles.popupRightBody}>
