@@ -144,8 +144,8 @@
 }
 
 .detailPanel {
-  background: hsl(var(--bg-panel));
-  border: 1px solid hsl(var(--border-default));
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
   border-radius: 8px;
   padding: 20px;
   overflow-y: auto;
@@ -362,6 +362,15 @@
 }
 .detailName { font-size: 16px; font-weight: 600; color: hsl(var(--text-primary)); }
 .detailMeta { font-size: 12px; color: hsl(var(--text-secondary)); margin-top: 2px; }
+
+/* 신상정보 회색 블록 */
+.profileBlock {
+  background: #F7F8FA;
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
 
 /* Detail header - new 3-row layout */
 .detailHeaderNew {

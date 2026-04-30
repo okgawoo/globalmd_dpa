@@ -1080,6 +1080,7 @@ export default function Customers() {
             </div>
           ) : selected ? (
             <div className={styles.slideContent}>
+              <div className={styles.profileBlock}>
               <div className={styles.detailHeaderNew}>
                 <div className={styles.detailHeaderRow1}>
                   <span className={[styles.detailTypeTag, selected.customer_type === 'prospect' ? styles.detailTypeTagProspect : styles.detailTypeTagMy].join(' ')}>
@@ -1185,6 +1186,7 @@ export default function Customers() {
                   <span className={[styles.detailInfoValue, styles.detailInfoGreen].join(' ')}>{selectedContracts.reduce((s,ct)=>s+(ct.monthly_fee||0),0).toLocaleString()}원</span>
                 </div>
               </div>
+              </div>{/* /profileBlock */}
               <div className={styles.section}>
                 보험 계약 현황
                 <button onClick={() => { setReentryOpen(true); setReentryParsed(null); setReentryTextFixed(''); setReentryTextLoss(''); setReentryReplaceId(null); setReentryAddMode(false) }} style={{marginLeft:'auto',fontSize:12,padding:'4px 12px',borderRadius:6,border:'1.5px solid #5E6AD2',background:'white',color:'#5E6AD2',cursor:'pointer',fontWeight:600,letterSpacing:0,textTransform:'none'}}>재입력</button>

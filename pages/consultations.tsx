@@ -59,6 +59,18 @@ const MEETING_TYPES = [
   { value: '불만 처리',    desc: '민원/불만 고객 응대',     color: 'hsl(0 65% 50%)' },
 ]
 const TYPE_COLOR: Record<string, string> = Object.fromEntries(MEETING_TYPES.map(t => [t.value, t.color]))
+
+const TYPE_META: Record<string, { icon: string; noteLabel: string }> = {
+  '첫 만남':      { icon: '🤝', noteLabel: '첫 만남 메모' },
+  '니즈 분석':    { icon: '🎯', noteLabel: '분석 내용' },
+  '상품 설명':    { icon: '📋', noteLabel: '제안 내용' },
+  '계약 체결':    { icon: '✍️', noteLabel: '계약 내용' },
+  '계약 후 관리': { icon: '💼', noteLabel: '관리 내용' },
+  '보험금 청구':  { icon: '🏥', noteLabel: '청구 내용' },
+  '갱신 상담':    { icon: '🔄', noteLabel: '갱신 내용' },
+  '추가 가입':    { icon: '➕', noteLabel: '제안 내용' },
+  '불만 처리':    { icon: '🛠️', noteLabel: '처리 내용' },
+}
 const STATUS_OPTIONS = ['대기', '확정', '완료', '취소']
 const DAYS_KR = ['일', '월', '화', '수', '목', '금', '토']
 const EMPTY_FORM = {
@@ -156,9 +168,11 @@ export default function Consultations() {
 
 
   /* Popup — 0:closed 1:820px(기본) 2:+리포트패널 */
-  const [popupStage, setPopupStage]       = useState<0 | 1 | 2>(0)
-  const [popupTall, setPopupTall]         = useState(false)
-  const [popupRightTab, setPopupRightTab] = useState<'coverage' | 'history' | 'report'>('coverage')
+  const [popupStage, setPopupStage]         = useState<0 | 1 | 2>(0)
+  const [popupTall, setPopupTall]           = useState(false)
+  const [popupRightTab, setPopupRightTab]   = useState<'coverage' | 'history' | 'report'>('coverage')
+  const [thirdColMode, setThirdColMode]     = useState<'report' | 'detail'>('report')
+  const [selectedConsultId, setSelectedConsultId] = useState<string | null>(null)
   const [expandedContractIds, setExpandedContractIds] = useState<string[]>([])
 
   /* 캘린더 유형 필터 */
@@ -328,6 +342,7 @@ export default function Consultations() {
 
   function closePopup() {
     setPopupStage(0); setPopupTall(false); setEditId(null)
+    setThirdColMode('report'); setSelectedConsultId(null)
     setForm({ ...EMPTY_FORM }); setCustSearch('')
     setEditNoteId(null); setPopupMeetings([])
     setSelectedReportId(null)
@@ -928,6 +943,7 @@ export default function Consultations() {
                   className={[styles.popupRightTab, popupStage === 2 ? styles.popupRightTabActive : ''].join(' ')}
                   onClick={async () => {
                     setPopupRightTab('history'); setPopupStage(2); setPopupTall(true)
+                    setThirdColMode('report'); setSelectedConsultId(null)
                     const custId = form.customer_id
                     if (!custId) return
                     setReportFetching(true)
@@ -1114,10 +1130,15 @@ export default function Consultations() {
                             ref={matchReport ? (el => { tlItemRefs.current[matchReport.id] = el }) : undefined}
                             className={[
                               styles.tlItem,
-                              popupStage === 2 && matchReport ? styles.tlItemClickable : '',
-                              isRepSelected ? styles.tlItemSelected : '',
+                              styles.tlItemClickable,
+                              selectedConsultId === t.id && thirdColMode === 'detail' ? styles.tlItemSelected : '',
                             ].join(' ')}
-                            onClick={popupStage === 2 && matchReport ? () => setSelectedReportId(matchReport.id === selectedReportId ? null : matchReport.id) : undefined}
+                            onClick={() => {
+                              setSelectedConsultId(t.id)
+                              setThirdColMode('detail')
+                              setPopupStage(2)
+                              setPopupTall(true)
+                            }}
                           >
                             <div className={styles.tlLeft}>
                               <div className={styles.tlDot} style={{
@@ -1204,47 +1225,125 @@ export default function Consultations() {
             </div>
 
             {/* ═══ 3열: 상담 기록 패널 ═══ */}
-            <div className={styles.reportPanel}>
-              <div className={styles.popupHeader}>
-                <span className={styles.popupTitle}>상담 기록</span>
-                {selectedCust && <span style={{ fontSize: 13, color: '#8892A0' }}>{selectedCust.name}고객</span>}
-              </div>
-              <div className={styles.reportPanelBody}>
-                {!selectedCust ? (
-                  <div className={styles.reportPanelEmpty}>
-                    <p>고객을 선택하면<br />리포트가 표시됩니다</p>
+            {(() => {
+              const selConsult = consultations.find((c: any) => c.id === selectedConsultId)
+              const tColor = selConsult ? (TYPE_COLOR[selConsult.meeting_type] || '#5E6AD2') : '#5E6AD2'
+              const tMeta  = selConsult ? (TYPE_META[selConsult.meeting_type] || { icon: '📋', noteLabel: '상담 내용' }) : null
+              const isDone   = selConsult?.status === '완료'
+              const isCancel = selConsult?.status === '취소'
+
+              return (
+                <div className={styles.reportPanel}>
+                  <div className={styles.popupHeader}>
+                    <span className={styles.popupTitle}>
+                      {thirdColMode === 'detail' && selConsult ? selConsult.meeting_type : '상담 기록'}
+                    </span>
+                    {selectedCust && <span style={{ fontSize: 13, color: '#8892A0' }}>{selectedCust.name}고객</span>}
                   </div>
-                ) : reportFetching ? (
-                  <div className={styles.reportPanelEmpty}>
-                    <p style={{ color: '#8892A0' }}>리포트 불러오는 중...</p>
+                  <div className={styles.reportPanelBody}>
+
+                    {/* ── 상담 상세 모드 ── */}
+                    {thirdColMode === 'detail' && selConsult ? (
+                      <div>
+                        {/* 타입 헤더 */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20, paddingBottom: 16, borderBottom: '1px solid #F0F1F3' }}>
+                          <div style={{ width: 44, height: 44, borderRadius: 12, background: tColor + '18', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>
+                            {tMeta?.icon}
+                          </div>
+                          <div>
+                            <div style={{ fontSize: 15, fontWeight: 700, color: '#1A1A2E' }}>{selConsult.meeting_type}</div>
+                            <div style={{ fontSize: 12, color: '#8892A0', marginTop: 2 }}>{selConsult.meeting_date}{selConsult.meeting_time ? ` · ${selConsult.meeting_time}` : ''}</div>
+                          </div>
+                          <div style={{ marginLeft: 'auto' }}>
+                            <span style={{
+                              fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20,
+                              background: isDone ? '#F3F4F6' : isCancel ? '#FEF2F2' : tColor + '18',
+                              color: isDone ? '#636B78' : isCancel ? '#EF4444' : tColor,
+                              border: `1px solid ${isDone ? '#E5E7EB' : isCancel ? '#FECACA' : tColor + '40'}`,
+                            }}>{selConsult.status}</span>
+                          </div>
+                        </div>
+
+                        {/* 장소 */}
+                        {selConsult.location && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, fontSize: 13, color: '#636B78' }}>
+                            <span style={{ fontSize: 15 }}>📍</span>
+                            <span>{selConsult.location}</span>
+                          </div>
+                        )}
+
+                        {/* 상담 메모 */}
+                        <div style={{ marginBottom: 20 }}>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: '#1A1A2E', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span style={{ width: 3, height: 14, background: tColor, borderRadius: 2, display: 'inline-block' }} />
+                            {tMeta?.noteLabel}
+                          </div>
+                          {selConsult.notes ? (
+                            <div style={{ fontSize: 13, color: '#3D4450', lineHeight: 1.9, background: '#F7F8FA', borderRadius: 10, padding: '14px 16px', whiteSpace: 'pre-wrap', border: '1px solid #F0F1F3' }}>
+                              {selConsult.notes}
+                            </div>
+                          ) : (
+                            <div style={{ fontSize: 13, color: '#B0B8C4', background: '#F7F8FA', borderRadius: 10, padding: '14px 16px', border: '1px solid #F0F1F3', textAlign: 'center' }}>
+                              상담 메모가 없어요
+                            </div>
+                          )}
+                        </div>
+
+                        {/* 하단 액션 */}
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <button
+                            type="button"
+                            onClick={() => { setEditNoteId(selConsult.id); setNoteText(selConsult.notes || '') }}
+                            style={{ flex: 1, padding: '9px 0', borderRadius: 8, border: `1px solid ${tColor}40`, background: tColor + '10', color: tColor, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+                          >
+                            메모 수정
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => { setSelectedConsultId(null); setThirdColMode('report') }}
+                            style={{ padding: '9px 14px', borderRadius: 8, border: '1px solid #E5E7EB', background: '#F7F8FA', color: '#636B78', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}
+                          >
+                            닫기
+                          </button>
+                        </div>
+                      </div>
+
+                    ) : /* ── AI 리포트 모드 ── */ !selectedCust ? (
+                      <div className={styles.reportPanelEmpty}>
+                        <p>고객을 선택하면<br />리포트가 표시됩니다</p>
+                      </div>
+                    ) : reportFetching ? (
+                      <div className={styles.reportPanelEmpty}>
+                        <p style={{ color: '#8892A0' }}>리포트 불러오는 중...</p>
+                      </div>
+                    ) : !savedReport ? (
+                      <div className={styles.reportPanelEmpty}>
+                        <p>저장된 리포트가 없어요</p>
+                        <p style={{ fontSize: 11, color: '#8892A0', marginTop: 6 }}>
+                          리포트 페이지에서 AI 분석 후<br />저장하면 여기에 표시됩니다
+                        </p>
+                        <a href="/report" target="_blank" style={{ marginTop: 12, display: 'inline-block', fontSize: 12, color: '#5E6AD2', textDecoration: 'underline' }}>
+                          리포트 페이지 열기 →
+                        </a>
+                      </div>
+                    ) : (
+                      <div>
+                        <div style={{ fontSize: 13, color: '#8892A0', marginBottom: 16 }}>
+                          {new Date(savedReport.updated_at).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })} 저장
+                        </div>
+                        <div style={{ zoom: 0.9, transformOrigin: 'top left' }}>
+                          <ReportPreviewDoc
+                            data={savedReport.report_data}
+                            editContent={savedReport.edit_content || {}}
+                          />
+                        </div>
+                      </div>
+                    )}
+
                   </div>
-                ) : !savedReport ? (
-                  <div className={styles.reportPanelEmpty}>
-                    <p>저장된 리포트가 없어요</p>
-                    <p style={{ fontSize: 11, color: '#8892A0', marginTop: 6 }}>
-                      리포트 페이지에서 AI 분석 후<br />저장하면 여기에 표시됩니다
-                    </p>
-                    <a href="/report" target="_blank" style={{ marginTop: 12, display: 'inline-block', fontSize: 12, color: '#5E6AD2', textDecoration: 'underline' }}>
-                      리포트 페이지 열기 →
-                    </a>
-                  </div>
-                ) : (
-                  <div>
-                    {/* 저장 시각 + 리포트 링크 */}
-                    <div style={{ fontSize: 13, color: '#8892A0', marginBottom: 16 }}>
-                      {new Date(savedReport.updated_at).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })} 저장
-                    </div>
-                    {/* 그래프 포함 전체 리포트 미리보기 */}
-                    <div style={{ zoom: 0.9, transformOrigin: 'top left' }}>
-                      <ReportPreviewDoc
-                        data={savedReport.report_data}
-                        editContent={savedReport.edit_content || {}}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
+                </div>
+              )
+            })()}
 
             {/* ── SVG 도트라인 커넥터 (2열↔3열) ── */}
             {popupStage === 2 && popupRightTab === 'history' && connLines.length > 0 && (
