@@ -32,6 +32,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const [supportOpen, setSupportOpen] = useState(false)
   const [userInfo, setUserInfo] = useState<{ email: string; initial: string } | null>(null)
   const [isNarrow, setIsNarrow] = useState<boolean | null>(null)
+  const [showSidebarTooltip, setShowSidebarTooltip] = useState(false)
   useLayoutEffect(() => {
     const check = () => setIsNarrow(window.innerWidth < 1100)
     check()
@@ -170,15 +171,45 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               <span style={{ fontSize: 16, fontWeight: 700, color: 'rgba(26,26,46,0.82)', letterSpacing: '-0.4px', lineHeight: 1, whiteSpace: 'nowrap' }}>아이플래너</span>
             </div>
           )}
-          <button
-            onClick={() => setCollapsed(v => !v)}
-            title={collapsed ? '펼치기' : '접기'}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 22, borderRadius: 5, border: 'none', background: 'transparent', color: 'var(--admin-text-sub)', cursor: 'pointer', flexShrink: 0, transition: 'all 0.1s' }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'var(--admin-hover)'; e.currentTarget.style.color = 'var(--admin-text)' }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--admin-text-sub)' }}
-          >
-            <PanelLeft style={{ width: 16, height: 16 }} />
-          </button>
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => setCollapsed(v => !v)}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: 6, border: 'none', background: 'transparent', color: 'rgba(26,26,46,0.82)', cursor: 'pointer', flexShrink: 0, transition: 'background 0.1s, color 0.1s' }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'var(--admin-hover)'; setShowSidebarTooltip(true) }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; setShowSidebarTooltip(false) }}
+            >
+              <svg
+                width="17" height="14" viewBox="0 0 19 16" fill="none"
+                stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"
+                style={{ transition: 'transform 0.2s ease', transform: collapsed ? 'scaleX(-1)' : 'scaleX(1)' }}
+              >
+                <rect x="1" y="1" width="17" height="14" rx="2" />
+                <line x1="7" y1="1" x2="7" y2="15" />
+              </svg>
+            </button>
+            {showSidebarTooltip && (
+              <div style={{
+                position: 'absolute',
+                top: '100%',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                marginTop: 7,
+                background: '#1A1A2E',
+                color: '#F0F0F8',
+                fontSize: 11,
+                fontWeight: 500,
+                padding: '4px 10px',
+                borderRadius: 6,
+                whiteSpace: 'nowrap',
+                pointerEvents: 'none',
+                zIndex: 200,
+                boxShadow: '0 2px 10px rgba(0,0,0,0.28)',
+                letterSpacing: '0.01em',
+              }}>
+                {collapsed ? '펼치기' : '접기'}
+              </div>
+            )}
+          </div>
         </div>
 
         <div style={{ height: 1, background: 'var(--admin-border)', margin: '0 12px' }} />
@@ -243,7 +274,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                       }}
                     >
                       <item.icon style={{ width: 16, height: 16, flexShrink: 0 }} />
-                      <span>{item.name}</span>
+                      {!collapsed && <span>{item.name}</span>}
                     </Link>
                   </li>
                 )
