@@ -52,7 +52,7 @@ const MEETING_TYPES = [
   { value: '니즈 분석',    desc: '고객 상황/필요 파악',      color: 'hsl(270 55% 58%)' },
   { value: '상품 설명',    desc: '보험 상품 제안/설명',      color: 'hsl(237 47% 59%)' },
   { value: '계약 체결',    desc: '청약서 작성',              color: 'hsl(0 72% 51%)' },
-  { value: '계약 후 관리', desc: '가입 후 안부/유지 관리',  color: 'hsl(168 55% 38%)' },
+  { value: '계약 후 관리', desc: '가입 후 안부/유지 관리',  color: 'hsl(25 80% 52%)' },
   { value: '보험금 청구',  desc: '사고/질병 발생 시 도움',  color: 'hsl(30 75% 52%)' },
   { value: '갱신 상담',    desc: '만기/갱신 시점 상담',     color: 'hsl(45 80% 44%)' },
   { value: '추가 가입',    desc: '기존 고객 추가 상품 제안', color: 'hsl(320 55% 55%)' },
