@@ -11,9 +11,19 @@ import Head from 'next/head'
 import { AdminProvider, useAdmin } from '../lib/AdminContext'
 
 function LayoutWrapper({ children }: { children: ReactNode }) {
-  const { isAdmin, loading } = useAdmin()
+  const { loading } = useAdmin()
+  const [isDesktop, setIsDesktop] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 769px)')
+    const update = () => setIsDesktop(mq.matches)
+    update()
+    mq.addEventListener('change', update)
+    return () => mq.removeEventListener('change', update)
+  }, [])
   if (loading) return null
-  if (isAdmin) return <AdminLayout>{children}</AdminLayout>
+  // 데스크톱: 새 아이플래너 AdminLayout 전체 사용자 적용
+  // 모바일: 기존 녹색 Layout 유지 (별도 리뉴얼 예정)
+  if (isDesktop) return <AdminLayout>{children}</AdminLayout>
   return <Layout>{children}</Layout>
 }
 

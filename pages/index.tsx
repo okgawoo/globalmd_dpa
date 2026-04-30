@@ -333,24 +333,8 @@ export default function Dashboard() {
 
   if (loading) return <div className={styles.loading}>불러오는 중...</div>
 
-  if (isAdmin) return (
-    <AdminDashboard
-      customers={customers}
-      contracts={contracts}
-      meetings={meetings}
-      agentName={agentName}
-      meetingStats={meetingStats}
-      smsStats={smsStats}
-      nearDoneCustomers={nearDoneCustomers}
-      birthdayCustomers={birthdayCustomers}
-      gapCustomers={gapCustomers}
-      expiryCustomers={expiryCustomers}
-      anniversaryCustomers={anniversaryCustomers}
-      noContactCustomers={noContactCustomers}
-      totalMonthly={totalMonthly}
-      newThisMonth={newThisMonth}
-    />
-  )
+  // 모바일은 아래 mobile 섹션이 렌더되도록 early return 제거
+  // (데스크톱은 styles.desktopDash 안에서 항상 AdminDashboard 사용)
 
   return (
     <div className={styles.wrap}>
@@ -668,9 +652,9 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ── 웹(데스크탑) ERP 대시보드 ── */}
+      {/* ── 웹(데스크탑) ERP 대시보드 — 모든 사용자에게 새 아이플래너 UI ── */}
       <div className={styles.desktopDash}>
-      {isAdmin ? (
+      {true ? (
         <AdminDashboard
           customers={customers}
           contracts={contracts}
@@ -689,7 +673,7 @@ export default function Dashboard() {
         />
       ) : (<div className={styles.webDash}>
         <div className={styles.webDash}>
-          {/* 상단 인사말 바 */}
+          {/* (구) 녹색 DPA 데스크톱 대시보드 — 더 이상 사용하지 않음, 코드만 보존 */}
           <div className={styles.webTopBar}>
             <span className={styles.webTopGreet}>
               안녕하세요, {agentName ? `${agentName} ` : ''}{agentRole === 'admin' ? '대표님' : '설계사님'}
