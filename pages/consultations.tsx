@@ -275,25 +275,21 @@ export default function Consultations() {
 
   /* Layout height — fill remaining viewport below layout top */
   useLayoutEffect(() => {
-    // 캘린더 카드 높이를 최초 1회 측정해서 고정 (월이 바뀌어도 카드 크기 불변)
-    const calEl = calCardRef.current
+    const layoutEl = layoutRef.current
+    const calEl   = calCardRef.current
     const rightEl = rightPanelRef.current
-    if (calEl && rightEl) {
-      const cardH = calEl.offsetHeight
-      calEl.style.height = `${cardH}px`
-      rightEl.style.height = `${cardH}px`
-    }
 
-    function updateLayoutH() {
-      const el = layoutRef.current
-      if (!el) return
-      const top = el.getBoundingClientRect().top
-      const h = window.innerHeight - top - 76
-      el.style.height = `${h}px`
+    function updateSizes() {
+      if (!layoutEl || !calEl || !rightEl) return
+      const top = layoutEl.getBoundingClientRect().top
+      const h   = window.innerHeight - top - 76
+      layoutEl.style.height = `${h}px`
+      calEl.style.height    = `${h}px`
+      rightEl.style.height  = `${h}px`
     }
-    updateLayoutH()
-    window.addEventListener('resize', updateLayoutH)
-    return () => window.removeEventListener('resize', updateLayoutH)
+    updateSizes()
+    window.addEventListener('resize', updateSizes)
+    return () => window.removeEventListener('resize', updateSizes)
   }, [loading])
 
   /* 고객 선택 시 계약/보장 데이터 fetch */
