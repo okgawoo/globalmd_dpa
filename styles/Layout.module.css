@@ -107,9 +107,9 @@
   /* header는 사이드바 오른쪽 전체폭 유지 */
   .header { align-self: stretch; }
   /* 콘텐츠: 큰 화면에서는 900px 중앙, 창 좁을 때는 100% 가변 */
-  .content { width: 100%; max-width: 900px; margin: 0 auto; padding: 24px 32px; }
+  .content { width: 100%; max-width: 1200px; margin: 0 auto; padding: 24px 32px; }
   /* 대시보드 페이지도 데스크톱에선 일반 content 와 동일한 중앙정렬/패딩 */
-  .contentDashboard { width: 100%; max-width: 900px; margin: 0 auto; padding: 24px 32px; display: block; }
+  .contentDashboard { width: 100%; max-width: 1200px; margin: 0 auto; padding: 24px 32px; display: block; }
   /* 사이드바 메뉴 글자 */
   .navItem { font-size: 15px; color: var(--text-secondary); }
   .navItem.active { font-size: 15px; font-weight: 600; color: #1D9E75; }
