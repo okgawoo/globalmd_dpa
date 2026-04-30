@@ -127,16 +127,13 @@ export default function Login() {
         {/* 로고 */}
         <div className={styles.logoArea}>
           <div className={styles.logoIconWrap}>
-            <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
-              <rect width="40" height="40" rx="12" fill="#1D9E75"/>
-              <path d="M10 20C10 14.477 14.477 10 20 10C25.523 10 30 14.477 30 20C30 25.523 25.523 30 20 30" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
-              <path d="M20 30C17.5 30 15 28 15 25C15 22 17 20 20 20C23 20 25 22 25 25" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
-              <circle cx="20" cy="20" r="2" fill="white"/>
-            </svg>
+            <div style={{ width: 48, height: 48, borderRadius: 14, background: 'linear-gradient(135deg, #5E6AD2, #3F48B8)', boxShadow: '0 4px 16px rgba(94,106,210,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ color: '#fff', fontSize: 26, fontWeight: 800, fontStyle: 'italic', letterSpacing: '-1px', lineHeight: 1 }}>i</span>
+            </div>
           </div>
           <div className={styles.logoTextWrap}>
             <div className={styles.logoMain}>
-              DPA <span className={styles.logoVersion}>v1.0</span>
+              아이플래너 <span className={styles.logoVersion}>DEMO</span>
             </div>
             <div className={styles.logoSub}>AI 보험 관리 자동화 플랫폼</div>
           </div>
@@ -153,7 +150,7 @@ export default function Login() {
         {success ? (
           <div style={{textAlign:'center', padding:'32px 16px'}}>
             <div style={{fontSize:48, marginBottom:16}}>✅</div>
-            <div style={{fontSize:20, fontWeight:700, color:'#1D9E75', marginBottom:8}}>가입 신청이 완료됐어요!</div>
+            <div style={{fontSize:20, fontWeight:700, color:'#5E6AD2', marginBottom:8}}>가입 신청이 완료됐어요!</div>
             <div style={{fontSize:14, color:'#6B7280', lineHeight:1.6}}>승인까지 잠시만 기다려주세요<br/>승인 완료 후 로그인 가능해요 😊</div>
             <button className={styles.submitBtn} style={{marginTop:24}} onClick={() => { setSuccess(''); setMode('login'); setForm(emptyRegForm) }}>로그인 화면으로</button>
           </div>
@@ -271,10 +268,10 @@ export default function Login() {
             <div className={styles.sectionLabel}>요금제 선택</div>
             <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:16}}>
               {PLANS.map(p => (
-                <label key={p.value} onClick={() => setForm({...form, plan_type: p.value})} style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:8,border:`2px solid ${form.plan_type===p.value?'#1D9E75':'#E5E7EB'}`,background:form.plan_type===p.value?'#E8F8F2':'#fff',cursor:'pointer'}}>
-                  <input type="radio" name="plan" value={p.value} checked={form.plan_type===p.value} onChange={() => setForm({...form, plan_type: p.value})} style={{accentColor:'#1D9E75'}} />
+                <label key={p.value} onClick={() => setForm({...form, plan_type: p.value})} style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:8,border:`2px solid ${form.plan_type===p.value?'#5E6AD2':'#E5E7EB'}`,background:form.plan_type===p.value?'#EEF2FF':'#fff',cursor:'pointer'}}>
+                  <input type="radio" name="plan" value={p.value} checked={form.plan_type===p.value} onChange={() => setForm({...form, plan_type: p.value})} style={{accentColor:'#5E6AD2'}} />
                   <div>
-                    <div style={{fontSize:13,fontWeight:600,color:form.plan_type===p.value?'#1D9E75':'#111'}}>{p.label}</div>
+                    <div style={{fontSize:13,fontWeight:600,color:form.plan_type===p.value?'#5E6AD2':'#111'}}>{p.label}</div>
                     <div style={{fontSize:11,color:'#6B7280'}}>{p.desc}</div>
                   </div>
                 </label>

@@ -112,7 +112,7 @@ a { text-decoration: none; color: inherit; }
 }
 .dpa-modal-btn-confirm {
   flex: 1; padding: 10px; border-radius: 8px;
-  border: none; background: #1D9E75;
+  border: none; background: #5E6AD2;
   color: #fff; font-size: 14px; font-weight: 700; cursor: pointer;
 }
 .dpa-modal-btn-confirm:hover { opacity: 0.9; }

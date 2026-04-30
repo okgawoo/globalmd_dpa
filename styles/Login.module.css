@@ -3,7 +3,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  background: linear-gradient(135deg, #0F4C35 0%, #1D9E75 60%, #34C98F 100%);
+  background: linear-gradient(135deg, #1E2460 0%, #5E6AD2 60%, #818CF8 100%);
   padding: 20px;
   box-sizing: border-box;
 }
@@ -30,7 +30,7 @@
 }
 .logoIconWrap {
   flex-shrink: 0;
-  filter: drop-shadow(0 4px 8px rgba(29,158,117,0.3));
+  filter: drop-shadow(0 4px 8px rgba(94,106,210,0.3));
 }
 .logoTextWrap {
   display: flex;
@@ -39,7 +39,7 @@
   gap: 4px;
 }
 .logoMain {
-  font-size: 32px;
+  font-size: 26px;
   font-weight: 900;
   color: #111827;
   letter-spacing: -1px;
@@ -51,16 +51,16 @@
 .logoVersion {
   font-size: 12px;
   font-weight: 600;
-  color: #1D9E75;
-  background: #E6F7F1;
+  color: #5E6AD2;
+  background: #EEF2FF;
   padding: 2px 7px;
   border-radius: 999px;
   letter-spacing: 0;
 }
 .logoSub {
-  font-size: 12px;
-  color: #9CA3AF;
-  font-weight: 400;
+  font-size: 13px;
+  color: #6B7280;
+  font-weight: 500;
   letter-spacing: -0.2px;
 }
 
@@ -86,7 +86,7 @@
 }
 .activeMode {
   background: #fff;
-  color: #1D9E75;
+  color: #5E6AD2;
   font-weight: 700;
   box-shadow: 0 1px 4px rgba(0,0,0,0.1);
 }
@@ -97,7 +97,7 @@
 .sectionLabel {
   font-size: 11px;
   font-weight: 700;
-  color: #1D9E75;
+  color: #5E6AD2;
   text-transform: uppercase;
   letter-spacing: 0.8px;
   padding-top: 6px;
@@ -119,7 +119,7 @@
   outline: none;
   transition: border 0.15s, background 0.15s;
 }
-.field input:focus { border-color: #1D9E75; background: #F9FAFB; box-shadow: 0 0 0 3px rgba(29,158,117,0.08); }
+.field input:focus { border-color: #5E6AD2; background: #F9FAFB; box-shadow: 0 0 0 3px rgba(94,106,210,0.08); }
 .field input:-webkit-autofill,
 .field input:-webkit-autofill:hover,
 .field input:-webkit-autofill:focus {
@@ -133,12 +133,12 @@
 .photoLabel {
   display: block;
   cursor: pointer;
-  border: 2px dashed #D1FAE5;
+  border: 2px dashed #C7D2FE;
   border-radius: 12px;
   overflow: hidden;
   transition: border-color 0.15s;
 }
-.photoLabel:hover { border-color: #1D9E75; }
+.photoLabel:hover { border-color: #5E6AD2; }
 .photoPlaceholder {
   display: flex;
   flex-direction: column;
@@ -165,7 +165,7 @@
 .submitBtn {
   width: 100%;
   padding: 14px;
-  background: linear-gradient(135deg, #1D9E75, #16875F);
+  background: linear-gradient(135deg, #5E6AD2, #4A55B8);
   color: #fff;
   border: none;
   border-radius: 10px;
@@ -174,7 +174,7 @@
   cursor: pointer;
   margin-top: 4px;
   transition: opacity 0.15s, transform 0.1s;
-  box-shadow: 0 4px 12px rgba(29,158,117,0.3);
+  box-shadow: 0 4px 12px rgba(94,106,210,0.3);
 }
 .submitBtn:hover { opacity: 0.92; transform: translateY(-1px); }
 .submitBtn:active { transform: translateY(0); }
@@ -190,9 +190,9 @@
   margin-bottom: 4px;
 }
 .successMsg {
-  background: #ECFDF5;
-  color: #065F46;
-  border: 1px solid #A7F3D0;
+  background: #EEF2FF;
+  color: #4338CA;
+  border: 1px solid #C7D2FE;
   border-radius: 8px;
   padding: 10px 14px;
   font-size: 13px;
