@@ -37,7 +37,7 @@ export default function AuthPage() {
   return (
     <>
       <Head>
-        <title>DPA</title>
+        <title>아이플래너</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <div style={{
@@ -45,7 +45,7 @@ export default function AuthPage() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #0F4C35 0%, #1D9E75 60%, #34C98F 100%)',
+        background: 'linear-gradient(135deg, #1E2460 0%, #5E6AD2 60%, #818CF8 100%)',
         padding: 20,
       }}>
         <div style={{
@@ -59,13 +59,10 @@ export default function AuthPage() {
         }}>
           {/* 로고 */}
           <div style={{ marginBottom: 28 }}>
-            <svg width="48" height="48" viewBox="0 0 40 40" fill="none" style={{ margin: '0 auto 12px', display: 'block' }}>
-              <rect width="40" height="40" rx="12" fill="#1D9E75"/>
-              <path d="M10 20C10 14.477 14.477 10 20 10C25.523 10 30 14.477 30 20C30 25.523 25.523 30 20 30" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
-              <path d="M20 30C17.5 30 15 28 15 25C15 22 17 20 20 20C23 20 25 22 25 25" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
-              <circle cx="20" cy="20" r="2" fill="white"/>
-            </svg>
-            <div style={{ fontSize: 24, fontWeight: 900, color: '#111827', letterSpacing: -1 }}>DPA</div>
+            <div style={{ width: 48, height: 48, borderRadius: 14, background: 'linear-gradient(135deg, #5E6AD2, #3F48B8)', boxShadow: '0 4px 16px rgba(94,106,210,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
+              <span style={{ color: '#fff', fontSize: 26, fontWeight: 800, fontStyle: 'italic', letterSpacing: '-1px', lineHeight: 1 }}>i</span>
+            </div>
+            <div style={{ fontSize: 24, fontWeight: 900, color: '#111827', letterSpacing: -1 }}>아이플래너</div>
             <div style={{ fontSize: 12, color: '#9CA3AF', marginTop: 4 }}>AI 보험 관리 자동화 플랫폼</div>
           </div>
 

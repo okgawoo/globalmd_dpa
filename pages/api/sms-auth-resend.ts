@@ -50,9 +50,9 @@ const pdfStyle = `
 
 function generateAgreementHTML(data: any): string {
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>${pdfStyle}</style></head><body>
-  <h1>DPA 문자 발신 서비스 이용 동의서</h1>
+  <h1>아이플래너 문자 발신 서비스 이용 동의서</h1>
   <h2>제1조 (서비스 개요)</h2>
-  <p>DPA 플랫폼은 설계사 본인 명의 휴대폰 번호로 고객에게 문자를 발송할 수 있도록 지원하는 서비스입니다.</p>
+  <p>아이플래너 플랫폼은 설계사 본인 명의 휴대폰 번호로 고객에게 문자를 발송할 수 있도록 지원하는 서비스입니다.</p>
   <h2>제2조 (개인정보 수집·이용 동의)</h2>
   <p>· 수집 항목: 이름, 생년월일, 주소, 휴대폰 번호</p>
   <p>· 수집 목적: 문자 발신번호 등록 대행 처리</p>
@@ -61,7 +61,7 @@ function generateAgreementHTML(data: any): string {
   <h2>제3조 (발신번호 등록 위임 동의)</h2>
   <p>본인 명의 번호의 발신번호 등록 업무를 <span class="label">${COMPANY.name}</span>에 위임합니다.</p>
   <p>· 사업자등록번호: ${COMPANY.bizNo}</p>
-  <p>· 이용 목적: DPA 플랫폼을 통한 보험 업무 관련 고객 문자 발송</p>
+  <p>· 이용 목적: 아이플래너 플랫폼을 통한 보험 업무 관련 고객 문자 발송</p>
   <p>· 위임 기간: 서비스 이용 기간 중</p>
   <h2>제4조 (이용 제한)</h2>
   <p>· 문자 발송은 보험 업무 목적으로만 사용해야 합니다.</p>
@@ -107,7 +107,7 @@ function generateDelegationHTML(data: any): string {
       <tr><td>수탁자명 (또는 회사명)</td><td>${COMPANY.name} (인)</td></tr>
       <tr><td>수탁자 식별번호</td><td>${COMPANY.bizNo}</td></tr>
       <tr><td>주소</td><td>${COMPANY.address}</td></tr>
-      <tr><td>발신번호 이용 목적</td><td>DPA 플랫폼을 통한 보험 업무 관련 고객 문자 발송</td></tr>
+      <tr><td>발신번호 이용 목적</td><td>아이플래너 플랫폼을 통한 보험 업무 관련 고객 문자 발송</td></tr>
       <tr><td>위탁자와의 관계</td><td>서비스 이용 계약</td></tr>
     </table>
   </div>
@@ -206,7 +206,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       subject: `[주식회사 글로벌엠디] 발신번호 등록 신청 - ${auth.agent_name} (${getTodayShort()})`,
       html: `
         <p>안녕하세요, 담당자님.</p>
-        <p>주식회사 글로벌엠디에서 운영 중인 DPA 서비스의 발신번호 등록을 요청드립니다.</p>
+        <p>주식회사 글로벌엠디에서 운영 중인 아이플래너 서비스의 발신번호 등록을 요청드립니다.</p>
         <br/>
         <h3>📋 등록 요청 정보</h3>
         <table border="1" cellpadding="8" style="border-collapse:collapse">
@@ -221,7 +221,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         <ul>
           <li>발신번호 위임장</li>
           <li>개인정보처리 위탁 계약서</li>
-          <li>DPA 서비스 이용 동의서</li>
+          <li>아이플래너 서비스 이용 동의서</li>
         </ul>
         <br/>
         <p>위 서류를 검토하시어 발신번호 등록 처리 부탁드립니다.</p>

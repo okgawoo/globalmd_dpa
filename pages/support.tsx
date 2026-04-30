@@ -79,7 +79,7 @@ const CATEGORIES_L2: Record<string, { id: string; label: string }[]> = {
 export default function SupportPage() {
   const router = useRouter()
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: '안녕하세요! DPA 고객센터입니다 😊\n무엇이 궁금하신가요?' }
+    { role: 'assistant', content: '안녕하세요! 아이플래너 고객센터입니다 😊\n무엇이 궁금하신가요?' }
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)

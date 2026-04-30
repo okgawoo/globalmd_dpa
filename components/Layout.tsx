@@ -216,7 +216,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <span /><span /><span />
           </button>
           <span className={styles.headerTitle} style={{color:'white'}}>
-            {router.pathname === '/admin' ? '관리자 페이지' : (menus.find(m => m.path === router.pathname)?.label || 'DPA')}
+            {router.pathname === '/admin' ? '관리자 페이지' : (menus.find(m => m.path === router.pathname)?.label || (isDesktop ? '아이플래너' : 'DPA'))}
           </span>
           <div style={{marginLeft:'auto', display:'flex', alignItems:'center', gap:8, paddingRight:4}}>
             {router.pathname === '/' && (

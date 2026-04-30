@@ -1,11 +1,11 @@
 {
-  "name": "DPA",
-  "short_name": "DPA",
-  "description": "보험 설계사를 위한 고객 관리 시스템",
+  "name": "아이플래너",
+  "short_name": "아이플래너",
+  "description": "AI 보험 관리 자동화 플랫폼",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FAF9F5",
-  "theme_color": "#1D9E75",
+  "theme_color": "#5E6AD2",
   "orientation": "portrait",
   "scope": "/",
   "icons": [

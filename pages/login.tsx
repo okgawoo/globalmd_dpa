@@ -298,7 +298,7 @@ export default function Login() {
           </div>
         )}
 
-        <div className={styles.footer}>made by okga · DPA v1.0</div>
+        <div className={styles.footer}>made by okga · 아이플래너 DEMO</div>
       </div>
     </div>
   )
