@@ -1203,7 +1203,7 @@ export default function Consultations() {
             <div className={styles.reportPanel}>
               <div className={styles.popupHeader}>
                 <span className={styles.popupTitle}>상담 기록</span>
-                {selectedCust && <span style={{ fontSize: 13, color: '#8892A0' }}>{selectedCust.name}</span>}
+                {selectedCust && <span style={{ fontSize: 13, color: '#8892A0' }}>{selectedCust.name}고객</span>}
               </div>
               <div className={styles.reportPanelBody}>
                 {!selectedCust ? (
