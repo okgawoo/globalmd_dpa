@@ -98,12 +98,10 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   grid-template-rows: auto;
-  grid-auto-rows: 1fr;
+  grid-auto-rows: 136px;
   gap: 0;
   border-top: 1px solid #E5E7EB;
   border-left: 1px solid #E5E7EB;
-  flex: 1;
-  min-height: 0;
 }
 .calDayHeader {
   font-size: 11px; font-weight: 600;
@@ -118,7 +116,7 @@
 .calCell {
   border-right: 1px solid #E5E7EB;
   border-bottom: 1px solid #E5E7EB;
-  min-height: 0;
+  min-height: 136px;
   padding: 6px 6px 4px;
   box-sizing: border-box;
   background: #ffffff;
