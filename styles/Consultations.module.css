@@ -309,7 +309,7 @@
 }
 .statusScheduled { background: #F3F4F6; color: #636B78; }
 .statusConfirmed { background: rgba(94, 106, 210, 0.1); color: #5E6AD2; }
-.statusDone      { background: rgba(22, 163, 74, 0.1);  color: #16a34a; }
+.statusDone      { background: #F3F4F6; color: #636B78; }
 .statusCancel    { background: rgba(220, 38, 38, 0.1);  color: #dc2626; }
 
 /* Meta (time/location) */
@@ -660,7 +660,7 @@
   padding: 2px 7px; border-radius: 999px;
 }
 .badgeBlue  { background: rgba(94, 106, 210, 0.1); color: #5E6AD2; }
-.badgeGreen { background: rgba(22, 163, 74, 0.1);  color: #16a34a; }
+.badgeGreen { background: #F3F4F6; color: #636B78; }
 .badgeWarn  { background: rgba(245, 158, 11, 0.1); color: #d97706; }
 .insTypeBadge {
   font-size: 10px; font-weight: 500;
