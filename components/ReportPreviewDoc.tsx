@@ -26,8 +26,8 @@ export function AgentCard({ agent }: { agent: any }) {
     <div className={styles.agentCardBiz} style={{ flexShrink: 0 }}>
       <div className={styles.agentCardAccent} />
       <div style={{ display: 'flex', height: '100%' }}>
-        <div style={{ width: 96, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#5E6AD2', color: 'white', fontSize: 26, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: 68, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', paddingLeft: 0, flexShrink: 0 }}>
+          <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#5E6AD2', color: 'white', fontSize: 26, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: -7 }}>
             {agent.name?.[0] || 'A'}
           </div>
         </div>
@@ -37,17 +37,16 @@ export function AgentCard({ agent }: { agent: any }) {
             <div style={{ fontSize: 15, fontWeight: 700, color: '#1A1A2E', marginBottom: 2 }}>{agent.name || '설계사'}</div>
             <div style={{ fontSize: 12, color: '#636B78' }}>
               {agent.title || '보험 컨설턴트'}
-              {agent.company && <span style={{ color: '#B0B8C4' }}> · {agent.company}</span>}
             </div>
           </div>
-          <div style={{ fontSize: 11, color: '#636B78', lineHeight: 1.8 }}>
+          <div style={{ fontSize: 12, color: '#636B78', lineHeight: 1.8 }}>
             {agent.phone && <div>📞 {agent.phone}</div>}
             {agent.fax   && <div>📠 {agent.fax}</div>}
             {agent.email && <div>✉ {agent.email}</div>}
             {agent.sns?.kakao     && <div>💬 {agent.sns.kakao}</div>}
             {agent.sns?.instagram && <div>📸 {agent.sns.instagram}</div>}
           </div>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#5E6AD2', letterSpacing: '0.05em' }}>iPlanner</div>
+          {agent.company && <div style={{ fontSize: 12, fontWeight: 700, color: '#5E6AD2', letterSpacing: '0.05em', textTransform: 'uppercase' }}>{agent.company}</div>}
         </div>
       </div>
     </div>
@@ -148,13 +147,15 @@ export function ReportPreviewDoc({
       {/* ── 섹션 1: 헤더 + 통계 + 계약 ── */}
       <div className={styles.reportHeaderRow}>
         <div>
-          <div className={styles.reportBrand}>iPlanner · Meeting Report</div>
-          <div className={styles.reportTitle}>{data.customer?.name} 고객 보험 분석</div>
+          <div className={styles.reportTitle}>{data.customer?.name} 고객님 보험 분석</div>
           <div className={styles.reportSubtitle}>
-            담당 설계사: {data.agent?.name} &nbsp;|&nbsp; {genDate}
-            {data.customer?.age ? ` | 만 ${data.customer.age}세` : ''}
-            {data.customer?.gender && data.customer.gender !== '미상' ? ` · ${data.customer.gender}` : ''}
-            {data.customer?.job && data.customer.job !== '미상' ? ` · ${data.customer.job}` : ''}
+            <div>
+              {data.customer?.age ? `만 ${data.customer.age}세` : ''}
+              {data.customer?.gender && data.customer.gender !== '미상' ? ` · ${data.customer.gender}` : ''}
+              {data.customer?.job && data.customer.job !== '미상' ? ` · ${data.customer.job}` : ''}
+            </div>
+            <div>담당 설계사: {data.agent?.name}</div>
+            <div>{genDate}</div>
           </div>
         </div>
         {data.agent && <AgentCard agent={data.agent} />}

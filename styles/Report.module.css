@@ -586,14 +586,14 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 28px;
+  margin-bottom: 20px;
   padding-bottom: 20px;
   border-bottom: 2px solid #1A1A2E;
 }
 
 .reportBrand    { font-size: 10px; font-weight: 700; color: #8892A0; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 6px; }
 .reportTitle    { font-size: 22px; font-weight: 800; color: #1A1A2E; margin-bottom: 4px; }
-.reportSubtitle { font-size: 12px; color: #636B78; }
+.reportSubtitle { font-size: 13px; color: #636B78; }
 
 /* 설계사 명함 — 에디터 명함형 (가로 비율) */
 .agentCardBiz {

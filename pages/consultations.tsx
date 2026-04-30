@@ -916,10 +916,10 @@ export default function Consultations() {
               <div className={styles.popupRightTabs}>
                 <button
                   className={[styles.popupRightTab, popupRightTab === 'coverage' ? styles.popupRightTabActive : ''].join(' ')}
-                  onClick={() => { setPopupRightTab('coverage'); setPopupStage(1) }}>보장 내역</button>
+                  onClick={() => { setPopupRightTab('coverage') }}>보장 내역</button>
                 <button
                   className={[styles.popupRightTab, popupRightTab === 'history' ? styles.popupRightTabActive : ''].join(' ')}
-                  onClick={() => { setPopupRightTab('history'); setPopupStage(1) }}>상담 이력</button>
+                  onClick={() => { setPopupRightTab('history') }}>상담 이력</button>
                 <button
                   className={[styles.popupRightTab, popupStage === 2 ? styles.popupRightTabActive : ''].join(' ')}
                   onClick={async () => {
@@ -1227,9 +1227,8 @@ export default function Consultations() {
                 ) : (
                   <div>
                     {/* 저장 시각 + 리포트 링크 */}
-                    <div style={{ fontSize: 11, color: '#8892A0', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span>{new Date(savedReport.updated_at).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })} 저장</span>
-                      <a href="/report" target="_blank" style={{ fontSize: 12, color: '#5E6AD2', textDecoration: 'underline' }}>전체 편집 →</a>
+                    <div style={{ fontSize: 13, color: '#8892A0', marginBottom: 16 }}>
+                      {new Date(savedReport.updated_at).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })} 저장
                     </div>
                     {/* 그래프 포함 전체 리포트 미리보기 */}
                     <div style={{ zoom: 0.9, transformOrigin: 'top left' }}>
