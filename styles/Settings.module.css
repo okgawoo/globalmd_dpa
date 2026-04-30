@@ -17,10 +17,10 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
-.pageTitle  { font-size: 20px; font-weight: 700; color: #1A1A2E; margin: 0 0 4px; }
-.pageSub    { font-size: 13px; color: #636B78; margin: 0; }
+.pageTitle  { font-size: 20px; font-weight: 700; color: #1A1A2E; margin: 0 0 2px; line-height: 1.3; }
+.pageSub    { font-size: 14px; color: #636B78; margin: 0; }
 .pageDate   { font-size: 13px; color: #1A1A2E; }
 
 .loading {

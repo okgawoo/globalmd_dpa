@@ -3,6 +3,7 @@ import SmsSlidePanel from '../components/SmsSlide'
 import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
 import styles from '../styles/Dashboard.module.css'
+
 import { useAdmin } from '../lib/AdminContext'
 import AdminDashboard from '../components/AdminDashboard'
 
@@ -418,28 +419,11 @@ export default function Dashboard() {
         <div className={styles.mobileCard} style={{ marginTop: 8 }}>
           <div className={styles.mobileCardHeader}>
             <span className={styles.mobileCardTitle} style={{ color: '#1D9E75' }}>오늘의 할일</span>
-            <span className={styles.mobileCardLink} onClick={(e) => { e.preventDefault(); router.push('/customers') }}>전체보기</span>
           </div>
           <div className={styles.mobileCardBody}>
           {(() => {
             // 이슈별로 그룹화
             const issueGroups = [
-              {
-                sort: '생일임박',
-                icon: '🎂',
-                label: '생일 임박',
-                items: todoItems.filter(i => i.sort === '생일임박'),
-                badgeColor: '#EF9F27',
-                badgeBg: '#FEF3E2',
-              },
-              {
-                sort: '완납임박',
-                icon: '🔥',
-                label: '완납 임박',
-                items: todoItems.filter(i => i.sort === '완납임박'),
-                badgeColor: '#E24B4A',
-                badgeBg: '#FCEBEB',
-              },
               {
                 sort: '보장공백',
                 icon: '⚠️',
@@ -455,6 +439,22 @@ export default function Dashboard() {
                 items: todoItems.filter(i => i.sort === '만기임박'),
                 badgeColor: '#7C3AED',
                 badgeBg: '#EDE9FE',
+              },
+              {
+                sort: '완납임박',
+                icon: '🔥',
+                label: '완납 임박',
+                items: todoItems.filter(i => i.sort === '완납임박'),
+                badgeColor: '#E24B4A',
+                badgeBg: '#FCEBEB',
+              },
+              {
+                sort: '생일임박',
+                icon: '🎂',
+                label: '생일 임박',
+                items: todoItems.filter(i => i.sort === '생일임박'),
+                badgeColor: '#EF9F27',
+                badgeBg: '#FEF3E2',
               },
               {
                 sort: '계약기념일',
@@ -698,27 +698,27 @@ export default function Dashboard() {
 
           {/* 1행: 통계 카드 6열 */}
           <div className={styles.webStats4}>
-            <div className={styles.webStatCard} style={{ borderTopColor: '#378ADD' }} onClick={() => router.push('/customers')}>
+            <div className={styles.webStatCard} style={{ borderTopColor: '#378ADD' }}>
               <div className={styles.webStatLabel}>총 고객</div>
               <div className={styles.webStatValue}>{customers.length}</div>
               <div className={styles.webStatSub}>마이 {myCustomers}명·관심 {prospectCustomers}명</div>
             </div>
-            <div className={styles.webStatCard} style={{ borderTopColor: '#1D4ED8' }} onClick={() => router.push('/customers?type=existing')}>
+            <div className={styles.webStatCard} style={{ borderTopColor: '#1D4ED8' }} onClick={() => router.push('/customers?tab=existing')}>
               <div className={styles.webStatLabel}>마이고객</div>
               <div className={styles.webStatValue}>{myCustomers}</div>
               <div className={styles.webStatSub}>계약 완료 고객</div>
             </div>
-            <div className={styles.webStatCard} style={{ borderTopColor: '#B45309' }} onClick={() => router.push('/customers?type=prospect')}>
+            <div className={styles.webStatCard} style={{ borderTopColor: '#B45309' }} onClick={() => router.push('/customers?tab=prospect')}>
               <div className={styles.webStatLabel}>관심고객</div>
               <div className={styles.webStatValue}>{prospectCustomers}</div>
               <div className={styles.webStatSub}>예비 가입 고객</div>
             </div>
-            <div className={styles.webStatCard} style={{ borderTopColor: '#8B5CF6' }} onClick={() => router.push('/customers')}>
+            <div className={styles.webStatCard} style={{ borderTopColor: '#8B5CF6' }} onClick={() => router.push('/customers?sort=이번달신규')}>
               <div className={styles.webStatLabel}>이번달 신규</div>
               <div className={styles.webStatValue}>{newThisMonth}</div>
               <div className={styles.webStatSub}>신규 등록 고객</div>
             </div>
-            <div className={styles.webStatCard} style={{ borderTopColor: '#1D9E75' }} onClick={() => router.push('/customers')}>
+            <div className={styles.webStatCard} style={{ borderTopColor: '#1D9E75' }}>
               <div className={styles.webStatLabel}>보험 계약</div>
               <div className={styles.webStatValue}>{contracts.length}</div>
               <div className={styles.webStatSub}>전체 계약 건수</div>
@@ -738,15 +738,14 @@ export default function Dashboard() {
                   <span className={styles.webCardAccent}></span>
                   <span className={styles.webCardTitle}>오늘의 할일</span>
                 </div>
-                <button className={styles.webCardLink} onClick={() => router.push('/customers')}>전체보기</button>
               </div>
               <div className={styles.webCardBody}>
               {(() => {
                 const issueGroups = [
-                  { sort: '생일임박', icon: '🎂', label: '생일 임박', count: birthdayCustomers.length, color: '#EF9F27', bg: '#FEF3E2' },
-                  { sort: '완납임박', icon: '🔥', label: '완납 임박', count: nearDoneCustomers.length, color: '#E24B4A', bg: '#FCEBEB' },
                   { sort: '보장공백', icon: '⚠️', label: '보장 공백', count: gapCustomers.length, color: '#E24B4A', bg: '#FCEBEB' },
                   { sort: '만기임박', icon: '📋', label: '만기 임박', count: expiryCustomers.length, color: '#7C3AED', bg: '#EDE9FE' },
+                  { sort: '완납임박', icon: '🔥', label: '완납 임박', count: nearDoneCustomers.length, color: '#E24B4A', bg: '#FCEBEB' },
+                  { sort: '생일임박', icon: '🎂', label: '생일 임박', count: birthdayCustomers.length, color: '#EF9F27', bg: '#FEF3E2' },
                   { sort: '계약기념일', icon: '🗓️', label: '계약 기념일', count: anniversaryCustomers.length, color: '#0891B2', bg: '#E0F2FE' },
                   { sort: '장기미연락', icon: '📵', label: '장기 미연락', count: noContactCustomers.length, color: '#6B7280', bg: '#F3F4F6' },
                 ]
@@ -767,7 +766,6 @@ export default function Dashboard() {
                   <span className={styles.webCardAccent}></span>
                   <span className={styles.webCardTitle}>영업일정</span>
                 </div>
-                <button className={styles.webCardLink} onClick={() => router.push('/sales?tab=meeting&sub=today')}>전체보기</button>
               </div>
               <div className={styles.webCardBody}>
               {(() => {

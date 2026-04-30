@@ -159,14 +159,9 @@ function useIsMobile() {
 
 export default function Customers() {
   const router = useRouter()
-  const [tab, setTab] = useState<Tab>(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search)
-      const t = params.get('tab')
-      if (t === 'prospect') return 'prospect'
-    }
-    return 'existing'
-  })
+  const [tab, setTab] = useState<Tab>('existing')
+  const urlTab = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('tab') : null
+  const activeTab: Tab = (urlTab === 'prospect' || urlTab === 'existing') ? urlTab : tab
   const handleTabChange = (t: Tab) => {
     setTab(t)
     router.replace({ pathname: router.pathname, query: { ...router.query, tab: t } }, undefined, { shallow: true })
@@ -181,8 +176,9 @@ export default function Customers() {
   const [selectedContracts, setSelectedContracts] = useState<any[]>([])
   const [selectedCoverages, setSelectedCoverages] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [meetings, setMeetings] = useState<any[]>([])
   const [ageFilter, setAgeFilter] = useState('연령대전체')
-  const [sortFilter, setSortFilter] = useState('최신 등록순')
+  const [sortFilter, setSortFilter] = useState('최근 등록순')
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [editMode, setEditMode] = useState(false)
@@ -202,6 +198,10 @@ export default function Customers() {
     else if (sort === '완납임박') setSortFilter('🔥 완납 임박순')
     else if (sort === '생일임박') setSortFilter('🎂 생일 임박순')
     else if (sort === '보장공백') setSortFilter('⚠️ 보장 공백순')
+    else if (sort === '이번달신규') setSortFilter('이번달 신규')
+    else if (sort === '만기임박') setSortFilter('📋 만기 임박')
+    else if (sort === '계약기념일') setSortFilter('🗓️ 계약 기념일')
+    else if (sort === '장기미연락') setSortFilter('📵 장기 미연락')
   }, [router.isReady, router.query.sort])
 
   // id 파라미터로 고객 슬라이드 자동 오픈
@@ -421,9 +421,10 @@ export default function Customers() {
 
     // customers + contracts 병렬로 불러오기
     // .limit(10000) — Supabase 기본 limit 안전장치
-    const [custsRes, contsRes] = await Promise.all([
+    const [custsRes, contsRes, meetingsRes] = await Promise.all([
       supabase.from('dpa_customers').select('*').eq('agent_id', agentId).order('created_at', { ascending: false }).limit(10000),
-      supabase.from('dpa_contracts').select('*').eq('agent_id', agentId).limit(10000)
+      supabase.from('dpa_contracts').select('*').eq('agent_id', agentId).limit(10000),
+      supabase.from('dpa_meetings').select('id, customer_id, meeting_date').eq('agent_id', agentId).limit(10000),
     ])
 
     const custs = custsRes.data || []
@@ -456,6 +457,7 @@ export default function Customers() {
     setCustomers(custs)
     setContracts(conts)
     setCoverages(covs)
+    setMeetings(meetingsRes.data || [])
     setLoading(false)
 
     if (isInitialLoad.current && window.innerWidth > 768) {
@@ -697,7 +699,7 @@ export default function Customers() {
 
   const getSortedCustomers = (list: any[]) => {
     const sorted = [...list]
-    if (sortFilter === '최신 등록순') return sorted
+    if (sortFilter === '최근 등록순') return sorted
     if (sortFilter === '오래된순') return sorted.reverse()
     if (sortFilter === '이름순') return sorted.sort((a, b) => (a.name || '').localeCompare(b.name || ''))
     if (sortFilter === '나이순') return sorted.sort((a, b) => (b.age || 0) - (a.age || 0))
@@ -763,9 +765,22 @@ export default function Customers() {
     return false
   }
 
+  const now = new Date()
+  const thisYear = now.getFullYear()
+  const thisMonth = now.getMonth()
+  const isNewThisMonth = sortFilter === '이번달 신규'
+
   const filteredCustomers = getSortedCustomers(
     customers
-      .filter(c => searchQuery ? true : (isTodoFilter || isAIFilter) ? true : c.customer_type === (tab === 'existing' ? 'existing' : 'prospect'))
+      .filter(c => {
+        if (isNewThisMonth) {
+          const d = new Date(c.created_at)
+          return d.getFullYear() === thisYear && d.getMonth() === thisMonth
+        }
+        if (searchQuery) return true
+        if (isTodoFilter || isAIFilter) return true
+        return c.customer_type === (activeTab === 'existing' ? 'existing' : 'prospect')
+      })
       .filter(c => ageFilter === '연령대전체' || getAgeGroup(c.age) === ageFilter)
       .filter(c => {
         if (!searchQuery) return true
@@ -788,6 +803,32 @@ export default function Customers() {
           const cCoverages = coverages.filter((cv: any) => cContracts.some((ct: any) => ct.id === cv.contract_id))
           const brainTypes = cCoverages.filter((cv: any) => cv.category === '뇌혈관').map((cv: any) => cv.brain_coverage_type)
           return brainTypes.length === 0 || brainTypes.every((t: string) => t === '뇌출혈')
+        }
+        if (sortFilter === '📋 만기 임박') {
+          const cContracts = contracts.filter((ct: any) => ct.customer_id === c.id && ct.payment_status !== '완납')
+          return cContracts.some((ct: any) => {
+            if (!ct.expiry_age || !c.birth_date) return false
+            const currentAge = now.getFullYear() - new Date(c.birth_date).getFullYear()
+            return ct.expiry_age <= currentAge + 1 && ct.expiry_age > currentAge
+          })
+        }
+        if (sortFilter === '🗓️ 계약 기념일') {
+          const cContracts = contracts.filter((ct: any) => ct.customer_id === c.id)
+          return cContracts.some((ct: any) => {
+            if (!ct.contract_start) return false
+            const parts = ct.contract_start.split('.')
+            return parts.length >= 2 && parseInt(parts[1]) === (now.getMonth() + 1)
+          })
+        }
+        if (sortFilter === '📵 장기 미연락') {
+          if (c.customer_type !== 'existing') return false
+          const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)
+          const custMeetings = meetings.filter((m: any) => m.customer_id === c.id)
+          if (custMeetings.length === 0) return true
+          const lastMeeting = custMeetings.reduce((latest: any, m: any) =>
+            new Date(m.meeting_date) > new Date(latest.meeting_date) ? m : latest
+          )
+          return new Date(lastMeeting.meeting_date) < ninetyDaysAgo
         }
         return true
       })
@@ -822,7 +863,7 @@ export default function Customers() {
       {/* 탭바 */}
       <div className={styles.tabBar}>
         <button
-          className={[styles.iconTab, tab === 'existing' ? styles.activeIconTab : ''].join(' ')}
+          className={[styles.iconTab, activeTab === 'existing' ? styles.activeIconTab : ''].join(' ')}
           onClick={() => { handleTabChange('existing'); setAddMode(false); setAddForm(emptyCustomerForm); setAddContracts([{company:'',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}]); closeSlide() }}
           title="마이고객"
           >
@@ -830,7 +871,7 @@ export default function Customers() {
           <span>마이고객</span>
         </button>
         <button
-          className={[styles.iconTab, tab === 'prospect' ? styles.activeIconTab : ''].join(' ')}
+          className={[styles.iconTab, activeTab === 'prospect' ? styles.activeIconTab : ''].join(' ')}
           onClick={() => { handleTabChange('prospect'); setAddMode(false); setAddForm(emptyCustomerForm); setAddContracts([{company:'',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}]); closeSlide() }}
           title="관심고객"
           >
@@ -845,7 +886,7 @@ export default function Customers() {
         </div>
         <button
           className={styles.addIconBtn}
-          onClick={() => { setAddMode(true); setSelected(null); setSlideOpen(isMobile); setAddType(tab === 'existing' ? 'existing' : 'prospect') }}
+          onClick={() => { setAddMode(true); setSelected(null); setSlideOpen(isMobile); setAddType(activeTab === 'existing' ? 'existing' : 'prospect') }}
           title="고객 추가"
         >
           <UserPlus style={{width:13,height:13}} />
@@ -859,13 +900,16 @@ export default function Customers() {
           {AGE_FILTERS.map(f => <option key={f}>{f}</option>)}
         </select>
         <select className={styles.sortFilter} value={sortFilter} onChange={e => setSortFilter(e.target.value)}>
-          {['최신 등록순','오래된순','이름순','나이순','월보험료 높은순','🎂 생일 임박순','🔥 완납 임박순','⚠️ 보장 공백순','🤖 AI추천 일정'].map(f => <option key={f}>{f}</option>)}
+          {['최근 등록순','오래된순','이번달 신규','이름순','나이순','월보험료 높은순','🔥 완납 임박순','⚠️ 보장 공백순','🎂 생일 임박순','📋 만기 임박','📵 장기 미연락','🗓️ 계약 기념일','🤖 AI추천 일정'].map(f => <option key={f}>{f}</option>)}
         </select>
         {/* 웹에서만 보이는 검색창 */}
         <div className={styles.searchBoxDesktop}>
           <Search style={{width:13,height:13,color:'hsl(var(--text-tertiary))',flexShrink:0}} />
           <input className={styles.searchInput} placeholder="검색" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
         </div>
+        <span style={{ fontSize: 12, color: '#8892A0', fontWeight: 500, whiteSpace: 'nowrap', marginLeft: 'auto', marginRight: 'calc(50% + 8px)' }}>
+          {filteredCustomers.length}명
+        </span>
       </div>
 
       {/* 모바일 검색창 토글 */}

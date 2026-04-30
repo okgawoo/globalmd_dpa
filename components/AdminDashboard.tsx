@@ -1,7 +1,7 @@
 import { ReactNode, useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { useMemo } from 'react'
-import { Wallet, Users, FileText, CreditCard, ArrowRight, UserCheck, Star, UserPlus, CalendarPlus, MessageSquare, TrendingUp, ClipboardList } from 'lucide-react'
+import { Wallet, Users, FileText, CreditCard, ArrowRight, UserCheck, Star, UserPlus, CalendarPlus, MessageSquare, TrendingUp, ClipboardList, Bot } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 
 interface Props {
@@ -194,12 +194,12 @@ export default function AdminDashboard({
   }
 
   const issues = [
-    { label: '생일 임박', count: birthdayCustomers.length, sort: '생일임박' },
     { label: '완납 임박', count: nearDoneCustomers.length, sort: '완납임박' },
     { label: '보장 공백', count: gapCustomers.length, sort: '보장공백' },
+    { label: '생일 임박', count: birthdayCustomers.length, sort: '생일임박' },
     { label: '만기 임박', count: expiryCustomers.length, sort: '만기임박' },
-    { label: '계약 기념일', count: anniversaryCustomers.length, sort: '계약기념일' },
     { label: '장기 미연락', count: noContactCustomers.length, sort: '장기미연락' },
+    { label: '계약 기념일', count: anniversaryCustomers.length, sort: '계약기념일' },
   ]
 
   const monthlyData = useMemo(() => {
@@ -246,11 +246,11 @@ export default function AdminDashboard({
 
       {/* Stat cards */}
       <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(6, minmax(0, 1fr))' }}>
-        <StatCard title="총 고객" value={String(customers.length)} sub={`마이 ${myCustomers}명 · 관심 ${prospectCustomers}명`} icon={Users} onClick={() => router.push('/customers')} />
-        <StatCard title="마이고객" value={String(myCustomers)} sub="계약 완료 고객" icon={UserCheck} onClick={() => router.push('/customers?type=existing')} />
-        <StatCard title="관심고객" value={String(prospectCustomers)} sub="예비 가입 고객" icon={Star} onClick={() => router.push('/customers?type=prospect')} />
-        <StatCard title="이번달 신규" value={String(newThisMonth)} sub="신규 등록 고객" icon={Wallet} onClick={() => router.push('/customers')} />
-        <StatCard title="보험 계약" value={String(contracts.length)} sub="전체 계약 건수" icon={FileText} onClick={() => router.push('/customers')} />
+        <StatCard title="총 고객" value={String(customers.length)} sub={`마이 ${myCustomers}명 · 관심 ${prospectCustomers}명`} icon={Users} />
+        <StatCard title="마이고객" value={String(myCustomers)} sub="계약 완료 고객" icon={UserCheck} onClick={() => router.push('/customers?tab=existing')} />
+        <StatCard title="관심고객" value={String(prospectCustomers)} sub="예비 가입 고객" icon={Star} onClick={() => router.push('/customers?tab=prospect')} />
+        <StatCard title="이번달 신규" value={String(newThisMonth)} sub="신규 등록 고객" icon={Wallet} onClick={() => router.push('/customers?sort=이번달신규')} />
+        <StatCard title="보험 계약" value={String(contracts.length)} sub="전체 계약 건수" icon={FileText} />
         <StatCard title="월납입 합계" value={fmt(totalMonthly)} sub="전체 고객 기준" icon={CreditCard} />
       </div>
 
@@ -258,7 +258,7 @@ export default function AdminDashboard({
       <div style={{ marginTop: 16, display: 'grid', gap: 16, gridTemplateColumns: 'repeat(3, 1fr)' }}>
 
         {/* 오늘의 할일 */}
-        <SectionCard title="오늘의 할일" sub="액션이 필요한 고객" onViewAll={() => router.push('/customers')}>
+        <SectionCard title="오늘의 할일" sub="액션이 필요한 고객">
           <div style={{ paddingTop: 4, paddingBottom: 4 }}>
             {issues.map(({ label, count, sort }, i) => (
               <div key={sort}>
@@ -310,7 +310,7 @@ export default function AdminDashboard({
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, height: '100%' }}>
 
           {/* 이번달 고객 상담 */}
-          <SectionCard title={`${new Date().getMonth() + 1}월 고객 상담`} sub="이번 달 상담 현황" onViewAll={() => router.push('/sales?tab=meeting')}>
+          <SectionCard title={`${new Date().getMonth() + 1}월 고객 상담`} sub="이번 달 상담 현황" onViewAll={() => router.push('/consultations')}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)' }}>
               {meetingCols.map(({ label, value }, i) => (
                 <div
@@ -331,7 +331,7 @@ export default function AdminDashboard({
           </SectionCard>
 
           {/* 영업일정 */}
-          <SectionCard title="영업일정" onViewAll={() => router.push('/sales?tab=meeting&sub=today')} scrollable style={{ flex: 1 }}>
+          <SectionCard title="영업일정" scrollable style={{ flex: 1 }}>
             {todayMeetings.length === 0 ? (
               <p style={{ padding: '16px 20px', fontSize: 14, color: '#8892A0' }}>오늘 미팅 없음</p>
             ) : (
@@ -471,7 +471,7 @@ export default function AdminDashboard({
         </div>
 
         {/* 빠른 액션 */}
-        <SectionCard title="빠른 액션" sub="자주 쓰는 메뉴" style={{ height: '100%' }}>
+        <SectionCard title="퀵 액션" sub="자주 쓰는 메뉴" style={{ height: '100%' }}>
           <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, padding: 10, gridAutoRows: '1fr' }}>
             {[
               { label: '새 고객 등록', icon: UserPlus, href: '/input' },
@@ -479,7 +479,7 @@ export default function AdminDashboard({
               { label: '문자 발송', icon: MessageSquare, href: '/notifications' },
               { label: '영업 관리', icon: TrendingUp, href: '/sales' },
               { label: '데이터 입력', icon: ClipboardList, href: '/input' },
-              { label: '고객 관리', icon: Users, href: '/customers' },
+              { label: 'AI 고객리포트', icon: Bot, href: '/report' },
             ].map(({ label, icon: Icon, href }) => (
               <button
                 key={label}

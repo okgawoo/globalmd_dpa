@@ -5,7 +5,7 @@ import SmsSlidePanel from '../components/SmsSlide'
 import { Sparkles, Users } from 'lucide-react'
 
 type ToneType = '정중' | '친근' | '애교' | '간결'
-type IssueType = 'nearDone' | 'gap' | 'birthday' | 'expiry' | 'longNoContact' | 'anniversary'
+type IssueType = 'nearDone' | 'gap' | 'birthday' | 'expiry' | 'longNoContact' | 'anniversary' | 'weddingAnniversary' | 'newThisMonth'
 
 const TONES: ToneType[] = ['정중', '친근', '애교', '간결']
 const EMOJIS = ['😊','😄','🎂','🎉','🎊','💚','📞','🙏','👍','✅','🔥','💪','⭐','🌟','❤️']
@@ -62,11 +62,13 @@ const ISSUE_CONFIG: Record<IssueType, { icon: string; label: string; desc: strin
   birthday:    { icon: '🎂', label: '생일',        desc: '7일 이내',                   color: '#0F6E56', badgeBg: '#E1F5EE', badgeColor: '#0F6E56', borderColor: '#1D9E75' },
   expiry:      { icon: '📋', label: '만기 임박',   desc: '30일 이내',                  color: '#185FA5', badgeBg: '#E6F1FB', badgeColor: '#185FA5', borderColor: '#378ADD' },
   longNoContact: { icon: '📞', label: '장기 미연락', desc: '마지막 미팅 90일 이상',    color: '#5F5E5A', badgeBg: '#F1EFE8', badgeColor: '#444441', borderColor: '#888780' },
-  anniversary: { icon: '🎉', label: '계약 기념일', desc: '1/3/5년 주기 7일 이내',      color: '#534AB7', badgeBg: '#EEEDFE', badgeColor: '#3C3489', borderColor: '#7F77DD' },
+  anniversary:        { icon: '🎉', label: '계약 기념일', desc: '1/3/5년 주기 7일 이내',  color: '#534AB7', badgeBg: '#EEEDFE', badgeColor: '#3C3489', borderColor: '#7F77DD' },
+  weddingAnniversary: { icon: '💍', label: '결혼기념일',  desc: '결혼기념일 7일 이내',      color: '#C2185B', badgeBg: '#FCE4EC', badgeColor: '#C2185B', borderColor: '#F06292' },
+  newThisMonth:       { icon: '🆕', label: '이번달 신규', desc: '이번달 신규 등록 고객',      color: '#0369A1', badgeBg: '#E0F2FE', badgeColor: '#0369A1', borderColor: '#38BDF8' },
 }
 
 // 카테고리 표시 순서 (설계사 업무 우선순위 기준)
-const ISSUE_ORDER: IssueType[] = ['gap', 'expiry', 'nearDone', 'birthday', 'anniversary', 'longNoContact']
+const ISSUE_ORDER: IssueType[] = ['nearDone', 'gap', 'birthday', 'expiry', 'longNoContact', 'anniversary', 'weddingAnniversary', 'newThisMonth']
 
 export default function NotificationsPage() {
   const [customers, setCustomers] = useState<any[]>([])
@@ -181,7 +183,7 @@ export default function NotificationsPage() {
   }
 
   // ─── 알림 데이터 계산 ───
-  const notifMap: Record<IssueType, any[]> = { nearDone: [], gap: [], birthday: [], expiry: [], longNoContact: [], anniversary: [] }
+  const notifMap: Record<IssueType, any[]> = { nearDone: [], gap: [], birthday: [], expiry: [], longNoContact: [], anniversary: [], weddingAnniversary: [], newThisMonth: [] }
 
   customers.forEach(c => {
     const cts = contracts.filter(ct => ct.customer_id === c.id)
@@ -245,6 +247,29 @@ export default function NotificationsPage() {
         }
       }
     })
+  })
+
+  // 이번달 신규 등록 고객
+  const nowDate = new Date()
+  customers.forEach(c => {
+    const d = new Date(c.created_at)
+    if (d.getFullYear() === nowDate.getFullYear() && d.getMonth() === nowDate.getMonth()) {
+      notifMap.newThisMonth.push({ id: `new-${c.id}`, customer: c, notifType: 'newThisMonth', badge: '신규' })
+    }
+  })
+
+  // 결혼기념일 (wedding_date 기준 7일 이내)
+  const today2 = new Date()
+  customers.forEach(c => {
+    if (!c.wedding_date) return
+    const wd = new Date(c.wedding_date)
+    const thisYear = today2.getFullYear()
+    const anniversary = new Date(thisYear, wd.getMonth(), wd.getDate())
+    const diffDays = Math.ceil((anniversary.getTime() - today2.getTime()) / 86400000)
+    if (diffDays >= 0 && diffDays <= 7) {
+      const years = thisYear - wd.getFullYear()
+      notifMap.weddingAnniversary.push({ id: `wedding-${c.id}`, customer: c, years, diffDays, notifType: 'weddingAnniversary', badge: `${years}주년 D-${diffDays || '당일'}` })
+    }
   })
 
   const activeNotifs = activeIssue ? notifMap[activeIssue] : []

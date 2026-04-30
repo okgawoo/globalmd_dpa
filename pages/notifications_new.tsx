@@ -4,7 +4,7 @@ import styles from '../styles/Notifications.module.css'
 import SmsSlidePanel from '../components/SmsSlide'
 
 type ToneType = '정중' | '친근' | '애교' | '간결'
-type IssueType = 'nearDone' | 'gap' | 'birthday' | 'expiry' | 'longNoContact' | 'anniversary'
+type IssueType = 'nearDone' | 'gap' | 'birthday' | 'expiry' | 'longNoContact' | 'anniversary' | 'weddingAnniversary' | 'newThisMonth'
 
 const TONES: ToneType[] = ['정중', '친근', '애교', '간결']
 const EMOJIS = ['😊','😄','🎂','🎉','🎊','💚','📞','🙏','👍','✅','🔥','💪','⭐','🌟','❤️']
@@ -57,12 +57,14 @@ function fmtDate(dateStr: string): string {
 }
 
 const ISSUE_CONFIG: Record<IssueType, { icon: string; label: string; desc: string; color: string; badgeBg: string; badgeColor: string; borderColor: string }> = {
-  nearDone:    { icon: '🔥', label: '완납 임박',   desc: '납입률 90% 이상',     color: '#BA7517', badgeBg: '#FAEEDA', badgeColor: '#854F0B', borderColor: '#BA7517' },
-  gap:         { icon: '⚠️', label: '보장 공백',  desc: '뇌혈관·허혈성·간병 미가입', color: '#A32D2D', badgeBg: '#FCEBEB', badgeColor: '#A32D2D', borderColor: '#E24B4A' },
-  birthday:    { icon: '🎂', label: '생일',        desc: '7일 이내',              color: '#0F6E56', badgeBg: '#E1F5EE', badgeColor: '#0F6E56', borderColor: '#1D9E75' },
-  expiry:      { icon: '📋', label: '만기 임박',   desc: '30일 이내',             color: '#185FA5', badgeBg: '#E6F1FB', badgeColor: '#185FA5', borderColor: '#378ADD' },
-  longNoContact: { icon: '📞', label: '장기 미연락', desc: '마지막 미팅 90일 이상', color: '#5F5E5A', badgeBg: '#F1EFE8', badgeColor: '#444441', borderColor: '#888780' },
-  anniversary: { icon: '🎉', label: '계약 기념일', desc: '1/3/5년 주기 7일 이내', color: '#534AB7', badgeBg: '#EEEDFE', badgeColor: '#3C3489', borderColor: '#7F77DD' },
+  nearDone:          { icon: '🔥', label: '완납 임박',   desc: '납입률 90% 이상',          color: '#BA7517', badgeBg: '#FAEEDA', badgeColor: '#854F0B', borderColor: '#BA7517' },
+  gap:               { icon: '⚠️', label: '보장 공백',  desc: '뇌혈관·허혈성·간병 미가입',  color: '#A32D2D', badgeBg: '#FCEBEB', badgeColor: '#A32D2D', borderColor: '#E24B4A' },
+  birthday:          { icon: '🎂', label: '생일',        desc: '7일 이내',                  color: '#0F6E56', badgeBg: '#E1F5EE', badgeColor: '#0F6E56', borderColor: '#1D9E75' },
+  expiry:            { icon: '📋', label: '만기 임박',   desc: '30일 이내',                 color: '#185FA5', badgeBg: '#E6F1FB', badgeColor: '#185FA5', borderColor: '#378ADD' },
+  longNoContact:     { icon: '📞', label: '장기 미연락', desc: '마지막 미팅 90일 이상',      color: '#5F5E5A', badgeBg: '#F1EFE8', badgeColor: '#444441', borderColor: '#888780' },
+  anniversary:       { icon: '🎉', label: '계약 기념일', desc: '1/3/5년 주기 7일 이내',     color: '#534AB7', badgeBg: '#EEEDFE', badgeColor: '#3C3489', borderColor: '#7F77DD' },
+  weddingAnniversary:{ icon: '💍', label: '결혼기념일',  desc: '결혼기념일 7일 이내',       color: '#C2185B', badgeBg: '#FCE4EC', badgeColor: '#C2185B', borderColor: '#F06292' },
+  newThisMonth:      { icon: '🆕', label: '이번달 신규', desc: '이번달 신규 등록 고객',       color: '#0369A1', badgeBg: '#E0F2FE', badgeColor: '#0369A1', borderColor: '#38BDF8' },
 }
 
 export default function NotificationsPage() {
@@ -123,7 +125,7 @@ export default function NotificationsPage() {
   }
 
   // ─── 알림 데이터 계산 ───
-  const notifMap: Record<IssueType, any[]> = { nearDone: [], gap: [], birthday: [], expiry: [], longNoContact: [], anniversary: [] }
+  const notifMap: Record<IssueType, any[]> = { nearDone: [], gap: [], birthday: [], expiry: [], longNoContact: [], anniversary: [], weddingAnniversary: [], newThisMonth: [] }
 
   customers.forEach(c => {
     const cts = contracts.filter(ct => ct.customer_id === c.id)
@@ -199,6 +201,28 @@ export default function NotificationsPage() {
     })
   })
 
+  // 이번달 신규 등록 고객
+  const nowDate = new Date()
+  customers.forEach(c => {
+    const d = new Date(c.created_at)
+    if (d.getFullYear() === nowDate.getFullYear() && d.getMonth() === nowDate.getMonth()) {
+      notifMap.newThisMonth.push({ id: `new-${c.id}`, customer: c, notifType: 'newThisMonth', badge: '신규' })
+    }
+  })
+
+  // 결혼기념일 (wedding_date 기준 7일 이내)
+  customers.forEach(c => {
+    if (!c.wedding_date) return
+    const wd = new Date(c.wedding_date)
+    const thisYear = today.getFullYear()
+    const anniversary = new Date(thisYear, wd.getMonth(), wd.getDate())
+    const diffDays = Math.ceil((anniversary.getTime() - today.getTime()) / 86400000)
+    if (diffDays >= 0 && diffDays <= 7) {
+      const years = thisYear - wd.getFullYear()
+      notifMap.weddingAnniversary.push({ id: `wedding-${c.id}`, customer: c, years, diffDays, notifType: 'weddingAnniversary', badge: `${years}주년 D-${diffDays || '당일'}` })
+    }
+  })
+
   const activeNotifs = activeIssue ? notifMap[activeIssue] : []
   const selectedNotifs = activeNotifs.filter(n => selectedIds.includes(n.id))
 
@@ -263,7 +287,7 @@ export default function NotificationsPage() {
   function startBulkSend() { setBulkIndex(0); setBulkSmsOpen(true) }
 
   // ─── PC 알림 렌더 ───
-  const allNotifs = [...notifMap.nearDone, ...notifMap.gap, ...notifMap.birthday, ...notifMap.expiry]
+  const allNotifs = [...notifMap.nearDone, ...notifMap.gap, ...notifMap.birthday, ...notifMap.expiry, ...notifMap.longNoContact, ...notifMap.anniversary, ...notifMap.weddingAnniversary, ...notifMap.newThisMonth]
   const todayNotifs = allNotifs.filter(n => ['nearDone','gap'].includes(n.notifType) || (n.notifType === 'birthday' && n.days <= 1))
   const weekNotifs = allNotifs.filter(n => !todayNotifs.includes(n))
 
@@ -427,7 +451,7 @@ export default function NotificationsPage() {
               {messages.length === 0 ? (
                 <p className={styles.recentHistoryEmpty}>아직 발송 이력이 없어요 📭</p>
               ) : messages.slice(0, 5).map((m: any) => {
-                const typeLabel: Record<string, string> = { nearDone: '완납임박', gap: '보장공백', birthday: '생일', expiry: '만기임박', longNoContact: '장기미연락', anniversary: '계약기념일', 최근미팅: '미팅후속', 최근계약: '계약감사', 일반: '일반' }
+                const typeLabel: Record<string, string> = { nearDone: '완납임박', gap: '보장공백', birthday: '생일', expiry: '만기임박', longNoContact: '장기미연락', anniversary: '계약기념일', weddingAnniversary: '결혼기념일', 최근미팅: '미팅후속', 최근계약: '계약감사', 일반: '일반' }
                 const typeCfg: Record<string, { bg: string; color: string }> = {
                   nearDone: { bg: '#FAEEDA', color: '#854F0B' }, gap: { bg: '#FCEBEB', color: '#A32D2D' },
                   birthday: { bg: '#E1F5EE', color: '#0F6E56' }, expiry: { bg: '#E6F1FB', color: '#185FA5' },
