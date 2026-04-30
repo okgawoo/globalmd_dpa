@@ -409,7 +409,6 @@ export default function InputPage() {
         }
       }
       setDone(true)
-      setTimeout(() => router.push('/customers'), 1500)
     } catch (e) { alert('저장 중 오류가 발생했어요!') }
     setSaving(false)
   }
@@ -525,7 +524,6 @@ export default function InputPage() {
         }
       }
       setDone(true)
-      setTimeout(() => router.push('/customers'), 1500)
     } catch (e) { alert('저장 중 오류가 발생했어요!') }
     setSaving(false)
   }
@@ -1054,7 +1052,7 @@ export default function InputPage() {
       )}
 
       {inputTab === 'scan' && (
-        <ScanCardTab onComplete={() => { setDone(true); setTimeout(() => router.push('/customers'), 1500) }} />
+        <ScanCardTab onComplete={() => { setDone(true) }} />
       )}
     </div>
     </div>
