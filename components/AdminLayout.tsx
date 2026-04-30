@@ -6,7 +6,7 @@ import { useConfirm } from '../lib/useConfirm'
 import {
   LayoutDashboard, FileEdit, Users, Bell, Mail,
   BarChart2, TrendingUp, Settings, LogOut, Sun, Moon, CalendarDays, ShieldCheck,
-  Headphones, X, PanelLeftClose, PanelLeftOpen,
+  Headphones, X, PanelLeft,
 } from 'lucide-react'
 
 const navItems = [
@@ -124,9 +124,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const navLinkStyle = (isActive: boolean): React.CSSProperties => ({
     display: 'flex',
     alignItems: 'center',
+    justifyContent: collapsed ? 'center' : 'flex-start',
     gap: 10,
     borderRadius: 6,
-    padding: '8px 12px',
+    padding: collapsed ? '8px 0' : '8px 12px',
     fontSize: 14,
     fontWeight: isActive ? 510 : 400,
     textDecoration: 'none',
@@ -160,50 +161,23 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         }}
       >
         {/* Logo + 접기 버튼 */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '20px 16px', position: 'relative', flexShrink: 0 }}>
-          <div
-            style={{
-              display: 'flex',
-              height: 32,
-              width: 32,
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: 8,
-              flexShrink: 0,
-              background: 'linear-gradient(135deg, #5E6AD2, #3F48B8)',
-              boxShadow: '0 2px 8px rgba(94,106,210,0.35)',
-            }}
-          >
-            <span style={{ color: '#fff', fontSize: 15, fontWeight: 800, fontStyle: 'italic', letterSpacing: '-0.5px', lineHeight: 1 }}>i</span>
-          </div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'space-between', padding: '16px 12px', flexShrink: 0 }}>
           {!collapsed && (
-            <span style={{ fontSize: 16, fontWeight: 700, color: 'rgba(26,26,46,0.82)', letterSpacing: '-0.4px', lineHeight: 1, whiteSpace: 'nowrap' }}>아이플래너</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ display: 'flex', height: 32, width: 32, alignItems: 'center', justifyContent: 'center', borderRadius: 8, flexShrink: 0, background: 'linear-gradient(135deg, #5E6AD2, #3F48B8)', boxShadow: '0 2px 8px rgba(94,106,210,0.35)' }}>
+                <span style={{ color: '#fff', fontSize: 15, fontWeight: 800, fontStyle: 'italic', letterSpacing: '-0.5px', lineHeight: 1 }}>i</span>
+              </div>
+              <span style={{ fontSize: 16, fontWeight: 700, color: 'rgba(26,26,46,0.82)', letterSpacing: '-0.4px', lineHeight: 1, whiteSpace: 'nowrap' }}>아이플래너</span>
+            </div>
           )}
           <button
             onClick={() => setCollapsed(v => !v)}
             title={collapsed ? '사이드바 펼치기' : '사이드바 접기'}
-            style={{
-              marginLeft: 'auto',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: 28,
-              height: 28,
-              borderRadius: 6,
-              border: '1px solid var(--admin-border)',
-              background: 'transparent',
-              color: 'var(--admin-text-sub)',
-              cursor: 'pointer',
-              flexShrink: 0,
-              transition: 'all 0.1s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'var(--admin-hover)' }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24, borderRadius: 4, border: 'none', background: 'transparent', color: 'var(--admin-text-sub)', cursor: 'pointer', flexShrink: 0, transition: 'all 0.1s' }}
+            onMouseEnter={e => { e.currentTarget.style.color = 'var(--admin-text)' }}
+            onMouseLeave={e => { e.currentTarget.style.color = 'var(--admin-text-sub)' }}
           >
-            {collapsed
-              ? <PanelLeftOpen style={{ width: 14, height: 14 }} />
-              : <PanelLeftClose style={{ width: 14, height: 14 }} />
-            }
+            <PanelLeft style={{ width: 16, height: 16 }} />
           </button>
         </div>
 
