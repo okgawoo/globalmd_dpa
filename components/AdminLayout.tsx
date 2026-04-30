@@ -366,15 +366,17 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               display: 'flex',
               width: '100%',
               alignItems: 'center',
+              justifyContent: collapsed ? 'center' : 'flex-start',
               gap: 10,
               borderRadius: 6,
-              padding: '8px 12px',
+              padding: collapsed ? '8px 0' : '10px 12px',
               fontSize: 14,
               color: 'rgba(26,26,46,0.82)',
-              border: 'none',
+              border: '1px solid transparent',
               background: 'transparent',
               cursor: 'pointer',
               transition: 'all 0.1s',
+              boxSizing: 'border-box',
             }}
             onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--admin-hover)' }}
             onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
