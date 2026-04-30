@@ -169,6 +169,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 <span style={{ color: '#fff', fontSize: 15, fontWeight: 800, fontStyle: 'italic', letterSpacing: '-0.5px', lineHeight: 1 }}>i</span>
               </div>
               <span style={{ fontSize: 16, fontWeight: 700, color: 'rgba(26,26,46,0.82)', letterSpacing: '-0.4px', lineHeight: 1, whiteSpace: 'nowrap' }}>아이플래너</span>
+              <span style={{ fontSize: 9, fontWeight: 700, color: '#5E6AD2', border: '1px solid #5E6AD2', borderRadius: 999, padding: '1px 5px', letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>DEMO</span>
             </div>
           )}
           <div style={{ position: 'relative' }}>

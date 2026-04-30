@@ -142,6 +142,21 @@ export default function Newsletter() {
   // 모바일 상태
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [expandedTip, setExpandedTip] = useState<number | null>(null)
+  const [isDark, setIsDark] = useState(false)
+  useEffect(() => {
+    const check = () => setIsDark(document.documentElement.getAttribute('data-theme') === 'dark')
+    check()
+    const observer = new MutationObserver(check)
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
+    return () => observer.disconnect()
+  }, [])
+  const darkTagBgMap: Record<string, string> = {
+    '#E6F7F1': 'rgba(29,158,117,0.18)',
+    '#FEF3E2': 'rgba(180,83,9,0.18)',
+    '#E6F1FB': 'rgba(24,95,165,0.18)',
+    '#FCEBEB': 'rgba(185,28,28,0.18)',
+  }
+  const getTagBg = (bg: string) => isDark ? (darkTagBgMap[bg] ?? bg) : bg
 
   // PC 상태
   const [pcWeekId, setPcWeekId] = useState<string>(NEWSLETTERS[0]?.id ?? '')
@@ -213,7 +228,7 @@ export default function Newsletter() {
                       <div className={s.articleTagRow}>
                         <span
                           className={s.articleTag}
-                          style={{ color: item.tagColor, background: item.tagBg }}
+                          style={{ color: item.tagColor, background: getTagBg(item.tagBg) }}
                         >
                           {item.tag}
                         </span>
@@ -293,7 +308,7 @@ export default function Newsletter() {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     {/* 태그 + 제목 */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 5, flexWrap: 'wrap' }}>
-                      <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 4, fontWeight: 700, color: item.tagColor, background: item.tagBg, flexShrink: 0 }}>
+                      <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 4, fontWeight: 700, color: item.tagColor, background: getTagBg(item.tagBg), flexShrink: 0 }}>
                         {item.tag}
                       </span>
                       <span style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', lineHeight: 1.4 }}>{item.title}</span>
@@ -379,7 +394,7 @@ export default function Newsletter() {
                 {/* 번호 */}
                 <span style={{ fontSize: 11, color: '#C7C7CC', width: 16, textAlign: 'center', flexShrink: 0 }}>{i + 1}</span>
                 {/* 태그 */}
-                <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 4, fontWeight: 700, color: item.tagColor, background: item.tagBg, flexShrink: 0, whiteSpace: 'nowrap' }}>
+                <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 4, fontWeight: 700, color: item.tagColor, background: getTagBg(item.tagBg), flexShrink: 0, whiteSpace: 'nowrap' }}>
                   {item.tag}
                 </span>
                 {/* 제목 */}

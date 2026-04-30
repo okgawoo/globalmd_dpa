@@ -521,6 +521,9 @@
 .detailInfoGreen { color: #5E6AD2 !important; font-weight: 700; }
 .detailPhoneLine { font-size: 13px; color: #636B78; margin-top: 2px; }
 
+/* Dark mode for detail panel */
+:root[data-theme="dark"] .detailPanel { background: #1E1E1E !important; border-color: rgba(255,255,255,0.10) !important; }
+
 /* Dark mode for detail info grid */
 :root[data-theme="dark"] .detailInfoGrid { background: #262626 !important; border-color: rgba(255,255,255,0.10) !important; }
 :root[data-theme="dark"] .detailInfoCellL { border-right-color: rgba(255,255,255,0.08) !important; border-bottom-color: rgba(255,255,255,0.08) !important; }

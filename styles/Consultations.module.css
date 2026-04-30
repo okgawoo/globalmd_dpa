@@ -904,22 +904,134 @@
 }
 
 /* ── 다크모드 ── */
+/* 페이지 */
 :root[data-theme="dark"] .page { background: #1A1A2E; }
+:root[data-theme="dark"] .pageTitle { color: #E8E8E8; }
+:root[data-theme="dark"] .pageSub   { color: #A0A0A0; }
+
+/* 카드 */
 :root[data-theme="dark"] .card,
-:root[data-theme="dark"] .rightPanelCard { background: #262626; border-color: rgba(255,255,255,0.10); }
-:root[data-theme="dark"] .calNavBtn { border-color: rgba(255,255,255,0.10); color: rgba(255,255,255,0.6); }
+:root[data-theme="dark"] .rightPanelCard { background: #1E1E1E; border-color: rgba(255,255,255,0.08); }
+
+/* 캘린더 */
+:root[data-theme="dark"] .calNavBtn { border-color: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); }
 :root[data-theme="dark"] .calNavBtn:hover { background: rgba(255,255,255,0.08); color: #fff; }
-:root[data-theme="dark"] .calTodayBtn { border-color: rgba(255,255,255,0.10); color: rgba(255,255,255,0.6); }
+:root[data-theme="dark"] .calTodayBtn { border-color: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); }
 :root[data-theme="dark"] .calMonthLabel { color: rgba(255,255,255,0.9); }
-:root[data-theme="dark"] .calGrid { border-top-color: rgba(255,255,255,0.10); border-left-color: rgba(255,255,255,0.10); }
-:root[data-theme="dark"] .calDayHeader { background: #2A2A2A; border-right-color: rgba(255,255,255,0.10); border-bottom-color: rgba(255,255,255,0.10); color: rgba(255,255,255,0.4); }
-:root[data-theme="dark"] .calCell { background: #262626; border-right-color: rgba(255,255,255,0.10); border-bottom-color: rgba(255,255,255,0.10); }
+:root[data-theme="dark"] .calGrid { border-top-color: rgba(255,255,255,0.10) !important; border-left-color: rgba(255,255,255,0.10) !important; }
+:root[data-theme="dark"] .calDayHeader { background: #2A2A2A !important; border-right-color: rgba(255,255,255,0.10) !important; border-bottom-color: rgba(255,255,255,0.10) !important; color: rgba(255,255,255,0.4) !important; }
+:root[data-theme="dark"] .calCell { background: #1E1E1E !important; border-right-color: rgba(255,255,255,0.10) !important; border-bottom-color: rgba(255,255,255,0.10) !important; }
 :root[data-theme="dark"] .calCellDay:hover:not(:has(.calEvent:hover)) { background: rgba(255,255,255,0.04); }
 :root[data-theme="dark"] .calDayNum { color: rgba(255,255,255,0.85); }
 :root[data-theme="dark"] .calDaySun { color: #F87171 !important; }
 :root[data-theme="dark"] .calDaySat { color: #60A5FA !important; }
-:root[data-theme="dark"] .calLegend { border-top-color: rgba(255,255,255,0.10); }
-:root[data-theme="dark"] .popupRightTabs { border-bottom-color: rgba(255,255,255,0.10); }
-:root[data-theme="dark"] .popupRightTab { color: #A0A0A0 !important; }
-:root[data-theme="dark"] .popupRightTab:hover { color: #C8C8C8 !important; }
-:root[data-theme="dark"] .popupRightTabActive { color: #FFFFFF !important; border-bottom-color: #5E6AD2 !important; }
+:root[data-theme="dark"] .calEventName { color: #E8E8E8; }
+:root[data-theme="dark"] .calEventMore { color: #A0A0A0; }
+:root[data-theme="dark"] .calLegend { border-bottom-color: rgba(255,255,255,0.08); }
+:root[data-theme="dark"] .calLegendLabel { color: #A0A0A0 !important; }
+:root[data-theme="dark"] .calLegendBtn { color: #C8C8C8; }
+:root[data-theme="dark"] .calLegendBtn:hover { background: rgba(255,255,255,0.06); }
+:root[data-theme="dark"] .calLegendCount { background: rgba(255,255,255,0.08); color: #A0A0A0; }
+
+/* 우측 패널 */
+:root[data-theme="dark"] .dashSectionTitle { border-bottom-color: rgba(255,255,255,0.08); }
+:root[data-theme="dark"] .dashEmptyRow { background: #1E1E1E; color: #777; }
+:root[data-theme="dark"] .dashList { background: #1E1E1E; }
+:root[data-theme="dark"] .dashItem:hover { background: rgba(255,255,255,0.04); }
+:root[data-theme="dark"] .dashCustName { color: #E8E8E8; }
+:root[data-theme="dark"] .dashItemMeta { color: #777; }
+:root[data-theme="dark"] .dashSectionDivider { background: #2A2A2A; border-top-color: rgba(255,255,255,0.08); border-bottom-color: rgba(255,255,255,0.08); }
+:root[data-theme="dark"] .weekDateHeader { color: #777; }
+
+/* 팝업 */
+:root[data-theme="dark"] .popup { background: #1E1E1E; }
+:root[data-theme="dark"] .popupLeft { border-right-color: rgba(255,255,255,0.08); }
+:root[data-theme="dark"] .popupHeader { border-bottom-color: rgba(255,255,255,0.08); }
+:root[data-theme="dark"] .popupTitle { color: #E8E8E8; }
+:root[data-theme="dark"] .popupClose { color: #777; }
+:root[data-theme="dark"] .popupClose:hover { background: rgba(255,255,255,0.06); color: #E8E8E8; }
+:root[data-theme="dark"] .popupActions { border-top-color: rgba(255,255,255,0.08); }
+:root[data-theme="dark"] .label { color: #A0A0A0; }
+
+/* 입력 필드 */
+:root[data-theme="dark"] .input,
+:root[data-theme="dark"] .textarea { background: #1A1A1A; border-color: rgba(255,255,255,0.08); color: #E8E8E8; }
+:root[data-theme="dark"] .input:focus,
+:root[data-theme="dark"] .textarea:focus { background: #222; border-color: #5E6AD2; }
+:root[data-theme="dark"] .custInput { background: #1A1A1A; border-color: rgba(255,255,255,0.08); color: #E8E8E8; }
+:root[data-theme="dark"] .custInput:focus { background: #222; border-color: #5E6AD2; }
+:root[data-theme="dark"] .custDropdown { background: #262626; border-color: rgba(255,255,255,0.08); }
+:root[data-theme="dark"] .custOption:hover { background: rgba(255,255,255,0.04); }
+:root[data-theme="dark"] .custOptionName { color: #E8E8E8; }
+:root[data-theme="dark"] .custOptionMeta { color: #777; }
+:root[data-theme="dark"] .timeSelect { background: #1A1A1A; border-color: rgba(255,255,255,0.08); color: #E8E8E8; }
+:root[data-theme="dark"] .timeColon { color: #A0A0A0; }
+:root[data-theme="dark"] .statusBtn { border-color: rgba(255,255,255,0.08); color: #A0A0A0; }
+:root[data-theme="dark"] .statusBtn:hover { background: rgba(255,255,255,0.06); }
+:root[data-theme="dark"] .cancelBtn { border-color: rgba(255,255,255,0.08); color: #A0A0A0; }
+:root[data-theme="dark"] .cancelBtn:hover { background: rgba(255,255,255,0.06); }
+
+/* 팝업 우측 */
+:root[data-theme="dark"] .popupRight { border-right-color: rgba(255,255,255,0.08); }
+:root[data-theme="dark"] .popupRightTabs { border-bottom-color: rgba(255,255,255,0.08); }
+:root[data-theme="dark"] .popupRightTab { background: #2A2A2A; border-color: rgba(255,255,255,0.08); color: #A0A0A0; }
+:root[data-theme="dark"] .popupRightTab:hover { background: #333; color: #C8C8C8; }
+:root[data-theme="dark"] .popupRightTabActive { color: #ffffff !important; }
+:root[data-theme="dark"] .popupRightBody::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); }
+
+/* 보장 패널 */
+:root[data-theme="dark"] .coverageCustCard { background: #262626; border-color: rgba(255,255,255,0.08); }
+:root[data-theme="dark"] .coverageCustName { color: #E8E8E8; }
+:root[data-theme="dark"] .coverageCustMeta { color: #A0A0A0; }
+:root[data-theme="dark"] .custInfoGrid { background: #1E1E1E; border-color: rgba(255,255,255,0.08); }
+:root[data-theme="dark"] .custInfoCellL { border-right-color: rgba(255,255,255,0.08); border-bottom-color: rgba(255,255,255,0.08); }
+:root[data-theme="dark"] .custInfoCellR { border-bottom-color: rgba(255,255,255,0.08); }
+:root[data-theme="dark"] .custInfoCellFull { border-bottom-color: rgba(255,255,255,0.08); }
+:root[data-theme="dark"] .custInfoValue { color: #E8E8E8; }
+:root[data-theme="dark"] .custInfoLabel { color: #777; }
+:root[data-theme="dark"] .insCard,
+:root[data-theme="dark"] .insCardWarn { background: #262626; border-color: rgba(255,255,255,0.08); }
+:root[data-theme="dark"] .insCardHeader { border-bottom-color: rgba(255,255,255,0.08); }
+:root[data-theme="dark"] .insCardTitle { color: #E8E8E8; }
+:root[data-theme="dark"] .insCardMeta { color: #A0A0A0; }
+:root[data-theme="dark"] .covItem { color: #C8C8C8; }
+:root[data-theme="dark"] .covLabel { color: #777; }
+:root[data-theme="dark"] .badgeGreen { background: rgba(255,255,255,0.08); color: #A0A0A0; }
+:root[data-theme="dark"] .insTypeBadge { background: rgba(255,255,255,0.08); color: #A0A0A0; }
+
+/* 타임라인 */
+:root[data-theme="dark"] .tlItemClickable:hover { background: rgba(255,255,255,0.04); }
+:root[data-theme="dark"] .tlDot { border-color: rgba(255,255,255,0.15); }
+:root[data-theme="dark"] .tlLine { background: rgba(255,255,255,0.08); }
+:root[data-theme="dark"] .tlType { color: #E8E8E8; }
+:root[data-theme="dark"] .tlMeta { color: #777; }
+:root[data-theme="dark"] .tlNote { color: #A0A0A0; }
+:root[data-theme="dark"] .tlEditBtn { color: #777; }
+:root[data-theme="dark"] .tlEditBtn:hover { background: rgba(255,255,255,0.06); color: #E8E8E8; }
+:root[data-theme="dark"] .tlNoteTextarea { background: #1A1A1A; border-color: rgba(255,255,255,0.08); color: #E8E8E8; }
+:root[data-theme="dark"] .tlNoteCancel { border-color: rgba(255,255,255,0.08); color: #A0A0A0; }
+:root[data-theme="dark"] .tlNoteCancel:hover { background: rgba(255,255,255,0.06); }
+
+/* 리포트 패널 */
+:root[data-theme="dark"] .reportPanel { background: #1E1E1E; }
+:root[data-theme="dark"] .reportPanelHeader { border-bottom-color: rgba(255,255,255,0.08); }
+:root[data-theme="dark"] .reportPanelTitle { color: #E8E8E8; }
+:root[data-theme="dark"] .reportPanelMeta  { color: #A0A0A0; }
+:root[data-theme="dark"] .reportPreviewHeader { border-bottom-color: rgba(255,255,255,0.08); }
+:root[data-theme="dark"] .reportPreviewTitle { color: #E8E8E8; }
+:root[data-theme="dark"] .reportPreviewRowValue { color: #E8E8E8; }
+:root[data-theme="dark"] .reportPreviewTdValue { color: #E8E8E8; }
+:root[data-theme="dark"] .reportList { border-bottom-color: rgba(255,255,255,0.08); }
+:root[data-theme="dark"] .reportListItem { border-bottom-color: rgba(255,255,255,0.06); }
+:root[data-theme="dark"] .reportListItem:hover { background: rgba(255,255,255,0.04); }
+:root[data-theme="dark"] .reportListLabel { color: #E8E8E8; }
+:root[data-theme="dark"] .reportListDate  { color: #777; }
+
+/* 뱃지 / 상태칩 */
+:root[data-theme="dark"] .statusScheduled { background: rgba(255,255,255,0.08) !important; color: #A0A0A0 !important; }
+:root[data-theme="dark"] .statusDone      { background: rgba(255,255,255,0.08) !important; color: #A0A0A0 !important; }
+:root[data-theme="dark"] .statusConfirmed { background: rgba(94,106,210,0.2) !important; color: #818CF8 !important; }
+:root[data-theme="dark"] .statusCancel    { background: rgba(220,38,38,0.15) !important; color: #F87171 !important; }
+:root[data-theme="dark"] .badgeBlue       { background: rgba(94,106,210,0.2) !important; color: #818CF8 !important; }
+:root[data-theme="dark"] .badgeWarn       { background: rgba(245,158,11,0.15) !important; color: #FCD34D !important; }
+:root[data-theme="dark"] .calLegendCount  { background: rgba(255,255,255,0.08) !important; color: #A0A0A0 !important; }

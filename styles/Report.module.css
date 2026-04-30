@@ -854,6 +854,58 @@
   line-height: 1.6;
 }
 
+/* ── 다크모드 ── */
+:root[data-theme="dark"] .pageTitle { color: #E8E8E8 !important; }
+:root[data-theme="dark"] .pageDesc  { color: #A0A0A0 !important; }
+
+/* 에디터 블록 카드 */
+:root[data-theme="dark"] .editorBlock { background: #1E1E1E !important; border-color: rgba(255,255,255,0.08) !important; }
+:root[data-theme="dark"] .editorBlock:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.3) !important; }
+:root[data-theme="dark"] .editorBlockHeader { background: #2A2A2A !important; border-bottom-color: rgba(255,255,255,0.08) !important; }
+:root[data-theme="dark"] .editorBlockTitle { color: #A0A0A0 !important; }
+:root[data-theme="dark"] .agentCardEditor { background: #262626 !important; border-color: rgba(255,255,255,0.08) !important; }
+:root[data-theme="dark"] .editorEmpty { background: #1E1E1E !important; background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.08) 0, rgba(255,255,255,0.08) 10px, transparent 10px, transparent 22px), repeating-linear-gradient(180deg, rgba(255,255,255,0.08) 0, rgba(255,255,255,0.08) 10px, transparent 10px, transparent 22px), repeating-linear-gradient(90deg, rgba(255,255,255,0.08) 0, rgba(255,255,255,0.08) 10px, transparent 10px, transparent 22px), repeating-linear-gradient(180deg, rgba(255,255,255,0.08) 0, rgba(255,255,255,0.08) 10px, transparent 10px, transparent 22px) !important; }
+:root[data-theme="dark"] .editorEmptyTitle { color: #E8E8E8 !important; }
+:root[data-theme="dark"] .editorEmptyDesc  { color: #777 !important; }
+
+/* 입력 필드 */
+:root[data-theme="dark"] .editableArea { background: #1A1A1A !important; border-color: rgba(255,255,255,0.08) !important; color: #E8E8E8 !important; }
+:root[data-theme="dark"] .editableArea:focus { background: #222 !important; border-color: #5E6AD2 !important; }
+:root[data-theme="dark"] .blockSkeleton { background: #262626 !important; border-color: rgba(255,255,255,0.08) !important; color: #555 !important; }
+
+/* 사이드바 */
+:root[data-theme="dark"] .sidebar { background: #1E1E1E !important; border-color: rgba(255,255,255,0.08) !important; }
+:root[data-theme="dark"] .sideSection { border-bottom-color: rgba(255,255,255,0.08) !important; }
+:root[data-theme="dark"] .sideSectionTitle { color: #E8E8E8 !important; }
+:root[data-theme="dark"] .sideActions { background: #1E1E1E !important; border-top-color: rgba(255,255,255,0.08) !important; }
+:root[data-theme="dark"] .selectedMini { background: #2A2A3A !important; border-color: rgba(94,106,210,0.3) !important; }
+:root[data-theme="dark"] .blockItem:hover { background: #2A2A2A !important; }
+:root[data-theme="dark"] .blockItemLabel { color: #C8C8C8 !important; }
+:root[data-theme="dark"] .agentOnlyLine  { background: rgba(255,255,255,0.08) !important; }
+:root[data-theme="dark"] .agentOnlyLabel { color: #777 !important; }
+:root[data-theme="dark"] .savedAt { color: #818CF8 !important; }
+
+/* 검색 & 드롭다운 */
+:root[data-theme="dark"] .searchInput { background: #1A1A1A !important; border-color: rgba(255,255,255,0.08) !important; color: #E8E8E8 !important; }
+:root[data-theme="dark"] .searchInput:focus { background: #222 !important; border-color: #5E6AD2 !important; }
+:root[data-theme="dark"] .dropdown { background: #262626 !important; border-color: rgba(255,255,255,0.08) !important; }
+:root[data-theme="dark"] .dropdownItem { color: #E8E8E8 !important; border-bottom-color: rgba(255,255,255,0.06) !important; }
+:root[data-theme="dark"] .dropdownItem:hover { background: #2A2A3A !important; }
+:root[data-theme="dark"] .dropdownMeta { color: #777 !important; }
+
+/* 명함 */
+:root[data-theme="dark"] .agentCardBiz { background: #262626 !important; border-color: rgba(255,255,255,0.08) !important; }
+:root[data-theme="dark"] .agentCard    { background: #262626 !important; border-color: rgba(255,255,255,0.08) !important; }
+:root[data-theme="dark"] .agentName    { color: #E8E8E8 !important; }
+:root[data-theme="dark"] .agentInfo    { color: #A0A0A0 !important; }
+
+/* 버튼 */
+:root[data-theme="dark"] .saveBtn { background: #2A2A3A !important; border-color: rgba(94,106,210,0.5) !important; }
+:root[data-theme="dark"] .previewBtn { background: #262626 !important; border-color: rgba(255,255,255,0.08) !important; color: #A0A0A0 !important; }
+:root[data-theme="dark"] .previewBtn:hover { border-color: #5E6AD2 !important; color: #818CF8 !important; }
+:root[data-theme="dark"] .generateBtn:disabled { background: #333 !important; color: #666 !important; }
+:root[data-theme="dark"] .aiBtn { background: #262626 !important; }
+
 /* ── 인쇄 (새 창에서 열릴 때 적용) ── */
 @media print {
   .reportDoc {
