@@ -543,14 +543,14 @@ export default function AdminPage() {
                 {[
                   { label: '전체 설계사', value: dashData.totalAgents, sub: `이번달 신규 +${dashData.newAgentsThisMonth}명`, color: '#5E6AD2' },
                   { label: 'YouTube 영상', value: dashData.totalVideos, sub: `채널 ${dashData.totalChannels}개`, color: '#EF4444' },
-                  { label: '분석 완료', value: dashData.doneVideos, sub: `대기 ${dashData.pendingVideos}건 · 오류 ${dashData.errorVideos}건`, color: '#10B981' },
+                  { label: '분석 완료', value: dashData.doneVideos, sub: `대기 ${dashData.pendingVideos}건 · 오류 ${dashData.errorVideos}건`, color: '#5E6AD2' },
                   { label: '보험 PDF', value: dashData.totalPdfs, sub: `이번주 +${dashData.thisWeekPdfs}건`, color: '#F59E0B' },
-                  { label: '크롤링 오류', value: dashData.pdfErrors, sub: dashData.lastCrawled ? `최근: ${new Date(dashData.lastCrawled).toLocaleDateString('ko-KR')}` : '크롤링 없음', color: dashData.pdfErrors > 0 ? '#EF4444' : '#10B981' },
+                  { label: '크롤링 오류', value: dashData.pdfErrors, sub: dashData.lastCrawled ? `최근: ${new Date(dashData.lastCrawled).toLocaleDateString('ko-KR')}` : '크롤링 없음', color: dashData.pdfErrors > 0 ? '#EF4444' : '#1A1A2E' },
                   { label: '공지 구독자', value: subCount, sub: `발송 이력 ${pushHistory.length}건`, color: '#8B5CF6' },
                 ].map((card, i) => (
                   <div key={i} className={styles.card} style={{ padding: 20 }}>
                     <p style={{ fontSize: 11, fontWeight: 600, color: '#8892A0', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 8px' }}>{card.label}</p>
-                    <p style={{ fontSize: 36, fontWeight: 700, color: card.color, margin: '0 0 4px', lineHeight: 1 }}>{card.value}</p>
+                    <p style={{ fontSize: 36, fontWeight: 700, color: card.color, margin: '0 0 4px', lineHeight: 1 }}>{typeof card.value === 'number' ? card.value.toLocaleString() : card.value}</p>
                     <p style={{ fontSize: 12, color: '#636B78', margin: 0 }}>{card.sub}</p>
                   </div>
                 ))}
@@ -714,7 +714,7 @@ export default function AdminPage() {
                       {[
                         { label: '전체 PDF', value: `${dashData.totalPdfs}건`, color: '#1A1A2E' },
                         { label: '이번주 업데이트', value: `+${dashData.thisWeekPdfs}`, color: '#5E6AD2' },
-                        { label: '오류', value: `${dashData.pdfErrors}`, color: dashData.pdfErrors > 0 ? '#EF4444' : '#10B981' },
+                        { label: '오류', value: `${dashData.pdfErrors}`, color: '#EF4444' },
                       ].map(s => (
                         <div key={s.label}>
                           <p style={{ fontSize: 11, color: '#8892A0', margin: '0 0 2px' }}>{s.label}</p>
@@ -818,7 +818,7 @@ export default function AdminPage() {
                       </td>
                       <td style={tdStyle({ fontWeight: 500 })}>{n.title}</td>
                       <td style={tdStyle({ color: '#636B78', maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' })}>{n.body}</td>
-                      <td style={tdStyle()}>{badge('#D1FAE5', '#065F46', `${n.sent_count}명`, 'rgba(16,185,129,0.15)', '#6EE7B7')}</td>
+                      <td style={tdStyle()}>{badge('#EEF2FF', '#5E6AD2', `${n.sent_count}명`, 'rgba(94,106,210,0.2)', '#A5B0FF')}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -863,9 +863,11 @@ export default function AdminPage() {
                       </td>
                       <td style={tdStyle()}>
                         {badge(
-                          agent.status === 'approved' ? '#D1FAE5' : agent.status === 'pending' ? '#FEF3C7' : '#FEE2E2',
-                          agent.status === 'approved' ? '#065F46' : agent.status === 'pending' ? '#92400E' : '#991B1B',
-                          agent.status === 'approved' ? '승인' : agent.status === 'pending' ? '대기' : '반려'
+                          agent.status === 'approved' ? '#EEF2FF' : agent.status === 'pending' ? '#FEF3C7' : '#FEE2E2',
+                          agent.status === 'approved' ? '#5E6AD2' : agent.status === 'pending' ? '#92400E' : '#991B1B',
+                          agent.status === 'approved' ? '승인' : agent.status === 'pending' ? '대기' : '반려',
+                          agent.status === 'approved' ? 'rgba(94,106,210,0.2)' : agent.status === 'pending' ? 'rgba(180,83,9,0.18)' : 'rgba(220,38,38,0.15)',
+                          agent.status === 'approved' ? '#A5B0FF' : agent.status === 'pending' ? '#FCD34D' : '#F87171'
                         )}
                       </td>
                       <td style={tdStyle({ color: '#636B78', whiteSpace: 'nowrap' })}>
@@ -1011,7 +1013,7 @@ export default function AdminPage() {
                       {ch.name}
                     </span>
                     {ch.is_active
-                      ? badge('#D1FAE5', '#065F46', '활성', 'rgba(16,185,129,0.15)', '#6EE7B7')
+                      ? badge('#EEF2FF', '#5E6AD2', '활성', 'rgba(94,106,210,0.2)', '#A5B0FF')
                       : badge('#F3F4F6', '#6B7280', '비활성', 'rgba(255,255,255,0.07)', '#888')
                     }
                   </div>
@@ -1307,7 +1309,7 @@ export default function AdminPage() {
                           <td style={tdStyle({ color: '#636B78' })}>{uploaded ? `${uploaded.row_count.toLocaleString()}행` : '-'}</td>
                           <td style={tdStyle()}>
                             {uploaded
-                              ? badge('#D1FAE5', '#065F46', '완료', 'rgba(16,185,129,0.15)', '#6EE7B7')
+                              ? badge('#EEF2FF', '#5E6AD2', '완료', 'rgba(94,106,210,0.2)', '#A5B0FF')
                               : badge('#FEE2E2', '#991B1B', '미업로드', 'rgba(220,38,38,0.15)', '#F87171')
                             }
                           </td>
@@ -1473,14 +1475,14 @@ export default function AdminPage() {
                                 {ins.name}
                               </td>
                               <td style={tdS}>
-                                <span style={{ fontSize: 10, padding: '1px 5px', borderRadius: 4, background: ins.type === '손해보험' ? (isDark ? 'rgba(29,78,216,0.2)' : '#EFF6FF') : (isDark ? 'rgba(22,163,74,0.15)' : '#F0FDF4'), color: ins.type === '손해보험' ? (isDark ? '#93C5FD' : '#1D4ED8') : (isDark ? '#6EE7B7' : '#16a34a') }}>
+                                <span style={{ fontSize: 10, padding: '1px 5px', borderRadius: 4, background: ins.type === '손해보험' ? (isDark ? 'rgba(29,78,216,0.2)' : '#EFF6FF') : (isDark ? 'rgba(180,83,9,0.18)' : '#FEF3C7'), color: ins.type === '손해보험' ? (isDark ? '#93C5FD' : '#1D4ED8') : (isDark ? '#FCD34D' : '#B45309') }}>
                                   {ins.type === '손해보험' ? '손해' : '생명'}
                                 </span>
                               </td>
                               {ACTIVE_CATS.map(c => (
                                 <td key={c.name} style={tdS}>
                                   {ins.active && c.confirmed
-                                    ? <span style={{ color: isDark ? '#4ADE80' : '#16a34a', fontWeight: 700, fontSize: 14 }}>✓</span>
+                                    ? <span style={{ color: isDark ? '#A5B0FF' : '#5E6AD2', fontWeight: 700, fontSize: 14 }}>✓</span>
                                     : ins.active && !c.confirmed
                                     ? <span style={{ color: '#F59E0B', fontSize: 13 }}>?</span>
                                     : <span style={{ color: isDark ? 'rgba(255,255,255,0.15)' : '#E5E7EB' }}>—</span>
@@ -1493,7 +1495,7 @@ export default function AdminPage() {
                       </table>
                     </div>
                     <div style={{ padding: '8px 16px', borderTop: isDark ? '1px solid rgba(255,255,255,0.07)' : '1px solid #F3F4F6', display: 'flex', gap: 16, fontSize: 11, color: '#8892A0' }}>
-                      <span><span style={{ color: isDark ? '#4ADE80' : '#16a34a', fontWeight: 700 }}>✓</span> API 연동 완료</span>
+                      <span><span style={{ color: isDark ? '#A5B0FF' : '#5E6AD2', fontWeight: 700 }}>✓</span> API 연동 완료</span>
                       <span><span style={{ color: '#F59E0B' }}>?</span> srtSq 미확인 (DevTools로 탐색 필요)</span>
                       <span><span style={{ color: isDark ? 'rgba(255,255,255,0.2)' : '#D1D5DB' }}>—</span> 미연동</span>
                     </div>
