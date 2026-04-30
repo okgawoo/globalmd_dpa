@@ -1232,10 +1232,12 @@ export default function Consultations() {
                       <a href="/report" target="_blank" style={{ fontSize: 12, color: '#5E6AD2', textDecoration: 'underline' }}>전체 편집 →</a>
                     </div>
                     {/* 그래프 포함 전체 리포트 미리보기 */}
-                    <ReportPreviewDoc
-                      data={savedReport.report_data}
-                      editContent={savedReport.edit_content || {}}
-                    />
+                    <div style={{ zoom: 0.9, transformOrigin: 'top left' }}>
+                      <ReportPreviewDoc
+                        data={savedReport.report_data}
+                        editContent={savedReport.edit_content || {}}
+                      />
+                    </div>
                   </div>
                 )}
               </div>
