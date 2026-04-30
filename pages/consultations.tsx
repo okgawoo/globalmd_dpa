@@ -5,6 +5,7 @@ import { useConfirm } from '../lib/useConfirm'
 import styles from '../styles/Consultations.module.css'
 import AdminLayout from '../components/AdminLayout'
 import { ChevronLeft, ChevronRight, Edit2, X, Check, MapPin, Clock } from 'lucide-react'
+import { ReportPreviewDoc } from '../components/ReportPreviewDoc'
 
 /* ─── Constants ─── */
 const COVERAGE_GROUPS = [
@@ -1224,55 +1225,17 @@ export default function Consultations() {
                     </a>
                   </div>
                 ) : (
-                  <div className={styles.reportPreview}>
-                    {/* 저장 시각 */}
-                    <div style={{ fontSize: 11, color: '#8892A0', marginBottom: 12, textAlign: 'right' }}>
-                      {new Date(savedReport.updated_at).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })} 저장
+                  <div>
+                    {/* 저장 시각 + 리포트 링크 */}
+                    <div style={{ fontSize: 11, color: '#8892A0', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span>{new Date(savedReport.updated_at).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })} 저장</span>
+                      <a href="/report" target="_blank" style={{ fontSize: 12, color: '#5E6AD2', textDecoration: 'underline' }}>전체 편집 →</a>
                     </div>
-
-                    {/* 핵심 인사이트 */}
-                    {savedReport.edit_content?.key_insight && (
-                      <div className={styles.reportPreviewSection}>
-                        <div className={styles.reportPreviewSectionHeading}>💡 핵심 인사이트</div>
-                        <p className={styles.reportPreviewText}>{savedReport.edit_content.key_insight}</p>
-                      </div>
-                    )}
-
-                    {/* 보장공백 */}
-                    {savedReport.edit_content?.gap_analysis && (
-                      <div className={styles.reportPreviewSection}>
-                        <div className={styles.reportPreviewSectionHeading}>⚠️ 보장공백 진단</div>
-                        <p className={styles.reportPreviewText}>{savedReport.edit_content.gap_analysis}</p>
-                      </div>
-                    )}
-
-                    {/* 나이별 시사점 */}
-                    {savedReport.edit_content?.age_comparison && (
-                      <div className={styles.reportPreviewSection}>
-                        <div className={styles.reportPreviewSectionHeading}>📅 나이별 시사점</div>
-                        <p className={styles.reportPreviewText}>{savedReport.edit_content.age_comparison}</p>
-                      </div>
-                    )}
-
-                    {/* 상담 스크립트 */}
-                    {savedReport.edit_content?.consultation_script && (
-                      <div className={styles.reportPreviewSection}>
-                        <div className={styles.reportPreviewSectionHeading}>💬 상담 스크립트</div>
-                        <p className={styles.reportPreviewText}>{savedReport.edit_content.consultation_script}</p>
-                      </div>
-                    )}
-
-                    {/* 피칭 포인트 */}
-                    {savedReport.edit_content?.pitch_points && (
-                      <div className={styles.reportPreviewSection}>
-                        <div className={styles.reportPreviewSectionHeading}>🎯 피칭 포인트</div>
-                        <p className={styles.reportPreviewText}>{savedReport.edit_content.pitch_points}</p>
-                      </div>
-                    )}
-
-                    <a href="/report" target="_blank" style={{ display: 'block', marginTop: 16, fontSize: 12, color: '#5E6AD2', textAlign: 'center', textDecoration: 'underline' }}>
-                      전체 리포트 보기 →
-                    </a>
+                    {/* 그래프 포함 전체 리포트 미리보기 */}
+                    <ReportPreviewDoc
+                      data={savedReport.report_data}
+                      editContent={savedReport.edit_content || {}}
+                    />
                   </div>
                 )}
               </div>
