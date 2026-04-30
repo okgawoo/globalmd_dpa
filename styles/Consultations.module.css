@@ -560,6 +560,7 @@
   background: none; border: none;
   font-size: 13px; font-weight: 500;
   color: #8892A0;
+  white-space: nowrap;
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
   cursor: pointer; font-family: inherit;
