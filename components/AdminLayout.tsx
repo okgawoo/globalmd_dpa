@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { supabase } from '../lib/supabase'
 import { useConfirm } from '../lib/useConfirm'
+import { useAdmin } from '../lib/AdminContext'
 import {
   LayoutDashboard, FileEdit, Users, Bell, Mail,
   BarChart2, TrendingUp, Settings, LogOut, Sun, Moon, CalendarDays, ShieldCheck,
@@ -27,6 +28,7 @@ const accountItems = [
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const router = useRouter()
   const { confirm, ConfirmDialog } = useConfirm()
+  const { isAdmin } = useAdmin()
   const [dark, setDark] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
   const [supportOpen, setSupportOpen] = useState(false)
@@ -330,31 +332,33 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             </div>
           )}
 
-          <Link
-            href="/admin"
-            style={{
-              ...navLinkStyle(router.pathname === '/admin'),
-              display: 'flex',
-              marginBottom: 2,
-            }}
-            onMouseEnter={(e) => {
-              if (router.pathname !== '/admin') {
-                e.currentTarget.style.background = 'var(--admin-hover)'
-                e.currentTarget.style.color = 'rgba(26,26,46,0.82)'
-                e.currentTarget.style.borderColor = dark ? 'rgba(255,255,255,0.12)' : '#C0C7D1'
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (router.pathname !== '/admin') {
-                e.currentTarget.style.background = 'transparent'
-                e.currentTarget.style.color = 'rgba(26,26,46,0.82)'
-                e.currentTarget.style.borderColor = 'transparent'
-              }
-            }}
-          >
-            <ShieldCheck style={{ width: 16, height: 16, flexShrink: 0 }} />
-            {!collapsed && <span style={{ whiteSpace: 'nowrap' }}>관리자 페이지</span>}
-          </Link>
+          {isAdmin && (
+            <Link
+              href="/admin"
+              style={{
+                ...navLinkStyle(router.pathname === '/admin'),
+                display: 'flex',
+                marginBottom: 2,
+              }}
+              onMouseEnter={(e) => {
+                if (router.pathname !== '/admin') {
+                  e.currentTarget.style.background = 'var(--admin-hover)'
+                  e.currentTarget.style.color = 'rgba(26,26,46,0.82)'
+                  e.currentTarget.style.borderColor = dark ? 'rgba(255,255,255,0.12)' : '#C0C7D1'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (router.pathname !== '/admin') {
+                  e.currentTarget.style.background = 'transparent'
+                  e.currentTarget.style.color = 'rgba(26,26,46,0.82)'
+                  e.currentTarget.style.borderColor = 'transparent'
+                }
+              }}
+            >
+              <ShieldCheck style={{ width: 16, height: 16, flexShrink: 0 }} />
+              {!collapsed && <span style={{ whiteSpace: 'nowrap' }}>관리자 페이지</span>}
+            </Link>
+          )}
 
           <button
             onClick={handleLogout}

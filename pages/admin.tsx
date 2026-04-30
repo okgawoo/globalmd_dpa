@@ -183,6 +183,13 @@ export default function AdminPage() {
 
   async function checkUser() {
     const { data: { user } } = await supabase.auth.getUser()
+    if (!user) { router.replace('/login'); return }
+    // 관리자 권한 체크 — admin@dpa.com만 허용
+    const { data: agent } = await supabase.from('dpa_agents').select('role, email').eq('user_id', user.id).single()
+    if (agent?.role !== 'admin' && agent?.email !== 'admin@dpa.com') {
+      router.replace('/')
+      return
+    }
     setUser(user)
   }
 
