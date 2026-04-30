@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
+import { useRouter } from 'next/router'
 import { createClient } from '@supabase/supabase-js'
 import styles from '../styles/Admin.module.css'
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
@@ -9,6 +10,7 @@ const supabase = createClient(
 )
 
 export default function AdminPage() {
+  const router = useRouter()
   const [user, setUser] = useState<any>(null)
   const [sources, setSources] = useState<any[]>([])
   const [categories, setCategories] = useState<any[]>([])
