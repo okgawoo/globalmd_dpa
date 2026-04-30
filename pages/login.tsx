@@ -253,19 +253,19 @@ export default function Login() {
               * 회원가입 신청 후 관리자 승인이 완료되면 로그인 가능해요.
             </div>
 
-            {/* 요금제 선택 — 아코디언 */}
+            {/* 요금제 선택 — 아코디언 (데모기간 비활성화) */}
             <div>
-              <button type="button" onClick={() => setPlanOpen(v => !v)} style={{
+              <button type="button" onClick={() => setPlanOpen(v => !v)} disabled style={{
                 display:'flex', alignItems:'center', justifyContent:'space-between',
                 width:'100%', background:'none', border:'none', padding:'6px 0',
-                cursor:'pointer', borderTop:'1px solid #F3F4F6',
+                cursor:'default', borderTop:'1px solid #F3F4F6',
               }}>
-                <span style={{fontSize:13,fontWeight:700,color:'#5E6AD2',textTransform:'uppercase',letterSpacing:'0.8px'}}>
+                <span style={{fontSize:13,fontWeight:700,color:'#9CA3AF',textTransform:'uppercase',letterSpacing:'0.8px'}}>
                   요금제 선택
                 </span>
                 <span style={{fontSize:12,color:'#8892A0',display:'flex',alignItems:'center',gap:6}}>
                   <span style={{fontSize:11,background:'#FEF3C7',color:'#92400E',padding:'2px 7px',borderRadius:999,fontWeight:600}}>데모기간 중 자동 적용</span>
-                  <span style={{transition:'transform 0.2s',display:'inline-block',transform:planOpen?'rotate(180deg)':'rotate(0deg)'}}>▼</span>
+                  <span style={{color:'#D1D5DB'}}>▼</span>
                 </span>
               </button>
               {planOpen && (
