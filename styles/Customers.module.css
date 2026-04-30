@@ -478,6 +478,51 @@
 .infoHalf .infoValue { font-size: 13px; color: hsl(var(--text-primary)); text-align: right; }
 .infoHalf:first-child { padding-right: 12px; border-right: 1px solid hsl(var(--border-default)); }
 
+/* ─────────────────── Detail info grid (modal-style vertical cells) ─────────────────── */
+.detailInfoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 14px;
+  background: #ffffff;
+}
+.detailInfoCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 7px 10px;
+}
+.detailInfoCellL { border-right: 1px solid #E5E7EB; border-bottom: 1px solid #E5E7EB; }
+.detailInfoCellR { border-bottom: 1px solid #E5E7EB; }
+.detailInfoCellFull {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 7px 10px;
+  border-bottom: 1px solid #E5E7EB;
+}
+.detailInfoCellFull:last-child { border-bottom: none; }
+.detailInfoLabel { font-size: 10px; font-weight: 600; color: #8892A0; text-transform: uppercase; letter-spacing: 0.04em; }
+.detailInfoValue { font-size: 12px; font-weight: 500; color: #1A1A2E; }
+.detailInfoEmpty { color: #D1D5DB; }
+.detailInfoGreen { color: #5E6AD2 !important; font-weight: 700; }
+.detailPhoneLine { font-size: 13px; color: #636B78; margin-top: 2px; }
+
+/* Dark mode for detail info grid */
+:root[data-theme="dark"] .detailInfoGrid { background: #262626 !important; border-color: rgba(255,255,255,0.10) !important; }
+:root[data-theme="dark"] .detailInfoCellL { border-right-color: rgba(255,255,255,0.08) !important; border-bottom-color: rgba(255,255,255,0.08) !important; }
+:root[data-theme="dark"] .detailInfoCellR { border-bottom-color: rgba(255,255,255,0.08) !important; }
+:root[data-theme="dark"] .detailInfoCellFull { border-bottom-color: rgba(255,255,255,0.08) !important; }
+:root[data-theme="dark"] .detailInfoLabel { color: #A0A0A0 !important; }
+:root[data-theme="dark"] .detailInfoValue { color: #E8E8E8 !important; }
+:root[data-theme="dark"] .detailInfoEmpty { color: #555555 !important; }
+:root[data-theme="dark"] .detailInfoGreen { color: #818CF8 !important; }
+:root[data-theme="dark"] .detailPhoneLine { color: #A0A0A0 !important; }
+
 /* ─────────────────── Payment gauge ─────────────────── */
 .gaugeRow { margin-bottom: 10px; }
 .gaugeLabel {

@@ -1087,19 +1087,17 @@ export default function Customers() {
                   </span>
                   <span className={styles.detailNameLg}>{selected.name}</span>
                   {selected.grade === 'VIP' && <span className={styles.gradeVip}>VIP</span>}
-                </div>
-                <div className={styles.detailMetaRow}>
-                  <div className={styles.detailHeaderRow2}>
-                    {selected.age || (selected.birth_date ? new Date().getFullYear() - new Date(selected.birth_date).getFullYear() : "")}세 · {selected.gender} · {selected.job} · {selected.phone}
-                  </div>
                   {!editMode && (
-                    <div className={styles.detailHeaderRow3}>
+                    <div className={styles.detailHeaderRow3} style={{ marginLeft: 'auto' }}>
                       <button className={styles.smsBtn} onClick={() => { setSmsCustomer(selected); setSmsOpen(true) }}>문자</button>
                       <button className={styles.editBtn} onClick={() => { setEditMode(true); setEditForm(selected) }}>수정</button>
                       <button className={styles.deleteBtn} onClick={() => deleteCustomer(selected)}>삭제</button>
                     </div>
                   )}
                 </div>
+                {selected.phone && (
+                  <div className={styles.detailPhoneLine}>{selected.phone}</div>
+                )}
               </div>
               {editMode && (
                 <div className={styles.editBox}>
@@ -1145,20 +1143,47 @@ export default function Customers() {
                   </div>
                 </div>
               )}
-              <div className={styles.infoTable2}>
-                <div className={[styles.infoCell, styles.infoCellL].join(' ')}><span className={styles.infoLabel}>연락처</span><span className={styles.infoValue}>{selected.phone || <span className={styles.infoEmpty}>-</span>}</span></div>
-                <div className={[styles.infoCell, styles.infoCellR].join(' ')}><span className={styles.infoLabel}>나이</span><span className={styles.infoValue}>{selected.age || (selected.birth_date ? new Date().getFullYear() - new Date(selected.birth_date).getFullYear() : <span className={styles.infoEmpty}>-</span>)}{(selected.age || selected.birth_date) ? '세' : ''}</span></div>
-                <div className={[styles.infoCell, styles.infoCellL].join(' ')}><span className={styles.infoLabel}>주민등록번호</span><span className={styles.infoValue}>{selected.resident_number || <span className={styles.infoEmpty}>-</span>}</span></div>
-                <div className={[styles.infoCell, styles.infoCellR].join(' ')}><span className={styles.infoLabel}>성별</span><span className={styles.infoValue}>{selected.gender || <span className={styles.infoEmpty}>-</span>}</span></div>
-                <div className={[styles.infoCell, styles.infoCellL].join(' ')}><span className={styles.infoLabel}>은행명</span><span className={styles.infoValue}>{selected.bank_name || <span className={styles.infoEmpty}>-</span>}</span></div>
-                <div className={[styles.infoCell, styles.infoCellR].join(' ')}><span className={styles.infoLabel}>계좌번호</span><span className={styles.infoValue}>{selected.bank_account || <span className={styles.infoEmpty}>-</span>}</span></div>
-                <div className={styles.infoCellFull}><span className={styles.infoLabel}>주소</span><span className={styles.infoValue}>{selected.address || <span className={styles.infoEmpty}>-</span>}</span></div>
-                <div className={[styles.infoCell, styles.infoCellL].join(' ')}><span className={styles.infoLabel}>직업</span><span className={styles.infoValue}>{selected.job || <span className={styles.infoEmpty}>-</span>}</span></div>
-                <div className={[styles.infoCell, styles.infoCellR].join(' ')}><span className={styles.infoLabel}>직장/소속</span><span className={styles.infoValue}>{selected.workplace || <span className={styles.infoEmpty}>-</span>}</span></div>
-                <div className={[styles.infoCell, styles.infoCellL].join(' ')}><span className={styles.infoLabel}>운전면허</span><span className={styles.infoValue}>{selected.driver_license || <span className={styles.infoEmpty}>-</span>}</span></div>
-                <div className={[styles.infoCell, styles.infoCellR].join(' ')}><span className={styles.infoLabel}>등급</span><span className={styles.infoValue}>{selected.grade || <span className={styles.infoEmpty}>-</span>}</span></div>
-                <div className={[styles.infoCell, styles.infoCellL].join(' ')}><span className={styles.infoLabel}>계약 수</span><span className={styles.infoValue}>{selectedContracts.length}건</span></div>
-                <div className={[styles.infoCell, styles.infoCellR].join(' ')}><span className={styles.infoLabel}>총 월납입</span><span className={[styles.infoValue, styles.infoGreen].join(' ')}>{selectedContracts.reduce((s,ct)=>s+(ct.monthly_fee||0),0).toLocaleString()}원</span></div>
+              <div className={styles.detailInfoGrid}>
+                <div className={[styles.detailInfoCell, styles.detailInfoCellL].join(' ')}>
+                  <span className={styles.detailInfoLabel}>연락처</span>
+                  <span className={styles.detailInfoValue}>{selected.phone || <span className={styles.detailInfoEmpty}>-</span>}</span>
+                </div>
+                <div className={[styles.detailInfoCell, styles.detailInfoCellR].join(' ')}>
+                  <span className={styles.detailInfoLabel}>나이</span>
+                  <span className={styles.detailInfoValue}>
+                    {(selected.age || (selected.birth_date ? new Date().getFullYear() - new Date(selected.birth_date).getFullYear() : null))
+                      ? `${selected.age || (new Date().getFullYear() - new Date(selected.birth_date).getFullYear())}세`
+                      : <span className={styles.detailInfoEmpty}>-</span>}
+                  </span>
+                </div>
+                <div className={[styles.detailInfoCell, styles.detailInfoCellL].join(' ')}>
+                  <span className={styles.detailInfoLabel}>성별</span>
+                  <span className={styles.detailInfoValue}>{selected.gender || <span className={styles.detailInfoEmpty}>-</span>}</span>
+                </div>
+                <div className={[styles.detailInfoCell, styles.detailInfoCellR].join(' ')}>
+                  <span className={styles.detailInfoLabel}>직업</span>
+                  <span className={styles.detailInfoValue}>{selected.job || <span className={styles.detailInfoEmpty}>-</span>}</span>
+                </div>
+                <div className={[styles.detailInfoCell, styles.detailInfoCellL].join(' ')}>
+                  <span className={styles.detailInfoLabel}>직장/소속</span>
+                  <span className={styles.detailInfoValue}>{selected.workplace || <span className={styles.detailInfoEmpty}>-</span>}</span>
+                </div>
+                <div className={[styles.detailInfoCell, styles.detailInfoCellR].join(' ')}>
+                  <span className={styles.detailInfoLabel}>운전면허</span>
+                  <span className={styles.detailInfoValue}>{selected.driver_license || <span className={styles.detailInfoEmpty}>-</span>}</span>
+                </div>
+                <div className={styles.detailInfoCellFull}>
+                  <span className={styles.detailInfoLabel}>주소</span>
+                  <span className={styles.detailInfoValue}>{selected.address || <span className={styles.detailInfoEmpty}>-</span>}</span>
+                </div>
+                <div className={[styles.detailInfoCell, styles.detailInfoCellL].join(' ')}>
+                  <span className={styles.detailInfoLabel}>계약 수</span>
+                  <span className={styles.detailInfoValue}>{selectedContracts.length}건</span>
+                </div>
+                <div className={[styles.detailInfoCell, styles.detailInfoCellR].join(' ')}>
+                  <span className={styles.detailInfoLabel}>총 월납입</span>
+                  <span className={[styles.detailInfoValue, styles.detailInfoGreen].join(' ')}>{selectedContracts.reduce((s,ct)=>s+(ct.monthly_fee||0),0).toLocaleString()}원</span>
+                </div>
               </div>
               <div className={styles.section}>
                 보험 계약 현황
@@ -1176,7 +1201,9 @@ export default function Customers() {
                     <div className={styles.insCardHeader}>
                       <div style={{display:'flex',alignItems:'center',gap:6}}>
                         <div className={styles.insCardTitle}>{idx+1}. {ct.company}{ct.product_name ? ` · ${ct.product_name}` : ''}</div>
-                        <span style={{fontSize:11,color:'#8892A0',marginLeft:'auto',transition:'transform 0.2s',transform:isExpanded?'rotate(180deg)':'rotate(0deg)',display:'inline-block',lineHeight:1}}>▾</span>
+                        {groups.length > 0 && (
+                          <span style={{fontSize:16,color:'#8892A0',marginLeft:'auto',transition:'transform 0.2s',transform:isExpanded?'rotate(180deg)':'rotate(0deg)',display:'inline-block',lineHeight:1}}>▾</span>
+                        )}
                       </div>
                       <div className={styles.insCardBottomRow}>
                         <div className={styles.insCardMeta}>{ct.monthly_fee>0?`${ct.monthly_fee.toLocaleString()}원/월`:''}{ct.contract_start?` · ${ct.contract_start} 가입`:''}{ct.payment_years?` · ${ct.payment_years}`:''}{ct.expiry_age?` · ${ct.expiry_age}만기`:''}</div>
@@ -1670,20 +1697,20 @@ export default function Customers() {
                     </span>
                     <span className={styles.detailNameLg}>{selected.name}</span>
                     {selected.grade === 'VIP' && <span className={styles.gradeVip}>VIP</span>}
-                    <button className={styles.slideCloseBtn} style={{marginLeft:'auto'}} onClick={closeSlide}>✕</button>
-                  </div>
-                  <div className={styles.detailMetaRow}>
-                    <div className={styles.detailHeaderRow2}>
-                      {selected.age || (selected.birth_date ? new Date().getFullYear() - new Date(selected.birth_date).getFullYear() : "")}세 · {selected.gender} · {selected.job} · {selected.phone}
+                    <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      {!editMode && (
+                        <>
+                          <button className={styles.smsBtn} onClick={() => { setSmsCustomer(selected); setSmsOpen(true) }}>문자</button>
+                          <button className={styles.editBtn} onClick={() => { setEditMode(true); setEditForm(selected) }}>수정</button>
+                          <button className={styles.deleteBtn} onClick={() => deleteCustomer(selected)}>삭제</button>
+                        </>
+                      )}
+                      <button className={styles.slideCloseBtn} onClick={closeSlide}>✕</button>
                     </div>
-                    {!editMode && (
-                      <div className={styles.detailHeaderRow3}>
-                        <button className={styles.smsBtn} onClick={() => { setSmsCustomer(selected); setSmsOpen(true) }}>문자</button>
-                        <button className={styles.editBtn} onClick={() => { setEditMode(true); setEditForm(selected) }}>수정</button>
-                        <button className={styles.deleteBtn} onClick={() => deleteCustomer(selected)}>삭제</button>
-                      </div>
-                    )}
                   </div>
+                  {selected.phone && (
+                    <div className={styles.detailPhoneLine}>{selected.phone}</div>
+                  )}
                 </div>
 
                 {editMode && (
@@ -1731,24 +1758,46 @@ export default function Customers() {
                   </div>
                 )}
 
-                <div className={styles.infoTable}>
-                  <div className={styles.infoRowDouble}>
-                    <div className={styles.infoHalf}><span className={styles.infoLabel}>나이</span><span className={styles.infoValue}>{selected.age || (selected.birth_date ? new Date().getFullYear() - new Date(selected.birth_date).getFullYear() : "")}세</span></div>
-                    <div className={styles.infoHalf}><span className={styles.infoLabel}>성별</span><span className={styles.infoValue}>{selected.gender}</span></div>
+                <div className={styles.detailInfoGrid}>
+                  <div className={[styles.detailInfoCell, styles.detailInfoCellL].join(' ')}>
+                    <span className={styles.detailInfoLabel}>연락처</span>
+                    <span className={styles.detailInfoValue}>{selected.phone || <span className={styles.detailInfoEmpty}>-</span>}</span>
                   </div>
-                  <div className={styles.infoRowDouble}>
-                    <div className={styles.infoHalf}><span className={styles.infoLabel}>연락처</span><span className={styles.infoValue}>{selected.phone}</span></div>
-                    <div className={styles.infoHalf}><span className={styles.infoLabel}>직업</span><span className={styles.infoValue}>{selected.job}</span></div>
+                  <div className={[styles.detailInfoCell, styles.detailInfoCellR].join(' ')}>
+                    <span className={styles.detailInfoLabel}>나이</span>
+                    <span className={styles.detailInfoValue}>
+                      {(selected.age || (selected.birth_date ? new Date().getFullYear() - new Date(selected.birth_date).getFullYear() : null))
+                        ? `${selected.age || (new Date().getFullYear() - new Date(selected.birth_date).getFullYear())}세`
+                        : <span className={styles.detailInfoEmpty}>-</span>}
+                    </span>
                   </div>
-                  {selected.resident_number && <div className={styles.infoRow}><span className={styles.infoLabel}>주민번호</span><span className={styles.infoValue}>{selected.resident_number}</span></div>}
-                  {selected.workplace && <div className={styles.infoRow}><span className={styles.infoLabel}>직장/소속</span><span className={styles.infoValue}>{selected.workplace}</span></div>}
-                  {selected.address && <div className={styles.infoRow}><span className={styles.infoLabel}>주소</span><span className={styles.infoValue}>{selected.address}</span></div>}
-                  {(selected.bank_name || selected.bank_account) && <div className={styles.infoRow}><span className={styles.infoLabel}>계좌번호</span><span className={styles.infoValue}>{selected.bank_name} {selected.bank_account}</span></div>}
-                  {selected.driver_license && <div className={styles.infoRow}><span className={styles.infoLabel}>운전면허</span><span className={styles.infoValue}>{selected.driver_license}</span></div>}
-                  {selected.grade && <div className={styles.infoRow}><span className={styles.infoLabel}>등급</span><span className={styles.infoValue}>{selected.grade}</span></div>}
-                  <div className={styles.infoRowLast}>
-                    <div className={styles.infoRow} style={{ borderBottom: 'none', paddingBottom: 0 }}><span className={styles.infoLabel}>계약 수</span><span className={styles.infoValue}>{selectedContracts.length}건</span></div>
-                    <div className={styles.infoRow} style={{ borderBottom: 'none', paddingBottom: 0 }}><span className={styles.infoLabel}>총 월납입</span><span className={[styles.infoValue, styles.infoGreen].join(' ')}>{totalMonthly.toLocaleString()}원</span></div>
+                  <div className={[styles.detailInfoCell, styles.detailInfoCellL].join(' ')}>
+                    <span className={styles.detailInfoLabel}>성별</span>
+                    <span className={styles.detailInfoValue}>{selected.gender || <span className={styles.detailInfoEmpty}>-</span>}</span>
+                  </div>
+                  <div className={[styles.detailInfoCell, styles.detailInfoCellR].join(' ')}>
+                    <span className={styles.detailInfoLabel}>직업</span>
+                    <span className={styles.detailInfoValue}>{selected.job || <span className={styles.detailInfoEmpty}>-</span>}</span>
+                  </div>
+                  <div className={[styles.detailInfoCell, styles.detailInfoCellL].join(' ')}>
+                    <span className={styles.detailInfoLabel}>직장/소속</span>
+                    <span className={styles.detailInfoValue}>{selected.workplace || <span className={styles.detailInfoEmpty}>-</span>}</span>
+                  </div>
+                  <div className={[styles.detailInfoCell, styles.detailInfoCellR].join(' ')}>
+                    <span className={styles.detailInfoLabel}>운전면허</span>
+                    <span className={styles.detailInfoValue}>{selected.driver_license || <span className={styles.detailInfoEmpty}>-</span>}</span>
+                  </div>
+                  <div className={styles.detailInfoCellFull}>
+                    <span className={styles.detailInfoLabel}>주소</span>
+                    <span className={styles.detailInfoValue}>{selected.address || <span className={styles.detailInfoEmpty}>-</span>}</span>
+                  </div>
+                  <div className={[styles.detailInfoCell, styles.detailInfoCellL].join(' ')}>
+                    <span className={styles.detailInfoLabel}>계약 수</span>
+                    <span className={styles.detailInfoValue}>{selectedContracts.length}건</span>
+                  </div>
+                  <div className={[styles.detailInfoCell, styles.detailInfoCellR].join(' ')}>
+                    <span className={styles.detailInfoLabel}>총 월납입</span>
+                    <span className={[styles.detailInfoValue, styles.detailInfoGreen].join(' ')}>{totalMonthly.toLocaleString()}원</span>
                   </div>
                 </div>
 

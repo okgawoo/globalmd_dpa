@@ -156,7 +156,8 @@ export default function Consultations() {
 
   /* Popup — 0:closed 1:820px(기본) 2:+리포트패널 */
   const [popupStage, setPopupStage]       = useState<0 | 1 | 2>(0)
-  const [popupRightTab, setPopupRightTab] = useState<'coverage' | 'history'>('coverage')
+  const [popupRightTab, setPopupRightTab] = useState<'coverage' | 'history' | 'report'>('coverage')
+  const [expandedContractIds, setExpandedContractIds] = useState<string[]>([])
 
   /* 캘린더 유형 필터 */
   const [calTypeFilter, setCalTypeFilter] = useState<string | null>(null)
@@ -705,11 +706,12 @@ export default function Consultations() {
       {/* ════════ POPUP ════════ */}
 
       {popupStage > 0 && (
-        <div className={styles.popupOverlay}>
+        <div className={styles.popupOverlay} onClick={closePopup}>
           <div
             ref={popupRef}
             className={[styles.popup, popupStage === 2 ? styles.popupStage2 : ''].join(' ')}
             style={{ position: 'relative' }}
+            onClick={e => e.stopPropagation()}
           >
 
             {/* ═══ 1열: 등록/수정 폼 ═══ */}
@@ -900,13 +902,7 @@ export default function Consultations() {
                 <button className={styles.saveBtn} onClick={saveConsultation} disabled={saving}>
                   {saving ? '저장 중...' : editId ? '수정 완료' : '저장'}
                 </button>
-                {popupStage === 1 ? (
-                  <button className={styles.expandBtn} onClick={() => { setPopupStage(2); setPopupRightTab('history') }}>
-                    고객 리포트 →
-                  </button>
-                ) : (
-                  <button className={styles.cancelBtn} onClick={closePopup}>닫기</button>
-                )}
+                <button className={styles.cancelBtn} onClick={closePopup}>취소</button>
               </div>
             </div>
 
@@ -919,6 +915,9 @@ export default function Consultations() {
                 <button
                   className={[styles.popupRightTab, popupRightTab === 'history' ? styles.popupRightTabActive : ''].join(' ')}
                   onClick={() => setPopupRightTab('history')}>상담 이력</button>
+                <button
+                  className={[styles.popupRightTab, popupRightTab === 'report' ? styles.popupRightTabActive : ''].join(' ')}
+                  onClick={() => setPopupRightTab('report')}>고객 리포트</button>
               </div>
 
               <div className={styles.popupRightBody}>
@@ -1011,10 +1010,19 @@ export default function Consultations() {
                           .filter(g => g.items.length > 0)
                         const rate = calcPaymentRate(ct)
                         const isWarn = rate >= 90 && ct.payment_status !== '완납'
+                        const isExpanded = expandedContractIds.includes(ct.id)
                         return (
-                          <div key={ct.id} className={isWarn ? styles.insCardWarn : styles.insCard}>
+                          <div key={ct.id} className={isWarn ? styles.insCardWarn : styles.insCard}
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => setExpandedContractIds(prev => isExpanded ? prev.filter(id => id !== ct.id) : [...prev, ct.id])}
+                          >
                             <div className={styles.insCardHeader}>
-                              <div className={styles.insCardTitle}>{idx + 1}. {ct.company}{ct.product_name ? ` · ${ct.product_name}` : ''}</div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <div className={styles.insCardTitle}>{idx + 1}. {ct.company}{ct.product_name ? ` · ${ct.product_name}` : ''}</div>
+                                {groups.length > 0 && (
+                                  <span style={{ fontSize: 16, color: '#8892A0', marginLeft: 'auto', transition: 'transform 0.2s', transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', display: 'inline-block', lineHeight: 1 }}>▾</span>
+                                )}
+                              </div>
                               <div className={styles.insCardBottomRow}>
                                 <div className={styles.insCardMeta}>
                                   {[ct.monthly_fee > 0 ? `${ct.monthly_fee.toLocaleString()}원/월` : '',
@@ -1031,22 +1039,26 @@ export default function Consultations() {
                                 </div>
                               </div>
                             </div>
-                            {groups.length > 0 && (
-                              <div className={styles.coverageList}>
-                                {groups.map(g => (
-                                  <div key={g.key} className={styles.coverageRow}>
-                                    <span className={styles.covIcon}>{g.icon}</span>
-                                    <div className={styles.covRight}>
-                                      <span className={styles.covLabel}>{g.label}</span>
-                                      <div className={styles.covItems}>
-                                        {g.items.map((cv: any, ci: number) => (
-                                          <span key={ci} className={styles.covItem}>• {cv.coverage_name}{cv.amount ? <> <strong>{fmtAmount(cv.amount)}</strong></> : ''}</span>
-                                        ))}
+                            {isExpanded && (
+                              groups.length > 0 ? (
+                                <div className={styles.coverageList}>
+                                  {groups.map(g => (
+                                    <div key={g.key} className={styles.coverageRow}>
+                                      <span className={styles.covIcon}>{g.icon}</span>
+                                      <div className={styles.covRight}>
+                                        <span className={styles.covLabel}>{g.label}</span>
+                                        <div className={styles.covItems}>
+                                          {g.items.map((cv: any, ci: number) => (
+                                            <span key={ci} className={styles.covItem}>• {cv.coverage_name}{cv.amount ? <> <strong>{fmtAmount(cv.amount)}</strong></> : ''}</span>
+                                          ))}
+                                        </div>
                                       </div>
                                     </div>
-                                  </div>
-                                ))}
-                              </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <div style={{ padding: '10px 12px', fontSize: 12, color: '#8892A0' }}>등록된 보장 내역이 없어요</div>
+                              )
                             )}
                           </div>
                         )
@@ -1145,6 +1157,21 @@ export default function Consultations() {
                           </div>
                         )
                       })}
+                    </div>
+                  )
+                )}
+
+                {/* 고객 리포트 */}
+                {popupRightTab === 'report' && (
+                  !selectedCust ? (
+                    <div className={styles.emptyState}>
+                      <div className={styles.emptyIcon}>📊</div>
+                      <p className={styles.emptyText}>고객을 선택하면<br />리포트가 표시됩니다</p>
+                    </div>
+                  ) : (
+                    <div className={styles.emptyState}>
+                      <div className={styles.emptyIcon}>📊</div>
+                      <p className={styles.emptyText}>준비 중입니다</p>
                     </div>
                   )
                 )}

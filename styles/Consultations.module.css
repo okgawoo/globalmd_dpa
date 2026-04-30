@@ -347,20 +347,23 @@
   border-radius: 14px;
   box-shadow: 0 24px 64px rgba(0,0,0,0.18);
   display: grid;
-  grid-template-columns: 340px 340px 0px;
-  max-height: 90vh;
+  grid-template-columns: 400px 400px 0px;
+  height: 85vh;
+  max-height: 85vh;
   overflow: hidden;
   transition: grid-template-columns 0.35s ease;
   position: relative;
 }
 /* stage 2: 리포트 패널 추가 (340 + 340 + 400 = 1080px) */
-.popupStage2 { grid-template-columns: 340px 340px 400px; }
+.popupStage2 { grid-template-columns: 400px 400px 400px; }
 
 /* Left form */
 .popupLeft {
   display: flex; flex-direction: column;
   border-right: 1px solid #E5E7EB;
+  height: 100%;
   min-height: 0;
+  overflow: hidden;
 }
 .popupHeader {
   display: flex; align-items: center; gap: 8px;
@@ -385,6 +388,7 @@
 }
 .popupActions {
   display: flex; gap: 8px;
+  justify-content: flex-end;
   padding: 12px 20px;
   border-top: 1px solid #E5E7EB;
   flex-shrink: 0;
@@ -490,7 +494,7 @@
 
 /* Action buttons */
 .saveBtn {
-  flex: 1; padding: 9px;
+  padding: 9px 24px;
   background: #5E6AD2; color: #ffffff;
   border: none; border-radius: 8px;
   font-size: 13px; font-weight: 600;
@@ -500,7 +504,7 @@
 .saveBtn:hover { opacity: 0.88; }
 .saveBtn:disabled { opacity: 0.45; cursor: not-allowed; }
 .cancelBtn {
-  padding: 9px 16px;
+  padding: 9px 24px;
   border: 1px solid #E5E7EB;
   border-radius: 8px;
   background: transparent; color: #636B78;
@@ -535,6 +539,7 @@
 ───────────────────────────────────────────── */
 .popupRight {
   display: flex; flex-direction: column;
+  height: 100%;
   min-height: 0;
   overflow: hidden;
   min-width: 0;
@@ -546,7 +551,7 @@
   flex-shrink: 0;
 }
 .popupRightTab {
-  flex: 1; padding: 10px 16px;
+  flex: 1; padding: 22px 16px 10px;
   background: none; border: none;
   font-size: 13px; font-weight: 500;
   color: #8892A0;
@@ -557,13 +562,13 @@
 }
 .popupRightTab:hover { color: #1A1A2E; }
 .popupRightTabActive { color: #5E6AD2; border-bottom-color: #5E6AD2; font-weight: 600; }
-.popupRightBody { flex: 1; overflow-y: auto; padding: 16px; }
+.popupRightBody { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; }
 
 /* Empty state */
 .emptyState {
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  gap: 10px; height: 160px; text-align: center;
+  gap: 10px; flex: 1; min-height: 160px; text-align: center;
 }
 .emptyIcon { font-size: 28px; opacity: 0.35; }
 .emptyText { font-size: 13px; color: #8892A0; line-height: 1.6; margin: 0; }
@@ -623,13 +628,13 @@
 
 /* Insurance cards */
 .insCard {
-  background: #ffffff;
+  background: hsl(240, 5%, 96%);
   border: 1px solid #E5E7EB;
   border-radius: 10px;
   overflow: hidden;
 }
 .insCardWarn {
-  background: #ffffff;
+  background: hsl(240, 5%, 96%);
   border: 1px solid rgba(245, 158, 11, 0.4);
   border-radius: 10px;
   overflow: hidden;
