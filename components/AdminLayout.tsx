@@ -6,7 +6,7 @@ import { useConfirm } from '../lib/useConfirm'
 import {
   LayoutDashboard, FileEdit, Users, Bell, Mail,
   BarChart2, TrendingUp, Settings, LogOut, Sun, Moon, CalendarDays, ShieldCheck,
-  Headphones, X,
+  Headphones, X, PanelLeftClose, PanelLeftOpen,
 } from 'lucide-react'
 
 const navItems = [
@@ -28,6 +28,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const router = useRouter()
   const { confirm, ConfirmDialog } = useConfirm()
   const [dark, setDark] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
   const [supportOpen, setSupportOpen] = useState(false)
   const [userInfo, setUserInfo] = useState<{ email: string; initial: string } | null>(null)
   const [isNarrow, setIsNarrow] = useState<boolean | null>(null)
@@ -149,15 +150,17 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           zIndex: 40,
           display: 'flex',
           height: '100vh',
-          width: 240,
+          width: collapsed ? 60 : 240,
           flexDirection: 'column',
           background: 'var(--admin-sidebar-bg)',
           borderRight: '1px solid var(--admin-border)',
           boxShadow: '2px 0 12px rgba(0,0,0,0.06)',
+          transition: 'width 0.2s ease',
+          overflow: 'hidden',
         }}
       >
-        {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '20px 16px' }}>
+        {/* Logo + 접기 버튼 */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '20px 16px', position: 'relative', flexShrink: 0 }}>
           <div
             style={{
               display: 'flex',
@@ -173,7 +176,35 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           >
             <span style={{ color: '#fff', fontSize: 15, fontWeight: 800, fontStyle: 'italic', letterSpacing: '-0.5px', lineHeight: 1 }}>i</span>
           </div>
-          <span style={{ fontSize: 16, fontWeight: 700, color: 'rgba(26,26,46,0.82)', letterSpacing: '-0.4px', lineHeight: 1 }}>아이플래너</span>
+          {!collapsed && (
+            <span style={{ fontSize: 16, fontWeight: 700, color: 'rgba(26,26,46,0.82)', letterSpacing: '-0.4px', lineHeight: 1, whiteSpace: 'nowrap' }}>아이플래너</span>
+          )}
+          <button
+            onClick={() => setCollapsed(v => !v)}
+            title={collapsed ? '사이드바 펼치기' : '사이드바 접기'}
+            style={{
+              marginLeft: 'auto',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 28,
+              height: 28,
+              borderRadius: 6,
+              border: '1px solid var(--admin-border)',
+              background: 'transparent',
+              color: 'var(--admin-text-sub)',
+              cursor: 'pointer',
+              flexShrink: 0,
+              transition: 'all 0.1s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--admin-hover)' }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
+          >
+            {collapsed
+              ? <PanelLeftOpen style={{ width: 14, height: 14 }} />
+              : <PanelLeftClose style={{ width: 14, height: 14 }} />
+            }
+          </button>
         </div>
 
         <div style={{ height: 1, background: 'var(--admin-border)', margin: '0 12px' }} />
@@ -204,7 +235,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                     }}
                   >
                     <item.icon style={{ width: 16, height: 16, flexShrink: 0 }} />
-                    <span style={{ fontWeight: isActive ? 510 : 400 }}>{item.name}</span>
+                    {!collapsed && <span style={{ fontWeight: isActive ? 510 : 400, whiteSpace: 'nowrap' }}>{item.name}</span>}
                   </Link>
                 </li>
               )
@@ -252,7 +283,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           <div style={{ height: 1, background: 'var(--admin-border)', marginBottom: 10 }} />
 
           {/* User profile card */}
-          {userInfo && (
+          {userInfo && !collapsed && (
             <div
               style={{
                 display: 'flex',
@@ -316,7 +347,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             }}
           >
             <ShieldCheck style={{ width: 16, height: 16, flexShrink: 0 }} />
-            <span>관리자 페이지</span>
+            {!collapsed && <span style={{ whiteSpace: 'nowrap' }}>관리자 페이지</span>}
           </Link>
 
           <button
@@ -339,7 +370,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
           >
             <LogOut style={{ width: 16, height: 16, flexShrink: 0 }} />
-            <span>로그아웃</span>
+            {!collapsed && <span style={{ whiteSpace: 'nowrap' }}>로그아웃</span>}
           </button>
         </div>
       </aside>
@@ -347,7 +378,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       {/* ── Main ── */}
       <div
         ref={mainColRef}
-        style={{ marginLeft: 240, display: 'flex', flex: 1, flexDirection: 'column', minWidth: 0 }}
+        style={{ marginLeft: collapsed ? 60 : 240, display: 'flex', flex: 1, flexDirection: 'column', minWidth: 0, transition: 'margin-left 0.2s ease' }}
       >
         {/* Header */}
         <header
