@@ -184,6 +184,10 @@ export default function Consultations() {
   const [popupMeetings, setPopupMeetings]     = useState<any[]>([])
   const [reportLoading, setReportLoading]     = useState(false)
 
+  /* 저장된 리포트 */
+  const [savedReport, setSavedReport]         = useState<any>(null)
+  const [reportFetching, setReportFetching]   = useState(false)
+
   /* Confirm dialog */
   const { confirm, ConfirmDialog } = useConfirm()
 
@@ -911,13 +915,28 @@ export default function Consultations() {
               <div className={styles.popupRightTabs}>
                 <button
                   className={[styles.popupRightTab, popupRightTab === 'coverage' ? styles.popupRightTabActive : ''].join(' ')}
-                  onClick={() => setPopupRightTab('coverage')}>보장 내역</button>
+                  onClick={() => { setPopupRightTab('coverage'); setPopupStage(1) }}>보장 내역</button>
                 <button
                   className={[styles.popupRightTab, popupRightTab === 'history' ? styles.popupRightTabActive : ''].join(' ')}
-                  onClick={() => setPopupRightTab('history')}>상담 이력</button>
+                  onClick={() => { setPopupRightTab('history'); setPopupStage(1) }}>상담 이력</button>
                 <button
                   className={[styles.popupRightTab, popupRightTab === 'report' ? styles.popupRightTabActive : ''].join(' ')}
-                  onClick={() => setPopupRightTab('report')}>고객 리포트</button>
+                  onClick={async () => {
+                    setPopupRightTab('report'); setPopupStage(2)
+                    const custId = form.customer_id
+                    if (!custId) return
+                    setReportFetching(true)
+                    setSavedReport(null)
+                    const { data } = await supabase
+                      .from('dpa_reports')
+                      .select('*')
+                      .eq('customer_id', custId)
+                      .order('updated_at', { ascending: false })
+                      .limit(1)
+                      .single()
+                    setSavedReport(data || null)
+                    setReportFetching(false)
+                  }}>고객 리포트</button>
               </div>
 
               <div className={styles.popupRightBody}>
@@ -1190,63 +1209,71 @@ export default function Consultations() {
                   <div className={styles.reportPanelEmpty}>
                     <p>고객을 선택하면<br />리포트가 표시됩니다</p>
                   </div>
+                ) : reportFetching ? (
+                  <div className={styles.reportPanelEmpty}>
+                    <p style={{ color: '#8892A0' }}>리포트 불러오는 중...</p>
+                  </div>
+                ) : !savedReport ? (
+                  <div className={styles.reportPanelEmpty}>
+                    <p>저장된 리포트가 없어요</p>
+                    <p style={{ fontSize: 11, color: '#8892A0', marginTop: 6 }}>
+                      리포트 페이지에서 AI 분석 후<br />저장하면 여기에 표시됩니다
+                    </p>
+                    <a href="/report" target="_blank" style={{ marginTop: 12, display: 'inline-block', fontSize: 12, color: '#5E6AD2', textDecoration: 'underline' }}>
+                      리포트 페이지 열기 →
+                    </a>
+                  </div>
                 ) : (
-                  <>
-                    {/* 리포트 목록 */}
-                    <div className={styles.reportList}>
-                      {MOCK_REPORTS.map(r => (
-                        <div
-                          key={r.id}
-                          ref={el => { reportListRefs.current[r.id] = el }}
-                          className={[styles.reportListItem, selectedReportId === r.id ? styles.reportListItemActive : ''].join(' ')}
-                          onClick={() => setSelectedReportId(selectedReportId === r.id ? null : r.id)}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
-                            <span style={{ width: 7, height: 7, borderRadius: '50%', background: TYPE_COLOR[r.meeting_type] || '#5E6AD2', flexShrink: 0 }} />
-                            <span className={styles.reportListLabel}>{r.label}</span>
-                          </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span className={styles.reportListDate}>{r.date}</span>
-                            <span style={{ fontSize: 10, color: TYPE_COLOR[r.meeting_type] || '#8892A0', background: (TYPE_COLOR[r.meeting_type] || '#5E6AD2') + '18', padding: '1px 6px', borderRadius: 4 }}>
-                              {r.meeting_type}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
+                  <div className={styles.reportPreview}>
+                    {/* 저장 시각 */}
+                    <div style={{ fontSize: 11, color: '#8892A0', marginBottom: 12, textAlign: 'right' }}>
+                      {new Date(savedReport.updated_at).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })} 저장
                     </div>
 
-                    {/* 선택된 리포트 내용 */}
-                    {selectedReportId && (() => {
-                      const report = MOCK_REPORTS.find(r => r.id === selectedReportId)
-                      if (!report) return null
-                      return (
-                        <div className={styles.reportPreview}>
-                          <div ref={reportTitleRef} className={styles.reportPreviewHeader}>
-                            <div className={styles.reportPreviewTitle}>{report.label}</div>
-                            <div className={styles.reportPreviewMeta}>{report.date}</div>
-                          </div>
-                          {report.sections.map((s, si) => (
-                            <div key={si} className={styles.reportPreviewSection}>
-                              <div className={styles.reportPreviewSectionHeading}>{s.heading}</div>
-                              {s.items && (
-                                <table className={styles.reportPreviewTable}>
-                                  <tbody>
-                                    {s.items.map((item, ii) => (
-                                      <tr key={ii}>
-                                        <td className={styles.reportPreviewTdLabel}>{item.label}</td>
-                                        <td className={[styles.reportPreviewTdValue, item.warn ? styles.reportPreviewWarn : ''].join(' ')}>{item.value}</td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                              )}
-                              {s.text && <p className={styles.reportPreviewText}>{s.text}</p>}
-                            </div>
-                          ))}
-                        </div>
-                      )
-                    })()}
-                  </>
+                    {/* 핵심 인사이트 */}
+                    {savedReport.edit_content?.key_insight && (
+                      <div className={styles.reportPreviewSection}>
+                        <div className={styles.reportPreviewSectionHeading}>💡 핵심 인사이트</div>
+                        <p className={styles.reportPreviewText}>{savedReport.edit_content.key_insight}</p>
+                      </div>
+                    )}
+
+                    {/* 보장공백 */}
+                    {savedReport.edit_content?.gap_analysis && (
+                      <div className={styles.reportPreviewSection}>
+                        <div className={styles.reportPreviewSectionHeading}>⚠️ 보장공백 진단</div>
+                        <p className={styles.reportPreviewText}>{savedReport.edit_content.gap_analysis}</p>
+                      </div>
+                    )}
+
+                    {/* 나이별 시사점 */}
+                    {savedReport.edit_content?.age_comparison && (
+                      <div className={styles.reportPreviewSection}>
+                        <div className={styles.reportPreviewSectionHeading}>📅 나이별 시사점</div>
+                        <p className={styles.reportPreviewText}>{savedReport.edit_content.age_comparison}</p>
+                      </div>
+                    )}
+
+                    {/* 상담 스크립트 */}
+                    {savedReport.edit_content?.consultation_script && (
+                      <div className={styles.reportPreviewSection}>
+                        <div className={styles.reportPreviewSectionHeading}>💬 상담 스크립트</div>
+                        <p className={styles.reportPreviewText}>{savedReport.edit_content.consultation_script}</p>
+                      </div>
+                    )}
+
+                    {/* 피칭 포인트 */}
+                    {savedReport.edit_content?.pitch_points && (
+                      <div className={styles.reportPreviewSection}>
+                        <div className={styles.reportPreviewSectionHeading}>🎯 피칭 포인트</div>
+                        <p className={styles.reportPreviewText}>{savedReport.edit_content.pitch_points}</p>
+                      </div>
+                    )}
+
+                    <a href="/report" target="_blank" style={{ display: 'block', marginTop: 16, fontSize: 12, color: '#5E6AD2', textAlign: 'center', textDecoration: 'underline' }}>
+                      전체 리포트 보기 →
+                    </a>
+                  </div>
                 )}
               </div>
             </div>

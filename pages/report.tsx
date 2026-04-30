@@ -129,6 +129,8 @@ export default function ReportPage() {
   const [localCoverageSummary, setLocalCoverageSummary] = useState<any[]>([])
   const [dragIdx, setDragIdx]             = useState<number | null>(null)
   const [dragOverIdx, setDragOverIdx]     = useState<number | null>(null)
+  const [saving, setSaving]               = useState(false)
+  const [savedAt, setSavedAt]             = useState<string | null>(null)
 
   const layoutRef  = useRef<HTMLDivElement>(null)
   const sidebarRef = useRef<HTMLDivElement>(null)
@@ -288,6 +290,39 @@ export default function ReportPage() {
       alert('재생성 실패: ' + e.message)
     } finally {
       setBlockLoading(null)
+    }
+  }
+
+  // ── 리포트 저장 ──
+  async function saveReport() {
+    if (!selected || !reportData) return
+    setSaving(true)
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      const payload = {
+        agent_id: user.id,
+        customer_id: selected.id,
+        report_data: reportData,
+        edit_content: editContent,
+        updated_at: new Date().toISOString(),
+      }
+      const { data: existing } = await supabase
+        .from('dpa_reports')
+        .select('id')
+        .eq('customer_id', selected.id)
+        .eq('agent_id', user.id)
+        .single()
+      if (existing) {
+        await supabase.from('dpa_reports').update(payload).eq('id', existing.id)
+      } else {
+        await supabase.from('dpa_reports').insert(payload)
+      }
+      setSavedAt(new Date().toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }))
+    } catch (e: any) {
+      alert('저장 실패: ' + e.message)
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -513,6 +548,14 @@ export default function ReportPage() {
             >
               {loading ? '⏳ AI 분석 중...' : '✨ AI 분석 생성'}
             </button>
+            <button
+              className={styles.saveBtn}
+              onClick={saveReport}
+              disabled={!reportData || saving}
+            >
+              {saving ? '저장 중...' : '💾 리포트 저장'}
+            </button>
+            {savedAt && <span className={styles.savedAt}>✓ {savedAt} 저장됨</span>}
             <button
               className={styles.previewBtn}
               onClick={() => setModalOpen(true)}

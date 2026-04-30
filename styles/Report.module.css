@@ -395,6 +395,22 @@
 .generateBtn:hover    { background: #4A56C0; }
 .generateBtn:disabled { background: #E5E7EB; color: #8892A0; cursor: not-allowed; }
 
+.saveBtn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1.5px solid #5E6AD2;
+  background: #F0F1FB;
+  color: #5E6AD2;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.saveBtn:hover    { background: #E4E6F7; }
+.saveBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+.savedAt { font-size: 11px; color: #5E6AD2; text-align: center; }
+
 .previewBtn {
   width: 100%;
   padding: 10px;
