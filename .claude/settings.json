@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__af3800a2-fd38-4d29-913b-58ed75976cdb__list_deployments",
+      "mcp__af3800a2-fd38-4d29-913b-58ed75976cdb__get_runtime_logs",
+      "mcp__af3800a2-fd38-4d29-913b-58ed75976cdb__get_deployment_build_logs",
+      "mcp__6cd30f1b-0031-4d13-be38-a27870320867__list_projects",
+      "mcp__6cd30f1b-0031-4d13-be38-a27870320867__list_tables",
+      "mcp__Claude_Preview__preview_screenshot",
+      "mcp__Claude_Preview__preview_start"
+    ]
+  }
+}

@@ -461,6 +461,39 @@ export default function Consultations() {
             </button>
           </div>
 
+          {/* Legend — 클릭 필터 + 이번달 건수 */}
+          {(() => {
+            const monthStr = `${calYear}-${String(calMonthNum + 1).padStart(2, '0')}`
+            const totalCnt = consultations.filter(c => c.meeting_date.startsWith(monthStr)).length
+            return (
+              <div className={styles.calLegend}>
+                <button
+                  className={[styles.calLegendItem, styles.calLegendBtn, !calTypeFilter ? styles.calLegendBtnActive : ''].join(' ')}
+                  onClick={() => setCalTypeFilter(null)}
+                >
+                  <span className={styles.calLegendLabel} style={{ fontWeight: !calTypeFilter ? 700 : 400, color: !calTypeFilter ? '#5E6AD2' : undefined }}>전체</span>
+                  {totalCnt > 0 && <span className={styles.calLegendCount} style={{ background: 'rgba(94,106,210,0.12)', color: '#5E6AD2' }}>{totalCnt}</span>}
+                </button>
+                {MEETING_TYPES.map(t => {
+                  const cnt = consultations.filter(c => c.meeting_date.startsWith(monthStr) && c.meeting_type === t.value).length
+                  const isActive = calTypeFilter === t.value
+                  return (
+                    <button
+                      key={t.value}
+                      className={[styles.calLegendItem, styles.calLegendBtn, isActive ? styles.calLegendBtnActive : ''].join(' ')}
+                      style={{ opacity: cnt === 0 ? 0.35 : 1 }}
+                      onClick={() => setCalTypeFilter(isActive ? null : t.value)}
+                    >
+                      <span className={styles.calLegendDot} style={{ background: t.color }} />
+                      <span className={styles.calLegendLabel} style={{ color: isActive ? t.color : undefined, fontWeight: isActive ? 700 : 400 }}>{t.value}</span>
+                      {cnt > 0 && <span className={styles.calLegendCount} style={{ background: t.color + '22', color: t.color }}>{cnt}</span>}
+                    </button>
+                  )
+                })}
+              </div>
+            )
+          })()}
+
           {/* Calendar grid */}
           <div className={styles.calGrid}>
             {DAYS_KR.map((d, i) => (
@@ -511,38 +544,6 @@ export default function Consultations() {
             })}
           </div>
 
-          {/* Legend — 클릭 필터 + 이번달 건수 */}
-          {(() => {
-            const monthStr = `${calYear}-${String(calMonthNum + 1).padStart(2, '0')}`
-            const totalCnt = consultations.filter(c => c.meeting_date.startsWith(monthStr)).length
-            return (
-              <div className={styles.calLegend}>
-                <button
-                  className={[styles.calLegendItem, styles.calLegendBtn, !calTypeFilter ? styles.calLegendBtnActive : ''].join(' ')}
-                  onClick={() => setCalTypeFilter(null)}
-                >
-                  <span className={styles.calLegendLabel} style={{ fontWeight: !calTypeFilter ? 700 : 400, color: !calTypeFilter ? '#5E6AD2' : undefined }}>전체</span>
-                  {totalCnt > 0 && <span className={styles.calLegendCount} style={{ background: 'rgba(94,106,210,0.12)', color: '#5E6AD2' }}>{totalCnt}</span>}
-                </button>
-                {MEETING_TYPES.map(t => {
-                  const cnt = consultations.filter(c => c.meeting_date.startsWith(monthStr) && c.meeting_type === t.value).length
-                  const isActive = calTypeFilter === t.value
-                  return (
-                    <button
-                      key={t.value}
-                      className={[styles.calLegendItem, styles.calLegendBtn, isActive ? styles.calLegendBtnActive : ''].join(' ')}
-                      style={{ opacity: cnt === 0 ? 0.35 : 1 }}
-                      onClick={() => setCalTypeFilter(isActive ? null : t.value)}
-                    >
-                      <span className={styles.calLegendDot} style={{ background: t.color }} />
-                      <span className={styles.calLegendLabel} style={{ color: isActive ? t.color : undefined, fontWeight: isActive ? 700 : 400 }}>{t.value}</span>
-                      {cnt > 0 && <span className={styles.calLegendCount} style={{ background: t.color + '22', color: t.color }}>{cnt}</span>}
-                    </button>
-                  )
-                })}
-              </div>
-            )
-          })()}
         </div>
 
         {/* ════════ RIGHT — Today + Week stacked ════════ */}
