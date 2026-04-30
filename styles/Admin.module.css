@@ -337,3 +337,5 @@
 :root[data-theme="dark"] .uploadArea { background: #2A2A2A; border-color: rgba(255,255,255,0.12); }
 :root[data-theme="dark"] .urlRow { border-bottom-color: rgba(255,255,255,0.08); }
 :root[data-theme="dark"] .urlValue { background: #333333; color: rgba(255,255,255,0.5); }
+:root[data-theme="dark"] .urlName { color: #E8E8E8; }
+:root[data-theme="dark"] .priorityChip { background: rgba(180,83,9,0.18); color: #FCD34D; }

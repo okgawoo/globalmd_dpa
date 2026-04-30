@@ -8,6 +8,14 @@ export default function Sales() {
   const [messages, setMessages] = useState<any[]>([])
   const [customers, setCustomers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [isDark, setIsDark] = useState(false)
+  useEffect(() => {
+    const check = () => setIsDark(document.documentElement.getAttribute('data-theme') === 'dark')
+    check()
+    const observer = new MutationObserver(check)
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
+    return () => observer.disconnect()
+  }, [])
   const [monthlyGoal, setMonthlyGoal] = useState(0)
   const [editingGoal, setEditingGoal] = useState(false)
   const [goalInput, setGoalInput] = useState('')
@@ -134,7 +142,7 @@ export default function Sales() {
   const thisMonthCustomers = customers.filter(c => c.created_at >= thisMonthStart).length
 
   return (
-    <div style={{ padding: '24px 20px', maxWidth: 900, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ padding: '24px 20px', maxWidth: 1200, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
       {/* 헤더 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
@@ -295,7 +303,7 @@ export default function Sales() {
           </div>
           <ResponsiveContainer width="100%" height={160}>
             <LineChart data={last6MonthsCustomers} margin={{ top: 8, right: 12, left: -24, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke={isDark ? 'rgba(255,255,255,0.10)' : '#F3F4F6'} vertical={false} />
               <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#8892A0' }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 11, fill: '#8892A0' }} axisLine={false} tickLine={false} allowDecimals={false} />
               <Tooltip formatter={(v: any) => [`${v}명`, '신규 고객']} cursor={{ stroke: '#E5E7EB' }} />

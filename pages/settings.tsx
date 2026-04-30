@@ -86,6 +86,14 @@ export default function SettingsPage() {
   const [telecomVerifyIssues, setTelecomVerifyIssues] = useState<string[]>([])
   const [telecomVerified, setTelecomVerified] = useState<boolean | null>(null)
   const [smsAgreed, setSmsAgreed] = useState(false)
+  const [isDark, setIsDark] = useState(false)
+  useEffect(() => {
+    const check = () => setIsDark(document.documentElement.getAttribute('data-theme') === 'dark')
+    check()
+    const observer = new MutationObserver(check)
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
+    return () => observer.disconnect()
+  }, [])
   const [smsForm, setSmsForm] = useState({ birthDate: '', address: '', senderPhone: '', addressDetail: '' })
   const [signatureData, setSignatureData] = useState('')
   const [isDrawing, setIsDrawing] = useState(false)
@@ -466,31 +474,31 @@ export default function SettingsPage() {
                   ))}
                 </div>
 
-                <div style={{ background: '#FEF3C7', borderRadius: 8, padding: '10px 14px', marginBottom: 16, border: '1px solid #FDE68A' }}>
-                  <p style={{ fontSize: 12, color: '#92400E' }}>
+                <div style={{ background: isDark ? 'rgba(161,98,7,0.15)' : '#FEF3C7', borderRadius: 8, padding: '10px 14px', marginBottom: 16, border: isDark ? '1px solid rgba(161,98,7,0.3)' : '1px solid #FDE68A' }}>
+                  <p style={{ fontSize: 12, color: isDark ? '#FCD34D' : '#92400E' }}>
                     ⏱ 제출 후 <b>영업일 기준 1~3일</b> 이내 검토 후 활성화됩니다.<br/>
                     🔒 입력하신 정보는 발신번호 등록 목적으로만 사용되며, 서비스 해지 즉시 파기됩니다.
                   </p>
                 </div>
 
-                <div style={{ borderTop: '1px solid #E5E7EB', paddingTop: 14 }}>
-                  <p style={{ fontWeight: 600, fontSize: 13, color: '#1A1A2E', marginBottom: 10 }}>서비스 이용에 동의하시겠습니까?</p>
+                <div style={{ borderTop: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid #E5E7EB', paddingTop: 14 }}>
+                  <p style={{ fontWeight: 600, fontSize: 13, color: isDark ? '#E8E8E8' : '#1A1A2E', marginBottom: 10 }}>서비스 이용에 동의하시겠습니까?</p>
                   <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, cursor: 'pointer', marginBottom: 8 }}>
                     <input type="checkbox" checked={smsAgreed} onChange={e => setSmsAgreed(e.target.checked)} style={{ marginTop: 2, accentColor: '#5E6AD2' }} />
-                    <span style={{ fontSize: 12, color: '#374151', lineHeight: 1.6 }}>
+                    <span style={{ fontSize: 12, color: isDark ? '#C0C0C0' : '#374151', lineHeight: 1.6 }}>
                       개인정보 수집·이용에 동의합니다. (수집항목: 이름, 생년월일, 주소, 전화번호 / 목적: 문자 발신번호 등록 대행 / 보유기간: 서비스 해지 시 즉시 파기)
                     </span>
                   </label>
                   <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, cursor: 'pointer', marginBottom: 14 }}>
                     <input type="checkbox" checked={smsAgreed} onChange={e => setSmsAgreed(e.target.checked)} style={{ marginTop: 2, accentColor: '#5E6AD2' }} />
-                    <span style={{ fontSize: 12, color: '#374151', lineHeight: 1.6 }}>
+                    <span style={{ fontSize: 12, color: isDark ? '#C0C0C0' : '#374151', lineHeight: 1.6 }}>
                       발신번호 등록 위임에 동의합니다. (위임내용: 본인 명의 번호를 주식회사 글로벌엠디에 발신번호 등록 업무 위임)
                     </span>
                   </label>
                   <button
                     onClick={() => { if (smsAgreed) setSmsAuthStep('form') }}
                     disabled={!smsAgreed}
-                    style={{ width: '100%', padding: '12px 0', borderRadius: 10, border: 'none', background: smsAgreed ? '#5E6AD2' : '#D1D5DB', color: 'white', fontSize: 14, fontWeight: 600, cursor: smsAgreed ? 'pointer' : 'not-allowed' }}>
+                    style={{ width: '100%', padding: '12px 0', borderRadius: 10, border: 'none', background: smsAgreed ? '#5E6AD2' : isDark ? '#3C3C3C' : '#D1D5DB', color: smsAgreed ? 'white' : isDark ? '#888' : 'white', fontSize: 14, fontWeight: 600, cursor: smsAgreed ? 'pointer' : 'not-allowed' }}>
                     인증 시작하기
                   </button>
                 </div>

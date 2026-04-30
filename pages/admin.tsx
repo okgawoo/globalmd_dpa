@@ -70,6 +70,15 @@ export default function AdminPage() {
 
   const [topMenu, setTopMenu] = useState<'대시보드' | '공지사항' | '설계사' | '유튜브' | '보험공시'>('대시보드')
 
+  const [isDark, setIsDark] = useState(false)
+  useEffect(() => {
+    const check = () => setIsDark(document.documentElement.getAttribute('data-theme') === 'dark')
+    check()
+    const observer = new MutationObserver(check)
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
+    return () => observer.disconnect()
+  }, [])
+
   const [ytChannels, setYtChannels] = useState<any[]>([])
   const [ytFormOpen, setYtFormOpen] = useState(false)
   const [ytSaving, setYtSaving] = useState(false)
@@ -462,19 +471,19 @@ export default function AdminPage() {
     { key: '공지사항', label: '공지사항 관리' },
     { key: '설계사', label: '설계사 관리' },
     { key: '유튜브', label: 'YouTube 채널' },
-    { key: '보험공시', label: '보험 공시 관리' },
+    { key: '보험공시', label: '공시 관리' },
   ]
 
   const tdStyle = (extra?: React.CSSProperties): React.CSSProperties => ({
     padding: '11px 16px',
     fontSize: 14,
-    borderBottom: '1px solid #E5E7EB',
-    color: '#1A1A2E',
+    borderBottom: isDark ? '1px solid rgba(255,255,255,0.07)' : '1px solid #E5E7EB',
+    color: isDark ? '#E8E8E8' : '#1A1A2E',
     ...extra,
   })
 
-  const badge = (bg: string, color: string, text: string) => (
-    <span style={{ fontSize: 12, fontWeight: 600, padding: '2px 10px', borderRadius: 20, background: bg, color }}>{text}</span>
+  const badge = (bg: string, color: string, text: string, darkBg?: string, darkColor?: string) => (
+    <span style={{ fontSize: 12, fontWeight: 600, padding: '2px 10px', borderRadius: 20, background: isDark && darkBg ? darkBg : bg, color: isDark && darkColor ? darkColor : color }}>{text}</span>
   )
 
   const isPushDisabled = pushSending || !pushTitle.trim() || !pushBody.trim()
@@ -558,7 +567,7 @@ export default function AdminPage() {
                   </div>
 
                   {quickPushOpen && (
-                    <div style={{ padding: '0 20px 16px', borderBottom: '1px solid #E5E7EB' }}>
+                    <div style={{ padding: '0 20px 16px', borderBottom: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid #E5E7EB' }}>
                       <input className={styles.fieldInput} value={pushTitle} onChange={e => setPushTitle(e.target.value)} placeholder="공지 제목" style={{ marginBottom: 8 }} />
                       <textarea className={styles.fieldTextarea} value={pushBody} onChange={e => setPushBody(e.target.value)} placeholder="공지 내용" rows={3} style={{ marginBottom: 8 }} />
                       <input className={styles.fieldInput} value={pushUrl} onChange={e => setPushUrl(e.target.value)} placeholder="클릭 시 이동 URL (선택)" style={{ marginBottom: 8 }} />
@@ -580,7 +589,7 @@ export default function AdminPage() {
                   ) : (
                     <div>
                       {pushHistory.slice(0, 5).map(n => (
-                        <div key={n.id} style={{ padding: '10px 20px', borderBottom: '1px solid #F3F4F6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div key={n.id} style={{ padding: '10px 20px', borderBottom: isDark ? '1px solid rgba(255,255,255,0.07)' : '1px solid #F3F4F6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <div>
                             <p style={{ fontSize: 13, fontWeight: 500, color: '#1A1A2E', margin: 0 }}>{n.title}</p>
                             <p style={{ fontSize: 11, color: '#8892A0', margin: '2px 0 0' }}>
@@ -809,7 +818,7 @@ export default function AdminPage() {
                       </td>
                       <td style={tdStyle({ fontWeight: 500 })}>{n.title}</td>
                       <td style={tdStyle({ color: '#636B78', maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' })}>{n.body}</td>
-                      <td style={tdStyle()}>{badge('#D1FAE5', '#065F46', `${n.sent_count}명`)}</td>
+                      <td style={tdStyle()}>{badge('#D1FAE5', '#065F46', `${n.sent_count}명`, 'rgba(16,185,129,0.15)', '#6EE7B7')}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -1001,7 +1010,10 @@ export default function AdminPage() {
                     <span style={{ fontSize: 13, fontWeight: 600, color: ytSelectedChannel?.id === ch.id ? '#5E6AD2' : '#1A1A2E' }}>
                       {ch.name}
                     </span>
-                    {badge(ch.is_active ? '#D1FAE5' : '#F3F4F6', ch.is_active ? '#065F46' : '#6B7280', ch.is_active ? '활성' : '비활성')}
+                    {ch.is_active
+                      ? badge('#D1FAE5', '#065F46', '활성', 'rgba(16,185,129,0.15)', '#6EE7B7')
+                      : badge('#F3F4F6', '#6B7280', '비활성', 'rgba(255,255,255,0.07)', '#888')
+                    }
                   </div>
                   <div style={{ fontSize: 11, color: '#8892A0' }}>
                     {ch.handle && <span>{ch.handle}</span>}
@@ -1288,13 +1300,16 @@ export default function AdminPage() {
                         <tr key={cat.id}>
                           <td style={tdStyle({ fontWeight: 500 })}>{cat.category}</td>
                           <td style={tdStyle()}>
-                            {cat.is_priority ? badge('#FEF3C7', '#D97706', '핵심') : <span style={{ color: '#8892A0', fontSize: 14 }}>-</span>}
+                            {cat.is_priority ? badge('#FEF3C7', '#D97706', '핵심', 'rgba(180,83,9,0.18)', '#FCD34D') : <span style={{ color: '#8892A0', fontSize: 14 }}>-</span>}
                           </td>
                           <td style={tdStyle({ color: '#636B78' })}>{uploaded ? new Date(uploaded.created_at).toLocaleDateString('ko-KR') : '-'}</td>
                           <td style={tdStyle({ color: '#636B78' })}>{uploaded ? `${uploaded.company_count}개` : '-'}</td>
                           <td style={tdStyle({ color: '#636B78' })}>{uploaded ? `${uploaded.row_count.toLocaleString()}행` : '-'}</td>
                           <td style={tdStyle()}>
-                            {uploaded ? badge('#D1FAE5', '#065F46', '완료') : badge('#FEE2E2', '#991B1B', '미업로드')}
+                            {uploaded
+                              ? badge('#D1FAE5', '#065F46', '완료', 'rgba(16,185,129,0.15)', '#6EE7B7')
+                              : badge('#FEE2E2', '#991B1B', '미업로드', 'rgba(220,38,38,0.15)', '#F87171')
+                            }
                           </td>
                         </tr>
                       )
@@ -1311,8 +1326,11 @@ export default function AdminPage() {
                 </div>
                 <div style={{ padding: 16 }}>
                   {validations.slice(0, 10).map(v => (
-                    <div key={v.id} style={{ display: 'flex', gap: 12, padding: '8px 0', borderBottom: '1px solid #E5E7EB', alignItems: 'flex-start' }}>
-                      {badge(v.severity === 'error' ? '#FEE2E2' : '#FEF3C7', v.severity === 'error' ? '#991B1B' : '#D97706', v.severity === 'error' ? '오류' : '경고')}
+                    <div key={v.id} style={{ display: 'flex', gap: 12, padding: '8px 0', borderBottom: isDark ? '1px solid rgba(255,255,255,0.07)' : '1px solid #E5E7EB', alignItems: 'flex-start' }}>
+                      {v.severity === 'error'
+                        ? badge('#FEE2E2', '#991B1B', '오류', 'rgba(220,38,38,0.15)', '#F87171')
+                        : badge('#FEF3C7', '#D97706', '경고', 'rgba(180,83,9,0.18)', '#FCD34D')
+                      }
                       <div>
                         <p style={{ fontSize: 14, color: '#1A1A2E' }}>{v.detail}</p>
                         <p style={{ fontSize: 13, color: '#8892A0', marginTop: 2 }}>
@@ -1429,8 +1447,8 @@ export default function AdminPage() {
                   { name: '사망보험', confirmed: true },
                   { name: '태아보험', confirmed: true },
                 ]
-                const thS: React.CSSProperties = { padding: '8px 10px', fontSize: 11, fontWeight: 600, color: '#8892A0', background: '#F7F8FA', borderBottom: '1px solid #E5E7EB', textAlign: 'center', whiteSpace: 'nowrap' }
-                const tdS: React.CSSProperties = { padding: '7px 8px', fontSize: 12, borderBottom: '1px solid #F3F4F6', textAlign: 'center' }
+                const thS: React.CSSProperties = { padding: '8px 10px', fontSize: 11, fontWeight: 600, color: '#8892A0', background: isDark ? '#2A2A2A' : '#F7F8FA', borderBottom: isDark ? '1px solid rgba(255,255,255,0.07)' : '1px solid #E5E7EB', textAlign: 'center', whiteSpace: 'nowrap' }
+                const tdS: React.CSSProperties = { padding: '7px 8px', fontSize: 12, borderBottom: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid #F3F4F6', textAlign: 'center' }
                 return (
                   <div className={styles.card} style={{ overflowX: 'auto' }}>
                     <div className={styles.cardHeader}>
@@ -1450,22 +1468,22 @@ export default function AdminPage() {
                         </thead>
                         <tbody>
                           {INSURERS.map((ins, idx) => (
-                            <tr key={ins.id} style={{ background: idx % 2 === 0 ? '#fff' : '#FAFAFA' }}>
-                              <td style={{ ...tdS, textAlign: 'left', fontWeight: ins.active ? 600 : 400, color: ins.active ? '#1A1A2E' : '#8892A0', paddingLeft: 16 }}>
+                            <tr key={ins.id} style={{ background: idx % 2 === 0 ? (isDark ? '#1E1E1E' : '#fff') : (isDark ? '#242424' : '#FAFAFA') }}>
+                              <td style={{ ...tdS, textAlign: 'left', fontWeight: ins.active ? 600 : 400, color: ins.active ? (isDark ? '#E8E8E8' : '#1A1A2E') : '#8892A0', paddingLeft: 16 }}>
                                 {ins.name}
                               </td>
                               <td style={tdS}>
-                                <span style={{ fontSize: 10, padding: '1px 5px', borderRadius: 4, background: ins.type === '손해보험' ? '#EFF6FF' : '#F0FDF4', color: ins.type === '손해보험' ? '#1D4ED8' : '#16a34a' }}>
+                                <span style={{ fontSize: 10, padding: '1px 5px', borderRadius: 4, background: ins.type === '손해보험' ? (isDark ? 'rgba(29,78,216,0.2)' : '#EFF6FF') : (isDark ? 'rgba(22,163,74,0.15)' : '#F0FDF4'), color: ins.type === '손해보험' ? (isDark ? '#93C5FD' : '#1D4ED8') : (isDark ? '#6EE7B7' : '#16a34a') }}>
                                   {ins.type === '손해보험' ? '손해' : '생명'}
                                 </span>
                               </td>
                               {ACTIVE_CATS.map(c => (
                                 <td key={c.name} style={tdS}>
                                   {ins.active && c.confirmed
-                                    ? <span style={{ color: '#16a34a', fontWeight: 700, fontSize: 14 }}>✓</span>
+                                    ? <span style={{ color: isDark ? '#4ADE80' : '#16a34a', fontWeight: 700, fontSize: 14 }}>✓</span>
                                     : ins.active && !c.confirmed
                                     ? <span style={{ color: '#F59E0B', fontSize: 13 }}>?</span>
-                                    : <span style={{ color: '#E5E7EB' }}>—</span>
+                                    : <span style={{ color: isDark ? 'rgba(255,255,255,0.15)' : '#E5E7EB' }}>—</span>
                                   }
                                 </td>
                               ))}
@@ -1474,10 +1492,10 @@ export default function AdminPage() {
                         </tbody>
                       </table>
                     </div>
-                    <div style={{ padding: '8px 16px', borderTop: '1px solid #F3F4F6', display: 'flex', gap: 16, fontSize: 11, color: '#8892A0' }}>
-                      <span><span style={{ color: '#16a34a', fontWeight: 700 }}>✓</span> API 연동 완료</span>
+                    <div style={{ padding: '8px 16px', borderTop: isDark ? '1px solid rgba(255,255,255,0.07)' : '1px solid #F3F4F6', display: 'flex', gap: 16, fontSize: 11, color: '#8892A0' }}>
+                      <span><span style={{ color: isDark ? '#4ADE80' : '#16a34a', fontWeight: 700 }}>✓</span> API 연동 완료</span>
                       <span><span style={{ color: '#F59E0B' }}>?</span> srtSq 미확인 (DevTools로 탐색 필요)</span>
-                      <span><span style={{ color: '#D1D5DB' }}>—</span> 미연동</span>
+                      <span><span style={{ color: isDark ? 'rgba(255,255,255,0.2)' : '#D1D5DB' }}>—</span> 미연동</span>
                     </div>
                   </div>
                 )
@@ -1493,9 +1511,9 @@ export default function AdminPage() {
                       onClick={() => ins.active && setSelectedInsurer(ins.id === selectedInsurer ? null : ins.id)}
                       style={{
                         padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: 500,
-                        border: selectedInsurer === ins.id ? '2px solid #5E6AD2' : '1px solid #E5E7EB',
-                        background: selectedInsurer === ins.id ? '#F0F0FD' : ins.active ? '#fff' : '#F7F8FA',
-                        color: selectedInsurer === ins.id ? '#5E6AD2' : ins.active ? '#1A1A2E' : '#C0C8D0',
+                        border: selectedInsurer === ins.id ? '2px solid #5E6AD2' : isDark ? '1px solid rgba(255,255,255,0.10)' : '1px solid #E5E7EB',
+                        background: selectedInsurer === ins.id ? (isDark ? 'rgba(94,106,210,0.2)' : '#F0F0FD') : ins.active ? (isDark ? '#2A2A2A' : '#fff') : (isDark ? '#222' : '#F7F8FA'),
+                        color: selectedInsurer === ins.id ? '#5E6AD2' : ins.active ? (isDark ? '#E8E8E8' : '#1A1A2E') : '#8892A0',
                         cursor: ins.active ? 'pointer' : 'not-allowed',
                         position: 'relative',
                       }}
