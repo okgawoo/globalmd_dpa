@@ -112,7 +112,7 @@
   .contentDashboard { width: 100%; max-width: 900px; margin: 0 auto; padding: 24px 32px; display: block; }
   /* 사이드바 메뉴 글자 */
   .navItem { font-size: 15px; color: var(--text-secondary); }
-  .navItem.active { font-size: 15px; font-weight: 600; color: #1D9E75; }
+  .navItem.active { font-size: 15px; font-weight: 600; color: #5E6AD2; background: #EEF2FF; }
   /* 헤더 타이틀 */
   .headerTitle { font-size: 16px; font-weight: 600; }
 }

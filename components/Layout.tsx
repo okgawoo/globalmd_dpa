@@ -29,8 +29,8 @@ function HeaderDateBadge() {
   )
 }
 
-function NavIcon({ path, active }: { path: string; active: boolean }) {
-  const c = active ? '#1D9E75' : '#9CA3AF'
+function NavIcon({ path, active, isDesktop }: { path: string; active: boolean; isDesktop: boolean }) {
+  const c = active ? (isDesktop ? '#5E6AD2' : '#1D9E75') : '#9CA3AF'
   const s = { width: 18, height: 18 }
   if (path === '/') return <svg {...s} style={{transform:'translateY(-1px)'}} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
   if (path === '/customers') return <svg {...s} style={{transform:'translateY(-1px)'}} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -62,6 +62,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [userEmail, setUserEmail] = useState('')
   const [userRole, setUserRole] = useState('')
+  const [isDesktop, setIsDesktop] = useState(false)
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 769px)')
+    const update = () => setIsDesktop(mq.matches)
+    update()
+    mq.addEventListener('change', update)
+    return () => mq.removeEventListener('change', update)
+  }, [])
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -144,14 +153,20 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <a href="/" className={styles.sidebarLogo}>
             <div>
               <div style={{display:'flex',alignItems:'center',gap:10}}>
-                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" style={{flexShrink:0}}>
-                  <rect width="40" height="40" rx="12" fill="#1D9E75"/>
-                  <path d="M10 20C10 14.477 14.477 10 20 10C25.523 10 30 14.477 30 20C30 25.523 25.523 30 20 30" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
-                  <path d="M20 30C17.5 30 15 28 15 25C15 22 17 20 20 20C23 20 25 22 25 25" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
-                  <circle cx="20" cy="20" r="2" fill="white"/>
-                </svg>
-                <span className={styles.logoText} style={{color:'var(--text-primary)',fontWeight:700,fontSize:26,lineHeight:1}}>DPA</span>
-                <span className={styles.logoVersion} style={{color:'var(--text-secondary)',fontSize:11,alignSelf:'flex-end'}}>v2.0</span>
+                {isDesktop ? (
+                  <div style={{ width: 40, height: 40, borderRadius: 12, background: 'linear-gradient(135deg, #5E6AD2, #3F48B8)', boxShadow: '0 4px 12px rgba(94,106,210,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <span style={{ color: '#fff', fontSize: 22, fontWeight: 800, fontStyle: 'italic', letterSpacing: '-1px', lineHeight: 1 }}>i</span>
+                  </div>
+                ) : (
+                  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" style={{flexShrink:0}}>
+                    <rect width="40" height="40" rx="12" fill="#1D9E75"/>
+                    <path d="M10 20C10 14.477 14.477 10 20 10C25.523 10 30 14.477 30 20C30 25.523 25.523 30 20 30" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+                    <path d="M20 30C17.5 30 15 28 15 25C15 22 17 20 20 20C23 20 25 22 25 25" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+                    <circle cx="20" cy="20" r="2" fill="white"/>
+                  </svg>
+                )}
+                <span className={styles.logoText} style={{color:'var(--text-primary)',fontWeight:700,fontSize:isDesktop?22:26,lineHeight:1}}>{isDesktop ? '아이플래너' : 'DPA'}</span>
+                <span className={styles.logoVersion} style={{color: isDesktop ? '#5E6AD2' : '#1D9E75', background: isDesktop ? '#EEF2FF' : '#E6F7F1', fontSize:11,alignSelf:'flex-end'}}>{isDesktop ? 'DEMO' : 'v2.0'}</span>
               </div>
               <span className={styles.logoSub} style={{display:'block',marginTop:4,color:'var(--text-secondary)',fontSize:13,lineHeight:1}}>AI 보험 관리 자동화 플랫폼</span>
             </div>
@@ -165,7 +180,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 className={[styles.navItem, router.pathname === m.path ? styles.active : ''].join(' ')}
                 onClick={() => setSidebarOpen(false)}
               >
-                <span className={styles.navIcon}><NavIcon path={m.path} active={router.pathname === m.path} /></span>
+                <span className={styles.navIcon}><NavIcon path={m.path} active={router.pathname === m.path} isDesktop={isDesktop} /></span>
                 <span className={styles.navLabel}>{m.label}</span>
               </a>
               {m.dividerAfter && <div className={styles.divider} />}
@@ -176,7 +191,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           {userRole === 'admin' && (
             <a href="/admin"
               onClick={() => setSidebarOpen(false)}
-              style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', marginBottom: 6, borderRadius: 8, background: router.pathname === '/admin' ? '#E1F5EE' : 'transparent', color: router.pathname === '/admin' ? '#1D9E75' : '#666', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
+              style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', marginBottom: 6, borderRadius: 8, background: router.pathname === '/admin' ? (isDesktop ? '#EEF2FF' : '#E1F5EE') : 'transparent', color: router.pathname === '/admin' ? (isDesktop ? '#5E6AD2' : '#1D9E75') : '#666', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
               </svg>
@@ -195,7 +210,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </aside>
 
       <div className={[styles.main, sidebarCollapsed ? styles.mainCollapsed : ''].join(' ')}>
-        <header className={[styles.header, isDashboardMobile ? styles.headerHiddenMobile : ''].join(' ')} style={isFullPage ? {display: 'none'} : {background:'#1D9E75'}}>
+        <header className={[styles.header, isDashboardMobile ? styles.headerHiddenMobile : ''].join(' ')} style={isFullPage ? {display: 'none'} : {background: isDesktop ? '#5E6AD2' : '#1D9E75'}}>
           <button className={styles.hamburger} onClick={() => setSidebarOpen(!sidebarOpen)}
             style={{filter:'brightness(0) invert(1)'}}>
             <span /><span /><span />
@@ -228,13 +243,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             width: 48,
             height: 48,
             borderRadius: '50%',
-            background: '#1D9E75',
+            background: isDesktop ? '#5E6AD2' : '#1D9E75',
             color: '#fff',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: 22,
-            boxShadow: '0 4px 12px rgba(29,158,117,0.4)',
+            boxShadow: isDesktop ? '0 4px 12px rgba(94,106,210,0.4)' : '0 4px 12px rgba(29,158,117,0.4)',
             zIndex: 99,
             textDecoration: 'none',
           }}>
