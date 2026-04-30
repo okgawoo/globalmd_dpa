@@ -1,6 +1,9 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 @keyframes fadeInDown { from { opacity: 0; transform: translateX(-50%) translateY(-8px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
 html { scrollbar-gutter: stable; }
+/* 다크모드 플래시 방지 — JS보다 CSS가 먼저 적용될 때를 대비한 직접 배경색 */
+html[data-theme="dark"] { background: #1A1A2E; }
+html[data-theme="light"] { background: #F7F8FA; }
 
 :root {
   --bg: #FAF9F5;

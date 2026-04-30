@@ -20,7 +20,7 @@ function LayoutWrapper({ children }: { children: ReactNode }) {
     mq.addEventListener('change', update)
     return () => mq.removeEventListener('change', update)
   }, [])
-  if (loading) return null
+  if (loading) return <div style={{ minHeight: '100vh', background: 'var(--admin-bg, #F7F8FA)' }} />
   // 데스크톱: 새 아이플래너 AdminLayout 전체 사용자 적용
   // 모바일: 기존 녹색 Layout 유지 (별도 리뉴얼 예정)
   if (isDesktop) return <AdminLayout>{children}</AdminLayout>
@@ -88,7 +88,7 @@ export default function App({ Component, pageProps }: AppProps) {
     )
   }
 
-  if (checking) return null
+  if (checking) return <div style={{ minHeight: '100vh', background: 'var(--admin-bg, #F7F8FA)' }} />
 
   if (demoStatus.expired) {
     return (
