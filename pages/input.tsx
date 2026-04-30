@@ -317,7 +317,7 @@ export default function InputPage() {
   }
 
   const [form, setForm] = useState({
-    name: '', rrn: '', age: '', gender: '여', job: '직장인 (회사원)',
+    name: '', rrn: '', age: '', gender: '', job: '',
     phone: '', grade: '일반', address: '', workplace: '',
     bank_name: '', bank_account: '', driver_license: '',
   })
@@ -602,11 +602,11 @@ export default function InputPage() {
             <div className={styles.field}><label>고객명 *</label><input value={form.name} onChange={e => setF('name', e.target.value.replace(/[0-9]/g, ''))} placeholder="홍길동" /></div>
             <div className={styles.field}><label>연락처</label><input value={form.phone} onChange={e => setF('phone', e.target.value)} placeholder="010-0000-0000" /></div>
             <div className={styles.field}><label>주민등록번호</label><input value={form.rrn} onChange={e => handleRRN(e.target.value)} placeholder="000000-0000000" maxLength={14} /></div>
-            <div className={styles.field}><label>성별 <span className={styles.autoTag}>자동</span></label><select value={form.gender} onChange={e => setF('gender', e.target.value)}><option>여</option><option>남</option></select></div>
+            <div className={styles.field}><label>성별 <span className={styles.autoTag}>자동</span></label><select value={form.gender} onChange={e => setF('gender', e.target.value)}><option value="">선택</option><option>남</option><option>여</option></select></div>
             <div className={styles.field}><label>은행명</label><select value={form.bank_name} onChange={e => setF('bank_name', e.target.value)}><option value="">선택</option>{BANKS.map(b => <option key={b}>{b}</option>)}</select></div>
             <div className={styles.field}><label>계좌번호</label><input value={form.bank_account} onChange={e => setF('bank_account', e.target.value)} placeholder="1002-3628-09746" /></div>
             <div className={styles.field} style={{gridColumn:'1 / -1'}}><label>주소</label><input value={form.address} onChange={e => setF('address', e.target.value)} placeholder="서울시 강남구..." /></div>
-            <div className={styles.field}><label>직업</label><select value={form.job} onChange={e => setF('job', e.target.value)}>{JOBS.map(j => <option key={j}>{j}</option>)}</select></div>
+            <div className={styles.field}><label>직업</label><select value={form.job} onChange={e => setF('job', e.target.value)}><option value="">선택</option>{JOBS.map(j => <option key={j}>{j}</option>)}</select></div>
             <div className={styles.field}><label>직장/소속</label><input value={form.workplace} onChange={e => setF('workplace', e.target.value)} placeholder="서울시청" /></div>
             {form.job === '기타' && <div className={styles.field} style={{gridColumn:'1 / -1'}}><label>직업 직접 입력</label><input value={jobCustom} onChange={e => setJobCustom(e.target.value)} placeholder="직업을 입력해주세요" /></div>}
             <div className={styles.field}><label>운전면허</label><input value={form.driver_license} onChange={e => setF('driver_license', e.target.value)} placeholder="26-06-009864-70" /></div>

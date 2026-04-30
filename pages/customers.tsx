@@ -104,7 +104,7 @@ function calcPaymentRate(ct: any): number {
 }
 
 const emptyCustomerForm = {
-  name: '', resident_number: '', age: '', gender: '남', job: '직장인', phone: '', grade: '일반',
+  name: '', resident_number: '', age: '', gender: '', job: '', phone: '', grade: '일반',
   address: '', workplace: '', bank_name: '', bank_account: '', driver_license: ''
 }
 
@@ -932,8 +932,8 @@ export default function Customers() {
                   {addForm.resident_number.length >= 8 && <span style={{fontSize:11,color:'hsl(var(--accent))',marginTop:3}}>✓ 만 {addForm.age}세</span>}
                 </div>
                 <div className={styles.editField}><label>성별</label>
-                  <select value={addForm.gender||'남'} onChange={e => setAddForm({ ...addForm, gender: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
-                    <option>남</option><option>여</option>
+                  <select value={addForm.gender||''} onChange={e => setAddForm({ ...addForm, gender: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
+                    <option value="">선택</option><option>남</option><option>여</option>
                   </select>
                 </div>
                 <div className={styles.editField}><label>은행명</label><input placeholder="우리은행" value={addForm.bank_name||''} onChange={e => setAddForm({ ...addForm, bank_name: e.target.value })} /></div>
@@ -1113,8 +1113,8 @@ export default function Customers() {
                         setEditForm({...editForm,resident_number:fmt,...(raw.length>=7?{gender,age,birth_date:birthDate}:{})})
                       }} /></div>
                     <div className={styles.editField}><label>성별 <span style={{fontSize:10,background:'hsl(var(--accent)/0.12)',color:'hsl(var(--accent))',padding:'1px 5px',borderRadius:999,fontWeight:600,marginLeft:2}}>자동</span></label>
-                      <select value={editForm.gender||'남'} onChange={e=>setEditForm({...editForm,gender:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
-                        <option>남</option><option>여</option><option>기타</option>
+                      <select value={editForm.gender||''} onChange={e=>setEditForm({...editForm,gender:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
+                        <option value="">선택</option><option>남</option><option>여</option><option>기타</option>
                       </select>
                     </div>
                     <div className={styles.editField}><label>은행명</label>
@@ -1125,8 +1125,8 @@ export default function Customers() {
                     <div className={styles.editField}><label>계좌번호</label><input value={editForm.bank_account||''} onChange={e=>setEditForm({...editForm,bank_account:e.target.value.replace(/[^0-9-]/g,'')})} inputMode="numeric" /></div>
                     <div className={styles.editField} style={{gridColumn:'span 2'}}><label>주소</label><input value={editForm.address||''} onChange={e=>setEditForm({...editForm,address:e.target.value})} /></div>
                     <div className={styles.editField}><label>직업</label>
-                      <select value={editForm.job||'직장인'} onChange={e=>setEditForm({...editForm,job:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
-                        {['직장인','자영업자','공무원','교사/교직원','의료인','전문직','주부','학생','농업/어업','프리랜서','은퇴/무직','기타'].map(j=><option key={j}>{j}</option>)}
+                      <select value={editForm.job||''} onChange={e=>setEditForm({...editForm,job:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
+                        {['','직장인','자영업자','공무원','교사/교직원','의료인','전문직','주부','학생','농업/어업','프리랜서','은퇴/무직','기타'].map(j=><option key={j} value={j}>{j||'선택'}</option>)}
                       </select>
                     </div>
                     <div className={styles.editField}><label>직장/소속</label><input value={editForm.workplace||''} onChange={e=>setEditForm({...editForm,workplace:e.target.value})} /></div>
@@ -1662,16 +1662,16 @@ export default function Customers() {
                       onChange={e => { const v = formatResident(e.target.value); const parsed = parseResident(v); setAddForm({ ...addForm, resident_number: v, gender: parsed.gender || addForm.gender, age: parsed.age ? String(parsed.age) : addForm.age }) }} />
                   </div>
                   <div className={styles.editField}><label>성별</label>
-                    <select value={addForm.gender||'남'} onChange={e => setAddForm({ ...addForm, gender: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
-                      <option>남</option><option>여</option>
+                    <select value={addForm.gender||''} onChange={e => setAddForm({ ...addForm, gender: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
+                      <option value="">선택</option><option>남</option><option>여</option>
                     </select>
                   </div>
                   <div className={styles.editField}><label>은행명</label><input placeholder="우리은행" value={addForm.bank_name||''} onChange={e => setAddForm({ ...addForm, bank_name: e.target.value })} /></div>
                   <div className={styles.editField}><label>계좌번호</label><input placeholder="1002-3628-09746" inputMode="numeric" value={addForm.bank_account||''} onChange={e => setAddForm({ ...addForm, bank_account: e.target.value.replace(/[^0-9-]/g,'') })} /></div>
                   <div className={styles.editField} style={{gridColumn:'span 2'}}><label>주소</label><input value={addForm.address||''} onChange={e => setAddForm({ ...addForm, address: e.target.value })} /></div>
                   <div className={styles.editField}><label>직업</label>
-                    <select value={addForm.job} onChange={e => setAddForm({ ...addForm, job: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
-                      {['직장인','자영업자','공무원','교사/교직원','의료인','전문직','주부','학생','농업/어업','프리랜서','은퇴/무직','기타'].map(j=><option key={j}>{j}</option>)}
+                    <select value={addForm.job||''} onChange={e => setAddForm({ ...addForm, job: e.target.value })} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
+                      {['','직장인','자영업자','공무원','교사/교직원','의료인','전문직','주부','학생','농업/어업','프리랜서','은퇴/무직','기타'].map(j=><option key={j} value={j}>{j||'선택'}</option>)}
                     </select>
                   </div>
                   <div className={styles.editField}><label>직장/소속</label><input value={addForm.workplace||''} onChange={e => setAddForm({ ...addForm, workplace: e.target.value })} /></div>
@@ -1727,8 +1727,8 @@ export default function Customers() {
                           setEditForm({...editForm,resident_number:fmt,...(raw.length>=7?{gender,age,birth_date:birthDate}:{})})
                         }} /></div>
                       <div className={styles.editField}><label>성별 <span style={{fontSize:10,background:'hsl(var(--accent)/0.12)',color:'hsl(var(--accent))',padding:'1px 5px',borderRadius:999,fontWeight:600,marginLeft:2}}>자동</span></label>
-                        <select value={editForm.gender||'남'} onChange={e=>setEditForm({...editForm,gender:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
-                          <option>남</option><option>여</option><option>기타</option>
+                        <select value={editForm.gender||''} onChange={e=>setEditForm({...editForm,gender:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
+                          <option value="">선택</option><option>남</option><option>여</option><option>기타</option>
                         </select>
                       </div>
                       <div className={styles.editField}><label>은행명</label>
@@ -1739,8 +1739,8 @@ export default function Customers() {
                       <div className={styles.editField}><label>계좌번호</label><input inputMode="numeric" value={editForm.bank_account||''} onChange={e=>setEditForm({...editForm,bank_account:e.target.value.replace(/[^0-9-]/g,'')})} /></div>
                       <div className={styles.editField} style={{gridColumn:'span 2'}}><label>주소</label><input value={editForm.address||''} onChange={e=>setEditForm({...editForm,address:e.target.value})} /></div>
                       <div className={styles.editField}><label>직업</label>
-                        <select value={editForm.job||'직장인'} onChange={e=>setEditForm({...editForm,job:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
-                          {['직장인','자영업자','공무원','교사/교직원','의료인','전문직','주부','학생','농업/어업','프리랜서','은퇴/무직','기타'].map(j=><option key={j}>{j}</option>)}
+                        <select value={editForm.job||''} onChange={e=>setEditForm({...editForm,job:e.target.value})} style={{width:'100%',fontSize:13,padding:'6px 10px',borderRadius:6,border:'1px solid hsl(var(--border-default))',background:'hsl(var(--bg-panel))'}}>
+                          {['','직장인','자영업자','공무원','교사/교직원','의료인','전문직','주부','학생','농업/어업','프리랜서','은퇴/무직','기타'].map(j=><option key={j} value={j}>{j||'선택'}</option>)}
                         </select>
                       </div>
                       <div className={styles.editField}><label>직장/소속</label><input value={editForm.workplace||''} onChange={e=>setEditForm({...editForm,workplace:e.target.value})} /></div>
