@@ -1025,9 +1025,25 @@ function Placeholder({ children, ai, loading }: { children: React.ReactNode; ai?
 function ReportModal({ data, blocks, editContent, localCoverageSummary, localCompanyDistribution, onClose }: { data: any; blocks: BlockDef[]; editContent: Record<string, any>; localCoverageSummary: any[]; localCompanyDistribution: any[]; onClose: () => void }) {
   const genDate = new Date(data.generatedAt).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })
   const disabledBlocks = blocks.filter(b => !b.enabled).map(b => b.id)
+  const [printToast, setPrintToast] = useState(false)
+  function showPrintToast() {
+    setPrintToast(true)
+    setTimeout(() => setPrintToast(false), 2800)
+  }
 
   return (
     <div className={`${styles.modalOverlay} report-print-overlay`} onClick={e => { if (e.target === e.currentTarget) onClose() }}>
+      {printToast && (
+        <div style={{
+          position: 'fixed', top: 180, left: '50%', transform: 'translateX(-50%)',
+          background: '#1A1A2E', color: '#fff', fontSize: 13, fontWeight: 500,
+          padding: '10px 20px', borderRadius: 10, zIndex: 9999,
+          boxShadow: '0 4px 20px rgba(0,0,0,0.3)', whiteSpace: 'nowrap',
+          animation: 'fadeInDown 0.2s ease',
+        }}>
+          🖨 인쇄 기능은 정식 오픈 후 제공될 예정이에요
+        </div>
+      )}
       <div className={`${styles.modalPanel} report-print-area`}>
         <div className={`${styles.modalTopbar} report-print-topbar`}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -1040,40 +1056,7 @@ function ReportModal({ data, blocks, editContent, localCoverageSummary, localCom
             </div>
           </div>
           <div className={styles.modalTopbarBtns}>
-            <button className={`${styles.topbarBtn} ${styles.topbarBtnPrint}`} onClick={() => {
-              const el = document.getElementById('report-doc-print')
-              if (!el) return
-
-              // 모든 스타일 수집 (link + style 태그)
-              const headContent = Array.from(document.head.children)
-                .filter(n => n.tagName === 'STYLE' || (n.tagName === 'LINK' && (n as HTMLLinkElement).rel === 'stylesheet'))
-                .map(n => n.outerHTML)
-                .join('\n')
-
-              const pw = window.open('', '_blank', 'width=900,height=1100')
-              if (!pw) return
-              pw.document.open()
-              pw.document.write(`<!DOCTYPE html><html><head>
-                <meta charset="utf-8">
-                <title>${data.customer.name} 보험 분석 리포트</title>
-                ${headContent}
-                <style>
-                  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-                  body { background: white; font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; }
-                  @page { size: A4; margin: 15mm; }
-                  table { border-collapse: collapse; width: 100%; }
-                </style>
-              </head><body>${el.outerHTML}</body></html>`)
-              pw.document.close()
-
-              // 스타일 로딩 대기 후 인쇄
-              setTimeout(() => {
-                try { pw.focus(); pw.print(); } catch(e) {}
-                // 인쇄 대화상자 닫으면 창 닫힘
-                pw.onafterprint = () => pw.close()
-                setTimeout(() => { try { pw.close() } catch(e) {} }, 5000)
-              }, 600)
-            }}>🖨 인쇄 / PDF 저장</button>
+            <button className={`${styles.topbarBtn} ${styles.topbarBtnPrint}`} onClick={showPrintToast}>🖨 인쇄 / PDF 저장</button>
             <button className={`${styles.topbarBtn} ${styles.topbarBtnClose}`} onClick={onClose}>✕ 닫기</button>
           </div>
         </div>
