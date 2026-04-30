@@ -282,6 +282,8 @@ export default function Consultations() {
     function updateSizes() {
       if (!layoutEl || !calEl || !rightEl) return
       const top = layoutEl.getBoundingClientRect().top
+      // ⚠️ 절대 변경 금지: 90은 오빠가 직접 확인하고 맞춘 값 (캘린더 하단 위치 기준)
+      // 카드·레이아웃·우측패널 모두 동일 높이로 고정 — 뷰포트 기반 직접 계산
       const h   = window.innerHeight - top - 90
       layoutEl.style.height = `${h}px`
       calEl.style.height    = `${h}px`
