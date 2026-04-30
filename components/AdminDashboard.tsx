@@ -176,7 +176,7 @@ export default function AdminDashboard({
   const router = useRouter()
   const [narrowTable, setNarrowTable] = useState(false)
   useEffect(() => {
-    const check = () => setNarrowTable(window.innerWidth <= 1000)
+    const check = () => setNarrowTable(window.innerWidth <= 1300)
     check()
     window.addEventListener('resize', check)
     return () => window.removeEventListener('resize', check)
