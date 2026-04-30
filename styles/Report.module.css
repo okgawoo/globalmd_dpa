@@ -574,8 +574,8 @@
 
 /* 설계사 전용 섹션 */
 .reportAgentSection {
-  margin-top: 48px;
-  padding-top: 40px;
+  margin-top: 24px;
+  padding-top: 20px;
   border-top: 2px solid #1A1A2E;
   page-break-before: always;
   break-before: page;
