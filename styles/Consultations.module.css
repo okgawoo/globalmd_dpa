@@ -568,7 +568,7 @@
 }
 .popupRightTab:hover { color: #1A1A2E; }
 .popupRightTabActive { color: #5E6AD2; border-bottom-color: #5E6AD2; font-weight: 600; }
-.popupRightBody { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; }
+.popupRightBody { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; scrollbar-gutter: stable; }
 
 /* Empty state */
 .emptyState {
