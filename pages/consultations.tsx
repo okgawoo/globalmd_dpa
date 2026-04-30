@@ -921,9 +921,9 @@ export default function Consultations() {
                   className={[styles.popupRightTab, popupRightTab === 'history' ? styles.popupRightTabActive : ''].join(' ')}
                   onClick={() => { setPopupRightTab('history'); setPopupStage(1) }}>상담 이력</button>
                 <button
-                  className={[styles.popupRightTab, popupRightTab === 'report' ? styles.popupRightTabActive : ''].join(' ')}
+                  className={[styles.popupRightTab, popupStage === 2 ? styles.popupRightTabActive : ''].join(' ')}
                   onClick={async () => {
-                    setPopupRightTab('report'); setPopupStage(2)
+                    setPopupRightTab('history'); setPopupStage(2)
                     const custId = form.customer_id
                     if (!custId) return
                     setReportFetching(true)
