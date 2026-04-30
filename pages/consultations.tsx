@@ -287,7 +287,8 @@ export default function Consultations() {
       const h   = window.innerHeight - top - 90
       layoutEl.style.height = `${h}px`
       calEl.style.height    = `${h}px`
-      rightEl.style.height  = `${h}px`
+      rightEl.style.maxHeight = `${h}px`
+      rightEl.style.height    = 'auto'
     }
     updateSizes()
     window.addEventListener('resize', updateSizes)
@@ -629,7 +630,7 @@ export default function Consultations() {
                             <span className={styles.typeBadge} style={{ background: color + '22', color, border: `1px solid ${color}44` }}>
                               {c.meeting_type}
                             </span>
-                            <span className={[styles.statusChip, c.status === '완료' ? styles.statusDone : c.status === '취소' ? styles.statusCancel : c.status === '확정' ? styles.statusConfirmed : styles.statusScheduled].join(' ')}>
+                            <span className={[styles.statusChip, c.status === '완료' ? styles.statusDone : c.status === '취소' ? styles.statusCancel : c.status === '확정' ? styles.statusConfirmed : c.status === '대기' ? styles.statusPending : styles.statusScheduled].join(' ')}>
                               {c.status}
                             </span>
                           </div>
@@ -679,7 +680,7 @@ export default function Consultations() {
                                 <span className={styles.typeBadge} style={{ background: color + '22', color, border: `1px solid ${color}44` }}>
                                   {c.meeting_type}
                                 </span>
-                                <span className={[styles.statusChip, c.status === '완료' ? styles.statusDone : c.status === '취소' ? styles.statusCancel : c.status === '확정' ? styles.statusConfirmed : styles.statusScheduled].join(' ')}>
+                                <span className={[styles.statusChip, c.status === '완료' ? styles.statusDone : c.status === '취소' ? styles.statusCancel : c.status === '확정' ? styles.statusConfirmed : c.status === '대기' ? styles.statusPending : styles.statusScheduled].join(' ')}>
                                   {c.status}
                                 </span>
                               </div>
@@ -731,7 +732,7 @@ export default function Consultations() {
                                 <span className={styles.typeBadge} style={{ background: color + '22', color, border: `1px solid ${color}44` }}>
                                   {c.meeting_type}
                                 </span>
-                                <span className={[styles.statusChip, c.status === '완료' ? styles.statusDone : c.status === '취소' ? styles.statusCancel : c.status === '확정' ? styles.statusConfirmed : styles.statusScheduled].join(' ')}>
+                                <span className={[styles.statusChip, c.status === '완료' ? styles.statusDone : c.status === '취소' ? styles.statusCancel : c.status === '확정' ? styles.statusConfirmed : c.status === '대기' ? styles.statusPending : styles.statusScheduled].join(' ')}>
                                   {c.status}
                                 </span>
                               </div>
