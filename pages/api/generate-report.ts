@@ -178,13 +178,19 @@ claim_cases 작성 규칙:
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 3000,
+        max_tokens: 5000,
         messages: [{ role: 'user', content: prompt }],
       }),
     })
     const aiData = await aiRes.json()
     const raw = aiData.content?.[0]?.text || '{}'
-    aiResult = JSON.parse(raw.replace(/```json|```/g, '').trim())
+    console.log('[generate-report] stop_reason:', aiData.stop_reason, 'raw length:', raw.length)
+    const cleaned = raw.replace(/```json|```/g, '').trim()
+    try {
+      aiResult = JSON.parse(cleaned)
+    } catch (parseErr) {
+      console.error('[generate-report] JSON parse failed. Raw:', cleaned.slice(0, 500))
+    }
   } catch (e) {
     console.error('Claude API error:', e)
   }
