@@ -406,7 +406,7 @@ export default function AdminDashboard({
                 <thead style={{ position: 'sticky', top: 0, zIndex: 1, background: '#FFFFFF' }}>
                   <tr style={{ borderBottom: '1px solid #E5E7EB' }}>
                     {['이름', '구분', '성별', '연락처', '나이', '계약수', '등록일'].map((h) => (
-                      <th key={h} style={{ padding: '10px 20px', textAlign: 'left', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#8892A0' }}>{h}</th>
+                      <th key={h} style={{ padding: '10px 8px', textAlign: 'left', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#8892A0', whiteSpace: 'nowrap' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -421,15 +421,15 @@ export default function AdminDashboard({
                         onMouseEnter={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = '#EFEFF1' }}
                         onMouseLeave={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = 'transparent' }}
                       >
-                        <td style={{ padding: '12px 20px', color: '#1A1A2E', fontWeight: 510 }}>{c.name}</td>
-                        <td style={{ padding: '12px 20px' }}>
-                          <span style={{ fontSize: 11, padding: '2px 6px', borderRadius: 4, background: '#EFEFF1', color: '#636B78', border: '1px solid #E5E7EB' }}>
+                        <td style={{ padding: '12px 8px', color: '#1A1A2E', fontWeight: 510 }}>{c.name}</td>
+                        <td style={{ padding: '12px 8px' }}>
+                          <span style={{ fontSize: 11, padding: '2px 6px', borderRadius: 4, background: '#EFEFF1', color: '#636B78', border: '1px solid #E5E7EB', whiteSpace: 'nowrap' }}>
                             {c.customer_type === 'prospect' ? '관심고객' : '마이고객'}
                           </span>
                         </td>
-                        <td style={{ padding: '12px 20px', fontSize: 14, color: '#636B78' }}>{c.gender ?? '-'}</td>
-                        <td style={{ padding: '12px 20px', fontVariantNumeric: 'tabular-nums', fontSize: 14, color: '#636B78' }}>{c.phone ?? '-'}</td>
-                        <td style={{ padding: '12px 20px', fontVariantNumeric: 'tabular-nums', fontSize: 14, color: '#636B78' }}>
+                        <td style={{ padding: '12px 8px', fontSize: 14, color: '#636B78' }}>{c.gender ?? '-'}</td>
+                        <td style={{ padding: '12px 8px', fontVariantNumeric: 'tabular-nums', fontSize: 14, color: '#636B78' }}>{c.phone ?? '-'}</td>
+                        <td style={{ padding: '12px 8px', fontVariantNumeric: 'tabular-nums', fontSize: 14, color: '#636B78' }}>
                           {(() => {
                             if (c.birth_date) {
                               const today = new Date(); const birth = new Date(c.birth_date)
@@ -441,8 +441,8 @@ export default function AdminDashboard({
                             return c.age ? `${c.age}세` : '-'
                           })()}
                         </td>
-                        <td style={{ padding: '12px 20px', fontVariantNumeric: 'tabular-nums', fontSize: 14, color: '#636B78' }}>{custContracts.length}건</td>
-                        <td style={{ padding: '12px 20px', fontVariantNumeric: 'tabular-nums', fontSize: 14, color: '#8892A0' }}>
+                        <td style={{ padding: '12px 8px', fontVariantNumeric: 'tabular-nums', fontSize: 14, color: '#636B78' }}>{custContracts.length}건</td>
+                        <td style={{ padding: '12px 8px', fontVariantNumeric: 'tabular-nums', fontSize: 14, color: '#8892A0' }}>
                           {new Date(c.created_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}
                         </td>
                       </tr>
