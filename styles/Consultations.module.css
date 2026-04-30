@@ -349,13 +349,16 @@
   display: grid;
   grid-template-columns: 400px 400px 0px;
   height: min(640px, calc(100vh - 48px));
-  max-height: min(640px, calc(100vh - 48px));
+  max-height: 85vh;
   overflow: hidden;
-  transition: grid-template-columns 0.35s ease;
+  transition: grid-template-columns 0.4s ease, height 0.4s ease;
   position: relative;
 }
-/* stage 2: 리포트 패널 추가 (360 + 360 + 660 = 1380px) */
-.popupStage2 { grid-template-columns: 360px 360px 660px; }
+/* stage 2: 리포트 패널 추가 (300 + 300 + 680 = 1280px), 상하 85vh로 확장 */
+.popupStage2 {
+  grid-template-columns: 300px 300px 680px;
+  height: 85vh;
+}
 
 /* Left form */
 .popupLeft {
