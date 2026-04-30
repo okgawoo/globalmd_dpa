@@ -79,11 +79,7 @@ const BLOCK_DEFS = [
 type BlockId  = typeof BLOCK_DEFS[number]['id']
 type BlockDef = { id: BlockId; label: string; hasAI: boolean; icon: string; agentOnly: boolean; enabled: boolean }
 
-const DEFAULT_ENABLED: BlockId[] = [
-  'header','contracts','coverage_analysis',
-  'coverage_chart','company_chart',
-  'gap_analysis','claim_cases','key_insight','age_comparison','consultation_script',
-]
+const DEFAULT_ENABLED: BlockId[] = BLOCK_DEFS.map(b => b.id)
 const STORAGE_KEY = 'report_blocks_v1'
 
 const initBlocks = (): BlockDef[] => {
@@ -96,7 +92,11 @@ const initBlocks = (): BlockDef[] => {
         ...order.map(id => BLOCK_DEFS.find(b => b.id === id)).filter(Boolean),
         ...BLOCK_DEFS.filter(b => !order.includes(b.id)),
       ] as typeof BLOCK_DEFS[number][]
-      return ordered.map(b => ({ ...b, enabled: enabledIds.includes(b.id) }))
+      return ordered.map(b => ({
+        ...b,
+        // 저장된 블록은 저장된 상태 유지, 새로 추가된 블록은 기본 활성화
+        enabled: order.includes(b.id) ? enabledIds.includes(b.id) : true,
+      }))
     }
   } catch {}
   return BLOCK_DEFS.map(b => ({ ...b, enabled: DEFAULT_ENABLED.includes(b.id) }))
@@ -194,9 +194,9 @@ export default function ReportPage() {
         .map((g: any) => `• ${g.category}: ${g.message}`).join('\n'),
       claim_cases: prev.claim_cases || (reportData.claimCases || [])
         .map((c: any) => `■ ${c.name} (${c.masked_id})\n${c.situation}\n→ 수령 보험금: ${c.payout}`).join('\n\n'),
-      rejection_risk: prev.rejection_risk || '',
-      peer_comparison: prev.peer_comparison || '',
-      remodel_suggestion: prev.remodel_suggestion || '',
+      rejection_risk: prev.rejection_risk || (reportData.rejectionRisk || []).join('\n'),
+      peer_comparison: prev.peer_comparison || reportData.peerComparison || '',
+      remodel_suggestion: prev.remodel_suggestion || reportData.remodelSuggestion || '',
     }))
   }, [reportData])
 
