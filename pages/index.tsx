@@ -718,7 +718,7 @@ export default function Dashboard() {
               <div className={styles.webStatValue}>{newThisMonth}</div>
               <div className={styles.webStatSub}>신규 등록 고객</div>
             </div>
-            <div className={styles.webStatCard} style={{ borderTopColor: '#1D9E75' }}>
+            <div className={styles.webStatCard} style={{ borderTopColor: '#14B8A6' }}>
               <div className={styles.webStatLabel}>보험 계약</div>
               <div className={styles.webStatValue}>{contracts.length}</div>
               <div className={styles.webStatSub}>전체 계약 건수</div>
