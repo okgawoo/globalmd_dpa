@@ -23,7 +23,7 @@ export default function Document() {
         <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512x512.png" />
       </Head>
       <body>
-        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('admin_theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();` }} />
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('admin_theme');if(t){document.documentElement.setAttribute('data-theme',t);if(t==='dark'){document.documentElement.style.background='#1A1A2E';document.documentElement.style.colorScheme='dark';}}}catch(e){}})();` }} />
         <Main />
         <NextScript />
       </body>
