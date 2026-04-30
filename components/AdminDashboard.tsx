@@ -396,17 +396,25 @@ export default function AdminDashboard({
 
         {/* 최근 등록 고객 */}
         <div style={{ gridColumn: 'span 2' }}>
+          <style>{`
+            .rcol-hide { display: table-cell; }
+            @media (max-width: 1000px) { .rcol-hide { display: none !important; } }
+          `}</style>
           <SectionCard title="최근 등록 고객" sub={`총 ${customers.length}명`} onViewAll={() => router.push('/customers')}>
             <div style={{ maxHeight: 300, overflowY: 'auto', padding: '0 8px' }}>
               <table style={{ width: '100%', fontSize: 14, tableLayout: 'fixed', borderCollapse: 'collapse' }}>
                 <colgroup>
-                  <col style={{ width: '16%' }} /><col style={{ width: '13%' }} /><col style={{ width: '9%' }} />
-                  <col style={{ width: '18%' }} /><col style={{ width: '10%' }} /><col style={{ width: '10%' }} /><col style={{ width: '10%' }} />
+                  <col style={{ width: '18%' }} /><col style={{ width: '14%' }} /><col style={{ width: '9%' }} />
+                  <col style={{ width: '22%' }} /><col style={{ width: '11%' }} />
+                  <col className="rcol-hide" style={{ width: '11%' }} /><col className="rcol-hide" style={{ width: '11%' }} />
                 </colgroup>
                 <thead style={{ position: 'sticky', top: 0, zIndex: 1, background: '#FFFFFF' }}>
                   <tr style={{ borderBottom: '1px solid #E5E7EB' }}>
-                    {['이름', '구분', '성별', '연락처', '나이', '계약수', '등록일'].map((h) => (
+                    {['이름', '구분', '성별', '연락처', '나이'].map((h) => (
                       <th key={h} style={{ padding: '10px 8px', textAlign: 'left', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#8892A0', whiteSpace: 'nowrap' }}>{h}</th>
+                    ))}
+                    {['계약수', '등록일'].map((h) => (
+                      <th key={h} className="rcol-hide" style={{ padding: '10px 8px', textAlign: 'left', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#8892A0', whiteSpace: 'nowrap' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -441,8 +449,8 @@ export default function AdminDashboard({
                             return c.age ? `${c.age}세` : '-'
                           })()}
                         </td>
-                        <td style={{ padding: '12px 8px', fontVariantNumeric: 'tabular-nums', fontSize: 14, color: '#636B78' }}>{custContracts.length}건</td>
-                        <td style={{ padding: '12px 8px', fontVariantNumeric: 'tabular-nums', fontSize: 14, color: '#8892A0' }}>
+                        <td className="rcol-hide" style={{ padding: '12px 8px', fontVariantNumeric: 'tabular-nums', fontSize: 14, color: '#636B78' }}>{custContracts.length}건</td>
+                        <td className="rcol-hide" style={{ padding: '12px 8px', fontVariantNumeric: 'tabular-nums', fontSize: 14, color: '#8892A0' }}>
                           {new Date(c.created_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}
                         </td>
                       </tr>
