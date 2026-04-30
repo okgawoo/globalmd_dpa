@@ -398,6 +398,11 @@ export default function Consultations() {
 
   const restOfWeekConsults = weekConsults.filter(c => c.meeting_date !== todayStr)
 
+  const monthStr = `${calYear}-${String(calMonthNum + 1).padStart(2, '0')}`
+  const restOfMonthConsults = consultations
+    .filter(c => c.meeting_date.startsWith(monthStr) && !weekConsults.find(w => w.id === c.id))
+    .sort((a, b) => a.meeting_date.localeCompare(b.meeting_date) || (a.meeting_time || '').localeCompare(b.meeting_time || ''))
+
   /* ─── Popup data ─── */
   const selectedCust       = customers.find(c => c.id === form.customer_id)
   const selectedCustName   = selectedCust?.name || ''
@@ -621,6 +626,58 @@ export default function Consultations() {
                             <div className={styles.dashItemBody}>
                               <div className={styles.dashItemTop}>
                                 <span className={styles.dashCustName}>{cust?.name || '?'}</span>
+                                <span className={styles.typeBadge} style={{ background: color + '22', color, border: `1px solid ${color}44` }}>
+                                  {c.meeting_type}
+                                </span>
+                                <span className={[styles.statusChip, c.status === '완료' ? styles.statusDone : c.status === '취소' ? styles.statusCancel : c.status === '확정' ? styles.statusConfirmed : styles.statusScheduled].join(' ')}>
+                                  {c.status}
+                                </span>
+                              </div>
+                              <div className={styles.dashItemMeta}>
+                                {c.meeting_time && <><Clock style={{ width: 12, height: 12 }} />{c.meeting_time}</>}
+                                {c.location && <><MapPin style={{ width: 12, height: 12 }} />{c.location}</>}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })
+                  })()}
+                </div>
+              )}
+
+              {/* ── 섹션 구분선 ── */}
+              <div className={styles.dashSectionDivider} />
+
+              {/* ── 이번 달 일정 ── */}
+              <div className={styles.dashSectionTitle}>
+                이번 달 일정
+                {restOfMonthConsults.length > 0 && (
+                  <span className={styles.countBadge}>{restOfMonthConsults.length}</span>
+                )}
+              </div>
+              {restOfMonthConsults.length === 0 ? (
+                <div className={styles.dashEmptyRow}>이번 달 다른 일정이 없어요</div>
+              ) : (
+                <div className={styles.dashList}>
+                  {(() => {
+                    let lastDate = ''
+                    return restOfMonthConsults.map((c: any) => {
+                      const cust      = customers.find(cu => cu.id === c.customer_id)
+                      const color     = TYPE_COLOR[c.meeting_type] || 'hsl(237 47% 59%)'
+                      const showDate  = c.meeting_date !== lastDate
+                      lastDate        = c.meeting_date
+                      const dateLabel = new Date(c.meeting_date + 'T00:00:00').toLocaleDateString('ko-KR', { weekday: 'short', month: 'numeric', day: 'numeric' })
+                      return (
+                        <div key={c.id}>
+                          {showDate && (
+                            <div className={styles.weekDateHeader}>{dateLabel}</div>
+                          )}
+                          <div className={styles.dashItem} onClick={() => openEditPopup(c)}>
+                            <span className={styles.dashDot} style={{ background: color }} />
+                            <div className={styles.dashItemBody}>
+                              <div className={styles.dashItemTop}>
+                                <span className={styles.dashCustName}>{cust?.name || c.customer_name || '?'}</span>
                                 <span className={styles.typeBadge} style={{ background: color + '22', color, border: `1px solid ${color}44` }}>
                                   {c.meeting_type}
                                 </span>
