@@ -172,10 +172,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           )}
           <button
             onClick={() => setCollapsed(v => !v)}
-            title={collapsed ? '사이드바 펼치기' : '사이드바 접기'}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24, borderRadius: 4, border: 'none', background: 'transparent', color: 'var(--admin-text-sub)', cursor: 'pointer', flexShrink: 0, transition: 'all 0.1s' }}
-            onMouseEnter={e => { e.currentTarget.style.color = 'var(--admin-text)' }}
-            onMouseLeave={e => { e.currentTarget.style.color = 'var(--admin-text-sub)' }}
+            title={collapsed ? '펼치기' : '접기'}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 22, borderRadius: 5, border: 'none', background: 'transparent', color: 'var(--admin-text-sub)', cursor: 'pointer', flexShrink: 0, transition: 'all 0.1s' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--admin-hover)'; e.currentTarget.style.color = 'var(--admin-text)' }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--admin-text-sub)' }}
           >
             <PanelLeft style={{ width: 16, height: 16 }} />
           </button>
