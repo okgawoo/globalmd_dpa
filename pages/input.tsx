@@ -556,11 +556,18 @@ export default function InputPage() {
   if (done) return (
     <div className={styles.page}>
       <div className={styles.doneWrap}>
-        <div className={styles.doneIcon}>✅</div>
-        <div className={styles.doneText}>저장 완료!</div>
-        <div className={styles.doneActions}>
-          <a href="/customers" className={styles.btnPrimary}>고객 목록 보기</a>
-          <button className={styles.btnSecondary} onClick={resetForm}>추가 입력</button>
+        <div className={styles.doneCard}>
+          <div className={styles.doneCheckCircle}>
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+              <path d="M8 16.5L13.5 22L24 11" stroke="hsl(237, 47%, 59%)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+          <div className={styles.doneText}>저장 완료!</div>
+          <div className={styles.doneSub}>고객 정보가 성공적으로<br />저장되었습니다</div>
+          <div className={styles.doneActions}>
+            <a href="/customers" className={styles.btnPrimary}>고객 목록 보기</a>
+            <button className={styles.btnSecondary} onClick={resetForm}>추가 입력</button>
+          </div>
         </div>
       </div>
     </div>
