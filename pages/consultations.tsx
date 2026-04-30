@@ -281,6 +281,10 @@ export default function Consultations() {
       const top = el.getBoundingClientRect().top
       const h = window.innerHeight - top - 76
       el.style.height = `${h}px`
+      // 우측 패널 높이 = 캘린더 카드 높이에 맞춤
+      if (calCardRef.current && rightPanelRef.current) {
+        rightPanelRef.current.style.height = `${calCardRef.current.offsetHeight}px`
+      }
     }
     updateLayoutH()
     window.addEventListener('resize', updateLayoutH)
