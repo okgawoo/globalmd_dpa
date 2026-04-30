@@ -186,6 +186,7 @@ export default function Consultations() {
   const dropRef                           = useRef<HTMLDivElement>(null)
   const dropListRef                       = useRef<HTMLDivElement>(null)
   const layoutRef                         = useRef<HTMLDivElement>(null)
+  const calCardRef                        = useRef<HTMLDivElement>(null)
 
   /* Note editing (inside popup timeline) */
   const [editNoteId, setEditNoteId] = useState<string | null>(null)
@@ -218,7 +219,10 @@ export default function Consultations() {
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null)
 
   /* SVG 도트라인 커넥터 */
-  const popupRef        = useRef<HTMLDivElement>(null)
+  const monthSectionRef  = useRef<HTMLDivElement>(null)
+  const rightPanelRef    = useRef<HTMLDivElement>(null)
+  const hasScrolledRef   = useRef(false)
+  const popupRef         = useRef<HTMLDivElement>(null)
   const tlItemRefs      = useRef<Record<string, HTMLDivElement | null>>({})
   const reportListRefs  = useRef<Record<string, HTMLDivElement | null>>({})
   const reportTitleRef  = useRef<HTMLDivElement | null>(null)
@@ -253,13 +257,34 @@ export default function Consultations() {
 
   useEffect(() => { fetchAll() }, [])
 
+  /* 데이터 로드 완료 후 이번 달 일정으로 자동 스크롤 (최초 1회) */
+  useEffect(() => {
+    if (loading || hasScrolledRef.current) return
+    if (!monthSectionRef.current || !rightPanelRef.current) return
+    hasScrolledRef.current = true
+    const panel = rightPanelRef.current
+    const target = monthSectionRef.current
+    const timer = setTimeout(() => {
+      const panelRect = panel.getBoundingClientRect()
+      const targetRect = target.getBoundingClientRect()
+      const scrollOffset = panel.scrollTop + (targetRect.top - panelRect.top) - 12
+      panel.scrollTo({ top: scrollOffset, behavior: 'smooth' })
+    }, 150)
+    return () => clearTimeout(timer)
+  }, [loading])
+
   /* Layout height — fill remaining viewport below layout top */
   useLayoutEffect(() => {
     function updateLayoutH() {
       const el = layoutRef.current
       if (!el) return
       const top = el.getBoundingClientRect().top
-      el.style.height = `${window.innerHeight - top - 76}px`
+      const h = window.innerHeight - top - 76
+      el.style.height = `${h}px`
+      // 우측 패널 높이 = 캘린더 카드 높이에 맞춤
+      if (calCardRef.current && rightPanelRef.current) {
+        rightPanelRef.current.style.height = `${calCardRef.current.offsetHeight}px`
+      }
     }
     updateLayoutH()
     window.addEventListener('resize', updateLayoutH)
@@ -334,7 +359,7 @@ export default function Consultations() {
       meeting_type: c.meeting_type, notes: c.notes || '', status: c.status,
     })
     setCustSearch(cust?.name || ''); setEditId(c.id)
-    setPopupRightTab('history')
+    setPopupRightTab('coverage')
     setSelectedReportId(null)
     setPopupStage(1)
     document.body.style.overflow = 'hidden'
@@ -466,7 +491,7 @@ export default function Consultations() {
       <div className={styles.layout} ref={layoutRef}>
 
         {/* ════════ LEFT — Calendar ════════ */}
-        <div className={styles.card}>
+        <div ref={calCardRef} className={styles.card}>
 
           {/* Calendar nav */}
           <div className={styles.calNav}>
@@ -574,7 +599,7 @@ export default function Consultations() {
         </div>
 
         {/* ════════ RIGHT — Today + Week stacked ════════ */}
-        <div className={styles.rightPanelCard}>
+        <div ref={rightPanelRef} className={styles.rightPanelCard}>
 
             <div className={styles.dashContent}>
 
@@ -672,7 +697,7 @@ export default function Consultations() {
               <div className={styles.dashSectionDivider} />
 
               {/* ── 이번 달 일정 ── */}
-              <div className={styles.dashSectionTitle}>
+              <div ref={monthSectionRef} className={styles.dashSectionTitle}>
                 이번 달 일정
                 {restOfMonthConsults.length > 0 && (
                   <span className={styles.countBadge}>{restOfMonthConsults.length}</span>
