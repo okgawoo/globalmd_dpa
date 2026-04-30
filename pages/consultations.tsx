@@ -282,7 +282,7 @@ export default function Consultations() {
     function updateSizes() {
       if (!layoutEl || !calEl || !rightEl) return
       const top = layoutEl.getBoundingClientRect().top
-      const h   = window.innerHeight - top - 96
+      const h   = window.innerHeight - top - 90
       layoutEl.style.height = `${h}px`
       calEl.style.height    = `${h}px`
       rightEl.style.height  = `${h}px`
