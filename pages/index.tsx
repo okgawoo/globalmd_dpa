@@ -343,7 +343,9 @@ export default function Dashboard() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.45)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
           <div style={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderRadius: 20, maxWidth: 320, width: '100%', overflow: 'hidden', textAlign: 'center', border: '0.5px solid rgba(255,255,255,0.6)', boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }}>
             <div style={{ padding: '24px 24px 0' }}>
-              <img src="/icons/icon-192x192.png" style={{ width: 48, height: 48, borderRadius: 14, margin: '0 auto 16px', display: 'block' }} />
+              <div style={{ width: 48, height: 48, borderRadius: 14, margin: '0 auto 16px', background: 'linear-gradient(135deg, #5E6AD2, #3F48B8)', boxShadow: '0 4px 12px rgba(94,106,210,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ color: '#fff', fontSize: 22, fontWeight: 800, fontStyle: 'italic', letterSpacing: '-0.5px', lineHeight: 1 }}>i</span>
+              </div>
               <div style={{ fontSize: 17, fontWeight: 700, color: '#1a1a1a', marginBottom: 10, letterSpacing: '-0.3px' }}>{unreadNotice.title}</div>
               <div style={{ fontSize: 14, color: '#444', lineHeight: 1.75, whiteSpace: 'pre-line', textAlign: 'left' }}>{unreadNotice.body}</div>
               <div style={{ fontSize: 12, color: '#999', marginTop: 12 }}>
