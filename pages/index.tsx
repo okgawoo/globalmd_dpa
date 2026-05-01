@@ -352,7 +352,7 @@ export default function Dashboard() {
             </div>
             <div style={{ padding: '16px 24px 22px' }}>
               <div style={{ borderTop: '0.5px solid rgba(0,0,0,0.08)', paddingTop: 14 }}>
-                <button onClick={markNoticeRead} style={{ width: '100%', padding: '12px 0', background: '#1D9E75', color: '#fff', border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>확인</button>
+                <button onClick={markNoticeRead} style={{ width: '100%', padding: '12px 0', background: '#5E6AD2', color: '#fff', border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>확인</button>
               </div>
             </div>
           </div>
