@@ -5,7 +5,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
-const VAPID_PUBLIC_KEY = 'BEjfYqIMOti5asPsKla0b-bxwiEOGTsAmrqm3pRYrKpQPl4kduPvYTxYrAUs_dHH8fiwXWS-8EUxEP2g4QDiPV8'
+const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || 'BKRYcg5gpzAEm63IaHTJk5Ay5nsaX0STCfd6Nunr-rxQlrqIB-rGq_As2gzAn12ZA1iEWNts2cae5v_ZQPu_KAI'
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
@@ -36,6 +36,21 @@ export async function subscribeToPush(agentId: string): Promise<boolean> {
     await navigator.serviceWorker.ready
 
     let subscription = await pushReg.pushManager.getSubscription()
+
+    // 기존 구독이 있으면 VAPID 키 일치 여부 확인 → 불일치 시 강제 재구독
+    if (subscription) {
+      const currentKeyBytes = urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+      const subscriptionKey = (subscription.options as any)?.applicationServerKey
+      if (subscriptionKey) {
+        const subKeyBytes = new Uint8Array(subscriptionKey as ArrayBuffer)
+        const keyMatches = currentKeyBytes.length === subKeyBytes.length &&
+          currentKeyBytes.every((b, i) => b === subKeyBytes[i])
+        if (!keyMatches) {
+          await subscription.unsubscribe()
+          subscription = null
+        }
+      }
+    }
 
     if (!subscription) {
       subscription = await pushReg.pushManager.subscribe({
