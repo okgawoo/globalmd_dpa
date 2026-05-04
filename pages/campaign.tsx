@@ -121,6 +121,9 @@ export default function CampaignPage() {
   const [histLoading, setHistLoading] = useState(false)
   const [expandedDates, setExpandedDates] = useState<Set<string>>(new Set())
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
+  const [campaignSends, setCampaignSends] = useState<Record<string, any[]>>({})
+  const [sendsLoading, setSendsLoading] = useState<Set<string>>(new Set())
+  const [itemSearch, setItemSearch] = useState<Record<string, string>>({})
 
   function toggleDate(date: string) {
     setExpandedDates(prev => {
@@ -129,12 +132,23 @@ export default function CampaignPage() {
       return next
     })
   }
-  function toggleItem(id: string) {
+  async function toggleItem(id: string) {
     setExpandedItems(prev => {
       const next = new Set(prev)
       next.has(id) ? next.delete(id) : next.add(id)
       return next
     })
+    // 처음 펼칠 때만 sends 로드
+    if (!expandedItems.has(id) && !campaignSends[id]) {
+      setSendsLoading(prev => new Set(prev).add(id))
+      const { data } = await supabase
+        .from('dpa_campaign_sends')
+        .select('id, customer_name, phone, send_status, sent_at')
+        .eq('campaign_id', id)
+        .order('customer_name', { ascending: true })
+      setCampaignSends(prev => ({ ...prev, [id]: data || [] }))
+      setSendsLoading(prev => { const next = new Set(prev); next.delete(id); return next })
+    }
   }
 
   // 긴급 특약
@@ -1056,36 +1070,98 @@ JSON만 출력하세요.`
                                   {/* 펼침 내용 */}
                                   {isItemOpen && (
                                     <div style={{ padding:'0 16px 14px 56px' }}>
-                                      <div style={{ display:'flex', gap:16, fontSize:12, color:'#636B78', marginBottom:10 }}>
+
+                                      {/* 요약 메타 */}
+                                      <div style={{ display:'flex', gap:16, fontSize:12, color:'#636B78', marginBottom:10, flexWrap:'wrap' }}>
                                         <span>대상 <strong style={{ color:'#1A1A2E' }}>{c.total_targets}명</strong></span>
                                         {c.sent_count > 0 && <span>발송 <strong style={{ color:'#1D9E75' }}>{c.sent_count}건</strong></span>}
                                         {c.failed_count > 0 && <span>실패 <strong style={{ color:'#E24B4A' }}>{c.failed_count}건</strong></span>}
                                         <span>{c.send_method === 'sms' ? '📱 문자' : '💬 카카오톡'}</span>
+                                        {c.target_filters && (
+                                          <>
+                                            {(c.target_filters.age_min || c.target_filters.age_max) && (
+                                              <span style={{ background:'#F3F4F6', padding:'1px 7px', borderRadius:999 }}>
+                                                {c.target_filters.age_min || '?'}~{c.target_filters.age_max || '?'}세
+                                              </span>
+                                            )}
+                                            {c.target_filters.gender && (
+                                              <span style={{ background:'#F3F4F6', padding:'1px 7px', borderRadius:999 }}>{c.target_filters.gender}성</span>
+                                            )}
+                                            {c.target_filters.customer_type && (
+                                              <span style={{ background:'#F3F4F6', padding:'1px 7px', borderRadius:999 }}>
+                                                {c.target_filters.customer_type === 'existing' ? '마이고객' : '관심고객'}
+                                              </span>
+                                            )}
+                                          </>
+                                        )}
                                       </div>
+
+                                      {/* 발송 메시지 */}
                                       {c.message && (
-                                        <div style={{ padding:'10px 12px', background:'#F7F8FA', borderRadius:8, fontSize:12, color:'#636B78', lineHeight:1.8, whiteSpace:'pre-wrap', borderLeft:'3px solid #E5E7EB' }}>
+                                        <div style={{ padding:'10px 12px', background:'#F7F8FA', borderRadius:8, fontSize:12, color:'#636B78', lineHeight:1.8, whiteSpace:'pre-wrap', borderLeft:'3px solid #E5E7EB', marginBottom:12 }}>
                                           {c.message}
                                         </div>
                                       )}
-                                      {c.target_filters && (c.target_filters.age_min || c.target_filters.age_max || c.target_filters.gender || c.target_filters.customer_type) && (
-                                        <div style={{ marginTop:8, display:'flex', flexWrap:'wrap', gap:4 }}>
-                                          {(c.target_filters.age_min || c.target_filters.age_max) && (
-                                            <span style={{ fontSize:11, color:'#636B78', background:'#F3F4F6', padding:'2px 8px', borderRadius:999 }}>
-                                              {c.target_filters.age_min || '?'}~{c.target_filters.age_max || '?'}세
-                                            </span>
-                                          )}
-                                          {c.target_filters.gender && (
-                                            <span style={{ fontSize:11, color:'#636B78', background:'#F3F4F6', padding:'2px 8px', borderRadius:999 }}>
-                                              {c.target_filters.gender}성
-                                            </span>
-                                          )}
-                                          {c.target_filters.customer_type && (
-                                            <span style={{ fontSize:11, color:'#636B78', background:'#F3F4F6', padding:'2px 8px', borderRadius:999 }}>
-                                              {c.target_filters.customer_type === 'existing' ? '마이고객' : '관심고객'}
-                                            </span>
+
+                                      {/* 고객 검색 + 목록 */}
+                                      <div style={{ border:'1px solid #E5E7EB', borderRadius:8, overflow:'hidden' }}>
+                                        {/* 검색 */}
+                                        <div style={{ padding:'8px 12px', borderBottom:'1px solid #F3F4F6', background:'#FAFAFA', display:'flex', alignItems:'center', gap:8 }}>
+                                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8892A0" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                          </svg>
+                                          <input
+                                            value={itemSearch[c.id] || ''}
+                                            onChange={e => setItemSearch(prev => ({ ...prev, [c.id]: e.target.value }))}
+                                            placeholder="고객명 검색..."
+                                            style={{ flex:1, border:'none', background:'transparent', fontSize:12, color:'#1A1A2E', outline:'none', fontFamily:'inherit' }}
+                                          />
+                                          {itemSearch[c.id] && (
+                                            <button onClick={() => setItemSearch(prev => ({ ...prev, [c.id]: '' }))}
+                                              style={{ border:'none', background:'none', cursor:'pointer', color:'#8892A0', fontSize:14, lineHeight:1, padding:0 }}>✕</button>
                                           )}
                                         </div>
-                                      )}
+
+                                        {/* 고객 목록 */}
+                                        {sendsLoading.has(c.id) ? (
+                                          <div style={{ padding:'16px', textAlign:'center', fontSize:12, color:'#8892A0' }}>불러오는 중...</div>
+                                        ) : (() => {
+                                          const sends = campaignSends[c.id] || []
+                                          const q = (itemSearch[c.id] || '').trim()
+                                          const filtered = q ? sends.filter(s => s.customer_name?.includes(q)) : sends
+                                          if (sends.length === 0) return (
+                                            <div style={{ padding:'16px', textAlign:'center', fontSize:12, color:'#8892A0' }}>발송 고객 정보가 없어요</div>
+                                          )
+                                          return (
+                                            <div style={{ maxHeight:200, overflowY:'auto' }}>
+                                              {filtered.length === 0 ? (
+                                                <div style={{ padding:'12px', textAlign:'center', fontSize:12, color:'#8892A0' }}>"{q}" 검색 결과 없음</div>
+                                              ) : (
+                                                filtered.map((s: any) => (
+                                                  <div key={s.id} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'7px 12px', borderBottom:'1px solid #F9FAFB', fontSize:12 }}>
+                                                    <span style={{ color:'#1A1A2E', fontWeight:500 }}>{s.customer_name}</span>
+                                                    <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                                                      <span style={{ color:'#8892A0' }}>{s.phone}</span>
+                                                      <span style={{
+                                                        fontSize:10, fontWeight:600, padding:'1px 7px', borderRadius:999,
+                                                        background: s.send_status === 'sent' ? '#DCFCE7' : s.send_status === 'failed' ? '#FEE2E2' : '#F3F4F6',
+                                                        color: s.send_status === 'sent' ? '#166534' : s.send_status === 'failed' ? '#991B1B' : '#636B78',
+                                                      }}>
+                                                        {s.send_status === 'sent' ? '발송' : s.send_status === 'failed' ? '실패' : '대기'}
+                                                      </span>
+                                                    </div>
+                                                  </div>
+                                                ))
+                                              )}
+                                              {filtered.length > 0 && q && (
+                                                <div style={{ padding:'6px 12px', fontSize:11, color:'#8892A0', background:'#FAFAFA' }}>
+                                                  {filtered.length}명 검색됨 (전체 {sends.length}명)
+                                                </div>
+                                              )}
+                                            </div>
+                                          )
+                                        })()}
+                                      </div>
                                     </div>
                                   )}
                                 </div>
