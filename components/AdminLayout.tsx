@@ -36,6 +36,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const [userInfo, setUserInfo] = useState<{ email: string; initial: string } | null>(null)
   const [isNarrow, setIsNarrow] = useState<boolean | null>(null)
   const [showSidebarTooltip, setShowSidebarTooltip] = useState(false)
+  const [hoveredNav, setHoveredNav] = useState<string | null>(null)
   useLayoutEffect(() => {
     const check = () => setIsNarrow(window.innerWidth < 1100)
     check()
@@ -142,6 +143,31 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     ),
   })
 
+  const navTooltip = (label: string, key: string): React.ReactNode => {
+    if (!collapsed || hoveredNav !== key) return null
+    return (
+      <div style={{
+        position: 'absolute',
+        left: 'calc(100% + 10px)',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        background: '#18181B',
+        color: '#F5F5F5',
+        fontSize: 12,
+        fontWeight: 500,
+        padding: '5px 10px',
+        borderRadius: 6,
+        whiteSpace: 'nowrap',
+        pointerEvents: 'none',
+        zIndex: 200,
+        boxShadow: '0 2px 10px rgba(0,0,0,0.28)',
+        letterSpacing: '0.01em',
+      }}>
+        {label}
+      </div>
+    )
+  }
+
   return (
     <div className={dark ? 'admin-dark' : ''} style={{ display: 'flex', minHeight: '100vh', background: 'var(--admin-bg)', color: 'var(--admin-text)' }}>
       {ConfirmDialog}
@@ -196,8 +222,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 left: '50%',
                 transform: 'translateX(-50%)',
                 marginTop: 7,
-                background: '#1A1A2E',
-                color: '#F0F0F8',
+                background: '#18181B',
+                color: '#F5F5F5',
                 fontSize: 11,
                 fontWeight: 500,
                 padding: '4px 10px',
@@ -222,7 +248,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             {navItems.map((item) => {
               const isActive = router.pathname === item.href
               return (
-                <li key={item.href}>
+                <li key={item.href} style={{ position: 'relative' }}
+                  onMouseEnter={() => setHoveredNav(item.href)}
+                  onMouseLeave={() => setHoveredNav(null)}
+                >
                   <Link
                     href={item.href}
                     style={navLinkStyle(isActive)}
@@ -244,6 +273,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                     <item.icon style={{ width: 16, height: 16, flexShrink: 0 }} />
                     {!collapsed && <span style={{ fontWeight: isActive ? 510 : 400, whiteSpace: 'nowrap' }}>{item.name}</span>}
                   </Link>
+                  {navTooltip(item.name, item.href)}
                 </li>
               )
             })}
@@ -256,7 +286,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               {accountItems.map((item) => {
                 const isActive = router.pathname === item.href
                 return (
-                  <li key={item.href}>
+                  <li key={item.href} style={{ position: 'relative' }}
+                    onMouseEnter={() => setHoveredNav(item.href)}
+                    onMouseLeave={() => setHoveredNav(null)}
+                  >
                     <Link
                       href={item.href}
                       style={navLinkStyle(isActive)}
@@ -278,6 +311,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                       <item.icon style={{ width: 16, height: 16, flexShrink: 0 }} />
                       {!collapsed && <span>{item.name}</span>}
                     </Link>
+                    {navTooltip(item.name, item.href)}
                   </li>
                 )
               })}
@@ -332,57 +366,69 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           )}
 
           {isAdmin && (
-            <Link
-              href="/admin"
-              style={{
-                ...navLinkStyle(router.pathname === '/admin'),
-                display: 'flex',
-                marginBottom: 2,
-              }}
-              onMouseEnter={(e) => {
-                if (router.pathname !== '/admin') {
-                  e.currentTarget.style.background = 'var(--admin-hover)'
-                  e.currentTarget.style.color = 'rgba(26,26,46,0.82)'
-                  e.currentTarget.style.borderColor = dark ? 'rgba(255,255,255,0.12)' : '#C0C7D1'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (router.pathname !== '/admin') {
-                  e.currentTarget.style.background = 'transparent'
-                  e.currentTarget.style.color = 'rgba(26,26,46,0.82)'
-                  e.currentTarget.style.borderColor = 'transparent'
-                }
-              }}
+            <div style={{ position: 'relative' }}
+              onMouseEnter={() => setHoveredNav('__admin')}
+              onMouseLeave={() => setHoveredNav(null)}
             >
-              <ShieldCheck style={{ width: 16, height: 16, flexShrink: 0 }} />
-              {!collapsed && <span style={{ whiteSpace: 'nowrap' }}>관리자 페이지</span>}
-            </Link>
+              <Link
+                href="/admin"
+                style={{
+                  ...navLinkStyle(router.pathname === '/admin'),
+                  display: 'flex',
+                  marginBottom: 2,
+                }}
+                onMouseEnter={(e) => {
+                  if (router.pathname !== '/admin') {
+                    e.currentTarget.style.background = 'var(--admin-hover)'
+                    e.currentTarget.style.color = 'rgba(26,26,46,0.82)'
+                    e.currentTarget.style.borderColor = dark ? 'rgba(255,255,255,0.12)' : '#C0C7D1'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (router.pathname !== '/admin') {
+                    e.currentTarget.style.background = 'transparent'
+                    e.currentTarget.style.color = 'rgba(26,26,46,0.82)'
+                    e.currentTarget.style.borderColor = 'transparent'
+                  }
+                }}
+              >
+                <ShieldCheck style={{ width: 16, height: 16, flexShrink: 0 }} />
+                {!collapsed && <span style={{ whiteSpace: 'nowrap' }}>관리자 페이지</span>}
+              </Link>
+              {navTooltip('관리자 페이지', '__admin')}
+            </div>
           )}
 
-          <button
-            onClick={handleLogout}
-            style={{
-              display: 'flex',
-              width: '100%',
-              alignItems: 'center',
-              justifyContent: collapsed ? 'center' : 'flex-start',
-              gap: 10,
-              borderRadius: 6,
-              padding: collapsed ? '8px 0' : '10px 12px',
-              fontSize: 14,
-              color: 'rgba(26,26,46,0.82)',
-              border: '1px solid transparent',
-              background: 'transparent',
-              cursor: 'pointer',
-              transition: 'all 0.1s',
-              boxSizing: 'border-box',
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--admin-hover)' }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
+          <div style={{ position: 'relative' }}
+            onMouseEnter={() => setHoveredNav('__logout')}
+            onMouseLeave={() => setHoveredNav(null)}
           >
-            <LogOut style={{ width: 16, height: 16, flexShrink: 0 }} />
-            {!collapsed && <span style={{ whiteSpace: 'nowrap' }}>로그아웃</span>}
-          </button>
+            <button
+              onClick={handleLogout}
+              style={{
+                display: 'flex',
+                width: '100%',
+                alignItems: 'center',
+                justifyContent: collapsed ? 'center' : 'flex-start',
+                gap: 10,
+                borderRadius: 6,
+                padding: collapsed ? '8px 0' : '10px 12px',
+                fontSize: 14,
+                color: 'rgba(26,26,46,0.82)',
+                border: '1px solid transparent',
+                background: 'transparent',
+                cursor: 'pointer',
+                transition: 'all 0.1s',
+                boxSizing: 'border-box',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--admin-hover)' }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
+            >
+              <LogOut style={{ width: 16, height: 16, flexShrink: 0 }} />
+              {!collapsed && <span style={{ whiteSpace: 'nowrap' }}>로그아웃</span>}
+            </button>
+            {navTooltip('로그아웃', '__logout')}
+          </div>
         </div>
       </aside>
 
