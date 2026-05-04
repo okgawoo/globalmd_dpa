@@ -1229,7 +1229,7 @@ export default function AdminPage() {
                                 {v.status === 'pending' && badge('#F3F4F6', '#6B7280', '미분석')}
                                 {v.status === 'analyzing' && badge('#EFF6FF', '#1D4ED8', '분석중...')}
                                 {v.status === 'error' && badge('#FEE2E2', '#991B1B', '오류')}
-                                {v.status === 'no_transcript' && badge('#F5F5F5', '#9CA3AF', '자막없음')}
+                                {v.status === 'no_transcript' && badge('#FEFCE8', '#A16207', '자막없음')}
                               </td>
                               <td style={tdStyle({ color: '#636B78', whiteSpace: 'nowrap', fontSize: 12 })}>
                                 {v.published_at || '-'}
