@@ -1044,8 +1044,8 @@ export default function AdminPage() {
 
             {/* 채널 추가/편집 폼 */}
             {ytFormOpen && (
-              <div style={{ padding: 14, borderBottom: '1px solid #E5E7EB', background: '#F7F8FA', flexShrink: 0 }}>
-                <p style={{ fontSize: 13, fontWeight: 600, color: '#1A1A2E', margin: '0 0 10px' }}>
+              <div style={{ padding: 14, borderBottom: isDark ? '1px solid rgba(255,255,255,0.07)' : '1px solid #E5E7EB', background: isDark ? '#2A2A2A' : '#F7F8FA', flexShrink: 0 }}>
+                <p style={{ fontSize: 13, fontWeight: 600, color: isDark ? '#E8E8E8' : '#1A1A2E', margin: '0 0 10px' }}>
                   {ytEditId ? '채널 편집' : '채널 추가'}
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -1097,16 +1097,16 @@ export default function AdminPage() {
                   style={{
                     padding: '12px 14px',
                     cursor: 'pointer',
-                    borderBottom: '1px solid #E5E7EB',
+                    borderBottom: isDark ? '1px solid rgba(255,255,255,0.07)' : '1px solid #E5E7EB',
                     borderLeft: `3px solid ${ytSelectedChannel?.id === ch.id ? '#5E6AD2' : 'transparent'}`,
-                    background: ytSelectedChannel?.id === ch.id ? '#F0F0FD' : 'transparent',
+                    background: ytSelectedChannel?.id === ch.id ? (isDark ? 'rgba(94,106,210,0.15)' : '#F0F0FD') : 'transparent',
                     transition: 'background 0.1s',
                   }}
-                  onMouseEnter={e => { if (ytSelectedChannel?.id !== ch.id) e.currentTarget.style.background = '#F7F8FA' }}
+                  onMouseEnter={e => { if (ytSelectedChannel?.id !== ch.id) e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.04)' : '#F7F8FA' }}
                   onMouseLeave={e => { if (ytSelectedChannel?.id !== ch.id) e.currentTarget.style.background = 'transparent' }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: ytSelectedChannel?.id === ch.id ? '#5E6AD2' : '#1A1A2E' }}>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: ytSelectedChannel?.id === ch.id ? '#5E6AD2' : (isDark ? '#E8E8E8' : '#1A1A2E') }}>
                       {ch.name}
                     </span>
                     {ch.is_active
@@ -1195,7 +1195,7 @@ export default function AdminPage() {
 
                   {/* 영상 추가 폼 */}
                   {ytVideoFormOpen && (
-                    <div style={{ padding: '14px 20px', borderBottom: '1px solid #E5E7EB', background: '#F7F8FA', flexShrink: 0 }}>
+                    <div style={{ padding: '14px 20px', borderBottom: isDark ? '1px solid rgba(255,255,255,0.07)' : '1px solid #E5E7EB', background: isDark ? '#2A2A2A' : '#F7F8FA', flexShrink: 0 }}>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 200px', gap: 10, marginBottom: 10 }}>
                         <div>
                           <label className={styles.fieldLabel}>YouTube URL *</label>
