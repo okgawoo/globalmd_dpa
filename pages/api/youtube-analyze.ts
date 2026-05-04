@@ -51,7 +51,10 @@ async function fetchTranscript(videoId: string): Promise<string> {
   const playerData = await playerResp.json()
   const tracks = playerData?.captions?.playerCaptionsTracklistRenderer?.captionTracks
 
+  // 디버깅 로그
+  console.log(`[YT] ${videoId} InnerTube status: ${playerResp.status}, tracks: ${tracks?.length ?? 0}, playability: ${playerData?.playabilityStatus?.status}`)
   if (!Array.isArray(tracks) || tracks.length === 0) {
+    console.log(`[YT] ${videoId} no tracks — reason: ${JSON.stringify(playerData?.playabilityStatus)}`)
     throw new Error(`disabled on this video (${videoId})`)
   }
 
