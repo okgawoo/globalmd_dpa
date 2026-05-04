@@ -65,11 +65,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [isDesktop, setIsDesktop] = useState(false)
 
   useEffect(() => {
-    const mq = window.matchMedia('(min-width: 769px)')
-    const update = () => setIsDesktop(mq.matches)
-    update()
-    mq.addEventListener('change', update)
-    return () => mq.removeEventListener('change', update)
+    const isMobileDevice = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+    setIsDesktop(!isMobileDevice)
   }, [])
 
   useEffect(() => {
