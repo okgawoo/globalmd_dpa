@@ -525,6 +525,23 @@ export default function InputPage() {
             })
           }
         }
+        // 증권번호 패턴 로그 (보험사 판별 학습용)
+        if (ct.policy_number && ct.company) {
+          const pn = String(ct.policy_number).replace(/\s/g, '')
+          const digitCount = pn.length
+          const prefix2 = pn.slice(0, 2)
+          const prefix4 = pn.slice(0, 4)
+          await supabase.from('dpa_policy_patterns').insert({
+            policy_number: pn,
+            prefix_2: prefix2,
+            prefix_4: prefix4,
+            digit_count: digitCount,
+            company: ct.company,
+            product_name: ct.product_name || null,
+            insurance_type: ct.insurance_type || null,
+            agent_id: agentId,
+          })
+        }
       }
       setDone(true)
     } catch (e) { alert('저장 중 오류가 발생했어요!') }
