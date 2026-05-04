@@ -167,9 +167,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'space-between', padding: '16px 12px', flexShrink: 0 }}>
           {!collapsed && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <div style={{ display: 'flex', height: 32, width: 32, alignItems: 'center', justifyContent: 'center', borderRadius: 8, flexShrink: 0, background: 'linear-gradient(135deg, #5E6AD2, #3F48B8)', boxShadow: '0 2px 8px rgba(94,106,210,0.35)' }}>
-                <span style={{ color: '#fff', fontSize: 15, fontWeight: 800, fontStyle: 'italic', letterSpacing: '-0.5px', lineHeight: 1 }}>i</span>
-              </div>
+              <img src="/iplanner-logo.png" alt="아이플래너" style={{ width: 32, height: 32, borderRadius: 8, flexShrink: 0, objectFit: 'cover', display: 'block' }} />
               <span style={{ fontSize: 16, fontWeight: 700, color: 'rgba(26,26,46,0.82)', letterSpacing: '-0.4px', lineHeight: 1, whiteSpace: 'nowrap' }}>아이플래너</span>
               <span style={{ fontSize: 9, fontWeight: 700, color: '#5E6AD2', border: '1px solid #5E6AD2', borderRadius: 999, padding: '1px 5px', letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>DEMO</span>
             </div>
