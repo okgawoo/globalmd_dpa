@@ -2,44 +2,50 @@ import { createClient } from '@supabase/supabase-js'
 
 export const config = { runtime: 'edge' }
 
-const YT_ANDROID_KEY = 'AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w'
-const YT_CLIENT_VERSION = '20.10.38'
-
 async function fetchTranscript(videoId: string): Promise<string> {
-  const playerResp = await fetch(
-    `https://www.youtube.com/youtubei/v1/player?key=${YT_ANDROID_KEY}&prettyPrint=false`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'User-Agent': `com.google.android.youtube/${YT_CLIENT_VERSION} (Linux; U; Android 14) gzip`,
-        'X-YouTube-Client-Name': '3',
-        'X-YouTube-Client-Version': YT_CLIENT_VERSION,
-        'X-Goog-Api-Key': YT_ANDROID_KEY,
-        'Accept': 'application/json',
-        'Accept-Language': 'ko-KR,ko;q=0.9',
-      },
-      body: JSON.stringify({
-        context: {
-          client: {
-            clientName: 'ANDROID',
-            clientVersion: YT_CLIENT_VERSION,
-            androidSdkVersion: 34,
-            hl: 'ko',
-            gl: 'KR',
-          },
-        },
-        videoId,
-        racyCheckOk: true,
-        contentCheckOk: true,
-      }),
+  // YouTube 페이지 HTML에서 자막 URL 추출 (브라우저 완전 위장)
+  const pageResp = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+      'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
+      'Accept-Encoding': 'gzip, deflate, br',
+      'Cookie': 'CONSENT=YES+cb; VISITOR_INFO1_LIVE=Gtm2nX3VZko; GPS=1; YSC=DwKYllHNwuw',
+      'Referer': 'https://www.google.com/',
+      'Sec-Fetch-Dest': 'document',
+      'Sec-Fetch-Mode': 'navigate',
+      'Sec-Fetch-Site': 'cross-site',
+      'Upgrade-Insecure-Requests': '1',
+    },
+  })
+
+  const html = await pageResp.text()
+
+  console.log(`[YT] ${videoId} page: ${pageResp.status}, size: ${html.length}, hasCaptions: ${html.includes('"captionTracks"')}`)
+
+  if (!html.includes('"captionTracks"')) {
+    throw new Error(`disabled on this video (${videoId})`)
+  }
+
+  // ytInitialPlayerResponse에서 captionTracks 추출
+  const startToken = 'var ytInitialPlayerResponse = '
+  const startIdx = html.indexOf(startToken)
+  if (startIdx === -1) throw new Error(`disabled on this video (${videoId})`)
+
+  // JSON 파싱 (중괄호 깊이 추적)
+  const jsonStart = startIdx + startToken.length
+  let depth = 0
+  let jsonEnd = jsonStart
+  for (let i = jsonStart; i < html.length; i++) {
+    if (html[i] === '{') depth++
+    else if (html[i] === '}') {
+      depth--
+      if (depth === 0) { jsonEnd = i + 1; break }
     }
-  )
+  }
 
-  const playerData = await playerResp.json() as any
-  const tracks = playerData?.captions?.playerCaptionsTracklistRenderer?.captionTracks
-
-  console.log(`[YT] ${videoId} tracks: ${tracks?.length ?? 0}, playability: ${playerData?.playabilityStatus?.status}`)
+  const playerResponse = JSON.parse(html.slice(jsonStart, jsonEnd))
+  const tracks = playerResponse?.captions?.playerCaptionsTracklistRenderer?.captionTracks
 
   if (!Array.isArray(tracks) || tracks.length === 0) {
     throw new Error(`disabled on this video (${videoId})`)
@@ -48,10 +54,13 @@ async function fetchTranscript(videoId: string): Promise<string> {
   const koTrack = tracks.find((t: any) => t.languageCode === 'ko') || tracks[0]
   const baseUrl = koTrack.baseUrl
 
+  // 자막 XML 가져오기
   const xmlResp = await fetch(baseUrl)
   const xml = await xmlResp.text()
 
   const segments: string[] = []
+
+  // 신형 포맷: <p t="ms"><s>text</s></p>
   const pRegex = /<p\s+t="\d+"[^>]*>([\s\S]*?)<\/p>/g
   let pMatch
   while ((pMatch = pRegex.exec(xml)) !== null) {
@@ -59,12 +68,13 @@ async function fetchTranscript(videoId: string): Promise<string> {
     const sRe = /<s[^>]*>([^<]*)<\/s>/g
     let sMatch
     while ((sMatch = sRe.exec(pMatch[1])) !== null) {
-      const w = sMatch[1].replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"').trim()
+      const w = sMatch[1].replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim()
       if (w) words.push(w)
     }
     if (words.length) segments.push(words.join(''))
   }
 
+  // 구형 포맷 fallback: <text start="s">text</text>
   if (segments.length === 0) {
     const textRegex = /<text[^>]*>([^<]*)<\/text>/g
     let tMatch
@@ -75,7 +85,6 @@ async function fetchTranscript(videoId: string): Promise<string> {
   }
 
   if (segments.length === 0) throw new Error(`disabled on this video (${videoId})`)
-
   return segments.join(' ')
 }
 
@@ -112,10 +121,8 @@ ${transcript.slice(0, 8000)}
 
   const data = await res.json() as any
   if (data.error) throw new Error(`Claude API 오류: ${data.error.message}`)
-
   const text = data.content?.[0]?.text || ''
-  if (!text) throw new Error(`Claude 응답 없음`)
-
+  if (!text) throw new Error('Claude 응답 없음')
   const jsonMatch = text.match(/\{[\s\S]*\}/)
   return JSON.parse(jsonMatch ? jsonMatch[0] : text)
 }
@@ -131,13 +138,8 @@ export default async function handler(req: Request) {
   const { videoRowId } = await req.json() as any
   if (!videoRowId) return new Response(JSON.stringify({ error: 'videoRowId 필요' }), { status: 400 })
 
-  const { data: video, error: vErr } = await supabase
-    .from('youtube_videos')
-    .select('*')
-    .eq('id', videoRowId)
-    .single()
-
-  if (vErr || !video) return new Response(JSON.stringify({ error: '영상을 찾을 수 없습니다' }), { status: 404 })
+  const { data: video } = await supabase.from('youtube_videos').select('*').eq('id', videoRowId).single()
+  if (!video) return new Response(JSON.stringify({ error: '영상 없음' }), { status: 404 })
 
   await supabase.from('youtube_videos').update({ status: 'analyzing' }).eq('id', videoRowId)
 
@@ -145,14 +147,12 @@ export default async function handler(req: Request) {
     let transcript: string
     try {
       transcript = await fetchTranscript(video.video_id)
-    } catch (transcriptErr: any) {
-      if (transcriptErr?.message?.includes('disabled on this video')) {
-        await supabase.from('youtube_videos')
-          .update({ status: 'no_transcript', error_message: '자막 비활성화' })
-          .eq('id', videoRowId)
+    } catch (e: any) {
+      if (e?.message?.includes('disabled on this video')) {
+        await supabase.from('youtube_videos').update({ status: 'no_transcript', error_message: '자막 비활성화' }).eq('id', videoRowId)
         return new Response(JSON.stringify({ success: false, reason: 'no_transcript' }), { status: 200 })
       }
-      throw transcriptErr
+      throw e
     }
 
     const analysis = await analyzeWithClaude(transcript, video.title || video.video_url)
@@ -168,16 +168,11 @@ export default async function handler(req: Request) {
       raw_transcript: transcript.slice(0, 5000),
     }])
 
-    await supabase.from('youtube_videos')
-      .update({ status: 'done', error_message: null })
-      .eq('id', videoRowId)
-
+    await supabase.from('youtube_videos').update({ status: 'done', error_message: null }).eq('id', videoRowId)
     return new Response(JSON.stringify({ success: true, analysis }), { status: 200 })
 
   } catch (err: any) {
-    await supabase.from('youtube_videos')
-      .update({ status: 'error', error_message: err.message })
-      .eq('id', videoRowId)
+    await supabase.from('youtube_videos').update({ status: 'error', error_message: err.message }).eq('id', videoRowId)
     return new Response(JSON.stringify({ error: err.message }), { status: 500 })
   }
 }
