@@ -160,7 +160,7 @@ function SectionCard({
         )}
       </div>
       {scrollable ? (
-        <div style={{ flex: 1, overflowY: 'auto' }}>{children}</div>
+        <div className="thin-scroll" style={{ flex: 1, overflowY: 'auto' }}>{children}</div>
       ) : children}
     </div>
   )
@@ -404,7 +404,7 @@ export default function AdminDashboard({
         {/* 최근 등록 고객 */}
         <div style={{ gridColumn: 'span 2' }}>
           <SectionCard title="최근 등록 고객" sub={`총 ${customers.length}명`} onViewAll={() => router.push('/customers')}>
-            <div style={{ maxHeight: 300, overflowY: 'auto', padding: '0 8px' }}>
+            <div className="thin-scroll" style={{ maxHeight: 300, overflowY: 'auto', padding: '0 8px' }}>
               <table style={{ width: '100%', fontSize: 14, tableLayout: 'fixed', borderCollapse: 'collapse' }}>
                 <colgroup>
                   <col style={{ width: narrowTable ? '22%' : '16%' }} />
@@ -414,7 +414,7 @@ export default function AdminDashboard({
                   <col style={{ width: narrowTable ? '14%' : '10%' }} />
                   {!narrowTable && <><col style={{ width: '11%' }} /><col style={{ width: '11%' }} /></>}
                 </colgroup>
-                <thead style={{ position: 'sticky', top: 0, zIndex: 1, background: '#FFFFFF' }}>
+                <thead style={{ position: 'sticky', top: 0, zIndex: 1, background: 'var(--admin-header-bg, #FFFFFF)' }}>
                   <tr style={{ borderBottom: '1px solid #E5E7EB' }}>
                     {['이름', '구분', '성별', '연락처', '나이'].map((h) => (
                       <th key={h} style={{ padding: '10px 8px', textAlign: 'left', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#8892A0', whiteSpace: 'nowrap' }}>{h}</th>

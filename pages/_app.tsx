@@ -14,28 +14,15 @@ function LayoutWrapper({ children }: { children: ReactNode }) {
   const { loading } = useAdmin()
   const [isDesktop, setIsDesktop] = useState(false)
   useEffect(() => {
-    const mq = window.matchMedia('(min-width: 769px)')
-    const update = () => setIsDesktop(mq.matches)
-    update()
-    mq.addEventListener('change', update)
-    return () => mq.removeEventListener('change', update)
+    // 창 크기가 아니라 기기 타입으로 레이아웃 결정
+    // 데스크톱 브라우저는 창 크기 상관없이 항상 AdminLayout 사용 (다크모드 유지)
+    const isMobileDevice = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+    setIsDesktop(!isMobileDevice)
   }, [])
 
-  // 레이아웃 전환 시에도 다크모드 유지 (창 크기 조절해도 테마 보존)
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('admin_theme')
-      if (saved) {
-        document.documentElement.setAttribute('data-theme', saved)
-        document.body.style.background = saved === 'dark' ? '#1E1E1E' : ''
-        document.body.style.color = saved === 'dark' ? '#FFFFFF' : ''
-      }
-    } catch {}
-  }, [isDesktop])
-
   if (loading) return <div style={{ minHeight: '100vh', background: 'var(--admin-bg, #F7F8FA)' }} />
-  // 데스크톱: 새 아이플래너 AdminLayout 전체 사용자 적용
-  // 모바일: 기존 녹색 Layout 유지 (별도 리뉴얼 예정)
+  // 데스크톱 브라우저: AdminLayout (창 크기 무관)
+  // 모바일 기기: 기존 녹색 Layout 유지 (별도 리뉴얼 예정)
   if (isDesktop) return <AdminLayout>{children}</AdminLayout>
   return <Layout>{children}</Layout>
 }
