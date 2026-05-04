@@ -51,7 +51,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     if (saved === 'dark') {
       setDark(true)
       document.documentElement.setAttribute('data-theme', 'dark')
-      document.body.style.background = '#1A1A2E'
+      document.body.style.background = '#1E1E1E'
       document.body.style.color = '#FFFFFF'
     } else {
       document.documentElement.setAttribute('data-theme', 'light')

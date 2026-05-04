@@ -5,7 +5,7 @@ export default function Document() {
     <Html lang="ko">
       <Head>
         {/* 다크모드 플래시 방지 — CSS 로드 전에 data-theme + 배경색 선적용 */}
-        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('admin_theme');if(t){document.documentElement.setAttribute('data-theme',t);if(t==='dark'){document.documentElement.style.background='#1A1A2E';document.documentElement.style.colorScheme='dark';}}}catch(e){}})();` }} />
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('admin_theme');if(t){document.documentElement.setAttribute('data-theme',t);if(t==='dark'){document.documentElement.style.background='#1E1E1E';document.documentElement.style.colorScheme='dark';}}}catch(e){}})();` }} />
         <meta name="application-name" content="아이플래너" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />

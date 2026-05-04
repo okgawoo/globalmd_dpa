@@ -311,7 +311,7 @@
 }
 
 /* ─── 다크모드 ─── */
-:root[data-theme="dark"] .page { background: #1A1A2E; }
+:root[data-theme="dark"] .page { background: #1E1E1E; }
 :root[data-theme="dark"] .card { background: #262626; border-color: rgba(255,255,255,0.10); }
 :root[data-theme="dark"] .cardHeader { border-bottom-color: rgba(255,255,255,0.10); }
 :root[data-theme="dark"] .tabBar { border-bottom-color: rgba(255,255,255,0.10); }

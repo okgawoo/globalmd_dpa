@@ -2,7 +2,7 @@
 @keyframes fadeInDown { from { opacity: 0; transform: translateX(-50%) translateY(-8px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
 html { scrollbar-gutter: stable; }
 /* 다크모드 플래시 방지 — JS보다 CSS가 먼저 적용될 때를 대비한 직접 배경색 */
-html[data-theme="dark"] { background: #1A1A2E; }
+html[data-theme="dark"] { background: #1E1E1E; }
 html[data-theme="light"] { background: #F7F8FA; }
 
 :root {
@@ -28,18 +28,18 @@ html[data-theme="light"] { background: #F7F8FA; }
 
 /* ── Admin 다크모드 ── */
 :root[data-theme="dark"] {
-  --admin-bg: #1A1A2E;
-  --admin-sidebar-bg: #16162A;
-  --admin-header-bg: #1E1E35;
+  --admin-bg: #1E1E1E;
+  --admin-sidebar-bg: #161616;
+  --admin-header-bg: #222222;
   --admin-border: rgba(255,255,255,0.08);
   --admin-text: #FFFFFF;
   --admin-text-sub: rgba(255,255,255,0.5);
   --admin-hover: rgba(255,255,255,0.06);
-  --admin-support-bg: #1E1E35;
+  --admin-support-bg: #222222;
 
   /* 공통 CSS 변수 오버라이드 */
-  --bg: #1A1A2E;
-  --bg-card: #252540;
+  --bg: #1E1E1E;
+  --bg-card: #262626;
   --bg-sidebar: #16162A;
   --border: rgba(255,255,255,0.08);
   --text-primary: #FFFFFF;
