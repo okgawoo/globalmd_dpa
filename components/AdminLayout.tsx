@@ -7,23 +7,25 @@ import { useAdmin } from '../lib/AdminContext'
 import {
   LayoutDashboard, FileEdit, Users, Bell, Mail,
   BarChart2, TrendingUp, Settings, LogOut, Sun, Moon, CalendarDays, ShieldCheck,
-  Headphones, X, PanelLeft, Megaphone,
+  Headphones, X, PanelLeft, Megaphone, HelpCircle,
 } from 'lucide-react'
+import OnboardingTour from './OnboardingTour'
+import { tourSteps } from '../lib/tourSteps'
 
 const navItems = [
-  { name: '대시보드', href: '/', icon: LayoutDashboard },
-  { name: '데이터 입력', href: '/input', icon: FileEdit },
-  { name: '고객 관리', href: '/customers', icon: Users },
-  { name: '고객 리포트', href: '/report', icon: BarChart2 },
-  { name: '상담 일정', href: '/consultations', icon: CalendarDays },
-  { name: '문자 발송', href: '/notifications', icon: Bell },
-  { name: '뉴스레터', href: '/newsletter', icon: Mail },
-  { name: '캠페인 발송', href: '/campaign', icon: Megaphone },
-  { name: '영업 관리', href: '/sales', icon: TrendingUp },
+  { name: '대시보드', href: '/', icon: LayoutDashboard, tourId: 'tour-dashboard' },
+  { name: '데이터 입력', href: '/input', icon: FileEdit, tourId: 'tour-input' },
+  { name: '고객 관리', href: '/customers', icon: Users, tourId: 'tour-customers' },
+  { name: '고객 리포트', href: '/report', icon: BarChart2, tourId: 'tour-report' },
+  { name: '상담 일정', href: '/consultations', icon: CalendarDays, tourId: 'tour-consultations' },
+  { name: '문자 발송', href: '/notifications', icon: Bell, tourId: 'tour-notifications' },
+  { name: '뉴스레터', href: '/newsletter', icon: Mail, tourId: 'tour-newsletter' },
+  { name: '캠페인 발송', href: '/campaign', icon: Megaphone, tourId: 'tour-campaign' },
+  { name: '영업 관리', href: '/sales', icon: TrendingUp, tourId: 'tour-sales' },
 ]
 
 const accountItems = [
-  { name: '설정', href: '/settings', icon: Settings },
+  { name: '설정', href: '/settings', icon: Settings, tourId: 'tour-settings' },
 ]
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
@@ -37,6 +39,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const [isNarrow, setIsNarrow] = useState<boolean | null>(null)
   const [showSidebarTooltip, setShowSidebarTooltip] = useState(false)
   const [hoveredNav, setHoveredNav] = useState<string | null>(null)
+  const [tourActive, setTourActive] = useState(false)
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 })
   const [tooltipLabel, setTooltipLabel] = useState('')
   useLayoutEffect(() => {
@@ -61,6 +64,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       document.documentElement.setAttribute('data-theme', 'light')
       document.body.style.background = ''
       document.body.style.color = ''
+    }
+    // 투어 미완료 사용자에게 자동 시작
+    if (!localStorage.getItem('tour_done')) {
+      setTimeout(() => setTourActive(true), 600)
     }
   }, [])
 
@@ -157,6 +164,21 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <div className={dark ? 'admin-dark' : ''} style={{ display: 'flex', minHeight: '100vh', background: 'var(--admin-bg)', color: 'var(--admin-text)' }}>
       {ConfirmDialog}
+
+      {/* ── 온보딩 투어 ── */}
+      {tourActive && (
+        <OnboardingTour
+          steps={tourSteps}
+          onComplete={() => {
+            setTourActive(false)
+            localStorage.setItem('tour_done', '1')
+          }}
+          onSkip={() => {
+            setTourActive(false)
+            localStorage.setItem('tour_done', '1')
+          }}
+        />
+      )}
 
       {/* ── 사이드바 접힘 메뉴 툴팁 (fixed — overflow:hidden 우회) ── */}
       {collapsed && hoveredNav && (
@@ -262,6 +284,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                   onMouseLeave={hideNavTooltip}
                 >
                   <Link
+                    id={item.tourId}
                     href={item.href}
                     style={navLinkStyle(isActive)}
                     onMouseEnter={(e) => {
@@ -299,6 +322,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                     onMouseLeave={hideNavTooltip}
                   >
                     <Link
+                      id={item.tourId}
                       href={item.href}
                       style={navLinkStyle(isActive)}
                       onMouseEnter={(e) => {
@@ -470,6 +494,13 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             </span>
 
             <div style={{ width: 1, height: 14, background: 'var(--admin-border)', margin: '0 4px' }} />
+
+            <HeaderIconBtn
+              onClick={() => setTourActive(true)}
+              title="투어 다시 보기"
+            >
+              <HelpCircle style={{ width: 16, height: 16 }} />
+            </HeaderIconBtn>
 
             <HeaderIconBtn onClick={toggleTheme} title={dark ? '라이트 모드' : '다크 모드'}>
               {dark ? <Sun style={{ width: 16, height: 16 }} /> : <Moon style={{ width: 16, height: 16 }} />}
