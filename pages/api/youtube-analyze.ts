@@ -128,7 +128,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     // 1. 자막 추출
-    const transcript = await fetchTranscript(video.video_id)
+    let transcript: string
+    try {
+      transcript = await fetchTranscript(video.video_id)
+    } catch (transcriptErr: any) {
+      const msg = transcriptErr?.message || ''
+      // 자막 비활성화 / 접근 불가 → no_transcript 처리 (팝업 없이 조용히)
+      if (
+        msg.includes('disabled') ||
+        msg.includes('Transcript') ||
+        msg.includes('transcript') ||
+        msg.includes('Could not find') ||
+        msg.includes('not available')
+      ) {
+        await supabase
+          .from('youtube_videos')
+          .update({ status: 'no_transcript', error_message: '자막 비활성화' })
+          .eq('id', videoRowId)
+        return res.status(200).json({ success: false, reason: 'no_transcript' })
+      }
+      throw transcriptErr
+    }
 
     // 2. Claude 분석
     const analysis = await analyzeWithClaude(transcript, video.title || video.video_url)

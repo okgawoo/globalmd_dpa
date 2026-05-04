@@ -313,6 +313,9 @@ export default function AdminPage() {
       if (data.success) {
         selectYtChannel(ytSelectedChannel)
         fetchYtAnalysis(video.id)
+      } else if (data.reason === 'no_transcript') {
+        // 자막 없음 → 팝업 없이 목록만 갱신
+        selectYtChannel(ytSelectedChannel)
       } else {
         alert(`분석 실패: ${data.error}`)
         selectYtChannel(ytSelectedChannel)
