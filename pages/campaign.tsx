@@ -804,86 +804,81 @@ JSON만 출력하세요.`
                 <div style={{ marginBottom:14 }}>
                   <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', textTransform:'uppercase', letterSpacing:'0.04em', display:'block', marginBottom:5 }}>
                     특약 내용
-                    <span style={{ fontWeight:400, textTransform:'none', letterSpacing:0, fontSize:10, marginLeft:4 }}>
-                      (텍스트 입력 또는 이미지 드래그&드롭)
-                    </span>
                   </label>
 
-                  {/* 드롭존 + textarea 통합 */}
-                  <div
-                    onDragOver={e => { e.preventDefault(); setPromoDragOver(true) }}
-                    onDragLeave={() => setPromoDragOver(false)}
-                    onDrop={handlePromoDrop}
-                    style={{
-                      position:'relative',
-                      border: promoDragOver ? '2px dashed #5E6AD2' : '1px solid #E5E7EB',
-                      borderRadius:8,
-                      background: promoDragOver ? 'rgba(94,106,210,0.04)' : '#F7F8FA',
-                      transition:'all 0.15s',
-                    }}
-                  >
-                    <textarea
-                      value={promoForm.details}
-                      onChange={e => setPromoForm(p => ({ ...p, details: e.target.value }))}
-                      placeholder="특약 내용을 직접 입력하거나&#10;이미지를 이 영역에 드래그하면 AI가 자동으로 내용을 추출해요"
-                      rows={5}
+                  {/* 텍스트 입력된 상태 — textarea 표시 */}
+                  {promoForm.details ? (
+                    <div style={{ position:'relative' }}>
+                      <textarea
+                        value={promoForm.details}
+                        onChange={e => setPromoForm(p => ({ ...p, details: e.target.value }))}
+                        rows={5}
+                        style={{
+                          width:'100%', padding:'10px 12px',
+                          border:'1px solid #E5E7EB', borderRadius:8,
+                          fontSize:13, lineHeight:1.7, resize:'vertical',
+                          fontFamily:'inherit', boxSizing:'border-box',
+                          background:'#F7F8FA', outline:'none', color:'#1A1A2E',
+                        }}
+                      />
+                      <button onClick={() => setPromoForm(p => ({ ...p, details: '' }))}
+                        style={{
+                          position:'absolute', top:8, right:8,
+                          fontSize:11, color:'#8892A0', background:'#F3F4F6',
+                          border:'none', borderRadius:4, cursor:'pointer',
+                          padding:'2px 8px', fontFamily:'inherit',
+                        }}>
+                        지우기
+                      </button>
+                    </div>
+                  ) : (
+                    /* 비어있는 상태 — 드롭존 */
+                    <label
+                      onDragOver={e => { e.preventDefault(); setPromoDragOver(true) }}
+                      onDragLeave={() => setPromoDragOver(false)}
+                      onDrop={handlePromoDrop}
                       style={{
-                        width:'100%', padding:'10px 12px',
-                        border:'none', borderRadius:8,
-                        fontSize:13, lineHeight:1.7, resize:'vertical',
-                        fontFamily:'inherit', boxSizing:'border-box',
-                        background:'transparent', outline:'none',
-                        color:'#1A1A2E',
+                        display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
+                        border: promoDragOver ? '2px dashed #5E6AD2' : '2px dashed #E5E7EB',
+                        borderRadius:8, padding:28, textAlign:'center', cursor:'pointer',
+                        background: promoDragOver ? 'rgba(94,106,210,0.05)' : 'transparent',
+                        transition:'all 0.12s',
                       }}
-                    />
-                    {/* 드래그 오버레이 */}
-                    {promoDragOver && (
-                      <div style={{
-                        position:'absolute', inset:0, borderRadius:8,
-                        background:'rgba(94,106,210,0.08)',
-                        display:'flex', alignItems:'center', justifyContent:'center',
-                        pointerEvents:'none',
-                      }}>
-                        <div style={{ fontSize:13, fontWeight:600, color:'#5E6AD2' }}>
-                          이미지를 놓아서 내용 추출
-                        </div>
-                      </div>
-                    )}
-                    {/* 추출 중 */}
-                    {promoImageExtracting && (
-                      <div style={{
-                        position:'absolute', inset:0, borderRadius:8,
-                        background:'rgba(255,255,255,0.85)',
-                        display:'flex', alignItems:'center', justifyContent:'center',
-                      }}>
-                        <div style={{ fontSize:13, fontWeight:600, color:'#5E6AD2' }}>
-                          ✨ 이미지에서 내용 추출 중...
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* 이미지 업로드 버튼 (클릭 방식도 지원) */}
-                  <div style={{ marginTop:6, display:'flex', alignItems:'center', gap:6 }}>
-                    <label style={{
-                      fontSize:11, color:'#8892A0', cursor:'pointer',
-                      display:'flex', alignItems:'center', gap:4,
-                    }}>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
-                        <polyline points="21 15 16 10 5 21"/>
-                      </svg>
-                      이미지 파일 선택
+                    >
+                      {promoImageExtracting ? (
+                        <>
+                          <div style={{ fontSize:26, marginBottom:8 }}>⏳</div>
+                          <div style={{ fontSize:13, fontWeight:600, color:'#5E6AD2' }}>AI가 이미지 내용 추출 중...</div>
+                        </>
+                      ) : (
+                        <>
+                          <div style={{ width:44, height:44, borderRadius:10, background:'rgba(94,106,210,0.1)', display:'flex', alignItems:'center', justifyContent:'center', marginBottom:10 }}>
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5E6AD2" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                              <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+                              <polyline points="21 15 16 10 5 21"/>
+                            </svg>
+                          </div>
+                          <div style={{ fontSize:13, fontWeight:600, color:'#1A1A2E', marginBottom:4 }}>
+                            {promoDragOver ? '여기에 놓아주세요' : '이미지를 드래그하거나 클릭해서 선택'}
+                          </div>
+                          <div style={{ fontSize:11, color:'#8892A0' }}>
+                            보험사 공문, 카카오톡 캡처 등 · AI가 자동으로 내용을 추출해요
+                          </div>
+                        </>
+                      )}
                       <input type="file" accept="image/*" style={{ display:'none' }}
                         onChange={e => { const f = e.target.files?.[0]; if (f) extractFromImage(f); e.target.value = '' }} />
                     </label>
-                    {promoForm.details && (
-                      <button onClick={() => setPromoForm(p => ({ ...p, details: '' }))}
-                        style={{ fontSize:11, color:'#8892A0', background:'none', border:'none', cursor:'pointer', marginLeft:'auto', fontFamily:'inherit' }}>
-                        내용 지우기
-                      </button>
-                    )}
-                  </div>
+                  )}
+
+                  {/* 텍스트 직접 입력 링크 */}
+                  {!promoForm.details && (
+                    <button
+                      onClick={() => setPromoForm(p => ({ ...p, details: ' ' }))}
+                      style={{ marginTop:6, fontSize:11, color:'#8892A0', background:'none', border:'none', cursor:'pointer', fontFamily:'inherit', textDecoration:'underline', padding:0 }}>
+                      텍스트로 직접 입력하기
+                    </button>
+                  )}
                 </div>
 
                 <button
