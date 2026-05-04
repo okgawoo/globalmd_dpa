@@ -780,6 +780,7 @@ JSON만 출력하세요.`
               </div>
 
               {/* 매칭 결과 */}
+              <div style={{ marginTop:'auto', paddingTop:16 }}>
               <div style={{ background:'#F0F0FD', border:'1px solid rgba(94,106,210,0.2)', borderRadius:8, padding:'12px 14px' }}>
                 <div style={{ fontSize:13, color:'#5E6AD2', fontWeight:600, marginBottom:4 }}>
                   매칭 고객 <span style={{ fontSize:20 }}>{matched.length}</span>명
@@ -807,6 +808,7 @@ JSON만 출력하세요.`
                   )}
                 </div>
               )}
+              </div>
             </div>
 
             {/* 오른쪽: 메시지 작성 */}
