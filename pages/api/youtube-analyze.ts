@@ -133,14 +133,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       transcript = await fetchTranscript(video.video_id)
     } catch (transcriptErr: any) {
       const msg = transcriptErr?.message || ''
-      // 자막 비활성화 / 접근 불가 → no_transcript 처리 (팝업 없이 조용히)
-      if (
-        msg.includes('disabled') ||
-        msg.includes('Transcript') ||
-        msg.includes('transcript') ||
-        msg.includes('Could not find') ||
-        msg.includes('not available')
-      ) {
+      // 자막 비활성화된 영상만 no_transcript 처리 (팝업 없이 조용히)
+      if (msg.includes('disabled on this video')) {
         await supabase
           .from('youtube_videos')
           .update({ status: 'no_transcript', error_message: '자막 비활성화' })
