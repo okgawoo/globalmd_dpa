@@ -154,9 +154,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <div>
               <div style={{display:'flex',alignItems:'center',gap:10}}>
                 {isDesktop ? (
-                  <div style={{ width: 40, height: 40, borderRadius: 12, background: 'linear-gradient(135deg, #5E6AD2, #3F48B8)', boxShadow: '0 4px 12px rgba(94,106,210,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <span style={{ color: '#fff', fontSize: 22, fontWeight: 800, fontStyle: 'italic', letterSpacing: '-1px', lineHeight: 1 }}>i</span>
-                  </div>
+                  <img src="/icons/icon-192x192.png" alt="아이플래너" style={{ width: 40, height: 40, borderRadius: 12, flexShrink: 0, objectFit: 'cover' }} />
                 ) : (
                   <svg width="40" height="40" viewBox="0 0 40 40" fill="none" style={{flexShrink:0}}>
                     <rect width="40" height="40" rx="12" fill="#1D9E75"/>
