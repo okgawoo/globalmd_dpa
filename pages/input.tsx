@@ -738,11 +738,11 @@ export default function InputPage() {
                 <div className={styles.formSection}>저장 방식 선택</div>
                 <div style={{display:'flex',gap:8,marginBottom:20}}>
                   <button onClick={() => { setSaveMode('new'); saveModeRef.current = 'new' }}
-                    style={{flex:1,padding:'11px 0',borderRadius:8,border:`1.5px solid ${saveMode==='new'?'#5E6AD2':'#E5E7EB'}`,background:saveMode==='new'?'rgba(94,106,210,0.06)':'transparent',color:saveMode==='new'?'#5E6AD2':'#636B78',fontWeight:saveMode==='new'?600:400,fontSize:13,cursor:'pointer',transition:'all 120ms',fontFamily:'inherit'}}>
+                    style={{flex:1,padding:'11px 0',borderRadius:8,border:`1.5px solid ${saveMode==='new'?'#5E6AD2':'hsl(var(--border-default))'}`,background:saveMode==='new'?'rgba(94,106,210,0.06)':'transparent',color:saveMode==='new'?'#5E6AD2':'#636B78',fontWeight:saveMode==='new'?600:400,fontSize:13,cursor:'pointer',transition:'all 120ms',fontFamily:'inherit'}}>
                     + 새 고객으로 저장
                   </button>
                   <button onClick={() => { setSaveMode('existing'); saveModeRef.current = 'existing' }}
-                    style={{flex:1,padding:'11px 0',borderRadius:8,border:`1.5px solid ${saveMode==='existing'?'#5E6AD2':'#E5E7EB'}`,background:saveMode==='existing'?'rgba(94,106,210,0.06)':'transparent',color:saveMode==='existing'?'#5E6AD2':'#636B78',fontWeight:saveMode==='existing'?600:400,fontSize:13,cursor:'pointer',transition:'all 120ms',fontFamily:'inherit'}}>
+                    style={{flex:1,padding:'11px 0',borderRadius:8,border:`1.5px solid ${saveMode==='existing'?'#5E6AD2':'hsl(var(--border-default))'}`,background:saveMode==='existing'?'rgba(94,106,210,0.06)':'transparent',color:saveMode==='existing'?'#5E6AD2':'#636B78',fontWeight:saveMode==='existing'?600:400,fontSize:13,cursor:'pointer',transition:'all 120ms',fontFamily:'inherit'}}>
                     👤 기존 고객에 추가
                   </button>
                 </div>

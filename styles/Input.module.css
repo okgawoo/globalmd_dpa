@@ -618,3 +618,23 @@
 :root[data-theme="dark"] .guideBtn:hover {
   background: rgba(255,255,255,0.08);
 }
+
+/* 다크모드 - 테두리 전체 통일 */
+:root[data-theme="dark"] .dropZone { border-color: rgba(255,255,255,0.12); }
+:root[data-theme="dark"] .dropZone:hover,
+:root[data-theme="dark"] .dropZoneActive { border-color: #5E6AD2; }
+
+:root[data-theme="dark"] .contractBlock { border-color: rgba(255,255,255,0.10); background: #242424; }
+:root[data-theme="dark"] .removeBtn { border-color: rgba(255,255,255,0.12); color: rgba(255,255,255,0.4); }
+
+:root[data-theme="dark"] .addContractBtn { border-color: rgba(255,255,255,0.12); color: rgba(255,255,255,0.35); }
+:root[data-theme="dark"] .addContractBtn:hover { border-color: rgba(94,106,210,0.5); color: #5E6AD2; }
+
+:root[data-theme="dark"] .addCovBtn { border-color: rgba(255,255,255,0.12); color: rgba(255,255,255,0.4); }
+:root[data-theme="dark"] .addCovBtn:hover { border-color: rgba(94,106,210,0.5); color: #5E6AD2; }
+
+:root[data-theme="dark"] .field input,
+:root[data-theme="dark"] .field select { border-color: rgba(255,255,255,0.12); background: #2a2a2a; color: #E0E0E0; }
+
+:root[data-theme="dark"] .tabBar { border-bottom-color: rgba(255,255,255,0.10); }
+:root[data-theme="dark"] .tab { color: #A0A0A0; }
