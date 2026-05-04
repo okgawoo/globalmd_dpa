@@ -151,7 +151,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <div>
               <div style={{display:'flex',alignItems:'center',gap:10}}>
                 {isDesktop ? (
-                  <img src="/iplanner-logo.png" alt="아이플래너" style={{ width: 40, height: 40, borderRadius: 12, flexShrink: 0, objectFit: 'cover', display: 'block' }} />
+                  null
                 ) : (
                   <svg width="40" height="40" viewBox="0 0 40 40" fill="none" style={{flexShrink:0}}>
                     <rect width="40" height="40" rx="12" fill="#1D9E75"/>
