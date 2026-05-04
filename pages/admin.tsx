@@ -138,8 +138,13 @@ export default function AdminPage() {
     const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
     const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
+    // 설계사 목록은 RLS 우회를 위해 admin-agents API 사용
+    const { data: { session } } = await supabase.auth.getSession()
+    const agentRes = session ? await fetch('/api/admin-agents', { headers: { 'Authorization': `Bearer ${session.access_token}` } }) : null
+    const agentData = agentRes?.ok ? await agentRes.json() : null
+    const agents = agentData?.agents || []
+
     const [
-      { data: agents },
       { data: channels },
       { count: totalVideos },
       { count: doneVideos },
@@ -147,7 +152,6 @@ export default function AdminPage() {
       { count: errorVideos },
       { data: pdfs },
     ] = await Promise.all([
-      supabase.from('dpa_agents').select('plan_type, created_at, status'),
       supabase.from('youtube_channels').select('id, name, is_active'),
       // 영상 수는 5000+ 이라 데이터 안 가져오고 count만 조회
       supabase.from('youtube_videos').select('*', { count: 'exact', head: true }),
@@ -159,9 +163,9 @@ export default function AdminPage() {
 
     // 설계사
     const totalAgents = agents?.length || 0
-    const newAgentsThisMonth = agents?.filter(a => a.created_at >= monthAgo).length || 0
+    const newAgentsThisMonth = agents?.filter((a: any) => a.created_at >= monthAgo).length || 0
     const planBreakdown: Record<string, number> = {}
-    agents?.forEach(a => { const p = a.plan_type || 'basic'; planBreakdown[p] = (planBreakdown[p] || 0) + 1 })
+    agents?.forEach((a: any) => { const p = a.plan_type || 'basic'; planBreakdown[p] = (planBreakdown[p] || 0) + 1 })
 
     // YouTube (count 쿼리로 정확한 값 사용)
     const totalChannels = channels?.length || 0
