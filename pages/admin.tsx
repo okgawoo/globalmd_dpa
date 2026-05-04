@@ -1222,7 +1222,7 @@ export default function AdminPage() {
                                 </a>
                               </td>
                               <td style={tdStyle({ whiteSpace: 'nowrap' })}>
-                                {v.status === 'done' && badge('#D1FAE5', '#065F46', '분석완료')}
+                                {v.status === 'done' && badge('#EEF2FF', '#5E6AD2', '분석완료', 'rgba(94,106,210,0.2)', '#A5B0FF')}
                                 {v.status === 'pending' && badge('#F3F4F6', '#6B7280', '미분석')}
                                 {v.status === 'analyzing' && badge('#EFF6FF', '#1D4ED8', '분석중...')}
                                 {v.status === 'error' && badge('#FEE2E2', '#991B1B', '오류')}
