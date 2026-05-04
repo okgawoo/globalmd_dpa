@@ -489,14 +489,10 @@ export default function NotificationsPage() {
                           <span className={styles.custMeta}>· {n.customer.phone || '연락처 없음'}</span>
                         </div>
                         <div className={styles.custRight} style={{ position: 'relative' }}>
-                          <span className={styles.custBadge} style={{ background: cfg.badgeBg, color: cfg.badgeColor }}>
-                            {n.badge}
-                          </span>
-                          <span className={styles.custLastSent} style={lastMsg ? { color: '#3D47B5' } : undefined}>{lastMsg ? fmtDate(lastMsg.created_at) : '미발송'}</span>
                           <button
                             onClick={e => { e.stopPropagation(); setSnoozeOpenId(snoozeOpenId === n.id ? null : n.id); setSnoozeCustomDate('') }}
                             title="스누즈"
-                            style={{ background: 'none', border: '1px solid #E5E7EB', borderRadius: 5, padding: '2px 6px', cursor: 'pointer', fontSize: 12, color: '#8892A0', lineHeight: 1, flexShrink: 0 }}>
+                            style={{ background: 'none', border: 'none', padding: '2px 4px', cursor: 'pointer', fontSize: 13, color: '#8892A0', lineHeight: 1, flexShrink: 0 }}>
                             ⏰
                           </button>
                           {snoozeOpenId === n.id && (
@@ -534,6 +530,8 @@ export default function NotificationsPage() {
                               </div>
                             </div>
                           )}
+                          <span className={styles.custBadge} style={{ background: cfg.badgeBg, color: cfg.badgeColor }}>{n.badge}</span>
+                          <span className={styles.custLastSent} style={lastMsg ? { color: '#3D47B5' } : undefined}>{lastMsg ? fmtDate(lastMsg.created_at) : '미발송'}</span>
                         </div>
                       </div>
                     )

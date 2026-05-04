@@ -829,10 +829,5 @@
 :root[data-theme="dark"] .activeIconTab { color: #FFFFFF !important; border-bottom-color: #5E6AD2 !important; }
 :root[data-theme="dark"] .activeIconTab .tabIcon { color: #FFFFFF !important; }
 
-/* 다크모드 detailInfoGrid 테두리/배경 */
-:root[data-theme="dark"] .detailInfoGrid { border-color: rgba(255,255,255,0.08); background: transparent; }
-:root[data-theme="dark"] .detailInfoCellL { border-right-color: rgba(255,255,255,0.08); border-bottom-color: rgba(255,255,255,0.08); }
-:root[data-theme="dark"] .detailInfoCellR { border-bottom-color: rgba(255,255,255,0.08); }
-:root[data-theme="dark"] .detailInfoCellFull { border-bottom-color: rgba(255,255,255,0.08); }
-:root[data-theme="dark"] .detailInfoValue { color: #E0E0E0; }
-:root[data-theme="dark"] .detailInfoEmpty { color: rgba(255,255,255,0.2); }
+/* 다크모드 profileBlock (고객 상세 외부 카드) */
+:root[data-theme="dark"] .profileBlock { background: transparent !important; border-color: rgba(255,255,255,0.07) !important; }
