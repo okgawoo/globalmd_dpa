@@ -701,15 +701,20 @@ JSON만 출력하세요.`
                   발송 수단
                 </label>
                 <div style={{ display:'flex', gap:6 }}>
-                  {[['sms','📱 문자'], ['kakao','💬 카카오톡']].map(([val, label]) => (
-                    <button key={val} onClick={() => setSendMethod(val as 'sms'|'kakao')}
-                      style={{
-                        padding:'6px 14px', borderRadius:6, fontSize:13, cursor:'pointer', fontFamily:'inherit',
-                        background: sendMethod === val ? '#5E6AD2' : 'transparent',
-                        color: sendMethod === val ? '#fff' : '#636B78',
-                        border: sendMethod === val ? '1px solid #5E6AD2' : '1px solid #E5E7EB',
-                      }}>{label}</button>
-                  ))}
+                  {[['sms','📱 문자'], ['kakao','💬 카카오톡']].map(([val, label]) => {
+                    const isKakao = val === 'kakao'
+                    const isActive = sendMethod === val
+                    return (
+                      <button key={val} onClick={() => setSendMethod(val as 'sms'|'kakao')}
+                        style={{
+                          padding:'6px 14px', borderRadius:6, fontSize:13, cursor:'pointer', fontFamily:'inherit',
+                          background: isActive ? (isKakao ? '#FEE500' : '#5E6AD2') : 'transparent',
+                          color: isActive ? (isKakao ? '#3C1E1E' : '#fff') : '#636B78',
+                          border: isActive ? (isKakao ? '1px solid #FEE500' : '1px solid #5E6AD2') : '1px solid #E5E7EB',
+                          fontWeight: isActive ? 600 : 400,
+                        }}>{label}</button>
+                    )
+                  })}
                 </div>
               </div>
 
@@ -980,15 +985,20 @@ JSON만 출력하세요.`
                   <div style={{ marginBottom:14 }}>
                     <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', textTransform:'uppercase', letterSpacing:'0.04em', display:'block', marginBottom:6 }}>발송 수단</label>
                     <div style={{ display:'flex', gap:6 }}>
-                      {[['kakao','💬 카카오톡'], ['sms','📱 문자']].map(([val, label]) => (
+                      {[['kakao','💬 카카오톡'], ['sms','📱 문자']].map(([val, label]) => {
+                        const isKakao = val === 'kakao'
+                        const isActive = promoSendMethod === val
+                        return (
                         <button key={val} onClick={() => setPromoSendMethod(val as 'sms'|'kakao')}
                           style={{
                             padding:'6px 14px', borderRadius:6, fontSize:13, cursor:'pointer', fontFamily:'inherit',
-                            background: promoSendMethod === val ? '#5E6AD2' : 'transparent',
-                            color: promoSendMethod === val ? '#fff' : '#636B78',
-                            border: promoSendMethod === val ? '1px solid #5E6AD2' : '1px solid #E5E7EB',
+                            background: isActive ? (isKakao ? '#FEE500' : '#5E6AD2') : 'transparent',
+                            color: isActive ? (isKakao ? '#3C1E1E' : '#fff') : '#636B78',
+                            border: isActive ? (isKakao ? '1px solid #FEE500' : '1px solid #5E6AD2') : '1px solid #E5E7EB',
+                            fontWeight: isActive ? 600 : 400,
                           }}>{label}</button>
-                      ))}
+                        )
+                      })}
                     </div>
                   </div>
 
