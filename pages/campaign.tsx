@@ -153,6 +153,8 @@ export default function CampaignPage() {
 
   // 긴급 특약
   const [promoForm, setPromoForm] = useState<PromoForm>(DEFAULT_PROMO_FORM)
+  const [promoDragOver, setPromoDragOver] = useState(false)
+  const [promoImageExtracting, setPromoImageExtracting] = useState(false)
   const [promoAnalyzing, setPromoAnalyzing] = useState(false)
   const [promoAnalysis, setPromoAnalysis] = useState('')
   const [promoFilter, setPromoFilter] = useState<TargetFilter>(DEFAULT_FILTER)
@@ -342,6 +344,46 @@ export default function CampaignPage() {
       .order('created_at', { ascending: false })
     setPromos(data || [])
     setPromosLoading(false)
+  }
+
+  // ── 긴급 특약 — 이미지에서 텍스트 추출 ─────────
+  async function extractFromImage(file: File) {
+    if (!file.type.startsWith('image/')) { alert('이미지 파일만 지원해요 (JPG, PNG, GIF, WEBP)'); return }
+    setPromoImageExtracting(true)
+    try {
+      const reader = new FileReader()
+      const base64 = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve((reader.result as string).split(',')[1])
+        reader.onerror = reject
+        reader.readAsDataURL(file)
+      })
+      const mediaType = file.type as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp'
+      const res = await fetch('/api/claude', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: '이 이미지에서 보험 특약/상품 관련 내용을 모두 추출해주세요. 보험사명, 상품명, 특약 내용, 유효기간, 대상, 혜택 등을 포함해서 텍스트로만 정리해주세요. 없는 내용은 생략하세요.',
+          image: { base64, mediaType },
+        }),
+      })
+      const data = await res.json()
+      if (data.content) {
+        setPromoForm(prev => ({
+          ...prev,
+          details: prev.details ? prev.details + '\n\n' + data.content : data.content,
+        }))
+      }
+    } catch (e) {
+      alert('이미지 분석 중 오류가 발생했어요')
+    }
+    setPromoImageExtracting(false)
+  }
+
+  function handlePromoDrop(e: React.DragEvent) {
+    e.preventDefault()
+    setPromoDragOver(false)
+    const file = e.dataTransfer.files[0]
+    if (file) extractFromImage(file)
   }
 
   // ── 긴급 특약 — AI 분석 ───────────────────────
@@ -761,12 +803,87 @@ JSON만 출력하세요.`
 
                 <div style={{ marginBottom:14 }}>
                   <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', textTransform:'uppercase', letterSpacing:'0.04em', display:'block', marginBottom:5 }}>
-                    특약 내용 <span style={{ fontWeight:400, textTransform:'none', letterSpacing:0, fontSize:10 }}>(보험사 공문이나 특약 설명 그대로 붙여넣기 OK)</span>
+                    특약 내용
+                    <span style={{ fontWeight:400, textTransform:'none', letterSpacing:0, fontSize:10, marginLeft:4 }}>
+                      (텍스트 입력 또는 이미지 드래그&드롭)
+                    </span>
                   </label>
-                  <textarea value={promoForm.details} onChange={e => setPromoForm(p => ({ ...p, details: e.target.value }))}
-                    placeholder="예: 이번 달 한정 암 진단비 3배 특약, 30~50세 비흡연자 대상 보험료 할인, 신규 가입 시 첫 3개월 보험료 면제..."
-                    rows={5}
-                    style={{ width:'100%', padding:'10px 12px', border:'1px solid #E5E7EB', borderRadius:8, fontSize:13, lineHeight:1.7, resize:'vertical', fontFamily:'inherit', boxSizing:'border-box', background:'#F7F8FA' }} />
+
+                  {/* 드롭존 + textarea 통합 */}
+                  <div
+                    onDragOver={e => { e.preventDefault(); setPromoDragOver(true) }}
+                    onDragLeave={() => setPromoDragOver(false)}
+                    onDrop={handlePromoDrop}
+                    style={{
+                      position:'relative',
+                      border: promoDragOver ? '2px dashed #5E6AD2' : '1px solid #E5E7EB',
+                      borderRadius:8,
+                      background: promoDragOver ? 'rgba(94,106,210,0.04)' : '#F7F8FA',
+                      transition:'all 0.15s',
+                    }}
+                  >
+                    <textarea
+                      value={promoForm.details}
+                      onChange={e => setPromoForm(p => ({ ...p, details: e.target.value }))}
+                      placeholder="특약 내용을 직접 입력하거나&#10;이미지를 이 영역에 드래그하면 AI가 자동으로 내용을 추출해요"
+                      rows={5}
+                      style={{
+                        width:'100%', padding:'10px 12px',
+                        border:'none', borderRadius:8,
+                        fontSize:13, lineHeight:1.7, resize:'vertical',
+                        fontFamily:'inherit', boxSizing:'border-box',
+                        background:'transparent', outline:'none',
+                        color:'#1A1A2E',
+                      }}
+                    />
+                    {/* 드래그 오버레이 */}
+                    {promoDragOver && (
+                      <div style={{
+                        position:'absolute', inset:0, borderRadius:8,
+                        background:'rgba(94,106,210,0.08)',
+                        display:'flex', alignItems:'center', justifyContent:'center',
+                        pointerEvents:'none',
+                      }}>
+                        <div style={{ fontSize:13, fontWeight:600, color:'#5E6AD2' }}>
+                          이미지를 놓아서 내용 추출
+                        </div>
+                      </div>
+                    )}
+                    {/* 추출 중 */}
+                    {promoImageExtracting && (
+                      <div style={{
+                        position:'absolute', inset:0, borderRadius:8,
+                        background:'rgba(255,255,255,0.85)',
+                        display:'flex', alignItems:'center', justifyContent:'center',
+                      }}>
+                        <div style={{ fontSize:13, fontWeight:600, color:'#5E6AD2' }}>
+                          ✨ 이미지에서 내용 추출 중...
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 이미지 업로드 버튼 (클릭 방식도 지원) */}
+                  <div style={{ marginTop:6, display:'flex', alignItems:'center', gap:6 }}>
+                    <label style={{
+                      fontSize:11, color:'#8892A0', cursor:'pointer',
+                      display:'flex', alignItems:'center', gap:4,
+                    }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+                        <polyline points="21 15 16 10 5 21"/>
+                      </svg>
+                      이미지 파일 선택
+                      <input type="file" accept="image/*" style={{ display:'none' }}
+                        onChange={e => { const f = e.target.files?.[0]; if (f) extractFromImage(f); e.target.value = '' }} />
+                    </label>
+                    {promoForm.details && (
+                      <button onClick={() => setPromoForm(p => ({ ...p, details: '' }))}
+                        style={{ fontSize:11, color:'#8892A0', background:'none', border:'none', cursor:'pointer', marginLeft:'auto', fontFamily:'inherit' }}>
+                        내용 지우기
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <button
