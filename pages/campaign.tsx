@@ -662,7 +662,7 @@ JSON만 출력하세요.`
           <h1 style={{ fontSize:20, fontWeight:700, color:'#1A1A2E', margin:'0 0 4px' }}>
             캠페인 발송
           </h1>
-          <p style={{ fontSize:13, color:'#8892A0', margin:0 }}>
+          <p style={{ fontSize:14, color:'#666666', margin:0 }}>
             타겟 고객을 선별하고 맞춤 메시지를 발송해요
           </p>
         </div>
@@ -698,7 +698,7 @@ JSON만 출력하세요.`
 
               {/* 나이 */}
               <div style={{ marginBottom:14 }}>
-                <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', textTransform:'uppercase', letterSpacing:'0.04em', display:'block', marginBottom:6 }}>
+                <label style={{ fontSize:12, fontWeight:500, color:'#666666', textTransform:'uppercase', letterSpacing:'0.03em', display:'block', marginBottom:6 }}>
                   나이 범위
                 </label>
                 <div style={{ display:'flex', alignItems:'center', gap:8 }}>
@@ -715,7 +715,7 @@ JSON만 출력하세요.`
 
               {/* 성별 */}
               <div style={{ marginBottom:14 }}>
-                <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', textTransform:'uppercase', letterSpacing:'0.04em', display:'block', marginBottom:6 }}>
+                <label style={{ fontSize:12, fontWeight:500, color:'#666666', textTransform:'uppercase', letterSpacing:'0.03em', display:'block', marginBottom:6 }}>
                   성별
                 </label>
                 <div style={{ display:'flex', gap:6 }}>
@@ -733,7 +733,7 @@ JSON만 출력하세요.`
 
               {/* 고객 유형 */}
               <div style={{ marginBottom:14 }}>
-                <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', textTransform:'uppercase', letterSpacing:'0.04em', display:'block', marginBottom:6 }}>
+                <label style={{ fontSize:12, fontWeight:500, color:'#666666', textTransform:'uppercase', letterSpacing:'0.03em', display:'block', marginBottom:6 }}>
                   고객 유형
                 </label>
                 <div style={{ display:'flex', gap:6 }}>
@@ -809,19 +809,19 @@ JSON만 출력하세요.`
 
               {/* 캠페인 이름 */}
               <div style={{ marginBottom:14 }}>
-                <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', textTransform:'uppercase', letterSpacing:'0.04em', display:'block', marginBottom:6 }}>
+                <label style={{ fontSize:12, fontWeight:500, color:'#666666', textTransform:'uppercase', letterSpacing:'0.03em', display:'block', marginBottom:6 }}>
                   캠페인 이름
                 </label>
                 <input
                   value={campaignName}
                   onChange={e => setCampaignName(e.target.value)}
                   placeholder="예: 30대 여성 신생아보험 캠페인"
-                  style={{ width:'100%', padding:'8px 10px', border:'1px solid #E5E7EB', borderRadius:6, fontSize:13, background:'#F7F8FA', boxSizing:'border-box', fontFamily:'inherit' }} />
+                  style={{ width:'100%', padding:'8px 10px', border:'1px solid #E5E7EB', borderRadius:6, fontSize:13, background:'#F7F8FA', color:'#1A1A2E', boxSizing:'border-box', fontFamily:'inherit', outline:'none' }} />
               </div>
 
               {/* 발송 수단 */}
               <div style={{ marginBottom:14 }}>
-                <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', textTransform:'uppercase', letterSpacing:'0.04em', display:'block', marginBottom:6 }}>
+                <label style={{ fontSize:12, fontWeight:500, color:'#666666', textTransform:'uppercase', letterSpacing:'0.03em', display:'block', marginBottom:6 }}>
                   발송 수단
                 </label>
                 <div style={{ display:'flex', gap:6 }}>
@@ -859,7 +859,7 @@ JSON만 출력하세요.`
 
               {/* 메시지 입력 */}
               <div style={{ marginBottom:6, flex:1, display:'flex', flexDirection:'column' }}>
-                <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', textTransform:'uppercase', letterSpacing:'0.04em', display:'block', marginBottom:6 }}>
+                <label style={{ fontSize:12, fontWeight:500, color:'#666666', textTransform:'uppercase', letterSpacing:'0.03em', display:'block', marginBottom:6 }}>
                   메시지 <span style={{ fontWeight:400, textTransform:'none', letterSpacing:0 }}>([고객명] 은 자동 치환)</span>
                 </label>
                 <textarea
@@ -903,7 +903,7 @@ JSON만 출력하세요.`
                 </div>
 
                 <div style={{ marginBottom:10 }}>
-                  <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', textTransform:'uppercase', letterSpacing:'0.04em', display:'block', marginBottom:5 }}>보험사</label>
+                  <label style={{ fontSize:12, fontWeight:500, color:'#666666', textTransform:'uppercase', letterSpacing:'0.03em', display:'block', marginBottom:5 }}>보험사</label>
                   <InsuranceCompanySelect
                     value={promoForm.company}
                     onChange={v => setPromoForm(p => ({ ...p, company: v }))}
@@ -911,25 +911,25 @@ JSON만 출력하세요.`
                 </div>
 
                 <div style={{ marginBottom:10 }}>
-                  <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', textTransform:'uppercase', letterSpacing:'0.04em', display:'block', marginBottom:5 }}>상품/특약명</label>
+                  <label style={{ fontSize:12, fontWeight:500, color:'#666666', textTransform:'uppercase', letterSpacing:'0.03em', display:'block', marginBottom:5 }}>상품/특약명</label>
                   <input value={promoForm.product_name} onChange={e => setPromoForm(p => ({ ...p, product_name: e.target.value }))}
                     placeholder="예: 무배당 건강보험 특별부가특약"
-                    style={{ width:'100%', padding:'8px 10px', border:'1px solid #E5E7EB', borderRadius:6, fontSize:13, background:'#F7F8FA', boxSizing:'border-box', fontFamily:'inherit' }} />
+                    style={{ width:'100%', padding:'8px 10px', border:'1px solid #E5E7EB', borderRadius:6, fontSize:13, background:'#F7F8FA', color:'#1A1A2E', boxSizing:'border-box', fontFamily:'inherit', outline:'none' }} />
                 </div>
 
                 <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:10 }}>
                   <div>
-                    <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', textTransform:'uppercase', letterSpacing:'0.04em', display:'block', marginBottom:5 }}>시작일</label>
+                    <label style={{ fontSize:12, fontWeight:500, color:'#666666', textTransform:'uppercase', letterSpacing:'0.03em', display:'block', marginBottom:5 }}>시작일</label>
                     <DatePicker value={promoForm.valid_from} onChange={v => setPromoForm(p => ({ ...p, valid_from: v }))} placeholder="시작일 선택" />
                   </div>
                   <div>
-                    <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', textTransform:'uppercase', letterSpacing:'0.04em', display:'block', marginBottom:5 }}>마감일</label>
+                    <label style={{ fontSize:12, fontWeight:500, color:'#666666', textTransform:'uppercase', letterSpacing:'0.03em', display:'block', marginBottom:5 }}>마감일</label>
                     <DatePicker value={promoForm.valid_to} onChange={v => setPromoForm(p => ({ ...p, valid_to: v }))} placeholder="마감일 선택" />
                   </div>
                 </div>
 
                 <div style={{ marginBottom:14 }}>
-                  <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', textTransform:'uppercase', letterSpacing:'0.04em', display:'block', marginBottom:5 }}>
+                  <label style={{ fontSize:12, fontWeight:500, color:'#666666', textTransform:'uppercase', letterSpacing:'0.03em', display:'block', marginBottom:5 }}>
                     특약 내용
                   </label>
 
@@ -1041,13 +1041,13 @@ JSON만 출력하세요.`
 
                   <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:10 }}>
                     <div>
-                      <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', display:'block', marginBottom:4 }}>최소 나이</label>
+                      <label style={{ fontSize:12, fontWeight:500, color:'#666666', display:'block', marginBottom:4 }}>최소 나이</label>
                       <input type="number" value={promoFilter.age_min} onChange={e => setPromoFilter(p => ({ ...p, age_min: e.target.value }))}
                         placeholder="전체"
                         style={{ width:'100%', padding:'7px 10px', border:'1px solid #E5E7EB', borderRadius:6, fontSize:13, background:'#F7F8FA', boxSizing:'border-box' }} />
                     </div>
                     <div>
-                      <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', display:'block', marginBottom:4 }}>최대 나이</label>
+                      <label style={{ fontSize:12, fontWeight:500, color:'#666666', display:'block', marginBottom:4 }}>최대 나이</label>
                       <input type="number" value={promoFilter.age_max} onChange={e => setPromoFilter(p => ({ ...p, age_max: e.target.value }))}
                         placeholder="전체"
                         style={{ width:'100%', padding:'7px 10px', border:'1px solid #E5E7EB', borderRadius:6, fontSize:13, background:'#F7F8FA', boxSizing:'border-box' }} />
@@ -1055,7 +1055,7 @@ JSON만 출력하세요.`
                   </div>
 
                   <div style={{ marginBottom:10 }}>
-                    <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', display:'block', marginBottom:6 }}>성별</label>
+                    <label style={{ fontSize:12, fontWeight:500, color:'#666666', display:'block', marginBottom:6 }}>성별</label>
                     <div style={{ display:'flex', gap:6 }}>
                       {[['', '전체'], ['남', '남성'], ['여', '여성']].map(([val, label]) => (
                         <button key={val} onClick={() => setPromoFilter(p => ({ ...p, gender: val }))}
@@ -1070,7 +1070,7 @@ JSON만 출력하세요.`
                   </div>
 
                   <div style={{ marginBottom:10 }}>
-                    <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', display:'block', marginBottom:6 }}>고객 유형</label>
+                    <label style={{ fontSize:12, fontWeight:500, color:'#666666', display:'block', marginBottom:6 }}>고객 유형</label>
                     <div style={{ display:'flex', gap:6 }}>
                       {[['', '전체'], ['existing', '마이고객'], ['prospect', '관심고객']].map(([val, label]) => (
                         <button key={val} onClick={() => setPromoFilter(p => ({ ...p, customer_type: val }))}
@@ -1106,7 +1106,7 @@ JSON만 출력하세요.`
                   </div>
 
                   <div style={{ marginBottom:14 }}>
-                    <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', textTransform:'uppercase', letterSpacing:'0.04em', display:'block', marginBottom:6 }}>발송 수단</label>
+                    <label style={{ fontSize:12, fontWeight:500, color:'#666666', textTransform:'uppercase', letterSpacing:'0.03em', display:'block', marginBottom:6 }}>발송 수단</label>
                     <div style={{ display:'flex', gap:6 }}>
                       {[['kakao','💬 카카오톡'], ['sms','📱 문자']].map(([val, label]) => {
                         const isKakao = val === 'kakao'
