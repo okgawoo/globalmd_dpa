@@ -705,82 +705,87 @@ JSON만 출력하세요.`
                 타겟 필터
               </div>
 
-              {/* 나이 */}
-              <div style={{ marginBottom:14 }}>
-                <label style={{ fontSize:12, fontWeight:500, color:'#666666', textTransform:'uppercase', letterSpacing:'0.03em', display:'block', marginBottom:6 }}>
-                  나이 범위
-                </label>
-                <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                  <input type="number" placeholder="20" value={filter.age_min}
-                    onChange={e => setFilter(p => ({ ...p, age_min: e.target.value }))}
-                    style={{ width:'80px', padding:'7px 10px', border:'1px solid #E5E7EB', borderRadius:6, fontSize:13, background:'#F7F8FA' }} />
-                  <span style={{ color:'#8892A0', fontSize:13 }}>~</span>
-                  <input type="number" placeholder="39" value={filter.age_max}
-                    onChange={e => setFilter(p => ({ ...p, age_max: e.target.value }))}
-                    style={{ width:'80px', padding:'7px 10px', border:'1px solid #E5E7EB', borderRadius:6, fontSize:13, background:'#F7F8FA' }} />
-                  <span style={{ color:'#8892A0', fontSize:13 }}>세</span>
-                </div>
-              </div>
+              {/* 필터 영역 — 균등 분배 */}
+              <div style={{ flex:1, display:'flex', flexDirection:'column', justifyContent:'space-between' }}>
 
-              {/* 성별 */}
-              <div style={{ marginBottom:14 }}>
-                <label style={{ fontSize:12, fontWeight:500, color:'#666666', textTransform:'uppercase', letterSpacing:'0.03em', display:'block', marginBottom:6 }}>
-                  성별
-                </label>
-                <div style={{ display:'flex', gap:6 }}>
-                  {[['', '전체'], ['남', '남성'], ['여', '여성']].map(([val, label]) => (
-                    <button key={val} onClick={() => setFilter(p => ({ ...p, gender: val }))}
-                      style={{
-                        padding:'6px 14px', borderRadius:6, fontSize:13, cursor:'pointer', fontFamily:'inherit',
-                        background: filter.gender === val ? '#5E6AD2' : 'transparent',
-                        color: filter.gender === val ? '#fff' : '#636B78',
-                        border: filter.gender === val ? '1px solid #5E6AD2' : '1px solid #E5E7EB',
-                      }}>{label}</button>
-                  ))}
+                {/* 나이 */}
+                <div>
+                  <label style={{ fontSize:12, fontWeight:500, color:'#666666', textTransform:'uppercase', letterSpacing:'0.03em', display:'block', marginBottom:6 }}>
+                    나이 범위
+                  </label>
+                  <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                    <input type="number" placeholder="20" value={filter.age_min}
+                      onChange={e => setFilter(p => ({ ...p, age_min: e.target.value }))}
+                      style={{ width:'80px', padding:'7px 10px', border:'1px solid #E5E7EB', borderRadius:6, fontSize:13, background:'#F7F8FA' }} />
+                    <span style={{ color:'#8892A0', fontSize:13 }}>~</span>
+                    <input type="number" placeholder="39" value={filter.age_max}
+                      onChange={e => setFilter(p => ({ ...p, age_max: e.target.value }))}
+                      style={{ width:'80px', padding:'7px 10px', border:'1px solid #E5E7EB', borderRadius:6, fontSize:13, background:'#F7F8FA' }} />
+                    <span style={{ color:'#8892A0', fontSize:13 }}>세</span>
+                  </div>
                 </div>
-              </div>
 
-              {/* 고객 유형 */}
-              <div style={{ marginBottom:14 }}>
-                <label style={{ fontSize:12, fontWeight:500, color:'#666666', textTransform:'uppercase', letterSpacing:'0.03em', display:'block', marginBottom:6 }}>
-                  고객 유형
-                </label>
-                <div style={{ display:'flex', gap:6 }}>
-                  {[['', '전체'], ['existing', '마이고객'], ['prospect', '관심고객']].map(([val, label]) => (
-                    <button key={val} onClick={() => setFilter(p => ({ ...p, customer_type: val }))}
-                      style={{
-                        padding:'6px 14px', borderRadius:6, fontSize:13, cursor:'pointer', fontFamily:'inherit',
-                        background: filter.customer_type === val ? '#5E6AD2' : 'transparent',
-                        color: filter.customer_type === val ? '#fff' : '#636B78',
-                        border: filter.customer_type === val ? '1px solid #5E6AD2' : '1px solid #E5E7EB',
-                      }}>{label}</button>
-                  ))}
+                {/* 성별 */}
+                <div>
+                  <label style={{ fontSize:12, fontWeight:500, color:'#666666', textTransform:'uppercase', letterSpacing:'0.03em', display:'block', marginBottom:6 }}>
+                    성별
+                  </label>
+                  <div style={{ display:'flex', gap:6 }}>
+                    {[['', '전체'], ['남', '남성'], ['여', '여성']].map(([val, label]) => (
+                      <button key={val} onClick={() => setFilter(p => ({ ...p, gender: val }))}
+                        style={{
+                          padding:'6px 14px', borderRadius:6, fontSize:13, cursor:'pointer', fontFamily:'inherit',
+                          background: filter.gender === val ? '#5E6AD2' : 'transparent',
+                          color: filter.gender === val ? '#fff' : '#636B78',
+                          border: filter.gender === val ? '1px solid #5E6AD2' : '1px solid #E5E7EB',
+                        }}>{label}</button>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* 조건 필터 */}
-              <div style={{ marginBottom:16 }}>
-                <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', textTransform:'uppercase', letterSpacing:'0.04em', display:'block', marginBottom:8 }}>
-                  추가 조건
-                </label>
-                <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
-                  {[
-                    ['has_gap', '보장공백 있는 고객'],
-                    ['near_deadline', '완납임박 고객'],
-                  ].map(([key, label]) => (
-                    <label key={key} style={{ display:'flex', alignItems:'center', gap:8, cursor:'pointer', fontSize:13, color:'#636B78' }}>
-                      <input type="checkbox"
-                        checked={(filter as any)[key]}
-                        onChange={e => setFilter(p => ({ ...p, [key]: e.target.checked }))}
-                        style={{ width:15, height:15, accentColor:'#5E6AD2', cursor:'pointer' }} />
-                      {label}
-                    </label>
-                  ))}
+                {/* 고객 유형 */}
+                <div>
+                  <label style={{ fontSize:12, fontWeight:500, color:'#666666', textTransform:'uppercase', letterSpacing:'0.03em', display:'block', marginBottom:6 }}>
+                    고객 유형
+                  </label>
+                  <div style={{ display:'flex', gap:6 }}>
+                    {[['', '전체'], ['existing', '마이고객'], ['prospect', '관심고객']].map(([val, label]) => (
+                      <button key={val} onClick={() => setFilter(p => ({ ...p, customer_type: val }))}
+                        style={{
+                          padding:'6px 14px', borderRadius:6, fontSize:13, cursor:'pointer', fontFamily:'inherit',
+                          background: filter.customer_type === val ? '#5E6AD2' : 'transparent',
+                          color: filter.customer_type === val ? '#fff' : '#636B78',
+                          border: filter.customer_type === val ? '1px solid #5E6AD2' : '1px solid #E5E7EB',
+                        }}>{label}</button>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* 매칭 결과 */}
-              <div style={{ marginTop:'auto', paddingTop:16 }}>
+                {/* 추가 조건 */}
+                <div>
+                  <label style={{ fontSize:12, fontWeight:500, color:'#666666', textTransform:'uppercase', letterSpacing:'0.03em', display:'block', marginBottom:6 }}>
+                    추가 조건
+                  </label>
+                  <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                    {[
+                      ['has_gap', '보장공백 있는 고객'],
+                      ['near_deadline', '완납임박 고객'],
+                    ].map(([key, label]) => (
+                      <label key={key} style={{ display:'flex', alignItems:'center', gap:8, cursor:'pointer', fontSize:13, color:'#636B78' }}>
+                        <input type="checkbox"
+                          checked={(filter as any)[key]}
+                          onChange={e => setFilter(p => ({ ...p, [key]: e.target.checked }))}
+                          style={{ width:15, height:15, accentColor:'#5E6AD2', cursor:'pointer' }} />
+                        {label}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+              </div>{/* /필터 균등 분배 */}
+
+              {/* 매칭 결과 — 하단 고정 */}
+              <div style={{ paddingTop:20 }}>
               <div style={{ background:'#F0F0FD', border:'1px solid rgba(94,106,210,0.2)', borderRadius:8, padding:'12px 14px' }}>
                 <div style={{ fontSize:13, color:'#5E6AD2', fontWeight:600, marginBottom:4 }}>
                   매칭 고객 <span style={{ fontSize:20 }}>{matched.length}</span>명
