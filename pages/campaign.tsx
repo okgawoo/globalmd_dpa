@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { supabase } from '../lib/supabase'
+import InsuranceCompanySelect from '../components/InsuranceCompanySelect'
 
 // ── 타입 ──────────────────────────────────────────
 interface Customer {
@@ -903,9 +904,10 @@ JSON만 출력하세요.`
 
                 <div style={{ marginBottom:10 }}>
                   <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', textTransform:'uppercase', letterSpacing:'0.04em', display:'block', marginBottom:5 }}>보험사</label>
-                  <input value={promoForm.company} onChange={e => setPromoForm(p => ({ ...p, company: e.target.value }))}
-                    placeholder="예: 메리츠화재"
-                    style={{ width:'100%', padding:'8px 10px', border:'1px solid #E5E7EB', borderRadius:6, fontSize:13, background:'#F7F8FA', boxSizing:'border-box', fontFamily:'inherit' }} />
+                  <InsuranceCompanySelect
+                    value={promoForm.company}
+                    onChange={v => setPromoForm(p => ({ ...p, company: v }))}
+                  />
                 </div>
 
                 <div style={{ marginBottom:10 }}>
