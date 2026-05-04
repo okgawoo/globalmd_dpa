@@ -458,9 +458,12 @@ export default function InputPage() {
   }
 
   function handleConfirmContract() {
-    const ct = parsed?.contracts?.[0]
-    if (!ct) return
-    setConfirmedContracts(prev => [...prev, { ...ct, _originalText: currentText, _originalTextLoss: currentTextLoss }])
+    const cts = parsed?.contracts
+    if (!cts || cts.length === 0) return
+    setConfirmedContracts(prev => [
+      ...prev,
+      ...cts.map((ct: any) => ({ ...ct, _originalText: currentText, _originalTextLoss: currentTextLoss }))
+    ])
     setParsed(null)
     setCurrentText('')
     setCurrentTextLoss('')
@@ -477,7 +480,7 @@ export default function InputPage() {
     // 현재 분석 중인 계약도 포함
     const allContracts = [
       ...confirmedContracts,
-      ...(parsed?.contracts?.[0] ? [parsed.contracts[0]] : []),
+      ...(parsed?.contracts && parsed.contracts.length > 0 ? parsed.contracts : []),
     ]
     if (allContracts.length === 0) return alert('저장할 계약이 없어요!')
     const customerData = parsedCustomer || parsed
@@ -882,7 +885,7 @@ export default function InputPage() {
                 )}
 
                 {/* 계약 정보 */}
-                {parsed.contracts?.slice(0,1).map((ct: any, ctIdx: number) => (
+                {parsed.contracts?.map((ct: any, ctIdx: number) => (
                   <div key={ctIdx} className={styles.parsedContractBlock}>
                     <div className={styles.parsedSection}>{confirmedContracts.length + 1}번. {ct.company} · {ct.product_name}</div>
                     <div className={styles.parsedEditGrid}>
