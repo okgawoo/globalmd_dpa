@@ -620,9 +620,9 @@
 }
 
 /* 다크모드 - 테두리 전체 통일 */
-:root[data-theme="dark"] .dropZone { border-color: rgba(255,255,255,0.12); }
+:root[data-theme="dark"] .dropZone { border-color: rgba(255,255,255,0.10) !important; background: transparent !important; }
 :root[data-theme="dark"] .dropZone:hover,
-:root[data-theme="dark"] .dropZoneActive { border-color: #5E6AD2; }
+:root[data-theme="dark"] .dropZoneActive { border-color: #5E6AD2 !important; }
 
 :root[data-theme="dark"] .contractBlock { border-color: rgba(255,255,255,0.10); background: #242424; }
 :root[data-theme="dark"] .removeBtn { border-color: rgba(255,255,255,0.12); color: rgba(255,255,255,0.4); }
@@ -634,7 +634,34 @@
 :root[data-theme="dark"] .addCovBtn:hover { border-color: rgba(94,106,210,0.5); color: #5E6AD2; }
 
 :root[data-theme="dark"] .field input,
-:root[data-theme="dark"] .field select { border-color: rgba(255,255,255,0.12); background: #2a2a2a; color: #E0E0E0; }
+:root[data-theme="dark"] .field select { border-color: rgba(255,255,255,0.12) !important; background: #2a2a2a !important; color: #E0E0E0 !important; }
 
-:root[data-theme="dark"] .tabBar { border-bottom-color: rgba(255,255,255,0.10); }
-:root[data-theme="dark"] .tab { color: #A0A0A0; }
+/* 다크모드 - 누락 항목 추가 */
+:root[data-theme="dark"] .page { background: #1E1E1E !important; }
+
+:root[data-theme="dark"] .coverageSection { border-top-color: rgba(255,255,255,0.08) !important; }
+
+:root[data-theme="dark"] .covModal { background: #2a2a2a !important; border-color: rgba(255,255,255,0.10) !important; }
+:root[data-theme="dark"] .covItem { background: #333333 !important; border-color: rgba(255,255,255,0.08) !important; }
+:root[data-theme="dark"] .covName { color: #E0E0E0 !important; }
+:root[data-theme="dark"] .covNameInput { background: #333333 !important; border-color: rgba(255,255,255,0.10) !important; color: #E0E0E0 !important; }
+:root[data-theme="dark"] .covAmtInput { background: #333333 !important; border-color: rgba(255,255,255,0.10) !important; }
+:root[data-theme="dark"] .covCloseBtn { border-color: rgba(255,255,255,0.12) !important; color: rgba(255,255,255,0.5) !important; }
+:root[data-theme="dark"] .covCloseBtn:hover { background: rgba(255,255,255,0.06) !important; }
+
+:root[data-theme="dark"] .pasteArea { background: #2a2a2a !important; border-color: rgba(255,255,255,0.12) !important; color: #E0E0E0 !important; }
+
+:root[data-theme="dark"] .parsedResult { background: #262626 !important; border-color: rgba(255,255,255,0.10) !important; }
+:root[data-theme="dark"] .parsedResultTitle { color: #E0E0E0 !important; }
+:root[data-theme="dark"] .parsedContractBlock { background: #2a2a2a !important; border-color: rgba(255,255,255,0.08) !important; }
+:root[data-theme="dark"] .parsedSection { color: rgba(255,255,255,0.45) !important; }
+
+:root[data-theme="dark"] .pastePanelEmpty { border-color: rgba(255,255,255,0.08) !important; color: rgba(255,255,255,0.35) !important; }
+
+:root[data-theme="dark"] .btnSecondary { border-color: rgba(255,255,255,0.12) !important; color: rgba(255,255,255,0.7) !important; }
+:root[data-theme="dark"] .btnSecondary:hover { background: rgba(255,255,255,0.06) !important; }
+:root[data-theme="dark"] .cancelBtn { border-color: rgba(255,255,255,0.12) !important; color: rgba(255,255,255,0.5) !important; }
+:root[data-theme="dark"] .cancelBtn:hover { background: rgba(255,255,255,0.06) !important; }
+
+:root[data-theme="dark"] .dropText { color: #E0E0E0 !important; }
+:root[data-theme="dark"] .dropSub { color: rgba(255,255,255,0.4) !important; }
