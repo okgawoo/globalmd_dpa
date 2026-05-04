@@ -144,7 +144,18 @@ export default function NotificationsPage() {
     return 'ai'
   })
 
+  // 스누즈
+  const [snoozes, setSnoozes] = useState<any[]>([])
+  const [snoozeOpenId, setSnoozeOpenId] = useState<string | null>(null)
+  const [snoozeCustomDate, setSnoozeCustomDate] = useState('')
+
   useEffect(() => { fetchAll() }, [])
+  useEffect(() => {
+    if (!snoozeOpenId) return
+    const close = () => setSnoozeOpenId(null)
+    document.addEventListener('click', close)
+    return () => document.removeEventListener('click', close)
+  }, [snoozeOpenId])
 
   // 첫 로딩 완료 시 보장 공백 자동 선택 (고객은 미선택)
   useEffect(() => {
@@ -174,11 +185,14 @@ export default function NotificationsPage() {
     const { data: covs } = await supabase.from('dpa_coverages').select('*').in('contract_id', (conts || []).map((c: any) => c.id))
     const { data: msgs } = await supabase.from('dpa_messages').select('*, dpa_customers(name)').eq('agent_id', aid).order('created_at', { ascending: false }).limit(100)
     const { data: meets } = await supabase.from('dpa_meetings').select('*').eq('agent_id', aid).eq('status', '완료')
+    const todayStr = new Date().toISOString().split('T')[0]
+    const { data: snzs } = await supabase.from('dpa_notification_snooze').select('*').eq('agent_id', aid)
     setCustomers(custs || [])
     setContracts(conts || [])
     setCoverages(covs || [])
     setMessages(msgs || [])
     setMeetings(meets || [])
+    setSnoozes((snzs || []).filter((s: any) => s.is_permanent || (s.snoozed_until && s.snoozed_until >= todayStr)))
     setLoading(false)
   }
 
@@ -272,6 +286,37 @@ export default function NotificationsPage() {
     }
   })
 
+  function isSnoozeActive(customerId: string, notifType: string): boolean {
+    const todayStr = new Date().toISOString().split('T')[0]
+    return snoozes.some(s =>
+      s.customer_id === customerId && s.notif_type === notifType &&
+      (s.is_permanent || (s.snoozed_until && s.snoozed_until >= todayStr))
+    )
+  }
+
+  async function handleSnooze(customerId: string, notifType: string, option: string) {
+    const now = new Date()
+    let snoozedUntil: string | null = null
+    let isPermanent = false
+    if (option === 'tomorrow') { const d = new Date(now); d.setDate(d.getDate() + 1); snoozedUntil = d.toISOString().split('T')[0] }
+    else if (option === '3days' || option === '부재중') { const d = new Date(now); d.setDate(d.getDate() + 3); snoozedUntil = d.toISOString().split('T')[0] }
+    else if (option === 'week') { const d = new Date(now); d.setDate(d.getDate() + 7); snoozedUntil = d.toISOString().split('T')[0] }
+    else if (option === 'month') { const d = new Date(now); d.setMonth(d.getMonth() + 1); snoozedUntil = d.toISOString().split('T')[0] }
+    else if (option === '3months' || option === '관심없음') { const d = new Date(now); d.setMonth(d.getMonth() + 3); snoozedUntil = d.toISOString().split('T')[0] }
+    else if (option === 'permanent') { isPermanent = true }
+    else if (option === 'custom') { if (!snoozeCustomDate) return; snoozedUntil = snoozeCustomDate }
+    await supabase.from('dpa_notification_snooze').delete().eq('agent_id', agentId).eq('customer_id', customerId).eq('notif_type', notifType)
+    await supabase.from('dpa_notification_snooze').insert({ agent_id: agentId, customer_id: customerId, notif_type: notifType, snoozed_until: snoozedUntil, reason: option, is_permanent: isPermanent })
+    setSnoozeOpenId(null); setSnoozeCustomDate('')
+    await fetchAll()
+  }
+
+  // 스누즈된 항목 제외
+  ;(Object.keys(notifMap) as IssueType[]).forEach(key => {
+    notifMap[key] = notifMap[key].filter((n: any) => !isSnoozeActive(n.customer.id, n.notifType))
+  })
+
+  const pcActiveNotifs = pcActiveIssue ? notifMap[pcActiveIssue] : []
   const activeNotifs = activeIssue ? notifMap[activeIssue] : []
   const selectedNotifs = activeNotifs.filter(n => selectedIds.includes(n.id))
 
@@ -343,8 +388,6 @@ export default function NotificationsPage() {
   }
 
   if (loading) return <div className={styles.loading}>불러오는 중...</div>
-
-  const pcActiveNotifs = pcActiveIssue ? notifMap[pcActiveIssue] : []
 
   return (
     <div className={styles.wrap}>
@@ -445,11 +488,52 @@ export default function NotificationsPage() {
                           <span className={styles.custName}>{n.customer.name}</span>
                           <span className={styles.custMeta}>· {n.customer.phone || '연락처 없음'}</span>
                         </div>
-                        <div className={styles.custRight}>
+                        <div className={styles.custRight} style={{ position: 'relative' }}>
                           <span className={styles.custBadge} style={{ background: cfg.badgeBg, color: cfg.badgeColor }}>
                             {n.badge}
                           </span>
                           <span className={styles.custLastSent} style={lastMsg ? { color: '#3D47B5' } : undefined}>{lastMsg ? fmtDate(lastMsg.created_at) : '미발송'}</span>
+                          <button
+                            onClick={e => { e.stopPropagation(); setSnoozeOpenId(snoozeOpenId === n.id ? null : n.id); setSnoozeCustomDate('') }}
+                            title="스누즈"
+                            style={{ background: 'none', border: '1px solid #E5E7EB', borderRadius: 5, padding: '2px 6px', cursor: 'pointer', fontSize: 12, color: '#8892A0', lineHeight: 1, flexShrink: 0 }}>
+                            ⏰
+                          </button>
+                          {snoozeOpenId === n.id && (
+                            <div onClick={e => e.stopPropagation()} style={{
+                              position: 'absolute', top: '100%', right: 0, zIndex: 200, marginTop: 4,
+                              background: '#fff', border: '1px solid #E5E7EB', borderRadius: 10,
+                              boxShadow: '0 4px 16px rgba(0,0,0,0.12)', padding: '8px 0', minWidth: 180,
+                            }}>
+                              <div style={{ padding: '4px 14px 6px', fontSize: 11, color: '#8892A0', fontWeight: 600 }}>나중에 보기</div>
+                              {[{ key: 'tomorrow', label: '내일' }, { key: '3days', label: '3일 후' }, { key: 'week', label: '1주일 후' }, { key: 'month', label: '1개월 후' }].map(opt => (
+                                <button key={opt.key} onClick={() => handleSnooze(n.customer.id, n.notifType, opt.key)}
+                                  style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 14px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: '#1A1A2E' }}
+                                  onMouseEnter={e => (e.currentTarget.style.background = '#F7F8FA')}
+                                  onMouseLeave={e => (e.currentTarget.style.background = 'none')}>
+                                  {opt.label}
+                                </button>
+                              ))}
+                              <div style={{ borderTop: '1px solid #F0F0F0', margin: '4px 0' }} />
+                              {[{ key: '부재중', label: '📵 부재중 (3일 후)' }, { key: '관심없음', label: '🙅 관심 없음 (3개월 후)' }, { key: 'permanent', label: '🚫 이 알림 영구 제외' }].map(opt => (
+                                <button key={opt.key} onClick={() => handleSnooze(n.customer.id, n.notifType, opt.key)}
+                                  style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 14px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: '#1A1A2E' }}
+                                  onMouseEnter={e => (e.currentTarget.style.background = '#F7F8FA')}
+                                  onMouseLeave={e => (e.currentTarget.style.background = 'none')}>
+                                  {opt.label}
+                                </button>
+                              ))}
+                              <div style={{ borderTop: '1px solid #F0F0F0', margin: '4px 0' }} />
+                              <div style={{ display: 'flex', gap: 6, padding: '4px 10px 8px' }}>
+                                <input type="date" value={snoozeCustomDate} onChange={e => setSnoozeCustomDate(e.target.value)}
+                                  style={{ flex: 1, fontSize: 12, border: '1px solid #E5E7EB', borderRadius: 6, padding: '4px 6px', outline: 'none' }} />
+                                <button onClick={() => handleSnooze(n.customer.id, n.notifType, 'custom')}
+                                  style={{ padding: '4px 10px', background: '#5E6AD2', color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>
+                                  확인
+                                </button>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
                     )
