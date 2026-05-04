@@ -563,10 +563,10 @@ JSON만 출력하세요.`
 
         {/* ── 새 캠페인 탭 ── */}
         {tab === 'new' && (
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, alignItems:'start' }}>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, alignItems:'stretch' }}>
 
             {/* 왼쪽: 타겟 필터 */}
-            <div style={{ background:'#fff', border:'1px solid #E5E7EB', borderRadius:10, padding:20 }}>
+            <div style={{ background:'#fff', border:'1px solid #E5E7EB', borderRadius:10, padding:20, display:'flex', flexDirection:'column' }}>
               <div style={{ fontSize:14, fontWeight:600, color:'#1A1A2E', marginBottom:16, display:'flex', alignItems:'center', gap:8 }}>
                 <span style={{ display:'inline-block', width:3, height:14, background:'#5E6AD2', borderRadius:2 }} />
                 타겟 필터
@@ -677,7 +677,7 @@ JSON만 출력하세요.`
             </div>
 
             {/* 오른쪽: 메시지 작성 */}
-            <div style={{ background:'#fff', border:'1px solid #E5E7EB', borderRadius:10, padding:20 }}>
+            <div style={{ background:'#fff', border:'1px solid #E5E7EB', borderRadius:10, padding:20, display:'flex', flexDirection:'column' }}>
               <div style={{ fontSize:14, fontWeight:600, color:'#1A1A2E', marginBottom:16, display:'flex', alignItems:'center', gap:8 }}>
                 <span style={{ display:'inline-block', width:3, height:14, background:'#5E6AD2', borderRadius:2 }} />
                 메시지 작성
@@ -729,7 +729,7 @@ JSON만 출력하세요.`
               </button>
 
               {/* 메시지 입력 */}
-              <div style={{ marginBottom:6 }}>
+              <div style={{ marginBottom:6, flex:1, display:'flex', flexDirection:'column' }}>
                 <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', textTransform:'uppercase', letterSpacing:'0.04em', display:'block', marginBottom:6 }}>
                   메시지 <span style={{ fontWeight:400, textTransform:'none', letterSpacing:0 }}>([고객명] 은 자동 치환)</span>
                 </label>
@@ -737,8 +737,7 @@ JSON만 출력하세요.`
                   value={message}
                   onChange={e => setMessage(e.target.value)}
                   placeholder="메시지를 입력하거나 AI 생성 버튼을 눌러보세요"
-                  rows={8}
-                  style={{ width:'100%', padding:'10px 12px', border:'1px solid #E5E7EB', borderRadius:8, fontSize:13, lineHeight:1.7, resize:'vertical', fontFamily:'inherit', boxSizing:'border-box', background:'#F7F8FA' }} />
+                  style={{ flex:1, minHeight:120, width:'100%', padding:'10px 12px', border:'1px solid #E5E7EB', borderRadius:8, fontSize:13, lineHeight:1.7, resize:'none', fontFamily:'inherit', boxSizing:'border-box', background:'#F7F8FA' }} />
                 <div style={{ textAlign:'right', fontSize:11, color: message.length > 90 ? '#E24B4A' : '#8892A0', marginTop:3 }}>
                   {message.length}자 {sendMethod === 'sms' && message.length > 90 ? '(장문 SMS)' : ''}
                 </div>
