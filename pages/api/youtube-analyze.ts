@@ -1,19 +1,11 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
 import { createClient } from '@supabase/supabase-js'
 
-export const config = { maxDuration: 60 }
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+export const config = { runtime: 'edge' }
 
 const YT_ANDROID_KEY = 'AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w'
 const YT_CLIENT_VERSION = '20.10.38'
 
-// InnerTube ANDROID API로 자막 URL 가져오기 (라이브러리 불필요)
 async function fetchTranscript(videoId: string): Promise<string> {
-  // 1. InnerTube ANDROID API 호출
   const playerResp = await fetch(
     `https://www.youtube.com/youtubei/v1/player?key=${YT_ANDROID_KEY}&prettyPrint=false`,
     {
@@ -44,80 +36,45 @@ async function fetchTranscript(videoId: string): Promise<string> {
     }
   )
 
-  if (!playerResp.ok) {
-    throw new Error(`InnerTube 요청 실패: ${playerResp.status}`)
-  }
-
-  const playerData = await playerResp.json()
+  const playerData = await playerResp.json() as any
   const tracks = playerData?.captions?.playerCaptionsTracklistRenderer?.captionTracks
 
-  // 디버깅 로그
-  console.log(`[YT] ${videoId} InnerTube status: ${playerResp.status}, tracks: ${tracks?.length ?? 0}, playability: ${playerData?.playabilityStatus?.status}`)
+  console.log(`[YT] ${videoId} tracks: ${tracks?.length ?? 0}, playability: ${playerData?.playabilityStatus?.status}`)
+
   if (!Array.isArray(tracks) || tracks.length === 0) {
-    console.log(`[YT] ${videoId} no tracks — reason: ${JSON.stringify(playerData?.playabilityStatus)}`)
     throw new Error(`disabled on this video (${videoId})`)
   }
 
-  // 2. 한국어 자막 우선, 없으면 첫 번째
   const koTrack = tracks.find((t: any) => t.languageCode === 'ko') || tracks[0]
   const baseUrl = koTrack.baseUrl
 
-  if (!baseUrl) {
-    throw new Error(`disabled on this video (${videoId})`)
-  }
-
-  // 3. 자막 XML 가져오기
   const xmlResp = await fetch(baseUrl)
-  if (!xmlResp.ok) {
-    throw new Error(`자막 XML 요청 실패: ${xmlResp.status}`)
-  }
   const xml = await xmlResp.text()
 
-  // 4. XML 파싱 — 새 포맷 <p t="ms"><s>text</s></p> 처리
   const segments: string[] = []
-
-  // srv3 형식: <p t="..." d="..."><s ac="0">텍스트</s></p>
   const pRegex = /<p\s+t="\d+"[^>]*>([\s\S]*?)<\/p>/g
-  const sRegex = /<s[^>]*>([^<]*)<\/s>/g
   let pMatch
-
   while ((pMatch = pRegex.exec(xml)) !== null) {
-    const inner = pMatch[1]
     const words: string[] = []
+    const sRe = /<s[^>]*>([^<]*)<\/s>/g
     let sMatch
-    const sRe = new RegExp(sRegex.source, 'g')
-    while ((sMatch = sRe.exec(inner)) !== null) {
-      const word = sMatch[1]
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&#39;/g, "'")
-        .replace(/&quot;/g, '"')
-        .trim()
-      if (word) words.push(word)
+    while ((sMatch = sRe.exec(pMatch[1])) !== null) {
+      const w = sMatch[1].replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"').trim()
+      if (w) words.push(w)
     }
-    if (words.length > 0) segments.push(words.join(''))
+    if (words.length) segments.push(words.join(''))
   }
 
-  // 구형 포맷 fallback: <text start="..." dur="...">텍스트</text>
   if (segments.length === 0) {
     const textRegex = /<text[^>]*>([^<]*)<\/text>/g
     let tMatch
     while ((tMatch = textRegex.exec(xml)) !== null) {
-      const word = tMatch[1]
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&#39;/g, "'")
-        .replace(/&quot;/g, '"')
-        .trim()
-      if (word) segments.push(word)
+      const w = tMatch[1].replace(/&amp;/g, '&').replace(/&#39;/g, "'").trim()
+      if (w) segments.push(w)
     }
   }
 
-  if (segments.length === 0) {
-    throw new Error(`disabled on this video (${videoId})`)
-  }
+  if (segments.length === 0) throw new Error(`disabled on this video (${videoId})`)
 
   return segments.join(' ')
 }
@@ -133,25 +90,10 @@ ${transcript.slice(0, 8000)}
 
 {
   "summary": "영상 핵심 내용 2~3문장 요약",
-  "key_points": [
-    "핵심 포인트 1",
-    "핵심 포인트 2",
-    "핵심 포인트 3"
-  ],
-  "pitch_points": [
-    "설계사가 고객에게 써먹을 수 있는 피칭 포인트 1",
-    "피칭 포인트 2",
-    "피칭 포인트 3"
-  ],
-  "scripts": [
-    "실제 화법 예시 문장 1",
-    "실제 화법 예시 문장 2",
-    "실제 화법 예시 문장 3"
-  ],
-  "comparison_criteria": [
-    "비교 기준 1 (예: 남자→메리츠, 여자→DB손보)",
-    "비교 기준 2"
-  ]
+  "key_points": ["핵심 포인트 1", "핵심 포인트 2", "핵심 포인트 3"],
+  "pitch_points": ["피칭 포인트 1", "피칭 포인트 2", "피칭 포인트 3"],
+  "scripts": ["화법 예시 1", "화법 예시 2", "화법 예시 3"],
+  "comparison_criteria": ["비교 기준 1", "비교 기준 2"]
 }`
 
   const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -168,32 +110,26 @@ ${transcript.slice(0, 8000)}
     }),
   })
 
-  const data = await res.json()
-
-  if (data.error) {
-    throw new Error(`Claude API 오류: ${data.error.message || JSON.stringify(data.error)}`)
-  }
+  const data = await res.json() as any
+  if (data.error) throw new Error(`Claude API 오류: ${data.error.message}`)
 
   const text = data.content?.[0]?.text || ''
-  if (!text) {
-    throw new Error(`Claude 응답 없음: ${JSON.stringify(data)}`)
-  }
+  if (!text) throw new Error(`Claude 응답 없음`)
 
   const jsonMatch = text.match(/\{[\s\S]*\}/)
-  const jsonStr = jsonMatch ? jsonMatch[0] : text
-
-  try {
-    return JSON.parse(jsonStr)
-  } catch {
-    throw new Error(`Claude 응답 파싱 실패: ${text.slice(0, 200)}`)
-  }
+  return JSON.parse(jsonMatch ? jsonMatch[0] : text)
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') return res.status(405).end()
+export default async function handler(req: Request) {
+  if (req.method !== 'POST') return new Response('Method Not Allowed', { status: 405 })
 
-  const { videoRowId } = req.body
-  if (!videoRowId) return res.status(400).json({ error: 'videoRowId 필요' })
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
+  const { videoRowId } = await req.json() as any
+  if (!videoRowId) return new Response(JSON.stringify({ error: 'videoRowId 필요' }), { status: 400 })
 
   const { data: video, error: vErr } = await supabase
     .from('youtube_videos')
@@ -201,34 +137,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     .eq('id', videoRowId)
     .single()
 
-  if (vErr || !video) return res.status(404).json({ error: '영상을 찾을 수 없습니다' })
+  if (vErr || !video) return new Response(JSON.stringify({ error: '영상을 찾을 수 없습니다' }), { status: 404 })
 
-  await supabase
-    .from('youtube_videos')
-    .update({ status: 'analyzing' })
-    .eq('id', videoRowId)
+  await supabase.from('youtube_videos').update({ status: 'analyzing' }).eq('id', videoRowId)
 
   try {
-    // 1. 자막 추출
     let transcript: string
     try {
       transcript = await fetchTranscript(video.video_id)
     } catch (transcriptErr: any) {
-      const msg = transcriptErr?.message || ''
-      if (msg.includes('disabled on this video')) {
-        await supabase
-          .from('youtube_videos')
+      if (transcriptErr?.message?.includes('disabled on this video')) {
+        await supabase.from('youtube_videos')
           .update({ status: 'no_transcript', error_message: '자막 비활성화' })
           .eq('id', videoRowId)
-        return res.status(200).json({ success: false, reason: 'no_transcript' })
+        return new Response(JSON.stringify({ success: false, reason: 'no_transcript' }), { status: 200 })
       }
       throw transcriptErr
     }
 
-    // 2. Claude 분석
     const analysis = await analyzeWithClaude(transcript, video.title || video.video_url)
 
-    // 3. 분석 결과 저장
     await supabase.from('youtube_analyses').delete().eq('video_id', videoRowId)
     await supabase.from('youtube_analyses').insert([{
       video_id: videoRowId,
@@ -240,20 +168,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       raw_transcript: transcript.slice(0, 5000),
     }])
 
-    // 4. 완료
-    await supabase
-      .from('youtube_videos')
+    await supabase.from('youtube_videos')
       .update({ status: 'done', error_message: null })
       .eq('id', videoRowId)
 
-    return res.status(200).json({ success: true, analysis })
+    return new Response(JSON.stringify({ success: true, analysis }), { status: 200 })
 
   } catch (err: any) {
-    await supabase
-      .from('youtube_videos')
+    await supabase.from('youtube_videos')
       .update({ status: 'error', error_message: err.message })
       .eq('id', videoRowId)
-
-    return res.status(500).json({ error: err.message })
+    return new Response(JSON.stringify({ error: err.message }), { status: 500 })
   }
 }
