@@ -42,6 +42,33 @@ const DEFAULT_FILTER: TargetFilter = {
   has_gap: false, near_deadline: false,
 }
 
+interface Promotion {
+  id: string
+  created_by: string
+  company: string
+  product_name: string
+  valid_from: string | null
+  valid_to: string | null
+  details: string
+  ai_analysis: string | null
+  target_filters: any
+  message_template: string | null
+  is_active: boolean
+  created_at: string
+}
+
+interface PromoForm {
+  company: string
+  product_name: string
+  valid_from: string
+  valid_to: string
+  details: string
+}
+
+const DEFAULT_PROMO_FORM: PromoForm = {
+  company: '', product_name: '', valid_from: '', valid_to: '', details: '',
+}
+
 // ── 유틸 ─────────────────────────────────────────
 function calcAge(birthDate: string): number {
   const today = new Date()
@@ -71,8 +98,8 @@ export default function CampaignPage() {
   const [planType, setPlanType] = useState<string>('')
   const [loading, setLoading] = useState(true)
 
-  // 탭: 'new' | 'history'
-  const [tab, setTab] = useState<'new' | 'history'>('new')
+  // 탭: 'new' | 'history' | 'promo'
+  const [tab, setTab] = useState<'new' | 'history' | 'promo'>('new')
 
   // 필터
   const [filter, setFilter] = useState<TargetFilter>(DEFAULT_FILTER)
@@ -92,6 +119,19 @@ export default function CampaignPage() {
   // 이력
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [histLoading, setHistLoading] = useState(false)
+
+  // 긴급 특약
+  const [promoForm, setPromoForm] = useState<PromoForm>(DEFAULT_PROMO_FORM)
+  const [promoAnalyzing, setPromoAnalyzing] = useState(false)
+  const [promoAnalysis, setPromoAnalysis] = useState('')
+  const [promoFilter, setPromoFilter] = useState<TargetFilter>(DEFAULT_FILTER)
+  const [promoMessage, setPromoMessage] = useState('')
+  const [promoMatched, setPromoMatched] = useState<Customer[]>([])
+  const [promoSendMethod, setPromoSendMethod] = useState<'sms' | 'kakao'>('kakao')
+  const [promoSending, setPromoSending] = useState(false)
+  const [promos, setPromos] = useState<Promotion[]>([])
+  const [promosLoading, setPromosLoading] = useState(false)
+  const [promoSaveMsg, setPromoSaveMsg] = useState('')
 
   // ── 초기 로드 ─────────────────────────────────
   useEffect(() => {
@@ -179,7 +219,18 @@ export default function CampaignPage() {
 
   useEffect(() => {
     if (tab === 'history' && agentId) loadHistory()
+    if (tab === 'promo' && agentId) loadPromos()
   }, [tab, agentId])
+
+  // 긴급 특약 — 필터 적용
+  useEffect(() => {
+    let result = [...allCustomers]
+    if (promoFilter.age_min) result = result.filter(c => c.age != null && c.age >= Number(promoFilter.age_min))
+    if (promoFilter.age_max) result = result.filter(c => c.age != null && c.age <= Number(promoFilter.age_max))
+    if (promoFilter.gender) result = result.filter(c => c.gender === promoFilter.gender)
+    if (promoFilter.customer_type) result = result.filter(c => c.customer_type === promoFilter.customer_type)
+    setPromoMatched(result)
+  }, [promoFilter, allCustomers])
 
   // ── 임시저장 ─────────────────────────────────
   async function saveDraft() {
@@ -243,6 +294,137 @@ export default function CampaignPage() {
     loadHistory()
   }
 
+  // ── 긴급 특약 — 이력 로드 ────────────────────
+  async function loadPromos() {
+    if (!agentId) return
+    setPromosLoading(true)
+    const { data } = await supabase
+      .from('dpa_promotions')
+      .select('*')
+      .eq('created_by', agentId)
+      .order('created_at', { ascending: false })
+    setPromos(data || [])
+    setPromosLoading(false)
+  }
+
+  // ── 긴급 특약 — AI 분석 ───────────────────────
+  async function analyzePromo() {
+    if (!promoForm.details.trim() && !promoForm.product_name.trim()) return
+    setPromoAnalyzing(true)
+    try {
+      const prompt = `보험 설계사가 다음 긴급 특약/상품 정보를 고객에게 알리려 합니다.
+
+보험사: ${promoForm.company || '미입력'}
+상품명: ${promoForm.product_name}
+유효기간: ${promoForm.valid_from || '미정'} ~ ${promoFilter.age_max ? promoForm.valid_to : '미정'}
+특약 내용: ${promoForm.details}
+
+다음 두 가지를 JSON 형식으로 출력해주세요:
+{
+  "target": {
+    "age_min": "숫자 또는 빈문자열",
+    "age_max": "숫자 또는 빈문자열",
+    "gender": "남 또는 여 또는 빈문자열",
+    "customer_type": "existing 또는 prospect 또는 빈문자열"
+  },
+  "message": "고객에게 보낼 카카오 알림 메시지 (150자 이내, [고객명] 사용, 친근하고 긴급하게, 특약 혜택 구체적으로)",
+  "analysis": "이 특약의 핵심 가치와 타겟 이유 2~3문장"
+}
+JSON만 출력하세요.`
+      const res = await fetch('/api/claude', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt }),
+      })
+      const data = await res.json()
+      if (data.content) {
+        try {
+          const cleaned = data.content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
+          const parsed = JSON.parse(cleaned)
+          if (parsed.target) {
+            setPromoFilter(prev => ({
+              ...prev,
+              age_min: parsed.target.age_min || '',
+              age_max: parsed.target.age_max || '',
+              gender: parsed.target.gender || '',
+              customer_type: parsed.target.customer_type || '',
+            }))
+          }
+          if (parsed.message) setPromoMessage(parsed.message)
+          if (parsed.analysis) setPromoAnalysis(parsed.analysis)
+        } catch {
+          setPromoMessage(data.content)
+        }
+      }
+    } catch (e) {
+      console.error(e)
+    }
+    setPromoAnalyzing(false)
+  }
+
+  // ── 긴급 특약 — 발송 ─────────────────────────
+  async function handlePromoSend() {
+    if (!agentId) return
+    if (!promoForm.product_name.trim()) { alert('상품명을 입력해주세요'); return }
+    if (!promoMessage.trim()) { alert('메시지를 작성해주세요'); return }
+    if (promoMatched.length === 0) { alert('발송 대상 고객이 없어요'); return }
+    const targets = promoMatched.filter(c => c.phone)
+    if (targets.length === 0) { alert('전화번호 있는 고객이 없어요'); return }
+    if (!confirm(`${targets.length}명에게 긴급 특약 알림을 발송할까요?`)) return
+    setPromoSending(true)
+    try {
+      // 특약 레코드 저장
+      const { data: promo, error: promoErr } = await supabase
+        .from('dpa_promotions').insert({
+          created_by: agentId,
+          company: promoForm.company,
+          product_name: promoForm.product_name,
+          valid_from: promoForm.valid_from || null,
+          valid_to: promoForm.valid_to || null,
+          details: promoForm.details,
+          ai_analysis: promoAnalysis,
+          target_filters: promoFilter,
+          message_template: promoMessage,
+          is_active: true,
+        }).select().single()
+      if (promoErr || !promo) { alert('특약 저장 실패'); setPromoSending(false); return }
+
+      // 캠페인으로 연결 발송
+      const { data: camp, error: campErr } = await supabase
+        .from('dpa_campaigns').insert({
+          agent_id: agentId,
+          name: `[긴급특약] ${promoForm.product_name}`,
+          target_filters: promoFilter,
+          message: promoMessage,
+          send_method: promoSendMethod,
+          status: 'sent',
+          total_targets: targets.length,
+          sent_at: new Date().toISOString(),
+        }).select().single()
+      if (!campErr && camp) {
+        const sends = targets.map(c => ({
+          campaign_id: camp.id,
+          customer_id: c.id,
+          customer_name: c.name,
+          phone: c.phone!,
+          message: promoMessage.replace(/\[고객명\]/g, c.name),
+          send_status: 'pending',
+        }))
+        await supabase.from('dpa_campaign_sends').insert(sends)
+      }
+      setPromoSaveMsg('발송 완료!')
+      setTimeout(() => setPromoSaveMsg(''), 3000)
+      setPromoForm(DEFAULT_PROMO_FORM)
+      setPromoMessage('')
+      setPromoAnalysis('')
+      setPromoFilter(DEFAULT_FILTER)
+      loadPromos()
+    } catch (e) {
+      alert('발송 중 오류 발생')
+    }
+    setPromoSending(false)
+  }
+
   // ── PRO 체크 ─────────────────────────────────
   if (!loading && planType !== 'pro' && planType !== 'admin') {
     return (
@@ -284,14 +466,18 @@ export default function CampaignPage() {
 
         {/* 탭 */}
         <div style={{ display:'flex', gap:0, borderBottom:'1px solid #E5E7EB', marginBottom:20 }}>
-          {(['new','history'] as const).map(t => (
+          {([
+            ['new', '새 캠페인'],
+            ['promo', '⚡ 긴급 특약'],
+            ['history', '발송 이력'],
+          ] as const).map(([t, label]) => (
             <button key={t} onClick={() => setTab(t)} style={{
               background:'none', border:'none', padding:'10px 16px', fontSize:13, fontWeight:500,
               color: tab===t ? '#5E6AD2' : '#8892A0',
               borderBottom: tab===t ? '2px solid #5E6AD2' : '2px solid transparent',
               marginBottom:-1, cursor:'pointer', fontFamily:'inherit',
             }}>
-              {t === 'new' ? '새 캠페인' : '발송 이력'}
+              {label}
             </button>
           ))}
         </div>
@@ -491,6 +677,247 @@ export default function CampaignPage() {
                 </button>
               </div>
               {saveMsg && <div style={{ textAlign:'center', fontSize:12, color:'#1D9E75', marginTop:8 }}>{saveMsg}</div>}
+            </div>
+          </div>
+        )}
+
+        {/* ── 긴급 특약 탭 ── */}
+        {tab === 'promo' && (
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, alignItems:'start' }}>
+
+            {/* 왼쪽: 특약 입력 */}
+            <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+
+              {/* 특약 정보 입력 */}
+              <div style={{ background:'#fff', border:'1px solid #E5E7EB', borderRadius:10, padding:20 }}>
+                <div style={{ fontSize:14, fontWeight:600, color:'#1A1A2E', marginBottom:16, display:'flex', alignItems:'center', gap:8 }}>
+                  <span style={{ display:'inline-block', width:3, height:14, background:'#E24B4A', borderRadius:2 }} />
+                  특약 정보 입력
+                </div>
+
+                <div style={{ marginBottom:10 }}>
+                  <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', textTransform:'uppercase', letterSpacing:'0.04em', display:'block', marginBottom:5 }}>보험사</label>
+                  <input value={promoForm.company} onChange={e => setPromoForm(p => ({ ...p, company: e.target.value }))}
+                    placeholder="예: 메리츠화재"
+                    style={{ width:'100%', padding:'8px 10px', border:'1px solid #E5E7EB', borderRadius:6, fontSize:13, background:'#F7F8FA', boxSizing:'border-box', fontFamily:'inherit' }} />
+                </div>
+
+                <div style={{ marginBottom:10 }}>
+                  <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', textTransform:'uppercase', letterSpacing:'0.04em', display:'block', marginBottom:5 }}>상품/특약명</label>
+                  <input value={promoForm.product_name} onChange={e => setPromoForm(p => ({ ...p, product_name: e.target.value }))}
+                    placeholder="예: 무배당 건강보험 특별부가특약"
+                    style={{ width:'100%', padding:'8px 10px', border:'1px solid #E5E7EB', borderRadius:6, fontSize:13, background:'#F7F8FA', boxSizing:'border-box', fontFamily:'inherit' }} />
+                </div>
+
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:10 }}>
+                  <div>
+                    <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', textTransform:'uppercase', letterSpacing:'0.04em', display:'block', marginBottom:5 }}>시작일</label>
+                    <input type="date" value={promoForm.valid_from} onChange={e => setPromoForm(p => ({ ...p, valid_from: e.target.value }))}
+                      style={{ width:'100%', padding:'8px 10px', border:'1px solid #E5E7EB', borderRadius:6, fontSize:13, background:'#F7F8FA', boxSizing:'border-box', fontFamily:'inherit' }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', textTransform:'uppercase', letterSpacing:'0.04em', display:'block', marginBottom:5 }}>마감일</label>
+                    <input type="date" value={promoForm.valid_to} onChange={e => setPromoForm(p => ({ ...p, valid_to: e.target.value }))}
+                      style={{ width:'100%', padding:'8px 10px', border:'1px solid #E5E7EB', borderRadius:6, fontSize:13, background:'#F7F8FA', boxSizing:'border-box', fontFamily:'inherit' }} />
+                  </div>
+                </div>
+
+                <div style={{ marginBottom:14 }}>
+                  <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', textTransform:'uppercase', letterSpacing:'0.04em', display:'block', marginBottom:5 }}>
+                    특약 내용 <span style={{ fontWeight:400, textTransform:'none', letterSpacing:0, fontSize:10 }}>(보험사 공문이나 특약 설명 그대로 붙여넣기 OK)</span>
+                  </label>
+                  <textarea value={promoForm.details} onChange={e => setPromoForm(p => ({ ...p, details: e.target.value }))}
+                    placeholder="예: 이번 달 한정 암 진단비 3배 특약, 30~50세 비흡연자 대상 보험료 할인, 신규 가입 시 첫 3개월 보험료 면제..."
+                    rows={5}
+                    style={{ width:'100%', padding:'10px 12px', border:'1px solid #E5E7EB', borderRadius:8, fontSize:13, lineHeight:1.7, resize:'vertical', fontFamily:'inherit', boxSizing:'border-box', background:'#F7F8FA' }} />
+                </div>
+
+                <button
+                  onClick={analyzePromo}
+                  disabled={promoAnalyzing || (!promoForm.details.trim() && !promoForm.product_name.trim())}
+                  style={{
+                    width:'100%', padding:'10px',
+                    background: promoAnalyzing || (!promoForm.details.trim() && !promoForm.product_name.trim()) ? '#F3F4F6' : 'linear-gradient(135deg, #E24B4A, #C83737)',
+                    color: promoAnalyzing || (!promoForm.details.trim() && !promoForm.product_name.trim()) ? '#8892A0' : '#fff',
+                    border:'none', borderRadius:8, fontSize:13, fontWeight:600,
+                    cursor: promoAnalyzing ? 'wait' : 'pointer',
+                    fontFamily:'inherit',
+                  }}>
+                  {promoAnalyzing ? '⚡ AI 분석 중...' : '⚡ AI 타겟 분석 + 멘트 생성'}
+                </button>
+              </div>
+
+              {/* AI 분석 결과 */}
+              {promoAnalysis && (
+                <div style={{ background:'#FFF7F7', border:'1px solid rgba(226,75,74,0.2)', borderRadius:10, padding:'14px 16px' }}>
+                  <div style={{ fontSize:12, fontWeight:600, color:'#E24B4A', marginBottom:6 }}>AI 분석</div>
+                  <div style={{ fontSize:13, color:'#636B78', lineHeight:1.7 }}>{promoAnalysis}</div>
+                </div>
+              )}
+
+              {/* 타겟 필터 (AI 자동 설정, 수동 수정 가능) */}
+              {(promoAnalysis || promoMessage) && (
+                <div style={{ background:'#fff', border:'1px solid #E5E7EB', borderRadius:10, padding:20 }}>
+                  <div style={{ fontSize:14, fontWeight:600, color:'#1A1A2E', marginBottom:12, display:'flex', alignItems:'center', gap:8 }}>
+                    <span style={{ display:'inline-block', width:3, height:14, background:'#5E6AD2', borderRadius:2 }} />
+                    타겟 필터 <span style={{ fontSize:11, fontWeight:400, color:'#8892A0', marginLeft:4 }}>(AI 제안, 수정 가능)</span>
+                  </div>
+
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:10 }}>
+                    <div>
+                      <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', display:'block', marginBottom:4 }}>최소 나이</label>
+                      <input type="number" value={promoFilter.age_min} onChange={e => setPromoFilter(p => ({ ...p, age_min: e.target.value }))}
+                        placeholder="전체"
+                        style={{ width:'100%', padding:'7px 10px', border:'1px solid #E5E7EB', borderRadius:6, fontSize:13, background:'#F7F8FA', boxSizing:'border-box' }} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', display:'block', marginBottom:4 }}>최대 나이</label>
+                      <input type="number" value={promoFilter.age_max} onChange={e => setPromoFilter(p => ({ ...p, age_max: e.target.value }))}
+                        placeholder="전체"
+                        style={{ width:'100%', padding:'7px 10px', border:'1px solid #E5E7EB', borderRadius:6, fontSize:13, background:'#F7F8FA', boxSizing:'border-box' }} />
+                    </div>
+                  </div>
+
+                  <div style={{ marginBottom:10 }}>
+                    <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', display:'block', marginBottom:6 }}>성별</label>
+                    <div style={{ display:'flex', gap:6 }}>
+                      {[['', '전체'], ['남', '남성'], ['여', '여성']].map(([val, label]) => (
+                        <button key={val} onClick={() => setPromoFilter(p => ({ ...p, gender: val }))}
+                          style={{
+                            padding:'5px 12px', borderRadius:6, fontSize:12, cursor:'pointer', fontFamily:'inherit',
+                            background: promoFilter.gender === val ? '#5E6AD2' : 'transparent',
+                            color: promoFilter.gender === val ? '#fff' : '#636B78',
+                            border: promoFilter.gender === val ? '1px solid #5E6AD2' : '1px solid #E5E7EB',
+                          }}>{label}</button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div style={{ marginBottom:10 }}>
+                    <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', display:'block', marginBottom:6 }}>고객 유형</label>
+                    <div style={{ display:'flex', gap:6 }}>
+                      {[['', '전체'], ['existing', '마이고객'], ['prospect', '관심고객']].map(([val, label]) => (
+                        <button key={val} onClick={() => setPromoFilter(p => ({ ...p, customer_type: val }))}
+                          style={{
+                            padding:'5px 12px', borderRadius:6, fontSize:12, cursor:'pointer', fontFamily:'inherit',
+                            background: promoFilter.customer_type === val ? '#5E6AD2' : 'transparent',
+                            color: promoFilter.customer_type === val ? '#fff' : '#636B78',
+                            border: promoFilter.customer_type === val ? '1px solid #5E6AD2' : '1px solid #E5E7EB',
+                          }}>{label}</button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div style={{ background:'#F0F0FD', border:'1px solid rgba(94,106,210,0.2)', borderRadius:8, padding:'10px 14px' }}>
+                    <div style={{ fontSize:13, color:'#5E6AD2', fontWeight:600 }}>
+                      매칭 고객 <span style={{ fontSize:18 }}>{promoMatched.length}</span>명
+                      <span style={{ fontSize:11, color:'#8892A0', fontWeight:400, marginLeft:8 }}>
+                        (전화번호 있는 고객: {promoMatched.filter(c=>c.phone).length}명)
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 오른쪽: 메시지 + 발송 */}
+            <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+              {promoMessage ? (
+                <div style={{ background:'#fff', border:'1px solid #E5E7EB', borderRadius:10, padding:20 }}>
+                  <div style={{ fontSize:14, fontWeight:600, color:'#1A1A2E', marginBottom:16, display:'flex', alignItems:'center', gap:8 }}>
+                    <span style={{ display:'inline-block', width:3, height:14, background:'#5E6AD2', borderRadius:2 }} />
+                    발송 메시지
+                  </div>
+
+                  <div style={{ marginBottom:14 }}>
+                    <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', textTransform:'uppercase', letterSpacing:'0.04em', display:'block', marginBottom:6 }}>발송 수단</label>
+                    <div style={{ display:'flex', gap:6 }}>
+                      {[['kakao','💬 카카오톡'], ['sms','📱 문자']].map(([val, label]) => (
+                        <button key={val} onClick={() => setPromoSendMethod(val as 'sms'|'kakao')}
+                          style={{
+                            padding:'6px 14px', borderRadius:6, fontSize:13, cursor:'pointer', fontFamily:'inherit',
+                            background: promoSendMethod === val ? '#5E6AD2' : 'transparent',
+                            color: promoSendMethod === val ? '#fff' : '#636B78',
+                            border: promoSendMethod === val ? '1px solid #5E6AD2' : '1px solid #E5E7EB',
+                          }}>{label}</button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <textarea
+                    value={promoMessage} onChange={e => setPromoMessage(e.target.value)}
+                    rows={8}
+                    style={{ width:'100%', padding:'10px 12px', border:'1px solid #E5E7EB', borderRadius:8, fontSize:13, lineHeight:1.7, resize:'vertical', fontFamily:'inherit', boxSizing:'border-box', background:'#F7F8FA', marginBottom:4 }} />
+                  <div style={{ textAlign:'right', fontSize:11, color: promoMessage.length > 150 ? '#E24B4A' : '#8892A0', marginBottom:14 }}>
+                    {promoMessage.length}자
+                  </div>
+
+                  {/* 매칭 고객 미리보기 */}
+                  {promoMatched.length > 0 && (
+                    <div style={{ marginBottom:14, maxHeight:180, overflowY:'auto', border:'1px solid #F3F4F6', borderRadius:8 }}>
+                      {promoMatched.slice(0,15).map(c => (
+                        <div key={c.id} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'7px 12px', borderBottom:'1px solid #F3F4F6', fontSize:12 }}>
+                          <span style={{ color:'#1A1A2E', fontWeight:500 }}>{c.name}</span>
+                          <span style={{ color:'#8892A0' }}>
+                            {c.age != null ? `${c.age}세` : '나이미상'} · {c.gender || '성별미상'}
+                          </span>
+                        </div>
+                      ))}
+                      {promoMatched.length > 15 && (
+                        <div style={{ padding:'6px', fontSize:11, color:'#8892A0', textAlign:'center' }}>
+                          외 {promoMatched.length - 15}명 더
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <button onClick={handlePromoSend} disabled={promoSending || promoMatched.filter(c=>c.phone).length === 0}
+                    style={{
+                      width:'100%', padding:'12px',
+                      background: promoSending || promoMatched.filter(c=>c.phone).length === 0 ? '#F3F4F6' : 'linear-gradient(135deg, #E24B4A, #C83737)',
+                      color: promoSending || promoMatched.filter(c=>c.phone).length === 0 ? '#8892A0' : '#fff',
+                      border:'none', borderRadius:8, fontSize:14, fontWeight:700,
+                      cursor: promoSending ? 'wait' : 'pointer',
+                      fontFamily:'inherit',
+                    }}>
+                    {promoSending ? '발송 중...' : `⚡ ${promoMatched.filter(c=>c.phone).length}명에게 긴급 특약 발송`}
+                  </button>
+                  {promoSaveMsg && <div style={{ textAlign:'center', fontSize:12, color:'#1D9E75', marginTop:8 }}>{promoSaveMsg}</div>}
+                </div>
+              ) : (
+                <div style={{ background:'#fff', border:'1px dashed #E5E7EB', borderRadius:10, padding:60, textAlign:'center' }}>
+                  <div style={{ fontSize:32, marginBottom:12 }}>⚡</div>
+                  <div style={{ fontSize:14, color:'#1A1A2E', fontWeight:600, marginBottom:6 }}>특약 내용을 입력하고 AI 분석을 실행해보세요</div>
+                  <div style={{ fontSize:13, color:'#8892A0', lineHeight:1.7 }}>
+                    보험사에서 받은 특약 공문이나 설명을<br/>
+                    그대로 붙여넣으면 AI가 타겟과 멘트를 자동 설정해줘요
+                  </div>
+                </div>
+              )}
+
+              {/* 발송 이력 (이 설계사 특약 목록) */}
+              {promos.length > 0 && (
+                <div style={{ background:'#fff', border:'1px solid #E5E7EB', borderRadius:10, overflow:'hidden' }}>
+                  <div style={{ padding:'12px 16px', borderBottom:'1px solid #E5E7EB', fontSize:13, fontWeight:600, color:'#1A1A2E' }}>
+                    발송한 특약 이력
+                  </div>
+                  {promosLoading ? (
+                    <div style={{ padding:20, textAlign:'center', color:'#8892A0', fontSize:13 }}>불러오는 중...</div>
+                  ) : (
+                    promos.slice(0,5).map(p => (
+                      <div key={p.id} style={{ padding:'12px 16px', borderBottom:'1px solid #F3F4F6' }}>
+                        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:2 }}>
+                          <span style={{ fontSize:13, fontWeight:600, color:'#1A1A2E' }}>{p.product_name}</span>
+                          <span style={{ fontSize:11, color:'#8892A0' }}>{fmtDate(p.created_at)}</span>
+                        </div>
+                        <div style={{ fontSize:11, color:'#8892A0' }}>
+                          {p.company} {p.valid_to ? `· ~${fmtDate(p.valid_to)}` : ''}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
           </div>
         )}
