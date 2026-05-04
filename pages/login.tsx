@@ -128,9 +128,7 @@ export default function Login() {
         {/* 로고 */}
         <div className={styles.logoArea}>
           <div className={styles.logoIconWrap}>
-            <div style={{ width: 48, height: 48, borderRadius: 14, background: 'linear-gradient(135deg, #5E6AD2, #3F48B8)', boxShadow: '0 4px 16px rgba(94,106,210,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ color: '#fff', fontSize: 26, fontWeight: 800, fontStyle: 'italic', letterSpacing: '-1px', lineHeight: 1 }}>i</span>
-            </div>
+            <img src="/icons/icon-192x192.png" alt="아이플래너" style={{ width: 48, height: 48, borderRadius: 14, objectFit: 'cover' }} />
           </div>
           <div className={styles.logoTextWrap}>
             <div className={styles.logoMain}>
