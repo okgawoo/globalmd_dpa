@@ -119,6 +119,23 @@ export default function CampaignPage() {
   // 이력
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [histLoading, setHistLoading] = useState(false)
+  const [expandedDates, setExpandedDates] = useState<Set<string>>(new Set())
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
+
+  function toggleDate(date: string) {
+    setExpandedDates(prev => {
+      const next = new Set(prev)
+      next.has(date) ? next.delete(date) : next.add(date)
+      return next
+    })
+  }
+  function toggleItem(id: string) {
+    setExpandedItems(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
 
   // 긴급 특약
   const [promoForm, setPromoForm] = useState<PromoForm>(DEFAULT_PROMO_FORM)
@@ -213,7 +230,13 @@ export default function CampaignPage() {
       .select('*')
       .eq('agent_id', agentId)
       .order('created_at', { ascending: false })
-    setCampaigns(data || [])
+    const list = data || []
+    setCampaigns(list)
+    // 가장 최근 날짜 자동 펼침
+    if (list.length > 0) {
+      const latestDate = fmtDate(list[0].created_at)
+      setExpandedDates(new Set([latestDate]))
+    }
     setHistLoading(false)
   }
 
@@ -931,32 +954,151 @@ JSON만 출력하세요.`
               <div style={{ padding:60, textAlign:'center', color:'#8892A0', fontSize:13 }}>
                 아직 발송한 캠페인이 없어요
               </div>
-            ) : (
-              <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-                {campaigns.map(c => (
-                  <div key={c.id} style={{ background:'#fff', border:'1px solid #E5E7EB', borderRadius:10, padding:'16px 20px' }}>
-                    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:8 }}>
-                      <span style={{ fontSize:14, fontWeight:600, color:'#1A1A2E' }}>{c.name}</span>
-                      <span style={{ fontSize:11, fontWeight:600, color: STATUS_COLOR[c.status], background: `${STATUS_COLOR[c.status]}18`, padding:'2px 10px', borderRadius:999 }}>
-                        {STATUS_LABEL[c.status]}
-                      </span>
-                    </div>
-                    <div style={{ display:'flex', gap:16, fontSize:12, color:'#636B78' }}>
-                      <span>대상 {c.total_targets}명</span>
-                      {c.sent_count > 0 && <span style={{ color:'#1D9E75' }}>발송 {c.sent_count}건</span>}
-                      {c.failed_count > 0 && <span style={{ color:'#E24B4A' }}>실패 {c.failed_count}건</span>}
-                      <span>{c.send_method === 'sms' ? '📱 문자' : '💬 카카오'}</span>
-                      <span style={{ marginLeft:'auto' }}>{fmtDate(c.created_at)}</span>
-                    </div>
-                    {c.message && (
-                      <div style={{ marginTop:10, padding:'10px 12px', background:'#F7F8FA', borderRadius:6, fontSize:12, color:'#636B78', lineHeight:1.6, whiteSpace:'pre-wrap' }}>
-                        {c.message.length > 120 ? c.message.slice(0,120)+'...' : c.message}
+            ) : (() => {
+              // 날짜별 그룹핑
+              const groups: Record<string, Campaign[]> = {}
+              campaigns.forEach(c => {
+                const d = fmtDate(c.created_at)
+                if (!groups[d]) groups[d] = []
+                groups[d].push(c)
+              })
+              const dateKeys = Object.keys(groups)
+
+              return (
+                <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+                  {dateKeys.map(date => {
+                    const isDateOpen = expandedDates.has(date)
+                    const items = groups[date]
+                    return (
+                      <div key={date} style={{ background:'#fff', border:'1px solid #E5E7EB', borderRadius:10, overflow:'hidden' }}>
+
+                        {/* 날짜 헤더 (토글) */}
+                        <button
+                          onClick={() => toggleDate(date)}
+                          style={{
+                            width:'100%', display:'flex', alignItems:'center', justifyContent:'space-between',
+                            padding:'12px 16px', background:'none', border:'none', cursor:'pointer',
+                            fontFamily:'inherit',
+                          }}
+                        >
+                          <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                            <span style={{
+                              fontSize:11, transition:'transform 0.15s',
+                              transform: isDateOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+                              display:'inline-block', color:'#8892A0',
+                            }}>▶</span>
+                            <span style={{ fontSize:13, fontWeight:700, color:'#1A1A2E' }}>{date}</span>
+                            <span style={{ fontSize:11, color:'#8892A0', fontWeight:400 }}>{items.length}건</span>
+                          </div>
+                          <div style={{ display:'flex', gap:4 }}>
+                            {items.some(c => c.name.startsWith('[긴급특약]')) && (
+                              <span style={{ fontSize:11, fontWeight:600, color:'#E24B4A', background:'#FFF0F0', padding:'2px 8px', borderRadius:999 }}>⚡ 긴급특약</span>
+                            )}
+                            {items.some(c => !c.name.startsWith('[긴급특약]')) && (
+                              <span style={{ fontSize:11, fontWeight:600, color:'#5E6AD2', background:'#F0F0FD', padding:'2px 8px', borderRadius:999 }}>📢 캠페인</span>
+                            )}
+                          </div>
+                        </button>
+
+                        {/* 날짜 내 항목 목록 */}
+                        {isDateOpen && (
+                          <div style={{ borderTop:'1px solid #F3F4F6' }}>
+                            {items.map((c, idx) => {
+                              const isPromo = c.name.startsWith('[긴급특약]')
+                              const isItemOpen = expandedItems.has(c.id)
+                              const displayName = isPromo ? c.name.replace('[긴급특약] ', '') : c.name
+                              return (
+                                <div key={c.id} style={{ borderBottom: idx < items.length-1 ? '1px solid #F3F4F6' : 'none' }}>
+
+                                  {/* 항목 헤더 (서브 토글) */}
+                                  <button
+                                    onClick={() => toggleItem(c.id)}
+                                    style={{
+                                      width:'100%', display:'flex', alignItems:'center', gap:10,
+                                      padding:'10px 16px 10px 32px', background:'none', border:'none',
+                                      cursor:'pointer', fontFamily:'inherit', textAlign:'left',
+                                    }}
+                                  >
+                                    <span style={{
+                                      fontSize:10, transition:'transform 0.15s',
+                                      transform: isItemOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+                                      display:'inline-block', color:'#C0C0C0', flexShrink:0,
+                                    }}>▶</span>
+
+                                    {/* 타입 뱃지 */}
+                                    <span style={{
+                                      fontSize:10, fontWeight:700, flexShrink:0,
+                                      color: isPromo ? '#E24B4A' : '#5E6AD2',
+                                      background: isPromo ? '#FFF0F0' : '#F0F0FD',
+                                      padding:'2px 7px', borderRadius:999,
+                                    }}>
+                                      {isPromo ? '⚡ 특약' : '📢 캠페인'}
+                                    </span>
+
+                                    <span style={{ fontSize:13, fontWeight:500, color:'#1A1A2E', flex:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                                      {displayName}
+                                    </span>
+
+                                    <div style={{ display:'flex', alignItems:'center', gap:10, flexShrink:0, fontSize:12, color:'#8892A0' }}>
+                                      <span>{c.total_targets}명</span>
+                                      <span>{c.send_method === 'sms' ? '📱' : '💬'}</span>
+                                      <span style={{
+                                        fontSize:11, fontWeight:600,
+                                        color: STATUS_COLOR[c.status],
+                                        background: `${STATUS_COLOR[c.status]}18`,
+                                        padding:'1px 8px', borderRadius:999,
+                                      }}>
+                                        {STATUS_LABEL[c.status]}
+                                      </span>
+                                    </div>
+                                  </button>
+
+                                  {/* 펼침 내용 */}
+                                  {isItemOpen && (
+                                    <div style={{ padding:'0 16px 14px 56px' }}>
+                                      <div style={{ display:'flex', gap:16, fontSize:12, color:'#636B78', marginBottom:10 }}>
+                                        <span>대상 <strong style={{ color:'#1A1A2E' }}>{c.total_targets}명</strong></span>
+                                        {c.sent_count > 0 && <span>발송 <strong style={{ color:'#1D9E75' }}>{c.sent_count}건</strong></span>}
+                                        {c.failed_count > 0 && <span>실패 <strong style={{ color:'#E24B4A' }}>{c.failed_count}건</strong></span>}
+                                        <span>{c.send_method === 'sms' ? '📱 문자' : '💬 카카오톡'}</span>
+                                      </div>
+                                      {c.message && (
+                                        <div style={{ padding:'10px 12px', background:'#F7F8FA', borderRadius:8, fontSize:12, color:'#636B78', lineHeight:1.8, whiteSpace:'pre-wrap', borderLeft:'3px solid #E5E7EB' }}>
+                                          {c.message}
+                                        </div>
+                                      )}
+                                      {c.target_filters && (c.target_filters.age_min || c.target_filters.age_max || c.target_filters.gender || c.target_filters.customer_type) && (
+                                        <div style={{ marginTop:8, display:'flex', flexWrap:'wrap', gap:4 }}>
+                                          {(c.target_filters.age_min || c.target_filters.age_max) && (
+                                            <span style={{ fontSize:11, color:'#636B78', background:'#F3F4F6', padding:'2px 8px', borderRadius:999 }}>
+                                              {c.target_filters.age_min || '?'}~{c.target_filters.age_max || '?'}세
+                                            </span>
+                                          )}
+                                          {c.target_filters.gender && (
+                                            <span style={{ fontSize:11, color:'#636B78', background:'#F3F4F6', padding:'2px 8px', borderRadius:999 }}>
+                                              {c.target_filters.gender}성
+                                            </span>
+                                          )}
+                                          {c.target_filters.customer_type && (
+                                            <span style={{ fontSize:11, color:'#636B78', background:'#F3F4F6', padding:'2px 8px', borderRadius:999 }}>
+                                              {c.target_filters.customer_type === 'existing' ? '마이고객' : '관심고객'}
+                                            </span>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              )
+                            })}
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
+                    )
+                  })}
+                </div>
+              )
+            })()}
           </div>
         )}
       </div>
