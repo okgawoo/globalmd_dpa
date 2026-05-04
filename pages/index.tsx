@@ -663,7 +663,7 @@ export default function Dashboard() {
       }
 
       {/* ── 웹(데스크탑) ERP 대시보드 — 모든 사용자에게 새 아이플래너 UI ── */}
-      {isDesktop && <div className={styles.desktopDash}>
+      {isDesktop && <div className={styles.desktopDash} style={{ display: 'block' }}>
       {true ? (
         <AdminDashboard
           customers={customers}
