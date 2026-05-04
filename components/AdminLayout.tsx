@@ -37,6 +37,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const [isNarrow, setIsNarrow] = useState<boolean | null>(null)
   const [showSidebarTooltip, setShowSidebarTooltip] = useState(false)
   const [hoveredNav, setHoveredNav] = useState<string | null>(null)
+  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 })
+  const [tooltipLabel, setTooltipLabel] = useState('')
   useLayoutEffect(() => {
     const check = () => setIsNarrow(window.innerWidth < 1100)
     check()
@@ -143,34 +145,41 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     ),
   })
 
-  const navTooltip = (label: string, key: string): React.ReactNode => {
-    if (!collapsed || hoveredNav !== key) return null
-    return (
-      <div style={{
-        position: 'absolute',
-        left: 'calc(100% + 10px)',
-        top: '50%',
-        transform: 'translateY(-50%)',
-        background: '#18181B',
-        color: '#F5F5F5',
-        fontSize: 12,
-        fontWeight: 500,
-        padding: '5px 10px',
-        borderRadius: 6,
-        whiteSpace: 'nowrap',
-        pointerEvents: 'none',
-        zIndex: 200,
-        boxShadow: '0 2px 10px rgba(0,0,0,0.28)',
-        letterSpacing: '0.01em',
-      }}>
-        {label}
-      </div>
-    )
+  const showNavTooltip = (e: React.MouseEvent, label: string, key: string) => {
+    if (!collapsed) return
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+    setTooltipPos({ x: rect.right + 10, y: rect.top + rect.height / 2 })
+    setTooltipLabel(label)
+    setHoveredNav(key)
   }
+  const hideNavTooltip = () => setHoveredNav(null)
 
   return (
     <div className={dark ? 'admin-dark' : ''} style={{ display: 'flex', minHeight: '100vh', background: 'var(--admin-bg)', color: 'var(--admin-text)' }}>
       {ConfirmDialog}
+
+      {/* ── 사이드바 접힘 메뉴 툴팁 (fixed — overflow:hidden 우회) ── */}
+      {collapsed && hoveredNav && (
+        <div style={{
+          position: 'fixed',
+          left: tooltipPos.x,
+          top: tooltipPos.y,
+          transform: 'translateY(-50%)',
+          background: '#18181B',
+          color: '#F5F5F5',
+          fontSize: 12,
+          fontWeight: 500,
+          padding: '5px 10px',
+          borderRadius: 6,
+          whiteSpace: 'nowrap',
+          pointerEvents: 'none',
+          zIndex: 9999,
+          boxShadow: '0 2px 10px rgba(0,0,0,0.28)',
+          letterSpacing: '0.01em',
+        }}>
+          {tooltipLabel}
+        </div>
+      )}
 
       {/* ── Sidebar ── */}
       <aside
@@ -248,9 +257,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             {navItems.map((item) => {
               const isActive = router.pathname === item.href
               return (
-                <li key={item.href} style={{ position: 'relative' }}
-                  onMouseEnter={() => setHoveredNav(item.href)}
-                  onMouseLeave={() => setHoveredNav(null)}
+                <li key={item.href}
+                  onMouseEnter={(e) => showNavTooltip(e, item.name, item.href)}
+                  onMouseLeave={hideNavTooltip}
                 >
                   <Link
                     href={item.href}
@@ -273,7 +282,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                     <item.icon style={{ width: 16, height: 16, flexShrink: 0 }} />
                     {!collapsed && <span style={{ fontWeight: isActive ? 510 : 400, whiteSpace: 'nowrap' }}>{item.name}</span>}
                   </Link>
-                  {navTooltip(item.name, item.href)}
                 </li>
               )
             })}
@@ -286,9 +294,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               {accountItems.map((item) => {
                 const isActive = router.pathname === item.href
                 return (
-                  <li key={item.href} style={{ position: 'relative' }}
-                    onMouseEnter={() => setHoveredNav(item.href)}
-                    onMouseLeave={() => setHoveredNav(null)}
+                  <li key={item.href}
+                    onMouseEnter={(e) => showNavTooltip(e, item.name, item.href)}
+                    onMouseLeave={hideNavTooltip}
                   >
                     <Link
                       href={item.href}
@@ -311,7 +319,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                       <item.icon style={{ width: 16, height: 16, flexShrink: 0 }} />
                       {!collapsed && <span>{item.name}</span>}
                     </Link>
-                    {navTooltip(item.name, item.href)}
                   </li>
                 )
               })}
@@ -366,9 +373,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           )}
 
           {isAdmin && (
-            <div style={{ position: 'relative' }}
-              onMouseEnter={() => setHoveredNav('__admin')}
-              onMouseLeave={() => setHoveredNav(null)}
+            <div
+              onMouseEnter={(e) => showNavTooltip(e, '관리자 페이지', '__admin')}
+              onMouseLeave={hideNavTooltip}
             >
               <Link
                 href="/admin"
@@ -395,13 +402,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 <ShieldCheck style={{ width: 16, height: 16, flexShrink: 0 }} />
                 {!collapsed && <span style={{ whiteSpace: 'nowrap' }}>관리자 페이지</span>}
               </Link>
-              {navTooltip('관리자 페이지', '__admin')}
             </div>
           )}
 
-          <div style={{ position: 'relative' }}
-            onMouseEnter={() => setHoveredNav('__logout')}
-            onMouseLeave={() => setHoveredNav(null)}
+          <div
+            onMouseEnter={(e) => showNavTooltip(e, '로그아웃', '__logout')}
+            onMouseLeave={hideNavTooltip}
           >
             <button
               onClick={handleLogout}
@@ -427,7 +433,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               <LogOut style={{ width: 16, height: 16, flexShrink: 0 }} />
               {!collapsed && <span style={{ whiteSpace: 'nowrap' }}>로그아웃</span>}
             </button>
-            {navTooltip('로그아웃', '__logout')}
           </div>
         </div>
       </aside>
