@@ -655,7 +655,7 @@ JSON만 출력하세요.`
   return (
     <>
       <Head><title>캠페인 발송 — 아이플래너</title></Head>
-      <div style={{ maxWidth:1100, margin:'0 auto', padding:'20px 24px 80px' }}>
+      <div style={{ maxWidth:1200, margin:'0 auto', padding:'20px 24px 80px' }}>
 
         {/* 헤더 */}
         <div style={{ marginBottom:20 }}>
