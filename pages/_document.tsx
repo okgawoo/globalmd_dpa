@@ -16,9 +16,10 @@ export default function Document() {
         <meta name="theme-color" content="#5E6AD2" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="manifest" href="/manifest.json" />
-        {/* 브라우저 탭 파비콘 (웹 인디고 우선) */}
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        {/* iOS/PWA 설치 아이콘은 기존 그대로 (모바일은 추후 별도 리뉴얼 예정) */}
+        {/* 브라우저 탭 파비콘 */}
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        {/* iOS/PWA 설치 아이콘 */}
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
         <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
         <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.png" />
