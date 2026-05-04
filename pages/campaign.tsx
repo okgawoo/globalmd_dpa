@@ -87,6 +87,129 @@ function fmtDate(s: string) {
 const STATUS_LABEL: Record<string, string> = {
   draft: '임시저장', sent: '발송완료', scheduled: '예약됨',
 }
+
+// ── 커스텀 DatePicker ─────────────────────────────
+const WEEKDAYS = ['일','월','화','수','목','금','토']
+const MONTHS = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월']
+
+function DatePicker({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder?: string }) {
+  const [open, setOpen] = useState(false)
+  const ref = useState(() => ({ current: null as HTMLDivElement | null }))[0]
+
+  const today = new Date()
+  const parsed = value ? new Date(value + 'T00:00:00') : null
+  const [viewYear, setViewYear] = useState(parsed?.getFullYear() ?? today.getFullYear())
+  const [viewMonth, setViewMonth] = useState(parsed?.getMonth() ?? today.getMonth())
+
+  // 달력 닫기 (외부 클릭)
+  useEffect(() => {
+    if (!open) return
+    function handle(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handle)
+    return () => document.removeEventListener('mousedown', handle)
+  }, [open])
+
+  function getDays() {
+    const first = new Date(viewYear, viewMonth, 1).getDay()
+    const last = new Date(viewYear, viewMonth + 1, 0).getDate()
+    const cells: (number | null)[] = Array(first).fill(null)
+    for (let i = 1; i <= last; i++) cells.push(i)
+    while (cells.length % 7 !== 0) cells.push(null)
+    return cells
+  }
+
+  function select(day: number) {
+    const mm = String(viewMonth + 1).padStart(2, '0')
+    const dd = String(day).padStart(2, '0')
+    onChange(`${viewYear}-${mm}-${dd}`)
+    setOpen(false)
+  }
+
+  const displayVal = parsed
+    ? `${parsed.getFullYear()}. ${String(parsed.getMonth()+1).padStart(2,'0')}. ${String(parsed.getDate()).padStart(2,'0')}`
+    : ''
+
+  const isToday = (d: number) => today.getFullYear() === viewYear && today.getMonth() === viewMonth && today.getDate() === d
+  const isSelected = (d: number) => parsed && parsed.getFullYear() === viewYear && parsed.getMonth() === viewMonth && parsed.getDate() === d
+
+  return (
+    <div ref={el => { ref.current = el }} style={{ position:'relative' }}>
+      {/* 인풋 필드 */}
+      <div
+        onClick={() => { setOpen(v => !v); if (parsed) { setViewYear(parsed.getFullYear()); setViewMonth(parsed.getMonth()) } }}
+        style={{
+          display:'flex', alignItems:'center', justifyContent:'space-between',
+          padding:'8px 10px', border:'1px solid #E5E7EB', borderRadius:6,
+          background:'#F7F8FA', cursor:'pointer', fontSize:13,
+          color: displayVal ? '#1A1A2E' : '#8892A0',
+          userSelect:'none',
+        }}
+      >
+        <span>{displayVal || placeholder || '날짜 선택'}</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8892A0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+      </div>
+
+      {/* 달력 팝오버 */}
+      {open && (
+        <div style={{
+          position:'absolute', top:'calc(100% + 6px)', left:0, zIndex:999,
+          background:'#fff', border:'1px solid #E5E7EB', borderRadius:10,
+          boxShadow:'0 8px 24px rgba(0,0,0,0.12)', padding:14, width:240,
+        }}>
+          {/* 헤더 */}
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
+            <button onClick={() => { if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y-1) } else setViewMonth(m => m-1) }}
+              style={{ background:'none', border:'none', cursor:'pointer', color:'#636B78', fontSize:16, lineHeight:1, padding:'2px 6px' }}>‹</button>
+            <span style={{ fontSize:13, fontWeight:700, color:'#1A1A2E' }}>{viewYear}년 {MONTHS[viewMonth]}</span>
+            <button onClick={() => { if (viewMonth === 11) { setViewMonth(0); setViewYear(y => y+1) } else setViewMonth(m => m+1) }}
+              style={{ background:'none', border:'none', cursor:'pointer', color:'#636B78', fontSize:16, lineHeight:1, padding:'2px 6px' }}>›</button>
+          </div>
+
+          {/* 요일 헤더 */}
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', marginBottom:4 }}>
+            {WEEKDAYS.map((w, i) => (
+              <div key={w} style={{ textAlign:'center', fontSize:11, fontWeight:600, color: i===0 ? '#EF4444' : i===6 ? '#5E6AD2' : '#8892A0', padding:'3px 0' }}>{w}</div>
+            ))}
+          </div>
+
+          {/* 날짜 그리드 */}
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', gap:1 }}>
+            {getDays().map((d, i) => (
+              <button key={i} disabled={!d}
+                onClick={() => d && select(d)}
+                style={{
+                  textAlign:'center', fontSize:12, padding:'5px 0',
+                  border:'none', borderRadius:6, cursor: d ? 'pointer' : 'default',
+                  background: d && isSelected(d) ? '#5E6AD2' : d && isToday(d) ? 'rgba(94,106,210,0.08)' : 'transparent',
+                  color: !d ? 'transparent' : isSelected(d) ? '#fff' : i % 7 === 0 ? '#EF4444' : i % 7 === 6 ? '#5E6AD2' : '#1A1A2E',
+                  fontWeight: d && (isSelected(d) || isToday(d)) ? 700 : 400,
+                }}
+              >{d || ''}</button>
+            ))}
+          </div>
+
+          {/* 오늘 버튼 */}
+          <div style={{ marginTop:8, borderTop:'1px solid #F3F4F6', paddingTop:8, textAlign:'center' }}>
+            <button onClick={() => { const t = new Date(); select(t.getDate()); setViewYear(t.getFullYear()); setViewMonth(t.getMonth()) }}
+              style={{ fontSize:11, color:'#5E6AD2', background:'none', border:'none', cursor:'pointer', fontFamily:'inherit' }}>
+              오늘
+            </button>
+            {value && (
+              <button onClick={() => { onChange(''); setOpen(false) }}
+                style={{ fontSize:11, color:'#8892A0', background:'none', border:'none', cursor:'pointer', fontFamily:'inherit', marginLeft:12 }}>
+                지우기
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 const STATUS_COLOR: Record<string, string> = {
   draft: '#8892A0', sent: '#1D9E75', scheduled: '#5E6AD2',
 }
@@ -795,13 +918,11 @@ JSON만 출력하세요.`
                 <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:10 }}>
                   <div>
                     <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', textTransform:'uppercase', letterSpacing:'0.04em', display:'block', marginBottom:5 }}>시작일</label>
-                    <input type="date" value={promoForm.valid_from} onChange={e => setPromoForm(p => ({ ...p, valid_from: e.target.value }))}
-                      style={{ width:'100%', padding:'8px 10px', border:'1px solid #E5E7EB', borderRadius:6, fontSize:13, background:'#F7F8FA', boxSizing:'border-box', fontFamily:'inherit' }} />
+                    <DatePicker value={promoForm.valid_from} onChange={v => setPromoForm(p => ({ ...p, valid_from: v }))} placeholder="시작일 선택" />
                   </div>
                   <div>
                     <label style={{ fontSize:11, fontWeight:600, color:'#8892A0', textTransform:'uppercase', letterSpacing:'0.04em', display:'block', marginBottom:5 }}>마감일</label>
-                    <input type="date" value={promoForm.valid_to} onChange={e => setPromoForm(p => ({ ...p, valid_to: e.target.value }))}
-                      style={{ width:'100%', padding:'8px 10px', border:'1px solid #E5E7EB', borderRadius:6, fontSize:13, background:'#F7F8FA', boxSizing:'border-box', fontFamily:'inherit' }} />
+                    <DatePicker value={promoForm.valid_to} onChange={v => setPromoForm(p => ({ ...p, valid_to: v }))} placeholder="마감일 선택" />
                   </div>
                 </div>
 
