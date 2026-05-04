@@ -675,11 +675,20 @@ JSON만 출력하세요.`
             ['history', '발송 이력'],
           ] as const).map(([t, label]) => (
             <button key={t} onClick={() => setTab(t)} style={{
-              background:'none', border:'none', padding:'10px 16px', fontSize:13, fontWeight:500,
+              background:'none', border:'none',
+              padding:'10px 16px',
+              fontSize:13,
+              fontWeight: tab===t ? 600 : 500,
               color: tab===t ? '#5E6AD2' : '#8892A0',
               borderBottom: tab===t ? '2px solid #5E6AD2' : '2px solid transparent',
               marginBottom:-1, cursor:'pointer', fontFamily:'inherit',
-            }}>
+              whiteSpace:'nowrap',
+              transition:'color 120ms',
+              userSelect:'none',
+            }}
+            onMouseEnter={e => { if (tab !== t) (e.currentTarget as HTMLButtonElement).style.color = '#1A1A2E' }}
+            onMouseLeave={e => { if (tab !== t) (e.currentTarget as HTMLButtonElement).style.color = '#8892A0' }}
+            >
               {label}
             </button>
           ))}
