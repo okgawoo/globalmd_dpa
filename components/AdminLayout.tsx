@@ -232,6 +232,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           )}
           <div style={{ position: 'relative' }}>
             <button
+              id="tour-sidebar-toggle"
               onClick={() => setCollapsed(v => !v)}
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: 6, border: 'none', background: 'transparent', color: 'rgba(26,26,46,0.82)', cursor: 'pointer', flexShrink: 0, transition: 'background 0.1s, color 0.1s' }}
               onMouseEnter={e => { e.currentTarget.style.background = 'var(--admin-hover)'; setShowSidebarTooltip(true) }}
@@ -496,21 +497,22 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             <div style={{ width: 1, height: 14, background: 'var(--admin-border)', margin: '0 4px' }} />
 
             <HeaderIconBtn
+              id="tour-btn-help"
               onClick={() => setTourActive(true)}
               title="투어 다시 보기"
             >
               <HelpCircle style={{ width: 16, height: 16 }} />
             </HeaderIconBtn>
 
-            <HeaderIconBtn onClick={toggleTheme} title={dark ? '라이트 모드' : '다크 모드'}>
+            <HeaderIconBtn id="tour-btn-theme" onClick={toggleTheme} title={dark ? '라이트 모드' : '다크 모드'}>
               {dark ? <Sun style={{ width: 16, height: 16 }} /> : <Moon style={{ width: 16, height: 16 }} />}
             </HeaderIconBtn>
 
-            <HeaderIconBtn>
+            <HeaderIconBtn id="tour-btn-bell">
               <Bell style={{ width: 16, height: 16 }} />
             </HeaderIconBtn>
 
-            <HeaderIconBtn onClick={() => router.push('/settings')}>
+            <HeaderIconBtn id="tour-btn-settings" onClick={() => router.push('/settings')}>
               <Settings style={{ width: 16, height: 16 }} />
             </HeaderIconBtn>
 
@@ -536,9 +538,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        {/* Announcement — 헤더 중앙 플로팅 pill (대시보드·관리자 페이지만 표시) */}
-        {announcement && isNarrow !== null && (router.pathname === '/' || router.pathname === '/admin') && (
+        {/* Announcement — 헤더 중앙 플로팅 pill (대시보드·관리자·투어 중 표시) */}
+        {announcement && isNarrow !== null && (router.pathname === '/' || router.pathname === '/admin' || tourActive) && (
           <div
+            id="tour-announcement"
             style={{
               position: 'fixed',
               top: 62,
@@ -785,13 +788,16 @@ function HeaderIconBtn({
   children,
   onClick,
   title,
+  id,
 }: {
   children: ReactNode
   onClick?: () => void
   title?: string
+  id?: string
 }) {
   return (
     <button
+      id={id}
       onClick={onClick}
       title={title}
       style={{
