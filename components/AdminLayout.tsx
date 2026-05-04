@@ -7,7 +7,7 @@ import { useAdmin } from '../lib/AdminContext'
 import {
   LayoutDashboard, FileEdit, Users, Bell, Mail,
   BarChart2, TrendingUp, Settings, LogOut, Sun, Moon, CalendarDays, ShieldCheck,
-  Headphones, X, PanelLeft,
+  Headphones, X, PanelLeft, Megaphone,
 } from 'lucide-react'
 
 const navItems = [
@@ -17,6 +17,7 @@ const navItems = [
   { name: '고객 리포트', href: '/report', icon: BarChart2 },
   { name: '상담 일정', href: '/consultations', icon: CalendarDays },
   { name: '문자 발송', href: '/notifications', icon: Bell },
+  { name: '캠페인 발송', href: '/campaign', icon: Megaphone, proOnly: true },
   { name: '뉴스레터', href: '/newsletter', icon: Mail },
   { name: '영업 관리', href: '/sales', icon: TrendingUp },
 ]
@@ -241,7 +242,14 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                     }}
                   >
                     <item.icon style={{ width: 16, height: 16, flexShrink: 0 }} />
-                    {!collapsed && <span style={{ fontWeight: isActive ? 510 : 400, whiteSpace: 'nowrap' }}>{item.name}</span>}
+                    {!collapsed && (
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1 }}>
+                        <span style={{ fontWeight: isActive ? 510 : 400, whiteSpace: 'nowrap' }}>{item.name}</span>
+                        {(item as any).proOnly && (
+                          <span style={{ fontSize: 9, fontWeight: 700, color: '#5E6AD2', border: '1px solid #5E6AD2', borderRadius: 999, padding: '1px 5px', letterSpacing: '0.04em', lineHeight: 1.4 }}>PRO</span>
+                        )}
+                      </span>
+                    )}
                   </Link>
                 </li>
               )
