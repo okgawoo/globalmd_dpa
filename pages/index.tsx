@@ -52,6 +52,12 @@ export default function Dashboard() {
   const [unreadNotice, setUnreadNotice] = useState<any>(null)
   const [smsStats, setSmsStats] = useState({ total: 0, success: 0, failed: 0 })
   const [meetingStats, setMeetingStats] = useState({ done: 0, scheduled: 0, waiting: 0, cancelled: 0 })
+  const [isDesktop, setIsDesktop] = useState(true)
+
+  useEffect(() => {
+    const isMobileDevice = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+    setIsDesktop(!isMobileDevice)
+  }, [])
 
   const now = new Date()
   const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })
@@ -373,7 +379,7 @@ export default function Dashboard() {
       )}
 
       {/* ── 모바일 전용 대시보드 ── */}
-      <div className={styles.mobileDash} style={{ userSelect: 'none', WebkitUserSelect: 'none' }}>
+      {!isDesktop && <div className={styles.mobileDash} style={{ userSelect: 'none', WebkitUserSelect: 'none' }}>
 
         {/* 헤더 */}
         <div className={styles.mobileHeader}>
@@ -654,8 +660,10 @@ export default function Dashboard() {
         </div>
       </div>
 
+      }
+
       {/* ── 웹(데스크탑) ERP 대시보드 — 모든 사용자에게 새 아이플래너 UI ── */}
-      <div className={styles.desktopDash}>
+      {isDesktop && <div className={styles.desktopDash}>
       {true ? (
         <AdminDashboard
           customers={customers}
@@ -849,8 +857,7 @@ export default function Dashboard() {
           </div>
         </div>
       </div>)}
-      </div>
-
+      </div>}
     </div>
   )
 }
