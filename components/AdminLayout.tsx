@@ -114,7 +114,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     setDark(next)
     localStorage.setItem('admin_theme', next ? 'dark' : 'light')
     document.documentElement.setAttribute('data-theme', next ? 'dark' : 'light')
-    document.body.style.background = next ? '#1A1A2E' : ''
+    document.body.style.background = next ? '#1E1E1E' : ''
     document.body.style.color = next ? '#FFFFFF' : ''
   }
 

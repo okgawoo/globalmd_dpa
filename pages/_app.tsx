@@ -20,6 +20,19 @@ function LayoutWrapper({ children }: { children: ReactNode }) {
     mq.addEventListener('change', update)
     return () => mq.removeEventListener('change', update)
   }, [])
+
+  // 레이아웃 전환 시에도 다크모드 유지 (창 크기 조절해도 테마 보존)
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('admin_theme')
+      if (saved) {
+        document.documentElement.setAttribute('data-theme', saved)
+        document.body.style.background = saved === 'dark' ? '#1E1E1E' : ''
+        document.body.style.color = saved === 'dark' ? '#FFFFFF' : ''
+      }
+    } catch {}
+  }, [isDesktop])
+
   if (loading) return <div style={{ minHeight: '100vh', background: 'var(--admin-bg, #F7F8FA)' }} />
   // 데스크톱: 새 아이플래너 AdminLayout 전체 사용자 적용
   // 모바일: 기존 녹색 Layout 유지 (별도 리뉴얼 예정)
