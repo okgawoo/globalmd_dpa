@@ -873,7 +873,7 @@ export default function Customers() {
       <div className={styles.tabBar} id="tour-customers-tabs">
         <button
           className={[styles.iconTab, activeTab === 'existing' ? styles.activeIconTab : ''].join(' ')}
-          onClick={() => { handleTabChange('existing'); setAddMode(false); setAddForm(emptyCustomerForm); setAddContracts([{company:'',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}]); closeSlide() }}
+          onClick={() => { handleTabChange('existing'); setAddMode(false); setAddForm(emptyCustomerForm); setAddContracts([{company:'',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}]); setSlideOpen(false); setEditMode(false) }}
           title="마이고객"
           >
           <span className={styles.tabIcon}><Users style={{width:14,height:14}} /></span>
@@ -881,7 +881,7 @@ export default function Customers() {
         </button>
         <button
           className={[styles.iconTab, activeTab === 'prospect' ? styles.activeIconTab : ''].join(' ')}
-          onClick={() => { handleTabChange('prospect'); setAddMode(false); setAddForm(emptyCustomerForm); setAddContracts([{company:'',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}]); closeSlide() }}
+          onClick={() => { handleTabChange('prospect'); setAddMode(false); setAddForm(emptyCustomerForm); setAddContracts([{company:'',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}]); setSlideOpen(false); setEditMode(false) }}
           title="관심고객"
           >
           <span className={styles.tabIcon}><User style={{width:14,height:14}} /></span>
