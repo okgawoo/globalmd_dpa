@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 import { Wallet, Users, FileText, CreditCard, ArrowRight, UserCheck, Star, UserPlus, CalendarPlus, MessageSquare, TrendingUp, ClipboardList, Bot } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
+import { useAdmin } from '../lib/AdminContext'
 
 interface Props {
   customers: any[]
@@ -167,13 +168,14 @@ function SectionCard({
 }
 
 export default function AdminDashboard({
-  customers, contracts, meetings, agentName, agentRole,
+  customers, contracts, meetings, agentName,
   meetingStats, smsStats,
   nearDoneCustomers, birthdayCustomers, gapCustomers,
   expiryCustomers, anniversaryCustomers, noContactCustomers,
   totalMonthly, newThisMonth,
 }: Props) {
   const router = useRouter()
+  const { isAdmin } = useAdmin()
   const [narrowTable, setNarrowTable] = useState(false)
   useEffect(() => {
     const check = () => setNarrowTable(window.innerWidth <= 1300)
@@ -236,7 +238,7 @@ export default function AdminDashboard({
             대시보드
           </h1>
           <p style={{ marginTop: 2, fontSize: 14, color: '#636B78', margin: '2px 0 0' }}>
-            안녕하세요, {agentName} {agentRole === 'admin' ? '대표님' : '설계사님'}
+            안녕하세요, {agentName} {isAdmin ? '대표님' : '설계사님'}
           </p>
         </div>
         <span style={{ fontSize: 14, color: '#1A1A2E' }}>
