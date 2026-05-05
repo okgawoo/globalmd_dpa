@@ -13,25 +13,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const { username } = req.body
   if (!username) return res.status(400).json({ error: '아이디를 입력해주세요.' })
 
-  // 1. dpa_agents에서 personal_email 조회
+  // 1. dpa_agents에서 email(auth용) + personal_email(수신용) 조회
   const { data: agent } = await supabaseAdmin
     .from('dpa_agents')
-    .select('name, personal_email')
+    .select('name, email, personal_email')
     .eq('slug', username.trim())
     .single()
 
   if (!agent) {
     return res.status(404).json({ error: '해당 아이디로 가입된 계정이 없어요.' })
   }
-  if (!agent.personal_email) {
-    return res.status(400).json({ error: '등록된 이메일이 없어요. 관리자(카카오톡)에게 문의해주세요.' })
+
+  // 수신 이메일: personal_email 우선, 없으면 auth email
+  const sendTo = agent.personal_email || agent.email
+  if (!sendTo || sendTo.endsWith('@dpa.com')) {
+    return res.status(400).json({ error: '등록된 이메일이 없어요. 관리자에게 문의해주세요.' })
   }
 
-  // 2. Supabase Admin으로 recovery 링크 생성
+  // 2. Supabase Admin으로 recovery 링크 생성 (auth email 기준)
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://globalmd-dpa.vercel.app'
   const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
     type: 'recovery',
-    email: `${username.trim()}@dpa.com`,
+    email: agent.email,   // 실제 auth 이메일 (신규: personal_email, 기존: @dpa.com)
     options: { redirectTo: `${siteUrl}/reset-password` },
   })
 
@@ -40,9 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ error: '링크 생성에 실패했어요. 잠시 후 다시 시도해주세요.' })
   }
 
-  const resetLink = linkData.properties.action_link
-
-  // 3. Gmail로 이메일 발송
+  // 3. Gmail로 발송 (수신 이메일 = personal_email)
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD },
@@ -50,7 +51,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   await transporter.sendMail({
     from: `아이플래너 <${process.env.GMAIL_USER}>`,
-    to: agent.personal_email,
+    to: sendTo,
     subject: '[아이플래너] 비밀번호 재설정 링크',
     html: `
       <div style="font-family:'Apple SD Gothic Neo',sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;background:#ffffff;border-radius:12px;border:1px solid #E5E7EB;">
@@ -64,7 +65,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           링크는 <strong>1시간</strong> 동안만 유효해요.
         </p>
         <div style="text-align:center;margin-bottom:28px;">
-          <a href="${resetLink}" style="display:inline-block;background:#5E6AD2;color:#ffffff;font-size:15px;font-weight:600;padding:14px 36px;border-radius:10px;text-decoration:none;">
+          <a href="${linkData.properties.action_link}" style="display:inline-block;background:#5E6AD2;color:#ffffff;font-size:15px;font-weight:600;padding:14px 36px;border-radius:10px;text-decoration:none;">
             비밀번호 재설정하기
           </a>
         </div>
@@ -76,5 +77,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     `,
   })
 
-  return res.status(200).json({ ok: true, email: agent.personal_email })
+  return res.status(200).json({ ok: true, email: sendTo })
 }

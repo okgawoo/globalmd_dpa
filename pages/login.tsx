@@ -44,15 +44,19 @@ export default function Login() {
   async function handleLogin() {
     if (!loginId || !loginPw) return setError('아이디와 비밀번호를 입력해주세요.')
     setLoading(true); setError('')
-    const email = `${loginId}@dpa.com`
-    const { data: authData, error: e } = await supabase.auth.signInWithPassword({ email, password: loginPw })
-    if (e) { setError('아이디 또는 비밀번호가 올바르지 않아요.'); setLoading(false); return }
-    const { data: agent } = await supabase.from('dpa_agents').select('status').eq('user_id', authData.user!.id).single()
-    if (agent && agent.status === 'pending') {
-      await supabase.auth.signOut()
+    // 아이디(slug)로 실제 이메일 조회
+    const { data: agentRow } = await supabase
+      .from('dpa_agents')
+      .select('email, status')
+      .eq('slug', loginId.trim())
+      .single()
+    if (!agentRow) { setError('아이디 또는 비밀번호가 올바르지 않아요.'); setLoading(false); return }
+    if (agentRow.status === 'pending') {
       setError('관리자 승인 대기 중이에요. 승인 후 로그인 가능해요 😊')
       setLoading(false); return
     }
+    const { error: e } = await supabase.auth.signInWithPassword({ email: agentRow.email, password: loginPw })
+    if (e) { setError('아이디 또는 비밀번호가 올바르지 않아요.'); setLoading(false); return }
     router.push('/')
   }
 
@@ -63,7 +67,7 @@ export default function Login() {
     if (form.password.length < 6) return setError('비밀번호는 6자리 이상이어야 합니다.')
     setLoading(true); setError('')
 
-    const email = `${form.username}@dpa.com`
+    const email = form.personal_email   // 실제 이메일을 auth 이메일로 사용
     const { data, error: signUpError } = await supabase.auth.signUp({ email, password: form.password })
     if (signUpError) {
       setError(signUpError.message.includes('already') ? '이미 사용 중인 아이디예요.' : signUpError.message)
@@ -83,13 +87,14 @@ export default function Login() {
       const now = new Date()
       const demoExpires = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
       await supabase.from('dpa_agents').insert({
-        user_id: data.user.id, name: form.name, email,
+        user_id: data.user.id, name: form.name,
+        email: form.personal_email,        // auth 이메일 = 실제 이메일
+        personal_email: form.personal_email,
         phone: form.phone, kakao_id: form.kakao_id, address: form.address,
         agent_number: form.agent_number, license_photo_url, status: 'pending',
         plan_type: form.plan_type,
         telecom: form.telecom || null,
         resident_prefix: form.resident_front + form.resident_back1 || null,
-        personal_email: form.personal_email || null,
         slug: form.username,
         demo_started_at: form.plan_type === 'demo' ? now.toISOString() : null,
         demo_expires_at: form.plan_type === 'demo' ? demoExpires.toISOString() : null,
