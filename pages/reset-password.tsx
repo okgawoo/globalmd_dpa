@@ -51,7 +51,9 @@ export default function ResetPassword() {
 
         {success ? (
           <div style={{ textAlign: 'center', padding: '32px 16px' }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>✅</div>
+            <div style={{width:64, height:64, background:'#5E6AD2', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 16px'}}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </div>
             <div style={{ fontSize: 20, fontWeight: 700, color: '#5E6AD2', marginBottom: 8 }}>비밀번호가 변경됐어요!</div>
             <div style={{ fontSize: 14, color: '#6B7280', lineHeight: 1.6 }}>잠시 후 메인 화면으로 이동해요 😊</div>
           </div>
