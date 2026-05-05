@@ -190,7 +190,7 @@ export default function Newsletter() {
       <div className={s.twoCol}>
 
         {/* 1열: 주차 목록 */}
-        <div className={s.colWeeks}>
+        <div className={s.colWeeks} id="tour-newsletter-weeks">
           <div className={s.colHeader}>발행 목록</div>
           {NEWSLETTERS.map(nl => (
             <div
@@ -208,7 +208,7 @@ export default function Newsletter() {
         </div>
 
         {/* 2열: 아티클 상세 */}
-        <div className={s.colContent}>
+        <div className={s.colContent} id="tour-newsletter-content">
           {pcWeek ? (
             <>
               <div className={s.contentHeader}>

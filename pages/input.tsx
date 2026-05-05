@@ -602,7 +602,7 @@ export default function InputPage() {
       </div>
     </div>
     <div className={styles.wrap}>
-      <div className={styles.tabBar}>
+      <div className={styles.tabBar} id="tour-input-tabs">
         <button className={[styles.tab, inputTab === 'paste' ? styles.activeTab : ''].join(' ')} onClick={() => handleTabChange('paste')}>
           <ClipboardList className={styles.tabIcon} />텍스트 붙여넣기
         </button>
@@ -797,7 +797,7 @@ export default function InputPage() {
             <div style={{display:'flex',gap:8,marginBottom:12,...(!isMobile?{flex:1}:{})}}>
               <div style={{flex:1,...(!isMobile?{display:'flex',flexDirection:'column'}:{})}}>
                 <div style={{fontSize:13,fontWeight:600,color:'#5E6AD2',marginBottom:4,textTransform:'uppercase',letterSpacing:'0.04em'}}>정액형</div>
-                <textarea ref={pasteTextareaRef} className={styles.pasteArea} value={currentText} onChange={e => setCurrentText(e.target.value)}
+                <textarea ref={pasteTextareaRef} id="tour-input-paste" className={styles.pasteArea} value={currentText} onChange={e => setCurrentText(e.target.value)}
                   placeholder="정액형 보장내역 붙여넣기 (Ctrl+V)" rows={8} />
               </div>
               <div style={{flex:1,...(!isMobile?{display:'flex',flexDirection:'column'}:{})}}>
@@ -807,7 +807,7 @@ export default function InputPage() {
               </div>
             </div>
 
-            <button className={styles.parseBtn} onClick={handleParse}
+            <button id="tour-input-parse-btn" className={styles.parseBtn} onClick={handleParse}
               disabled={parsing || (!currentText.trim() && !currentTextLoss.trim())}>
               {parsing ? 'AI 분석 중...' : 'AI로 분석하기'}
             </button>
@@ -975,7 +975,7 @@ export default function InputPage() {
                       + 다음 계약 추가
                     </button>
                   )}
-                  <button onClick={handleParseSave} disabled={saving || !parsed.contracts?.[0]}
+                  <button id="tour-input-save-btn" onClick={handleParseSave} disabled={saving || !parsed.contracts?.[0]}
                     style={{flex:1,padding:'9px 14px',fontSize:13,fontWeight:600,background:'#5E6AD2',color:'#ffffff',border:'none',borderRadius:8,cursor:'pointer',fontFamily:'inherit',opacity:(saving||!parsed.contracts?.[0])?0.6:1}}>
                     {saving ? '저장 중...' : '💾 저장하기'}
                   </button>

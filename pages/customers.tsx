@@ -861,7 +861,7 @@ export default function Customers() {
       </div>
 
       {/* 탭바 */}
-      <div className={styles.tabBar}>
+      <div className={styles.tabBar} id="tour-customers-tabs">
         <button
           className={[styles.iconTab, activeTab === 'existing' ? styles.activeIconTab : ''].join(' ')}
           onClick={() => { handleTabChange('existing'); setAddMode(false); setAddForm(emptyCustomerForm); setAddContracts([{company:'',product_name:'',insurance_type:'건강',monthly_fee:'',payment_status:'유지',payment_years:'',expiry_age:'',contract_start:'',coverages:[],showCovForm:false}]); closeSlide() }}
@@ -895,7 +895,7 @@ export default function Customers() {
       </div>
 
       {/* 필터 행: 연령대 + 소팅 + 웹검색 */}
-      <div className={styles.tabRow2}>
+      <div className={styles.tabRow2} id="tour-customers-filter">
         <select className={styles.ageFilter} value={ageFilter} onChange={e => setAgeFilter(e.target.value)}>
           {AGE_FILTERS.map(f => <option key={f}>{f}</option>)}
         </select>

@@ -495,7 +495,7 @@ export default function Consultations() {
       <div className={styles.layout} ref={layoutRef}>
 
         {/* ════════ LEFT — Calendar ════════ */}
-        <div ref={calCardRef} className={styles.card}>
+        <div ref={calCardRef} id="tour-cal-card" className={styles.card}>
 
           {/* Calendar nav */}
           <div className={styles.calNav}>
@@ -603,7 +603,7 @@ export default function Consultations() {
         </div>
 
         {/* ════════ RIGHT — Today + Week stacked ════════ */}
-        <div ref={rightPanelRef} className={styles.rightPanelCard}>
+        <div ref={rightPanelRef} id="tour-cal-schedule" className={styles.rightPanelCard}>
 
             <div className={styles.dashContent}>
 

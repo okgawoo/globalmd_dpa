@@ -468,12 +468,12 @@ export default function NotificationsPage() {
           PC: 기존 2단 그리드
       ═══════════════════════════════ */}
       <div className={styles.pcGrid}>
-        <div className={styles.listCol}>
+        <div className={styles.listCol} id="tour-notif-issue-list">
           {todayNotifs.length > 0 && (<><div className={styles.sectionLabel}>오늘</div>{todayNotifs.map(n => renderPcCard(n))}</>)}
           {weekNotifs.length > 0 && (<><div className={styles.divider}></div><div className={styles.sectionLabel}>이번 주</div>{weekNotifs.map(n => renderPcCard(n))}</>)}
           {allNotifs.length === 0 && <div className={styles.empty}>알림이 없어요 🎉</div>}
         </div>
-        <div className={styles.phoneCol}>
+        <div className={styles.phoneCol} id="tour-notif-phone-col">
           {selected && (
             <>
               <div className={styles.recipientRow}>

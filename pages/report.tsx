@@ -425,7 +425,7 @@ export default function ReportPage() {
         <div className={styles.sidebar} ref={sidebarRef}>
 
           {/* 고객 검색 */}
-          <div className={styles.sideSection}>
+          <div className={styles.sideSection} id="tour-report-customer-select">
             <div className={styles.sideSectionTitle}>고객 선택</div>
             <div style={{ position: 'relative' }}>
               <input
@@ -543,6 +543,7 @@ export default function ReportPage() {
           {/* 액션 버튼 */}
           <div className={styles.sideActions}>
             <button
+              id="tour-report-generate-btn"
               className={styles.generateBtn}
               onClick={generateReport}
               disabled={!selected || loading}

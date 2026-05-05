@@ -155,7 +155,7 @@ export default function Sales() {
       </div>
 
       {/* KPI 카드 4개 */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+      <div id="tour-sales-kpi" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
         {card(0, '이번달 계약', `${thisMonthContracts.length}건`, `전체 ${contracts.length}건`, '#5E6AD2')}
         {card(1, '이번달 월보험료', `${Math.round(thisMonthFee / 10000)}만원`, `전체 ${Math.round(totalFee / 10000)}만원`, '#0D9488')}
         {card(2, '계약 보유 고객', `${uniqueCustomers}명`, `전체 계약 ${contracts.length}건`, '#1A1A2E')}
@@ -163,7 +163,7 @@ export default function Sales() {
       </div>
 
       {/* Row 1 — 계약 그래프 + 목표 */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+      <div id="tour-sales-charts" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
 
         {/* 월별 계약 그래프 */}
         <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #E5E7EB', padding: 20 }}>

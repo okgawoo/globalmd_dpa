@@ -668,7 +668,7 @@ JSON만 출력하세요.`
         </div>
 
         {/* 탭 */}
-        <div style={{ display:'flex', gap:0, borderBottom:'1px solid #E5E7EB', marginBottom:20 }}>
+        <div id="tour-campaign-tabs" style={{ display:'flex', gap:0, borderBottom:'1px solid #E5E7EB', marginBottom:20 }}>
           {([
             ['new', '새 캠페인'],
             ['promo', '⚡ 긴급 특약'],
@@ -699,7 +699,7 @@ JSON만 출력하세요.`
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, alignItems:'stretch' }}>
 
             {/* 왼쪽: 타겟 필터 */}
-            <div style={{ background:'#fff', border:'1px solid #E5E7EB', borderRadius:10, padding:20, display:'flex', flexDirection:'column' }}>
+            <div id="tour-campaign-filter" style={{ background:'#fff', border:'1px solid #E5E7EB', borderRadius:10, padding:20, display:'flex', flexDirection:'column' }}>
               <div style={{ fontSize:14, fontWeight:600, color:'#1A1A2E', marginBottom:16, display:'flex', alignItems:'center', gap:8 }}>
                 <span style={{ display:'inline-block', width:3, height:14, background:'#5E6AD2', borderRadius:2 }} />
                 타겟 필터
