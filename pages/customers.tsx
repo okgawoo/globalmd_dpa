@@ -259,6 +259,15 @@ export default function Customers() {
   // selectedRef 동기화 — fetchAll 내에서 stale closure 없이 현재 선택 고객 참조
   useEffect(() => { selectedRef.current = selected }, [selected])
 
+  // 탭 전환 시 해당 탭의 첫 번째 고객 자동 선택 (데스크탑만)
+  useEffect(() => {
+    if (isInitialLoad.current || loading || window.innerWidth <= 768) return
+    const first = customers.find((c: any) => c.customer_type === activeTab)
+    if (first) selectCustomer(first)
+    else setSelected(null)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab])
+
   // 뒤로가기 버튼으로 슬라이드 닫기
   useEffect(() => {
     if (slideOpen) {

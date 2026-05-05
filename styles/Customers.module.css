@@ -136,9 +136,9 @@
 }
 
 .listPanel {
-  background: hsl(var(--bg-panel));
-  border: 1px solid hsl(var(--border-default));
-  border-radius: 8px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
   overflow: hidden;
   overflow-y: auto;
 }
@@ -163,13 +163,12 @@
   cursor: pointer;
   transition: background 0.1s;
   border-bottom: 1px solid hsl(var(--border-default));
-  border-left: 2px solid transparent;
 }
 .custRow:last-child { border-bottom: none; }
 .custRow:hover { background: hsl(240 5% 91%); }
 .custRow.active { background: hsl(237 47% 92%); }
-.custRowExisting { border-left-color: hsl(var(--accent)); }
-.custRowProspect { border-left-color: hsl(38 80% 55%); }
+.custRowExisting { }
+.custRowProspect { }
 
 /* Linear-style single-line row */
 .custMain { flex: 1; display: flex; align-items: center; gap: 6px; min-width: 0; overflow: hidden; }
