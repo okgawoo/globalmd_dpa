@@ -116,26 +116,17 @@ export default function Login() {
   async function handleForgot() {
     if (!forgotId.trim()) return setError('아이디를 입력해주세요.')
     setLoading(true); setError('')
-    const { data: agent } = await supabase
-      .from('dpa_agents')
-      .select('name, personal_email')
-      .eq('slug', forgotId.trim())
-      .single()
-    if (!agent) {
-      setError('해당 아이디로 가입된 계정이 없어요.')
-      setLoading(false); return
-    }
-    await fetch('/api/slack-notify', {
+    const res = await fetch('/api/reset-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        type: 'password_reset',
-        name: agent.name,
-        username: forgotId.trim(),
-        personal_email: agent.personal_email || '이메일 미등록',
-      })
+      body: JSON.stringify({ username: forgotId.trim() }),
     })
-    setSuccess(`비밀번호 재설정 요청이 완료됐어요!\n관리자가 임시 비밀번호를 ${agent.personal_email ? '등록하신 이메일' : '카카오톡'}으로 발송해 드려요 😊`)
+    const data = await res.json()
+    if (!res.ok) {
+      setError(data.error || '요청에 실패했어요. 잠시 후 다시 시도해주세요.')
+      setLoading(false); return
+    }
+    setSuccess(`재설정 링크를 발송했어요!\n${data.email}으로 발송된 이메일을 확인해 주세요 😊\n링크는 1시간 동안 유효해요.`)
     setLoading(false)
   }
 
