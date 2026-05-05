@@ -14,9 +14,15 @@ export default function ResetPassword() {
 
   // Supabase recovery 세션 확인
   useEffect(() => {
-    supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') setReady(true)
+    // 이미 recovery 세션이 있는 경우 (링크 클릭 후 진입 시 이벤트보다 먼저 체크)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) setReady(true)
     })
+    // 이벤트 리스너 (타이밍 이슈 보완)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') setReady(true)
+    })
+    return () => subscription.unsubscribe()
   }, [])
 
   async function handleReset() {
