@@ -9,19 +9,50 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const { type, name, phone, username, plan_type, message, personal_email, agent_number, telecom } = req.body
 
   const PLAN_LABELS: Record<string, string> = {
-    demo: '🆓 7일 무료 체험 (데모)',
+    demo: '🆓 30일 무료 체험 (데모)',
     basic: '🥉 베이직',
     standard: '🥈 스탠다드',
     pro: '🥇 프로',
   }
 
-  let text = ''
+  let body: object
+
   if (type === 'signup') {
-    text = `🆕 *새 회원가입 신청!*\n\n👤 이름: ${name}\n📱 연락처: ${phone}\n🆔 아이디: ${username}\n📦 선택 플랜: ${PLAN_LABELS[plan_type] || plan_type || '미선택'}\n\n> Supabase › dpa_agents 에서 *status = active* 로 변경하면 승인 완료!`
+    const infoText = `🆕 *새 회원가입 신청!*\n\n👤 이름: ${name}\n📱 연락처: ${phone}\n🆔 아이디: \`${username}\`\n📧 이메일: ${personal_email || '미등록'}\n📦 플랜: ${PLAN_LABELS[plan_type] || plan_type || '미선택'}${agent_number ? `\n🪪 등록번호: ${agent_number}` : ''}${telecom ? `\n📡 통신사: ${telecom}` : ''}`
+    body = {
+      channel: SLACK_CHANNEL_ID,
+      blocks: [
+        {
+          type: 'section',
+          text: { type: 'mrkdwn', text: infoText }
+        },
+        {
+          type: 'actions',
+          elements: [
+            {
+              type: 'button',
+              text: { type: 'plain_text', text: '✅ 승인하기', emoji: true },
+              style: 'primary',
+              action_id: 'approve_user',
+              value: username,
+              confirm: {
+                title: { type: 'plain_text', text: '정말 승인할까요?' },
+                text: { type: 'mrkdwn', text: `*${name}* (${username}) 님을 승인하면\n즉시 로그인 가능해집니다.` },
+                confirm: { type: 'plain_text', text: '승인' },
+                deny: { type: 'plain_text', text: '취소' }
+              }
+            }
+          ]
+        }
+      ]
+    }
   } else if (type === 'password_reset') {
-    text = `🔑 *비밀번호 재설정 요청!*\n\n👤 이름: ${name}\n🆔 아이디: ${username}\n📧 이메일: ${personal_email || '미등록'}\n\n> 임시 비밀번호를 위 이메일로 발송해 주세요!`
+    body = {
+      channel: SLACK_CHANNEL_ID,
+      text: `🔑 *비밀번호 재설정 요청!*\n\n👤 이름: ${name}\n🆔 아이디: ${username}\n📧 이메일: ${personal_email || '미등록'}`
+    }
   } else {
-    text = message || '알림이 도착했어요.'
+    body = { channel: SLACK_CHANNEL_ID, text: message || '알림이 도착했어요.' }
   }
 
   try {
@@ -31,7 +62,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${SLACK_BOT_TOKEN}`
       },
-      body: JSON.stringify({ channel: SLACK_CHANNEL_ID, text })
+      body: JSON.stringify(body)
     })
     const data = await response.json()
     if (!data.ok) throw new Error(data.error)

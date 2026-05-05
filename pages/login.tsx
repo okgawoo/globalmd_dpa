@@ -15,7 +15,7 @@ const emptyRegForm = {
 const TELECOMS = ['SKT', 'KT', 'LGU+', '알뜰폰(SKT)', '알뜰폰(KT)', '알뜰폰(LGU+)']
 
 const PLANS = [
-  { value: 'demo', label: '🆓 7일 무료 체험', desc: '고객 5명, 기본 기능 체험' },
+  { value: 'demo', label: '🆓 30일 무료 체험', desc: '고객 5명, 기본 기능 체험' },
   { value: 'basic', label: '🥉 베이직 00원/월', desc: '고객 100명, SMS 없음' },
   { value: 'standard', label: '🥈 스탠다드 00원/월 ⭐', desc: '고객 300명, SMS 500건' },
   { value: 'pro', label: '🥇 프로 00원/월', desc: '고객 무제한, SMS 1,000건' },
@@ -82,7 +82,7 @@ export default function Login() {
       }
       // 데모 만료일 계산 (7일)
       const now = new Date()
-      const demoExpires = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+      const demoExpires = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
       await supabase.from('dpa_agents').insert({
         user_id: data.user.id, name: form.name,
         email: form.personal_email,        // auth 이메일 = 실제 이메일
