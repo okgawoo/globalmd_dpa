@@ -169,12 +169,12 @@ export default function SupportPage() {
   }
 
   return (
-    
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', background: '#FAF9F5' }}>
+
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', background: '#F7F8FA' }}>
       <style>{`@keyframes bounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }`}</style>
 
       {/* 자체 헤더 */}
-      <div style={{ background: '#1D9E75', height: 52, padding: '0 16px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+      <div style={{ background: '#5E6AD2', height: 52, padding: '0 16px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
         <button onClick={() => router.back()} style={{ background: 'none', border: 'none', color: '#fff', fontSize: 22, cursor: 'pointer', padding: 0, lineHeight: 1 }}>←</button>
         <span style={{ fontSize: 15, fontWeight: 600, color: '#fff', flex: 1 }}>고객센터</span>
         <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.9)', background: 'rgba(255,255,255,0.2)', padding: '3px 10px', borderRadius: 20 }}>● AI 상담 중</span>
@@ -185,17 +185,17 @@ export default function SupportPage() {
         {messages.map((msg, i) => (
           <div key={i} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start', gap: 8, alignItems: 'flex-end' }}>
             {msg.role === 'assistant' && !msg.isGuide && (
-              <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#E1F5EE', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17, flexShrink: 0 }}>🤖</div>
+              <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17, flexShrink: 0 }}>🤖</div>
             )}
             <div style={{
               maxWidth: msg.isGuide ? '100%' : '78%',
               padding: msg.isGuide ? '4px 0' : '11px 14px',
               borderRadius: msg.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-              background: msg.isGuide ? 'transparent' : msg.role === 'user' ? (msg.isQuickReply ? '#E1F5EE' : '#1D9E75') : '#fff',
-              color: msg.isGuide ? '#999' : msg.role === 'user' ? (msg.isQuickReply ? '#065F46' : '#fff') : '#1a1a1a',
+              background: msg.isGuide ? 'transparent' : msg.role === 'user' ? (msg.isQuickReply ? '#EEF2FF' : '#5E6AD2') : '#fff',
+              color: msg.isGuide ? '#999' : msg.role === 'user' ? (msg.isQuickReply ? '#3B44A9' : '#fff') : '#1A1A2E',
               fontSize: msg.isGuide ? 13 : 14,
               lineHeight: 1.6,
-              border: msg.isGuide ? 'none' : msg.role === 'assistant' ? '1px solid #EDEBE4' : 'none',
+              border: msg.isGuide ? 'none' : msg.role === 'assistant' ? '1px solid #E5E7EB' : 'none',
               boxShadow: msg.isGuide ? 'none' : '0 1px 3px rgba(0,0,0,0.06)',
             }}>
               {renderMarkdown(msg.content)}
@@ -205,11 +205,11 @@ export default function SupportPage() {
 
         {loading && (
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
-            <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#E1F5EE', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17 }}>🤖</div>
-            <div style={{ padding: '12px 16px', borderRadius: '18px 18px 18px 4px', background: '#fff', border: '1px solid #EDEBE4' }}>
+            <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17 }}>🤖</div>
+            <div style={{ padding: '12px 16px', borderRadius: '18px 18px 18px 4px', background: '#fff', border: '1px solid #E5E7EB' }}>
               <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                 {[0,1,2].map(i => (
-                  <div key={i} style={{ width: 7, height: 7, borderRadius: '50%', background: '#ccc', animation: `bounce 1s ${i * 0.2}s infinite` }} />
+                  <div key={i} style={{ width: 7, height: 7, borderRadius: '50%', background: '#C7C9F0', animation: `bounce 1s ${i * 0.2}s infinite` }} />
                 ))}
               </div>
             </div>
@@ -219,7 +219,7 @@ export default function SupportPage() {
         {step === 'l1' && !loading && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 4 }}>
             {CATEGORIES_L1.map(cat => (
-              <button key={cat.id} onClick={() => selectL1(cat)} style={{ padding: '14px 10px', borderRadius: 12, border: '1px solid #EDEBE4', borderBottom: '3px solid #1D9E75', background: '#fff', color: '#1a1a1a', fontSize: 14, fontWeight: 600, cursor: 'pointer', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+              <button key={cat.id} onClick={() => selectL1(cat)} style={{ padding: '14px 10px', borderRadius: 12, border: '1px solid #E5E7EB', borderBottom: '3px solid #5E6AD2', background: '#fff', color: '#1A1A2E', fontSize: 14, fontWeight: 600, cursor: 'pointer', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
                 {cat.label}
               </button>
             ))}
@@ -229,7 +229,7 @@ export default function SupportPage() {
         {step === 'l2' && !loading && selectedL1 && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 4 }}>
             {CATEGORIES_L2[selectedL1]?.map(cat => (
-              <button key={cat.id} onClick={() => selectL2(cat)} style={{ padding: '14px 10px', borderRadius: 12, border: '1px solid #EDEBE4', borderBottom: '3px solid #EDEBE4', background: '#fff', color: '#1a1a1a', fontSize: 14, fontWeight: 500, cursor: 'pointer', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+              <button key={cat.id} onClick={() => selectL2(cat)} style={{ padding: '14px 10px', borderRadius: 12, border: '1px solid #E5E7EB', borderBottom: '3px solid rgba(94,106,210,0.4)', background: '#fff', color: '#1A1A2E', fontSize: 14, fontWeight: 500, cursor: 'pointer', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
                 {cat.label}
               </button>
             ))}
@@ -240,21 +240,21 @@ export default function SupportPage() {
       </div>
 
       {/* 입력창 - 항상 하단 고정, chat 단계에서만 표시 */}
-      <div style={{ background: '#fff', borderTop: '1px solid #EDEBE4', padding: '10px 12px', display: 'flex', gap: 8, alignItems: 'flex-end', flexShrink: 0, visibility: step === 'chat' ? 'visible' : 'hidden' }}>
+      <div style={{ background: '#fff', borderTop: '1px solid #E5E7EB', padding: '10px 12px', display: 'flex', gap: 8, alignItems: 'flex-end', flexShrink: 0, visibility: step === 'chat' ? 'visible' : 'hidden' }}>
           <textarea
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() } }}
             placeholder="궁금한 점을 입력하세요..."
             rows={1}
-            style={{ flex: 1, padding: '10px 14px', borderRadius: 22, border: '1px solid #EDEBE4', fontSize: 14, resize: 'none', lineHeight: 1.5, background: '#FAF9F5', outline: 'none' }}
+            style={{ flex: 1, padding: '10px 14px', borderRadius: 22, border: '1px solid #E5E7EB', fontSize: 14, resize: 'none', lineHeight: 1.5, background: '#F7F8FA', outline: 'none' }}
           />
           <button onClick={sendMessage} disabled={!input.trim() || loading}
-            style={{ width: 42, height: 42, borderRadius: '50%', border: 'none', background: input.trim() && !loading ? '#1D9E75' : '#D1D5DB', color: '#fff', fontSize: 20, cursor: input.trim() && !loading ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            style={{ width: 42, height: 42, borderRadius: '50%', border: 'none', background: input.trim() && !loading ? '#5E6AD2' : '#D1D5DB', color: '#fff', fontSize: 20, cursor: input.trim() && !loading ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             ↑
           </button>
         </div>
     </div>
-    
+
   )
 }
