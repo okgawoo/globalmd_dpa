@@ -69,9 +69,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             비밀번호 재설정하기
           </a>
         </div>
+        <p style="font-size:12px;color:#9CA3AF;line-height:1.6;margin:0 0 8px;">
+          비밀번호 변경 후에는 <strong style="color:#5E6AD2;">설정 → 내 정보</strong> 에서도 언제든지 변경할 수 있어요.
+        </p>
         <p style="font-size:12px;color:#9CA3AF;line-height:1.6;margin:0;">
           본인이 요청하지 않으셨다면 이 이메일을 무시하세요.<br/>
-          문의: 아이플래너 고객센터
+          문의: help@iplanner.kr
         </p>
       </div>
     `,

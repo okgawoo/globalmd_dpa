@@ -112,6 +112,13 @@ export default function SettingsPage() {
   // 문자 기본 톤
   const [defaultTone, setDefaultTone] = useState('친근')
 
+  // 비밀번호 변경
+  const [pwNew, setPwNew] = useState('')
+  const [pwConfirm, setPwConfirm] = useState('')
+  const [pwLoading, setPwLoading] = useState(false)
+  const [pwError, setPwError] = useState('')
+  const [pwSuccess, setPwSuccess] = useState(false)
+
   // SNS
   const [sns, setSns] = useState({ kakao: '', instagram: '', x: '', facebook: '' })
   const [fax, setFax] = useState('')
@@ -174,6 +181,20 @@ export default function SettingsPage() {
       } catch (e) {}
     }
     setLoading(false)
+  }
+
+  // 비밀번호 변경
+  async function changePassword() {
+    if (!pwNew || !pwConfirm) return setPwError('새 비밀번호를 입력해주세요.')
+    if (pwNew !== pwConfirm) return setPwError('비밀번호가 일치하지 않아요.')
+    if (pwNew.length < 6) return setPwError('비밀번호는 6자리 이상이어야 해요.')
+    setPwLoading(true); setPwError('')
+    const { error } = await supabase.auth.updateUser({ password: pwNew })
+    if (error) { setPwError('변경에 실패했어요. 다시 시도해주세요.'); setPwLoading(false); return }
+    setPwNew(''); setPwConfirm('')
+    setPwSuccess(true)
+    setTimeout(() => setPwSuccess(false), 3000)
+    setPwLoading(false)
   }
 
   // 내 정보 저장
@@ -444,6 +465,34 @@ export default function SettingsPage() {
               <button className={styles.btnPrimary} onClick={saveProfile} disabled={savingProfile}>
                 {savingProfile ? '저장 중...' : '저장하기'}
               </button>
+            </div>
+
+            {/* 비밀번호 변경 */}
+            <div style={{ marginTop: 28, borderTop: '1px solid #E5E7EB', paddingTop: 24 }}>
+              <div style={{ fontWeight: 700, fontSize: 14, color: '#1A1A2E', marginBottom: 4 }}>비밀번호 변경</div>
+              <div style={{ fontSize: 13, color: '#8892A0', marginBottom: 16 }}>새로 사용할 비밀번호를 입력해주세요.</div>
+              {pwError && <div style={{ background: '#FEE2E2', color: '#B91C1C', fontSize: 13, padding: '10px 14px', borderRadius: 8, marginBottom: 12 }}>{pwError}</div>}
+              {pwSuccess && <div style={{ background: '#EEF2FF', color: '#5E6AD2', fontSize: 13, fontWeight: 600, padding: '10px 14px', borderRadius: 8, marginBottom: 12 }}>✓ 비밀번호가 변경됐어요!</div>}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+                <div>
+                  <div style={{ fontSize: 12, color: '#636B78', marginBottom: 4 }}>새 비밀번호</div>
+                  <input type="password" placeholder="6자리 이상" value={pwNew}
+                    onChange={e => setPwNew(e.target.value)}
+                    className={styles.profileInput} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 12, color: '#636B78', marginBottom: 4 }}>비밀번호 확인</div>
+                  <input type="password" placeholder="다시 입력" value={pwConfirm}
+                    onChange={e => setPwConfirm(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && changePassword()}
+                    className={styles.profileInput} />
+                </div>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <button className={styles.btnPrimary} onClick={changePassword} disabled={pwLoading}>
+                  {pwLoading ? '변경 중...' : '비밀번호 변경'}
+                </button>
+              </div>
             </div>
           </div>
         )}
