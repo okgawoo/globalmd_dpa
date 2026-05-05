@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/router'
 import styles from '../styles/Login.module.css'
 
-type Mode = 'login' | 'register'
+type Mode = 'login' | 'register' | 'forgot'
 
 const emptyRegForm = {
   username: '', password: '', password2: '',
@@ -39,6 +39,7 @@ export default function Login() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [planOpen, setPlanOpen] = useState(false)
+  const [forgotId, setForgotId] = useState('')
 
   async function handleLogin() {
     if (!loginId || !loginPw) return setError('아이디와 비밀번호를 입력해주세요.')
@@ -112,6 +113,32 @@ export default function Login() {
     setLoading(false)
   }
 
+  async function handleForgot() {
+    if (!forgotId.trim()) return setError('아이디를 입력해주세요.')
+    setLoading(true); setError('')
+    const { data: agent } = await supabase
+      .from('dpa_agents')
+      .select('name, personal_email')
+      .eq('slug', forgotId.trim())
+      .single()
+    if (!agent) {
+      setError('해당 아이디로 가입된 계정이 없어요.')
+      setLoading(false); return
+    }
+    await fetch('/api/slack-notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'password_reset',
+        name: agent.name,
+        username: forgotId.trim(),
+        personal_email: agent.personal_email || '이메일 미등록',
+      })
+    })
+    setSuccess(`비밀번호 재설정 요청이 완료됐어요!\n관리자가 임시 비밀번호를 ${agent.personal_email ? '등록하신 이메일' : '카카오톡'}으로 발송해 드려요 😊`)
+    setLoading(false)
+  }
+
   function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
@@ -143,15 +170,25 @@ export default function Login() {
           <button className={[styles.modeTab, mode === 'login' ? styles.activeMode : ''].join(' ')} onClick={() => { setMode('login'); setError(''); setSuccess('') }}>로그인</button>
           <button className={[styles.modeTab, mode === 'register' ? styles.activeMode : ''].join(' ')} onClick={() => { setMode('register'); setError(''); setSuccess('') }}>회원가입</button>
         </div>
+        {mode === 'forgot' && (
+          <button onClick={() => { setMode('login'); setError(''); setSuccess(''); setForgotId('') }}
+            style={{ display:'flex', alignItems:'center', gap:4, background:'none', border:'none', color:'#8892A0', fontSize:13, cursor:'pointer', padding:'4px 0 0', fontFamily:'inherit' }}>
+            ← 로그인으로 돌아가기
+          </button>
+        )}
 
         {error && <div className={styles.errorMsg}>{error}</div>}
 
         {success ? (
           <div style={{textAlign:'center', padding:'32px 16px'}}>
             <div style={{fontSize:48, marginBottom:16}}>✅</div>
-            <div style={{fontSize:20, fontWeight:700, color:'#5E6AD2', marginBottom:8}}>가입 신청이 완료됐어요!</div>
-            <div style={{fontSize:14, color:'#6B7280', lineHeight:1.6}}>승인까지 잠시만 기다려주세요<br/>승인 완료 후 로그인 가능해요 😊</div>
-            <button className={styles.submitBtn} style={{marginTop:24}} onClick={() => { setSuccess(''); setMode('login'); setForm(emptyRegForm) }}>로그인 화면으로</button>
+            <div style={{fontSize:20, fontWeight:700, color:'#5E6AD2', marginBottom:8}}>
+              {mode === 'forgot' ? '요청이 완료됐어요!' : '가입 신청이 완료됐어요!'}
+            </div>
+            <div style={{fontSize:14, color:'#6B7280', lineHeight:1.7, whiteSpace:'pre-line'}}>{
+              mode === 'forgot' ? success : '승인까지 잠시만 기다려주세요\n승인 완료 후 로그인 가능해요 😊'
+            }</div>
+            <button className={styles.submitBtn} style={{marginTop:24}} onClick={() => { setSuccess(''); setMode('login'); setForm(emptyRegForm); setForgotId('') }}>로그인 화면으로</button>
           </div>
         ) : mode === 'login' ? (
           <div className={styles.form}>
@@ -167,6 +204,24 @@ export default function Login() {
             </div>
             <button className={styles.submitBtn} onClick={handleLogin} disabled={loading}>
               {loading ? '로그인 중...' : '로그인'}
+            </button>
+            <button type="button" onClick={() => { setMode('forgot'); setError(''); setSuccess('') }}
+              style={{ background:'none', border:'none', color:'#8892A0', fontSize:13, cursor:'pointer', textAlign:'center', width:'100%', marginTop:4, padding:'4px 0', fontFamily:'inherit' }}>
+              비밀번호를 잊으셨나요?
+            </button>
+          </div>
+        ) : mode === 'forgot' ? (
+          <div className={styles.form}>
+            <div style={{fontSize:14, color:'#636B78', lineHeight:1.7, marginBottom:16, padding:'12px 14px', background:'#F7F8FA', borderRadius:8, border:'1px solid #E5E7EB'}}>
+              가입 시 등록한 <strong>아이디</strong>를 입력하시면<br/>관리자가 임시 비밀번호를 이메일로 발송해 드려요.
+            </div>
+            <div className={styles.field}>
+              <label>아이디</label>
+              <input placeholder="가입 시 사용한 아이디 입력" value={forgotId} onChange={e => setForgotId(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleForgot()} autoCapitalize="none" autoFocus />
+            </div>
+            <button className={styles.submitBtn} onClick={handleForgot} disabled={loading}>
+              {loading ? '요청 중...' : '비밀번호 재설정 요청'}
             </button>
           </div>
         ) : (
@@ -296,7 +351,7 @@ export default function Login() {
           </div>
         )}
 
-        <div className={styles.footer}>made by okga · 아이플래너 DEMO</div>
+        <div className={styles.footer}>회원정보 수정은 로그인 후 설정에서 가능해요</div>
       </div>
     </div>
   )

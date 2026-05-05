@@ -6,7 +6,7 @@ const SLACK_CHANNEL_ID = 'C0ASED4L16V' // dpa-admin
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end()
 
-  const { type, name, phone, username, plan_type, message } = req.body
+  const { type, name, phone, username, plan_type, message, personal_email, agent_number, telecom } = req.body
 
   const PLAN_LABELS: Record<string, string> = {
     demo: '🆓 7일 무료 체험 (데모)',
@@ -18,6 +18,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   let text = ''
   if (type === 'signup') {
     text = `🆕 *새 회원가입 신청!*\n\n👤 이름: ${name}\n📱 연락처: ${phone}\n🆔 아이디: ${username}\n📦 선택 플랜: ${PLAN_LABELS[plan_type] || plan_type || '미선택'}\n\n> Supabase › dpa_agents 에서 *status = active* 로 변경하면 승인 완료!`
+  } else if (type === 'password_reset') {
+    text = `🔑 *비밀번호 재설정 요청!*\n\n👤 이름: ${name}\n🆔 아이디: ${username}\n📧 이메일: ${personal_email || '미등록'}\n\n> 임시 비밀번호를 위 이메일로 발송해 주세요!`
   } else {
     text = message || '알림이 도착했어요.'
   }
