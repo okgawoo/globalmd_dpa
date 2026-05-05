@@ -44,12 +44,9 @@ export default function Login() {
   async function handleLogin() {
     if (!loginId || !loginPw) return setError('아이디와 비밀번호를 입력해주세요.')
     setLoading(true); setError('')
-    // 아이디(slug)로 실제 이메일 조회
-    const { data: agentRow } = await supabase
-      .from('dpa_agents')
-      .select('email, status')
-      .eq('slug', loginId.trim())
-      .single()
+    // 아이디(slug)로 실제 이메일 조회 (SECURITY DEFINER RPC로 RLS 우회)
+    const { data: loginRows } = await supabase.rpc('get_login_info', { p_slug: loginId.trim() })
+    const agentRow = loginRows?.[0] ?? null
     if (!agentRow) { setError('아이디 또는 비밀번호가 올바르지 않아요.'); setLoading(false); return }
     if (agentRow.status === 'pending') {
       setError('관리자 승인 대기 중이에요. 승인 후 로그인 가능해요 😊')
