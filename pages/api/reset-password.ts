@@ -35,7 +35,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
     type: 'recovery',
     email: agent.email,   // 실제 auth 이메일 (신규: personal_email, 기존: @dpa.com)
-    options: { redirectTo: `${siteUrl}/reset-password` },
+    options: { redirectTo: `${siteUrl}/settings` },
   })
 
   if (linkError || !linkData?.properties?.action_link) {
