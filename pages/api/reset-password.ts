@@ -46,11 +46,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // 3. Gmail로 발송 (수신 이메일 = personal_email)
   const transporter = nodemailer.createTransport({
     service: 'gmail',
-    auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD },
+    auth: { user: process.env.IPLANNER_GMAIL_USER, pass: process.env.IPLANNER_GMAIL_APP_PASSWORD },
   })
 
   await transporter.sendMail({
-    from: `아이플래너 <${process.env.GMAIL_USER}>`,
+    from: `아이플래너 <help@iplanner.kr>`,
     to: sendTo,
     subject: '[아이플래너] 비밀번호 재설정 링크',
     html: `
