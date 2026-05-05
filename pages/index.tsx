@@ -393,7 +393,7 @@ export default function Dashboard() {
               </svg>
               <p style={{ margin: 0, fontSize: 13, color: 'white', fontWeight: 700, letterSpacing: 1 }}>DPA</p>
             </div>
-            <p className={styles.mobileGreet}>안녕하세요 👋 {agentName || ''} {agentEmail === 'admin@dpa.com' ? '대표님' : '설계사님'}</p>
+            <p className={styles.mobileGreet}>안녕하세요 👋 {agentName || ''} {isAdmin ? '대표님' : '설계사님'}</p>
           </div>
           <div className={styles.mobileDateBadge} style={{ color: 'white', textAlign: 'center', userSelect: 'none', WebkitUserSelect: 'none', pointerEvents: 'none' }}>
             <p style={{ margin: 0, fontSize: 12, opacity: 0.85 }}>{mobileDateStr}</p>
@@ -686,7 +686,7 @@ export default function Dashboard() {
           {/* (구) 녹색 DPA 데스크톱 대시보드 — 더 이상 사용하지 않음, 코드만 보존 */}
           <div className={styles.webTopBar}>
             <span className={styles.webTopGreet}>
-              안녕하세요, {agentName ? `${agentName} ` : ''}{agentRole === 'admin' ? '대표님' : '설계사님'}
+              안녕하세요, {agentName ? `${agentName} ` : ''}{isAdmin ? '대표님' : '설계사님'}
             </span>
           </div>
 
