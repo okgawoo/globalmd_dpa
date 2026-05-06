@@ -460,6 +460,8 @@ export default function InputPage() {
   function handleConfirmContract() {
     const cts = parsed?.contracts
     if (!cts || cts.length === 0) return
+    // 확인 전에 현재 편집된 고객 정보를 parsedCustomer에 반영 (수정 내용 보존)
+    setParsedCustomer(parsed)
     setConfirmedContracts(prev => [
       ...prev,
       ...cts.map((ct: any) => ({ ...ct, _originalText: currentText, _originalTextLoss: currentTextLoss }))
@@ -483,7 +485,7 @@ export default function InputPage() {
       ...(parsed?.contracts && parsed.contracts.length > 0 ? parsed.contracts : []),
     ]
     if (allContracts.length === 0) return alert('저장할 계약이 없어요!')
-    const customerData = parsedCustomer || parsed
+    const customerData = parsed || parsedCustomer
     if (!customerData && currentSaveMode === 'new') return alert('고객 정보가 없어요!')
     setSaving(true)
     try {
