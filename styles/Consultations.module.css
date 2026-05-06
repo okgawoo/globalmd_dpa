@@ -1037,3 +1037,4 @@
 :root[data-theme="dark"] .badgeBlue       { background: rgba(94,106,210,0.2) !important; color: #818CF8 !important; }
 :root[data-theme="dark"] .badgeWarn       { background: rgba(245,158,11,0.15) !important; color: #FCD34D !important; }
 :root[data-theme="dark"] .calLegendCount  { background: rgba(255,255,255,0.08) !important; color: #A0A0A0 !important; }
+:root[data-theme="dark"] .vipBadge { background: rgba(239,159,39,0.15) !important; color: #F5B84C !important; }

@@ -1011,7 +1011,7 @@ export default function Consultations() {
                           </span>
                           <span className={styles.coverageCustName} style={{ marginBottom: 0 }}>{selectedCust.name}</span>
                           {selectedCust.grade === 'VIP' && (
-                            <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: 'hsl(45 90% 92%)', color: 'hsl(45 70% 30%)' }}>VIP</span>
+                            <span className={styles.vipBadge} style={{ fontSize: 11, fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: 'hsl(45 90% 92%)', color: 'hsl(45 70% 30%)' }}>VIP</span>
                           )}
                         </div>
                         <div className={styles.coverageCustMeta}>
