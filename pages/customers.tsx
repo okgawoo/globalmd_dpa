@@ -460,6 +460,10 @@ export default function Customers() {
             .limit(10000)
         )
       )
+      chunkResults.forEach((r, i) => {
+        if (r.error) console.error(`[coverages chunk ${i}] error:`, r.error)
+        else console.log(`[coverages chunk ${i}] loaded ${r.data?.length ?? 0}건`)
+      })
       covs = chunkResults.flatMap(r => r.data || [])
     }
 
