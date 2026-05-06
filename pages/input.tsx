@@ -535,8 +535,9 @@ export default function InputPage() {
             amount: parseInt(String(cv.amount || cv.insurance_amount || '0').replace(/[^0-9]/g, '')) || 0,
             status: '정상',
           }))
-          const { error: cvErr } = await supabase.from('dpa_coverages').insert(coverageRows)
+          const { data: savedCvs, error: cvErr } = await supabase.from('dpa_coverages').insert(coverageRows).select()
           if (cvErr) throw new Error(`보장내역 저장 실패: ${cvErr.message}`)
+          if (!savedCvs || savedCvs.length === 0) throw new Error(`보장내역이 저장되지 않았어요 (RLS 정책 확인 필요)`)
         }
         // 증권번호 패턴 로그 (보험사 판별 학습용) — 실패해도 저장 흐름 유지
         if (ct.policy_number && ct.company) {
