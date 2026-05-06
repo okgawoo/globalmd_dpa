@@ -23,6 +23,18 @@ interface Props {
 
 let cachedCompanies: Company[] | null = null
 
+function useDark() {
+  const [dark, setDark] = useState(false)
+  useEffect(() => {
+    const check = () => setDark(document.documentElement.getAttribute('data-theme') === 'dark')
+    check()
+    const observer = new MutationObserver(check)
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
+    return () => observer.disconnect()
+  }, [])
+  return dark
+}
+
 function SearchableSelect({ label, options, value, onChange }: {
   label: string
   options: string[]
@@ -32,6 +44,7 @@ function SearchableSelect({ label, options, value, onChange }: {
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+  const dark = useDark()
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -57,9 +70,9 @@ function SearchableSelect({ label, options, value, onChange }: {
           fontSize: 13,
           padding: '6px 10px',
           borderRadius: 6,
-          border: `1px solid ${open ? '#5E6AD2' : '#E5E7EB'}`,
-          background: '#F7F8FA',
-          color: value ? '#1A1A2E' : '#9CA3AF',
+          border: `1px solid ${open ? '#5E6AD2' : dark ? 'rgba(255,255,255,0.12)' : '#E5E7EB'}`,
+          background: dark ? '#2a2a2a' : '#F7F8FA',
+          color: value ? (dark ? '#E0E0E0' : '#1A1A2E') : '#9CA3AF',
           fontFamily: 'inherit',
           cursor: 'pointer',
           display: 'flex',
@@ -80,15 +93,15 @@ function SearchableSelect({ label, options, value, onChange }: {
           left: 0,
           right: 0,
           zIndex: 999,
-          background: '#fff',
-          border: '1px solid #E5E7EB',
+          background: dark ? '#2a2a2a' : '#fff',
+          border: `1px solid ${dark ? 'rgba(255,255,255,0.12)' : '#E5E7EB'}`,
           borderRadius: 6,
-          boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+          boxShadow: dark ? '0 4px 12px rgba(0,0,0,0.4)' : '0 4px 12px rgba(0,0,0,0.12)',
           maxHeight: 220,
           display: 'flex',
           flexDirection: 'column',
         }}>
-          <div style={{ padding: '6px 8px', borderBottom: '1px solid #F3F4F6' }}>
+          <div style={{ padding: '6px 8px', borderBottom: `1px solid ${dark ? 'rgba(255,255,255,0.08)' : '#F3F4F6'}` }}>
             <input
               autoFocus
               value={query}
@@ -98,10 +111,12 @@ function SearchableSelect({ label, options, value, onChange }: {
                 width: '100%',
                 fontSize: 12,
                 padding: '4px 8px',
-                border: '1px solid #E5E7EB',
+                border: `1px solid ${dark ? 'rgba(255,255,255,0.12)' : '#E5E7EB'}`,
                 borderRadius: 4,
                 outline: 'none',
                 boxSizing: 'border-box',
+                background: dark ? '#222' : '#fff',
+                color: dark ? '#E0E0E0' : '#1A1A2E',
               }}
               onClick={e => e.stopPropagation()}
             />
@@ -127,11 +142,11 @@ function SearchableSelect({ label, options, value, onChange }: {
                     padding: '7px 12px',
                     fontSize: 13,
                     cursor: 'pointer',
-                    background: value === name ? '#EEF0FD' : 'transparent',
-                    color: value === name ? '#5E6AD2' : '#1A1A2E',
+                    background: value === name ? (dark ? 'rgba(94,106,210,0.25)' : '#EEF0FD') : 'transparent',
+                    color: value === name ? '#5E6AD2' : (dark ? '#E0E0E0' : '#1A1A2E'),
                     fontWeight: value === name ? 600 : 400,
                   }}
-                  onMouseEnter={e => { if (value !== name) (e.target as HTMLDivElement).style.background = '#F7F8FA' }}
+                  onMouseEnter={e => { if (value !== name) (e.target as HTMLDivElement).style.background = dark ? 'rgba(255,255,255,0.06)' : '#F7F8FA' }}
                   onMouseLeave={e => { if (value !== name) (e.target as HTMLDivElement).style.background = 'transparent' }}
                 >
                   {name}
