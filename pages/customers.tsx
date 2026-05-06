@@ -449,16 +449,18 @@ export default function Customers() {
       for (let i = 0; i < contractIds.length; i += CHUNK_SIZE) {
         chunks.push(contractIds.slice(i, i + CHUNK_SIZE))
       }
+      console.log('[fetchAll] 총 contractIds:', contractIds.length, '/ 이름미상 20171afc 포함?', contractIds.includes('20171afc-fe2e-42ac-af42-c477106ba88c'))
       const chunkResults = await Promise.all(
-        chunks.map(chunk =>
-          supabase
+        chunks.map((chunk, i) => {
+          console.log(`[chunk ${i}] size:${chunk.length} / 20171afc포함?`, chunk.includes('20171afc-fe2e-42ac-af42-c477106ba88c'))
+          return supabase
             .from('dpa_coverages')
             .select('*')
             .in('contract_id', chunk)
             .order('section', { ascending: true })
             .order('sort_order', { ascending: true })
             .limit(10000)
-        )
+        })
       )
       chunkResults.forEach((r, i) => {
         if (r.error) console.error(`[coverages chunk ${i}] error:`, r.error)
