@@ -160,7 +160,7 @@ JSON 외 다른 텍스트는 절대 포함하지 마세요.
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 16000,
+        max_tokens: 32000,
         system: systemPrompt,
         messages: [{ role: 'user', content: text }],
       }),
