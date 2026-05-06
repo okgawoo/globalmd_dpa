@@ -1042,8 +1042,8 @@ JSON만 출력하세요.`
                   disabled={promoAnalyzing || (!promoForm.details.trim() && !promoForm.product_name.trim())}
                   style={{
                     width:'100%', padding:'10px',
-                    background: promoAnalyzing || (!promoForm.details.trim() && !promoForm.product_name.trim()) ? '#F3F4F6' : 'linear-gradient(135deg, #E24B4A, #C83737)',
-                    color: promoAnalyzing || (!promoForm.details.trim() && !promoForm.product_name.trim()) ? '#8892A0' : '#fff',
+                    background: promoAnalyzing || (!promoForm.details.trim() && !promoForm.product_name.trim()) ? (dark ? 'rgba(255,255,255,0.08)' : '#F3F4F6') : 'linear-gradient(135deg, #E24B4A, #C83737)',
+                    color: promoAnalyzing || (!promoForm.details.trim() && !promoForm.product_name.trim()) ? (dark ? 'rgba(255,255,255,0.25)' : '#8892A0') : '#fff',
                     border:'none', borderRadius:8, fontSize:13, fontWeight:600,
                     cursor: promoAnalyzing ? 'wait' : 'pointer',
                     fontFamily:'inherit',
@@ -1054,7 +1054,7 @@ JSON만 출력하세요.`
 
               {/* AI 분석 결과 */}
               {promoAnalysis && (
-                <div style={{ background:'#FFF7F7', border:'1px solid rgba(226,75,74,0.2)', borderRadius:10, padding:'14px 16px' }}>
+                <div style={{ background: dark ? 'rgba(226,75,74,0.1)' : '#FFF7F7', border:'1px solid rgba(226,75,74,0.2)', borderRadius:10, padding:'14px 16px' }}>
                   <div style={{ fontSize:12, fontWeight:600, color:'#E24B4A', marginBottom:6 }}>AI 분석</div>
                   <div style={{ fontSize:13, color:'#636B78', lineHeight:1.7 }}>{promoAnalysis}</div>
                 </div>
@@ -1113,7 +1113,7 @@ JSON만 출력하세요.`
                     </div>
                   </div>
 
-                  <div style={{ background:'#F0F0FD', border:'1px solid rgba(94,106,210,0.2)', borderRadius:8, padding:'10px 14px' }}>
+                  <div style={{ background: dark ? 'rgba(94,106,210,0.12)' : '#F0F0FD', border:'1px solid rgba(94,106,210,0.2)', borderRadius:8, padding:'10px 14px' }}>
                     <div style={{ fontSize:13, color:'#5E6AD2', fontWeight:600 }}>
                       매칭 고객 <span style={{ fontSize:18 }}>{promoMatched.length}</span>명
                       <span style={{ fontSize:11, color:'#8892A0', fontWeight:400, marginLeft:8 }}>
