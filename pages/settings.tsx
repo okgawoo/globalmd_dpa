@@ -468,7 +468,7 @@ export default function SettingsPage() {
             </div>
 
             {/* 비밀번호 변경 */}
-            <div style={{ marginTop: 28, borderTop: '1px solid #E5E7EB', paddingTop: 24 }}>
+            <div style={{ marginTop: 28, borderTop: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid #E5E7EB', paddingTop: 24 }}>
               <div style={{ fontWeight: 700, fontSize: 14, color: '#1A1A2E', marginBottom: 4 }}>비밀번호 변경</div>
               <div style={{ fontSize: 13, color: '#8892A0', marginBottom: 16 }}>새로 사용할 비밀번호를 입력해주세요.</div>
               {pwError && <div style={{ background: '#FEE2E2', color: '#B91C1C', fontSize: 13, padding: '10px 14px', borderRadius: 8, marginBottom: 12 }}>{pwError}</div>}
