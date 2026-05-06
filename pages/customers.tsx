@@ -502,7 +502,8 @@ export default function Customers() {
     setSelectedContracts(cContracts)
     const ids = cContracts.map((ct: any) => ct.id)
     const filteredCovs = covs.filter((cv: any) => ids.includes(cv.contract_id))
-    console.log(`[selectCustomer] 고객: ${c.name} / 계약 ${ids.length}건 / covs전체 ${covs.length}건 / 필터결과 ${filteredCovs.length}건`, ids.slice(0,2))
+    console.log(`[selectCustomer] ids[0]:`, JSON.stringify(ids[0]), `/ covs[0].contract_id:`, JSON.stringify(covs[0]?.contract_id))
+    console.log(`[selectCustomer] 고객: ${c.name} / 계약 ${ids.length}건 / covs전체 ${covs.length}건 / 필터결과 ${filteredCovs.length}건`)
     setSelectedCoverages(filteredCovs)
     if (window.innerWidth <= 768) setSlideOpen(true)
   }
