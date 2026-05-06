@@ -216,8 +216,21 @@ const STATUS_COLOR: Record<string, string> = {
 }
 
 // ── 메인 컴포넌트 ────────────────────────────────
+function useDark() {
+  const [dark, setDark] = useState(false)
+  useEffect(() => {
+    const check = () => setDark(document.documentElement.getAttribute('data-theme') === 'dark')
+    check()
+    const observer = new MutationObserver(check)
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
+    return () => observer.disconnect()
+  }, [])
+  return dark
+}
+
 export default function CampaignPage() {
   const router = useRouter()
+  const dark = useDark()
   const [agentId, setAgentId] = useState<string | null>(null)
   const [planType, setPlanType] = useState<string>('')
   const [loading, setLoading] = useState(true)
@@ -786,7 +799,7 @@ JSON만 출력하세요.`
 
               {/* 매칭 결과 — 하단 고정 */}
               <div style={{ paddingTop:20 }}>
-              <div style={{ background:'#F0F0FD', border:'1px solid rgba(94,106,210,0.2)', borderRadius:8, padding:'12px 14px' }}>
+              <div style={{ background: dark ? 'rgba(94,106,210,0.12)' : '#F0F0FD', border:'1px solid rgba(94,106,210,0.2)', borderRadius:8, padding:'12px 14px' }}>
                 <div style={{ fontSize:13, color:'#5E6AD2', fontWeight:600, marginBottom:4 }}>
                   매칭 고객 <span style={{ fontSize:20 }}>{matched.length}</span>명
                 </div>
@@ -864,8 +877,8 @@ JSON만 출력하세요.`
                 disabled={aiLoading || matched.length === 0}
                 style={{
                   width:'100%', padding:'9px', marginBottom:10,
-                  background: aiLoading || matched.length === 0 ? '#F3F4F6' : 'linear-gradient(135deg, #5E6AD2, #5855C8)',
-                  color: aiLoading || matched.length === 0 ? '#8892A0' : '#fff',
+                  background: aiLoading || matched.length === 0 ? (dark ? 'rgba(255,255,255,0.08)' : '#F3F4F6') : 'linear-gradient(135deg, #5E6AD2, #5855C8)',
+                  color: aiLoading || matched.length === 0 ? (dark ? 'rgba(255,255,255,0.25)' : '#8892A0') : '#fff',
                   border:'none', borderRadius:8, fontSize:13, fontWeight:600,
                   cursor: aiLoading || matched.length === 0 ? 'not-allowed' : 'pointer',
                   fontFamily:'inherit',
