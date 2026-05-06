@@ -444,27 +444,25 @@ export default function Customers() {
     let covs: any[] = []
     if (conts.length > 0) {
       const contractIds = conts.map((c: any) => c.id)
-      const CHUNK_SIZE = 100 // URL 길이 제한 대비 분할
+      const CHUNK_SIZE = 20 // Supabase max_rows=1000 한계 대비 분할 (100→20)
       const chunks: string[][] = []
       for (let i = 0; i < contractIds.length; i += CHUNK_SIZE) {
         chunks.push(contractIds.slice(i, i + CHUNK_SIZE))
       }
-      console.log('[fetchAll] 총 contractIds:', contractIds.length, '/ 이름미상 20171afc 포함?', contractIds.includes('20171afc-fe2e-42ac-af42-c477106ba88c'))
       const chunkResults = await Promise.all(
-        chunks.map((chunk, i) => {
-          console.log(`[chunk ${i}] size:${chunk.length} / 20171afc포함?`, chunk.includes('20171afc-fe2e-42ac-af42-c477106ba88c'))
-          return supabase
+        chunks.map(chunk =>
+          supabase
             .from('dpa_coverages')
             .select('*')
             .in('contract_id', chunk)
             .order('section', { ascending: true })
             .order('sort_order', { ascending: true })
-            .limit(10000)
-        })
+            .limit(1000)
+        )
       )
       chunkResults.forEach((r, i) => {
         if (r.error) console.error(`[coverages chunk ${i}] error:`, r.error)
-        else console.log(`[coverages chunk ${i}] loaded ${r.data?.length ?? 0}건`)
+        if (r.data?.length === 1000) console.warn(`[coverages chunk ${i}] ⚠️ 1000건 한계 도달 — chunk 분할 필요`)
       })
       covs = chunkResults.flatMap(r => r.data || [])
     }
@@ -504,8 +502,6 @@ export default function Customers() {
     setSelectedContracts(cContracts)
     const ids = cContracts.map((ct: any) => ct.id)
     const filteredCovs = covs.filter((cv: any) => ids.includes(cv.contract_id))
-    console.log(`[selectCustomer] ids[0]:`, JSON.stringify(ids[0]), `/ covs[0].contract_id:`, JSON.stringify(covs[0]?.contract_id))
-    console.log(`[selectCustomer] 고객: ${c.name} / 계약 ${ids.length}건 / covs전체 ${covs.length}건 / 필터결과 ${filteredCovs.length}건`)
     setSelectedCoverages(filteredCovs)
     if (window.innerWidth <= 768) setSlideOpen(true)
   }
