@@ -813,6 +813,7 @@
 :root[data-theme="dark"] .composeCloseBtn:hover { background: #333333 !important; color: #E8E8E8 !important; }
 :root[data-theme="dark"] .composeTextarea { background: #333333 !important; border-color: rgba(255,255,255,0.12) !important; color: #E8E8E8 !important; }
 :root[data-theme="dark"] .toneBtn { background: #333333 !important; border-color: rgba(255,255,255,0.12) !important; color: #C8C8C8 !important; }
+:root[data-theme="dark"] .toneBtn.toneBtnActive { background: #5E6AD2 !important; border-color: #5E6AD2 !important; color: #ffffff !important; }
 :root[data-theme="dark"] .emojiBar { background: #2A2A2A !important; border-color: rgba(255,255,255,0.10) !important; }
 :root[data-theme="dark"] .emojiLabel { color: #A0A0A0 !important; }
 :root[data-theme="dark"] .charCount { color: #A0A0A0 !important; }
