@@ -409,7 +409,7 @@ export default function InputPage() {
         }
       }
       setDone(true)
-    } catch (e) { alert('저장 중 오류가 발생했어요!') }
+    } catch (e: any) { alert('저장 중 오류가 발생했어요!\n\n' + (e?.message || String(e))) }
     setSaving(false)
   }
 
@@ -527,13 +527,16 @@ export default function InputPage() {
           input_method: 'paste',
         }).select().single()
         if (ctErr) throw new Error(`계약 저장 실패: ${ctErr.message}`)
-        if (contract && ct.coverages) {
-          for (const cv of ct.coverages) {
-            await supabase.from('dpa_coverages').insert({
-              contract_id: contract.id, category: cv.category || '',
-              coverage_name: cv.name || '', amount: parseInt(String(cv.amount || '').replace(/,/g, '')) || 0, status: '정상',
-            })
-          }
+        if (contract && ct.coverages && ct.coverages.length > 0) {
+          const coverageRows = ct.coverages.map((cv: any) => ({
+            contract_id: contract.id,
+            category: cv.category || '기타',
+            coverage_name: cv.name || cv.coverage_name || '미상',
+            amount: parseInt(String(cv.amount || cv.insurance_amount || '0').replace(/[^0-9]/g, '')) || 0,
+            status: '정상',
+          }))
+          const { error: cvErr } = await supabase.from('dpa_coverages').insert(coverageRows)
+          if (cvErr) throw new Error(`보장내역 저장 실패: ${cvErr.message}`)
         }
         // 증권번호 패턴 로그 (보험사 판별 학습용) — 실패해도 저장 흐름 유지
         if (ct.policy_number && ct.company) {
@@ -556,7 +559,7 @@ export default function InputPage() {
         }
       }
       setDone(true)
-    } catch (e) { alert('저장 중 오류가 발생했어요!') }
+    } catch (e: any) { alert('저장 중 오류가 발생했어요!\n\n' + (e?.message || String(e))) }
     setSaving(false)
   }
 
