@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import { useConfirm } from '../lib/useConfirm'
 import styles from '../styles/Customers.module.css'
 import { Users, User, UserPlus, Search } from 'lucide-react'
+import { encryptResident, decryptResident, maskResident, isEncrypted } from '../lib/crypto'
 
 type Tab = 'existing' | 'prospect'
 const AGE_FILTERS = ['연령대전체', '유아(0-7)', '10대', '20대', '30대', '40대', '50대', '60대+']
@@ -183,6 +184,7 @@ export default function Customers() {
   const [searchQuery, setSearchQuery] = useState('')
   const [editMode, setEditMode] = useState(false)
   const [editForm, setEditForm] = useState<any>({})
+  const [showResident, setShowResident] = useState(false)
   const [editContractId, setEditContractId] = useState<string | null>(null)
   const [editContractForm, setEditContractForm] = useState<any>({})
   const [addMode, setAddMode] = useState(false)
@@ -527,7 +529,13 @@ export default function Customers() {
   }
 
   async function saveCustomerEdit() {
-    await supabase.from('dpa_customers').update(editForm).eq('id', selected.id)
+    const updateData = {
+      ...editForm,
+      resident_number: editForm.resident_number
+        ? encryptResident(editForm.resident_number)
+        : null,
+    }
+    await supabase.from('dpa_customers').update(updateData).eq('id', selected.id)
     setEditMode(false)
     await fetchAll()  // await → selectedRef 갱신으로 selectedContracts 즉시 반영
   }
@@ -1149,7 +1157,7 @@ export default function Customers() {
                   {!editMode && (
                     <div className={styles.detailHeaderRow3} style={{ marginLeft: 'auto' }}>
                       <button className={styles.smsBtn} onClick={() => { setSmsCustomer(selected); setSmsOpen(true) }}>문자</button>
-                      <button className={styles.editBtn} onClick={() => { setEditMode(true); setEditForm(selected) }}>수정</button>
+                      <button className={styles.editBtn} onClick={() => { setEditMode(true); setEditForm({ ...selected, resident_number: selected.resident_number ? decryptResident(selected.resident_number) : '' }) }}>수정</button>
                       <button className={styles.deleteBtn} onClick={() => deleteCustomer(selected)}>삭제</button>
                     </div>
                   )}
@@ -1215,6 +1223,22 @@ export default function Customers() {
                       : <span className={styles.detailInfoEmpty}>-</span>}
                   </span>
                 </div>
+                {selected.resident_number && (
+                  <div style={{gridColumn:'1/-1',padding:'10px 14px',borderBottom:'1px solid #E5E7EB',display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>
+                    <div>
+                      <span style={{fontSize:11,color:'#8892A0',display:'block',marginBottom:3}}>주민등록번호</span>
+                      <span style={{fontSize:14,color:'#1A1A2E',fontWeight:500,letterSpacing:'0.05em'}}>
+                        {showResident ? decryptResident(selected.resident_number) : maskResident(decryptResident(selected.resident_number))}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => { setShowResident(v => !v); if (!showResident) setTimeout(() => setShowResident(false), 5000) }}
+                      style={{fontSize:11,padding:'4px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#F7F8FA',color:'#636B78',cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}
+                    >
+                      {showResident ? '숨기기' : '확인'}
+                    </button>
+                  </div>
+                )}
                 <div className={[styles.detailInfoCell, styles.detailInfoCellL].join(' ')}>
                   <span className={styles.detailInfoLabel}>성별</span>
                   <span className={styles.detailInfoValue}>{selected.gender || <span className={styles.detailInfoEmpty}>-</span>}</span>
@@ -1761,7 +1785,7 @@ export default function Customers() {
                       {!editMode && (
                         <>
                           <button className={styles.smsBtn} onClick={() => { setSmsCustomer(selected); setSmsOpen(true) }}>문자</button>
-                          <button className={styles.editBtn} onClick={() => { setEditMode(true); setEditForm(selected) }}>수정</button>
+                          <button className={styles.editBtn} onClick={() => { setEditMode(true); setEditForm({ ...selected, resident_number: selected.resident_number ? decryptResident(selected.resident_number) : '' }) }}>수정</button>
                           <button className={styles.deleteBtn} onClick={() => deleteCustomer(selected)}>삭제</button>
                         </>
                       )}
@@ -1831,6 +1855,22 @@ export default function Customers() {
                         : <span className={styles.detailInfoEmpty}>-</span>}
                     </span>
                   </div>
+                  {selected.resident_number && (
+                    <div style={{gridColumn:'1/-1',padding:'10px 14px',borderBottom:'1px solid #E5E7EB',display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>
+                      <div>
+                        <span style={{fontSize:11,color:'#8892A0',display:'block',marginBottom:3}}>주민등록번호</span>
+                        <span style={{fontSize:14,color:'#1A1A2E',fontWeight:500,letterSpacing:'0.05em'}}>
+                          {showResident ? decryptResident(selected.resident_number) : maskResident(decryptResident(selected.resident_number))}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => { setShowResident(v => !v); if (!showResident) setTimeout(() => setShowResident(false), 5000) }}
+                        style={{fontSize:11,padding:'4px 10px',borderRadius:6,border:'1px solid #E5E7EB',background:'#F7F8FA',color:'#636B78',cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}
+                      >
+                        {showResident ? '숨기기' : '확인'}
+                      </button>
+                    </div>
+                  )}
                   <div className={[styles.detailInfoCell, styles.detailInfoCellL].join(' ')}>
                     <span className={styles.detailInfoLabel}>성별</span>
                     <span className={styles.detailInfoValue}>{selected.gender || <span className={styles.detailInfoEmpty}>-</span>}</span>

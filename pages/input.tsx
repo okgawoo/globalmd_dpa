@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import styles from '../styles/Input.module.css'
 import InsuranceCompanySelect from '../components/InsuranceCompanySelect'
 import { ClipboardList, Camera, PenLine, FileUp } from 'lucide-react'
+import { encryptResident } from '../lib/crypto'
 
 function ScanCardTab({ onComplete }: { onComplete: () => void }) {
   const [scanning, setScanning] = useState(false)
@@ -510,7 +511,7 @@ export default function InputPage() {
           job: customerData.job || null, workplace: customerData.workplace || null,
           bank_name: customerData.bank_name || null, bank_account: customerData.bank_account || null,
           driver_license: customerData.driver_license || null,
-          resident_number: customerData.rrn || null,
+          resident_number: customerData.rrn ? encryptResident(customerData.rrn) : null,
           birth_date: birthDate, customer_type: 'existing', agent_id: agentId,
         }).select().single()
         if (custErr || !cust) throw new Error(`고객 저장 실패: ${custErr?.message || '알 수 없는 오류'}`)
