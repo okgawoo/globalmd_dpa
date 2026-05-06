@@ -503,7 +503,7 @@ export default function InputPage() {
         customerId = currentCustomerId
       } else {
         const birthDate = getBirthDateFromRRN(customerData.rrn || '')
-        const { data: cust } = await supabase.from('dpa_customers').insert({
+        const { data: cust, error: custErr } = await supabase.from('dpa_customers').insert({
           name: customerData.name || '이름미상', age: customerData.age || null,
           gender: customerData.gender || '미상', grade: '일반',
           phone: customerData.phone || null, address: customerData.address || null,
@@ -513,11 +513,11 @@ export default function InputPage() {
           resident_number: customerData.rrn || null,
           birth_date: birthDate, customer_type: 'existing', agent_id: agentId,
         }).select().single()
-        if (!cust) throw new Error('고객 저장 실패')
+        if (custErr || !cust) throw new Error(`고객 저장 실패: ${custErr?.message || '알 수 없는 오류'}`)
         customerId = cust.id
       }
       for (const ct of allContracts) {
-        const { data: contract } = await supabase.from('dpa_contracts').insert({
+        const { data: contract, error: ctErr } = await supabase.from('dpa_contracts').insert({
           customer_id: customerId, agent_id: agentId,
           company: ct.company || '', product_name: ct.product_name || '',
           monthly_fee: parseInt(String(ct.monthly_fee || '').replace(/,/g, '')) || 0,
@@ -526,6 +526,7 @@ export default function InputPage() {
           payment_years: ct.payment_years || '', expiry_age: ct.expiry_age || '',
           input_method: 'paste',
         }).select().single()
+        if (ctErr) throw new Error(`계약 저장 실패: ${ctErr.message}`)
         if (contract && ct.coverages) {
           for (const cv of ct.coverages) {
             await supabase.from('dpa_coverages').insert({
