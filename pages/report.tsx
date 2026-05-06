@@ -618,11 +618,10 @@ function EditorBlock({ block, agent, customer, localStats, customerContracts, lo
           )}
           <button
             onClick={() => setConfirmed(v => !v)}
+            className={confirmed ? styles.confirmBtn : styles.confirmBtnActive}
             style={{
               fontSize: 12,
               fontWeight: 600,
-              color: confirmed ? '#636B78' : '#5E6AD2',
-              background: confirmed ? '#F3F4F6' : '#EEF0FB',
               border: 'none',
               borderRadius: 6,
               padding: '4px 10px',
@@ -687,11 +686,11 @@ function BlockContent({ id, agent, customer, localStats, customerContracts, loca
           {/* 좌: 고객 정보 */}
           <div style={{ flex: 1, textAlign: 'left', paddingLeft: 12 }}>
             {/* 이름 */}
-            <div style={{ fontSize: 26, fontWeight: 700, color: customer ? '#1A1A2E' : gc, marginBottom: 6 }}>
+            <div style={{ fontSize: 22, fontWeight: 700, color: customer ? '#1A1A2E' : gc, marginBottom: 5 }}>
               {customer ? `${customer.name} 고객님` : '홍길동 고객님'}
             </div>
             {/* 나이·성별·직업 */}
-            <div style={{ fontSize: 15, color: customer ? '#636B78' : gc, marginBottom: 20 }}>
+            <div style={{ fontSize: 13, color: customer ? '#636B78' : gc, marginBottom: 18 }}>
               {customer
                 ? [customer.age && `${customer.age}세`, customer.gender, customer.job].filter(Boolean).join(' · ')
                 : '만 00세 · 남성 · 직장인'}
@@ -699,13 +698,13 @@ function BlockContent({ id, agent, customer, localStats, customerContracts, loca
             {/* 통계 */}
             <div style={{ display: 'flex', gap: 32 }}>
               <div>
-                <div style={{ fontSize: 22, fontWeight: 700, color: customer ? '#5E6AD2' : gc }}>
+                <div style={{ fontSize: 18, fontWeight: 700, color: customer ? '#5E6AD2' : gc }}>
                   {customer ? `${localStats?.contractCount ?? 0}건` : '0건'}
                 </div>
                 <div style={{ fontSize: 12, color: '#8892A0', marginTop: 2 }}>유지계약</div>
               </div>
               <div>
-                <div style={{ fontSize: 22, fontWeight: 700, color: customer ? '#5E6AD2' : gc }}>
+                <div style={{ fontSize: 18, fontWeight: 700, color: customer ? '#5E6AD2' : gc }}>
                   {customer ? `${(localStats?.monthlyTotal ?? 0).toLocaleString()}원` : '000,000원'}
                 </div>
                 <div style={{ fontSize: 12, color: '#8892A0', marginTop: 2 }}>월보험료</div>

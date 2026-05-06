@@ -830,3 +830,13 @@
 
 /* 다크모드 profileBlock (고객 상세 외부 카드) */
 :root[data-theme="dark"] .profileBlock { background: transparent !important; border-color: rgba(255,255,255,0.07) !important; }
+
+/* 다크모드 뱃지 */
+:root[data-theme="dark"] .insTypeBadge { background: rgba(94,106,210,0.2) !important; color: #818CF8 !important; border-color: rgba(94,106,210,0.3) !important; }
+:root[data-theme="dark"] .badgeBlue { background: rgba(55,138,221,0.15) !important; color: #7BB8F5 !important; border-color: rgba(55,138,221,0.25) !important; }
+:root[data-theme="dark"] .badgeGreen { background: rgba(29,158,117,0.15) !important; color: #4ECCA3 !important; border-color: rgba(29,158,117,0.25) !important; }
+:root[data-theme="dark"] .badgeWarn { background: rgba(239,159,39,0.15) !important; color: #F5B84C !important; border-color: rgba(239,159,39,0.25) !important; }
+
+/* 다크모드 재입력 버튼 */
+:root[data-theme="dark"] .reentryBtn { background: transparent !important; border-color: #818CF8 !important; color: #818CF8 !important; }
+:root[data-theme="dark"] .reentryBtnSm { background: transparent !important; border-color: rgba(255,255,255,0.15) !important; color: rgba(255,255,255,0.4) !important; }

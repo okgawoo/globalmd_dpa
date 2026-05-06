@@ -1242,7 +1242,7 @@ export default function Customers() {
               </div>{/* /profileBlock */}
               <div className={styles.section}>
                 보험 계약 현황
-                <button onClick={() => { setReentryOpen(true); setReentryParsed(null); setReentryTextFixed(''); setReentryTextLoss(''); setReentryReplaceId(null); setReentryAddMode(false) }} style={{marginLeft:'auto',fontSize:12,padding:'4px 12px',borderRadius:6,border:'1.5px solid #5E6AD2',background:'white',color:'#5E6AD2',cursor:'pointer',fontWeight:600,letterSpacing:0,textTransform:'none'}}>재입력</button>
+                <button onClick={() => { setReentryOpen(true); setReentryParsed(null); setReentryTextFixed(''); setReentryTextLoss(''); setReentryReplaceId(null); setReentryAddMode(false) }} className={styles.reentryBtn} style={{marginLeft:'auto',fontSize:12,padding:'4px 12px',borderRadius:6,border:'1.5px solid #5E6AD2',background:'white',color:'#5E6AD2',cursor:'pointer',fontWeight:600,letterSpacing:0,textTransform:'none'}}>재입력</button>
               </div>
               {selectedContracts.map((ct, idx) => {
                 const cvs = selectedCoverages.filter(cv => cv.contract_id === ct.id)
@@ -1858,7 +1858,7 @@ export default function Customers() {
 
                 <div className={styles.section} style={{justifyContent:'space-between'}}>
                   <span>보험 계약 현황</span>
-                  <button onClick={() => { setReentryOpen(true); setReentryParsed(null); setReentryTextFixed(''); setReentryTextLoss(''); setReentryReplaceId(null); setReentryAddMode(false) }} style={{fontSize:11,padding:'3px 10px',borderRadius:5,border:'1px solid #E5E7EB',background:'white',color:'#636B78',cursor:'pointer',fontWeight:500,letterSpacing:0,textTransform:'none'}}>재입력</button>
+                  <button onClick={() => { setReentryOpen(true); setReentryParsed(null); setReentryTextFixed(''); setReentryTextLoss(''); setReentryReplaceId(null); setReentryAddMode(false) }} className={styles.reentryBtnSm} style={{fontSize:11,padding:'3px 10px',borderRadius:5,border:'1px solid #E5E7EB',background:'white',color:'#636B78',cursor:'pointer',fontWeight:500,letterSpacing:0,textTransform:'none'}}>재입력</button>
                 </div>
                 {selectedContracts.map((ct, idx) => {
                   const groups = getCoveragesByContract(ct.id)

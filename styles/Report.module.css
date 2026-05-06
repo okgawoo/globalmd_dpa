@@ -369,6 +369,15 @@
   flex-shrink: 0;
 }
 
+.confirmBtn {
+  color: #636B78;
+  background: #F3F4F6;
+}
+.confirmBtnActive {
+  color: #5E6AD2;
+  background: #EEF0FB;
+}
+
 /* 사이드 액션 버튼 */
 .sideActions {
   padding: 14px 16px;
@@ -884,6 +893,9 @@
 :root[data-theme="dark"] .agentOnlyLine  { background: rgba(255,255,255,0.08) !important; }
 :root[data-theme="dark"] .agentOnlyLabel { color: #777 !important; }
 :root[data-theme="dark"] .savedAt { color: #818CF8 !important; }
+:root[data-theme="dark"] .aiTag { background: rgba(94,106,210,0.2) !important; color: #818CF8 !important; }
+:root[data-theme="dark"] .confirmBtn { background: rgba(255,255,255,0.08) !important; color: #A0A0A0 !important; }
+:root[data-theme="dark"] .confirmBtnActive { background: rgba(94,106,210,0.15) !important; color: #818CF8 !important; }
 
 /* 검색 & 드롭다운 */
 :root[data-theme="dark"] .searchInput { background: #1A1A1A !important; border-color: rgba(255,255,255,0.08) !important; color: #E8E8E8 !important; }
